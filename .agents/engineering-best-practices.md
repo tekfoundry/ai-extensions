@@ -1,0 +1,139 @@
+# Agent Engineering Best Practices
+
+## Purpose
+Define reusable coding and design practices for AI-agent work in product
+repositories.
+
+This document guides day-to-day implementation and code review decisions. Use
+repo-specific entrypoints, design docs, and active plans for product-specific
+architecture, commands, and safety boundaries.
+
+## Core Principles
+
+### 1. Maintainability First
+- Prefer code that is easy to read, test, and change over clever implementations.
+- Optimize for long-term ownership, not just short-term speed.
+- Keep behavior explicit and avoid hidden side effects.
+
+### 2. Clear Ownership Boundaries
+- Keep presentation concerns separate from runtime, transport, persistence, and
+  infrastructure concerns.
+- Keep bridge or adapter layers focused on narrow typed contracts.
+- Keep dispatch, routing, and registration thin; move behavior into focused
+  services or domain modules.
+- Keep shared contracts and shared helpers in shared packages only when the
+  ownership is real.
+
+### 3. SOLID-Oriented Design
+- `S`: one module or service should have one reason to change.
+- `O`: add behavior through extension or composition where practical.
+- `L`: interfaces should behave consistently across implementations.
+- `I`: prefer small focused interfaces over broad multi-purpose ones.
+- `D`: depend on abstractions and contracts, not UI components reaching into runtime specifics.
+
+### 4. YAGNI
+- Do not build speculative abstractions before there is a concrete need.
+- Use the simplest structure that supports the current product behavior.
+- Reserve future application or package boundaries without filling them
+  prematurely.
+
+### 5. DRY
+- Centralize shared business rules, validation, and error mapping.
+- Avoid duplicating client/runtime or boundary contract shapes.
+- Refactor repeated patterns once they are proven, not before.
+
+## Current Architectural Practices
+
+### UI and Runtime Boundaries
+- Keep UI rendering, feature state, and view behavior separate from runtime,
+  filesystem, network, or persistence concerns.
+- Route runtime actions through the repository's established boundary helpers
+  instead of scattered low-level calls.
+- Keep components presentational when possible and move workflow logic into
+  feature modules, hooks, services, or equivalent local patterns.
+
+### Bridges and Contracts
+- Treat bridge or API layers as the only consumer-facing runtime surface.
+- Keep runtime bridges small, typed, explicit, and stable.
+- Update shared contracts whenever runtime-facing contract shapes change.
+
+### Services and Ownership
+- Keep app bootstrap, registration, and wiring small.
+- Put filesystem, network, terminal, transfer, persistence, and other runtime
+  behavior into focused services.
+- Prefer one clear owner per live session, channel, resource, or workflow.
+
+## File and Module Size Guidance
+- Avoid all-in-one files that mix UI, state, transport, and persistence.
+- Prefer small focused files with one primary concern.
+- Split a file when it contains multiple responsibilities, becomes hard to navigate, or resists isolated testing.
+
+## Error Handling
+- Handle low-level errors close to the source.
+- Map them into user-facing categories at the application boundary.
+- Never swallow runtime failures silently.
+- Include enough detail for debugging without exposing secrets.
+
+## State Management
+- Keep state scoped to the feature that owns it.
+- Separate transient UI state from domain state.
+- Avoid duplicate sources of truth.
+- Model long-running workflow transitions explicitly.
+
+## Testing
+- Write code that is testable by design.
+- Prefer unit tests for pure logic, state transitions, and error mapping.
+- Use component and bridge-boundary tests for UI/runtime or client/server
+  interaction.
+- Keep real-server validation manual and opt-in.
+- Add tests when fixing regressions.
+
+## Security and Safety
+- Never log passwords, passphrases, or raw secret tokens.
+- Keep destructive operations explicit and confirmed.
+- Treat trust, identity, and authorization checks as first-class workflows.
+- Do not add or broaden secret persistence without explicit product approval and
+  matching documentation updates.
+
+## Performance and Responsiveness
+- Keep UI responsive during network and filesystem operations.
+- Avoid blocking user interactions with heavy work.
+- Preserve explicit progress updates for long-running operations.
+- Use guardrails for very large or risky editor/file workflows.
+
+## Code Review Expectations
+- Review for correctness first, then maintainability, then style.
+- Push back on blurred ownership boundaries.
+- Ask for extraction when a file or service starts owning too many concerns.
+- Require tests or a documented reason when changing non-trivial logic.
+
+## Refactoring Guidance
+- Refactor in small safe steps.
+- Preserve behavior while improving structure.
+- Add characterization tests before risky refactors.
+- Remove dead code once replacements are validated.
+
+## Practical Do / Don't
+
+### Do
+- keep UI, bridge/API, and runtime/service responsibilities distinct
+- use typed contracts for runtime boundaries where the stack supports them
+- centralize validation and error mapping
+- keep session and channel ownership explicit
+- update stable docs when architecture decisions change
+
+### Don't
+- hide complex runtime side effects inside UI components or other presentation code
+- duplicate contract shapes across client and runtime code
+- add speculative abstractions for unbuilt product areas
+- leave migration-only compatibility logic in the active runtime without a strong reason
+- let stale docs become the source of truth
+
+## Definition of Maintainable
+Code is maintainable when:
+- a new engineer can find the right module quickly
+- file responsibilities are clear
+- UI/runtime or client/server boundaries are obvious
+- runtime contracts are understandable
+- core workflows are covered by the right level of testing
+- feature changes can be made without rewriting unrelated systems

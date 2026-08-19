@@ -1,0 +1,57 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editors and IDEs
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Node dependencies and package-manager caches
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Build and test output
+dist/
+build/
+coverage/
+.nyc_output/
+.tsbuildinfo
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+.cache/
+
+# ASM-managed caches and transient state
+.agents/.cache/
+.agents/tmp/
+
+# Tool-specific local state.
+# Keep the skill compatibility symlinks shareable.
+.codex/*
+!.codex/skills
+.claude/*
+!.claude/skills
