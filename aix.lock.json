@@ -2,13 +2,28 @@
   "lockfileVersion": 1,
   "skills": [
     {
+      "kind": "skill",
       "source": "aix",
-      "sourceType": "bundled",
+      "sourceType": "git",
+      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
+      "requestedRef": "master",
+      "resolvedCommit": "3f8cb32e64a21d29efb5251d66b2a0cca169e193",
       "sourcePath": "design-promote",
-      "installPath": ".agents/skills/design-promote",
+      "packagePath": ".agents/packages/skills/aix/design-promote",
+      "activationPath": ".agents/skills/design-promote",
       "originalName": "design-promote",
-      "installedName": "design-promote",
-      "files": [
+      "activeName": "design-promote",
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "34d5ed62ef97240bfa0b4a51671d44393e5530bb7c1ceb15a167a091979adfca"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "6ee892d0c56369284fab152f98a0ddc01e335393f6392bb9abb7fb0d5740cc81"
+        }
+      ],
+      "activeFiles": [
         {
           "path": "agents/openai.yaml",
           "sha256": "34d5ed62ef97240bfa0b4a51671d44393e5530bb7c1ceb15a167a091979adfca"
@@ -20,13 +35,28 @@
       ]
     },
     {
+      "kind": "skill",
       "source": "aix",
-      "sourceType": "bundled",
+      "sourceType": "git",
+      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
+      "requestedRef": "master",
+      "resolvedCommit": "3f8cb32e64a21d29efb5251d66b2a0cca169e193",
       "sourcePath": "phase-execute",
-      "installPath": ".agents/skills/phase-execute",
+      "packagePath": ".agents/packages/skills/aix/phase-execute",
+      "activationPath": ".agents/skills/phase-execute",
       "originalName": "phase-execute",
-      "installedName": "phase-execute",
-      "files": [
+      "activeName": "phase-execute",
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "09dd990c4bdbc9574664266028985addd408cef667f1adeb2e05fe44b826ab83"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "d3fd4b1eca7586cbcaa117ed371df10939f5e6cda2aad70b5bec1025256f079c"
+        }
+      ],
+      "activeFiles": [
         {
           "path": "agents/openai.yaml",
           "sha256": "09dd990c4bdbc9574664266028985addd408cef667f1adeb2e05fe44b826ab83"
@@ -38,13 +68,28 @@
       ]
     },
     {
+      "kind": "skill",
       "source": "aix",
-      "sourceType": "bundled",
+      "sourceType": "git",
+      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
+      "requestedRef": "master",
+      "resolvedCommit": "3f8cb32e64a21d29efb5251d66b2a0cca169e193",
       "sourcePath": "plan-activate",
-      "installPath": ".agents/skills/plan-activate",
+      "packagePath": ".agents/packages/skills/aix/plan-activate",
+      "activationPath": ".agents/skills/plan-activate",
       "originalName": "plan-activate",
-      "installedName": "plan-activate",
-      "files": [
+      "activeName": "plan-activate",
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "fa9633ad16c6de543de35f9dc6c3dbfcd8face707d72e263e171c9a649358e0a"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "f114ce5d6cc03ab097572d102fc0601ed0067a9490137c97dda7e8cff1c2fa24"
+        }
+      ],
+      "activeFiles": [
         {
           "path": "agents/openai.yaml",
           "sha256": "fa9633ad16c6de543de35f9dc6c3dbfcd8face707d72e263e171c9a649358e0a"
@@ -56,13 +101,28 @@
       ]
     },
     {
+      "kind": "skill",
       "source": "aix",
-      "sourceType": "bundled",
+      "sourceType": "git",
+      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
+      "requestedRef": "master",
+      "resolvedCommit": "3f8cb32e64a21d29efb5251d66b2a0cca169e193",
       "sourcePath": "plan-complete",
-      "installPath": ".agents/skills/plan-complete",
+      "packagePath": ".agents/packages/skills/aix/plan-complete",
+      "activationPath": ".agents/skills/plan-complete",
       "originalName": "plan-complete",
-      "installedName": "plan-complete",
-      "files": [
+      "activeName": "plan-complete",
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "a5ba6c2dffbdad0c60cd5904657f18c425ba90c53ea07852fa60c7fcea219427"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "72a4da0e7e93d18c238e755c76a8e694929233e783575f5c08c1bb30f4ffbaac"
+        }
+      ],
+      "activeFiles": [
         {
           "path": "agents/openai.yaml",
           "sha256": "a5ba6c2dffbdad0c60cd5904657f18c425ba90c53ea07852fa60c7fcea219427"
@@ -74,13 +134,28 @@
       ]
     },
     {
+      "kind": "skill",
       "source": "aix",
-      "sourceType": "bundled",
+      "sourceType": "git",
+      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
+      "requestedRef": "master",
+      "resolvedCommit": "3f8cb32e64a21d29efb5251d66b2a0cca169e193",
       "sourcePath": "plan-create",
-      "installPath": ".agents/skills/plan-create",
+      "packagePath": ".agents/packages/skills/aix/plan-create",
+      "activationPath": ".agents/skills/plan-create",
       "originalName": "plan-create",
-      "installedName": "plan-create",
-      "files": [
+      "activeName": "plan-create",
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "7e33bba87ba93cecde0d0d450c3df7ab86e71e2c1ece0e695d9ec990ab6246d8"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "899f003b67da41cccb1df8ccb1502fe1a717a9316185dbf05a6109d7638857e4"
+        }
+      ],
+      "activeFiles": [
         {
           "path": "agents/openai.yaml",
           "sha256": "7e33bba87ba93cecde0d0d450c3df7ab86e71e2c1ece0e695d9ec990ab6246d8"
@@ -92,13 +167,28 @@
       ]
     },
     {
+      "kind": "skill",
       "source": "aix",
-      "sourceType": "bundled",
+      "sourceType": "git",
+      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
+      "requestedRef": "master",
+      "resolvedCommit": "3f8cb32e64a21d29efb5251d66b2a0cca169e193",
       "sourcePath": "plan-defer",
-      "installPath": ".agents/skills/plan-defer",
+      "packagePath": ".agents/packages/skills/aix/plan-defer",
+      "activationPath": ".agents/skills/plan-defer",
       "originalName": "plan-defer",
-      "installedName": "plan-defer",
-      "files": [
+      "activeName": "plan-defer",
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "7a02446b81dbc7f4cf97733afa76292ade58c57a3dcc05ead8ed04479af86496"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "e128bf9348f88bef436c07c8cba3a2aaa0f507f251d7c83ede5d5fa5a1b46091"
+        }
+      ],
+      "activeFiles": [
         {
           "path": "agents/openai.yaml",
           "sha256": "7a02446b81dbc7f4cf97733afa76292ade58c57a3dcc05ead8ed04479af86496"
@@ -110,13 +200,28 @@
       ]
     },
     {
+      "kind": "skill",
       "source": "aix",
-      "sourceType": "bundled",
+      "sourceType": "git",
+      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
+      "requestedRef": "master",
+      "resolvedCommit": "3f8cb32e64a21d29efb5251d66b2a0cca169e193",
       "sourcePath": "plan-execute",
-      "installPath": ".agents/skills/plan-execute",
+      "packagePath": ".agents/packages/skills/aix/plan-execute",
+      "activationPath": ".agents/skills/plan-execute",
       "originalName": "plan-execute",
-      "installedName": "plan-execute",
-      "files": [
+      "activeName": "plan-execute",
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "091ce2b30964b967367b487d8037e41fc9efd96d5eb57e367b39e274ef1a2e5a"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "010fe7082165c09ebfa2d2f2d4fcb795cee7469f0f3f169a2ab9a67dc578d965"
+        }
+      ],
+      "activeFiles": [
         {
           "path": "agents/openai.yaml",
           "sha256": "091ce2b30964b967367b487d8037e41fc9efd96d5eb57e367b39e274ef1a2e5a"
@@ -128,13 +233,28 @@
       ]
     },
     {
+      "kind": "skill",
       "source": "aix",
-      "sourceType": "bundled",
+      "sourceType": "git",
+      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
+      "requestedRef": "master",
+      "resolvedCommit": "3f8cb32e64a21d29efb5251d66b2a0cca169e193",
       "sourcePath": "plan-review",
-      "installPath": ".agents/skills/plan-review",
+      "packagePath": ".agents/packages/skills/aix/plan-review",
+      "activationPath": ".agents/skills/plan-review",
       "originalName": "plan-review",
-      "installedName": "plan-review",
-      "files": [
+      "activeName": "plan-review",
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "6d48202c7f74827619f29912747da7b47c509dcdee899afdd470942d8bd12f1f"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "840e3b5d3286cac2bda2329f1fb80118648975b51dd0abd7ca46c30e4c2361ad"
+        }
+      ],
+      "activeFiles": [
         {
           "path": "agents/openai.yaml",
           "sha256": "6d48202c7f74827619f29912747da7b47c509dcdee899afdd470942d8bd12f1f"
@@ -146,13 +266,28 @@
       ]
     },
     {
+      "kind": "skill",
       "source": "aix",
-      "sourceType": "bundled",
+      "sourceType": "git",
+      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
+      "requestedRef": "master",
+      "resolvedCommit": "3f8cb32e64a21d29efb5251d66b2a0cca169e193",
       "sourcePath": "plan-update",
-      "installPath": ".agents/skills/plan-update",
+      "packagePath": ".agents/packages/skills/aix/plan-update",
+      "activationPath": ".agents/skills/plan-update",
       "originalName": "plan-update",
-      "installedName": "plan-update",
-      "files": [
+      "activeName": "plan-update",
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "f00e61f9c5528afc84a16d14dbcf3c2cd9aacc46509b78eb7c08a6d728529aa9"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "e037177e841577ba85580e61e4ef3477a942b621c2c609e3e1f09dab3607be35"
+        }
+      ],
+      "activeFiles": [
         {
           "path": "agents/openai.yaml",
           "sha256": "f00e61f9c5528afc84a16d14dbcf3c2cd9aacc46509b78eb7c08a6d728529aa9"
@@ -164,13 +299,28 @@
       ]
     },
     {
+      "kind": "skill",
       "source": "aix",
-      "sourceType": "bundled",
+      "sourceType": "git",
+      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
+      "requestedRef": "master",
+      "resolvedCommit": "3f8cb32e64a21d29efb5251d66b2a0cca169e193",
       "sourcePath": "project-init",
-      "installPath": ".agents/skills/project-init",
+      "packagePath": ".agents/packages/skills/aix/project-init",
+      "activationPath": ".agents/skills/project-init",
       "originalName": "project-init",
-      "installedName": "project-init",
-      "files": [
+      "activeName": "project-init",
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "91335c99d9cc7f92d77dc0c24ff500f717300c56229b9f52ad3e5df0e64ec78f"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "f448d95ee55ec95fc1d6b474151ac9d221804666c3c38a6fdc867e5f43aee500"
+        }
+      ],
+      "activeFiles": [
         {
           "path": "agents/openai.yaml",
           "sha256": "91335c99d9cc7f92d77dc0c24ff500f717300c56229b9f52ad3e5df0e64ec78f"
@@ -182,13 +332,28 @@
       ]
     },
     {
+      "kind": "skill",
       "source": "aix",
-      "sourceType": "bundled",
+      "sourceType": "git",
+      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
+      "requestedRef": "master",
+      "resolvedCommit": "3f8cb32e64a21d29efb5251d66b2a0cca169e193",
       "sourcePath": "task-execute",
-      "installPath": ".agents/skills/task-execute",
+      "packagePath": ".agents/packages/skills/aix/task-execute",
+      "activationPath": ".agents/skills/task-execute",
       "originalName": "task-execute",
-      "installedName": "task-execute",
-      "files": [
+      "activeName": "task-execute",
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "3837ee87987d7def575635be74491ffbf5d7ea635ce43ffc078ffcbbf03116f5"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "4c06ae7d3e69060850352aaa9f16df8b1fe8772ac9672e76f8014c8be475ea8d"
+        }
+      ],
+      "activeFiles": [
         {
           "path": "agents/openai.yaml",
           "sha256": "3837ee87987d7def575635be74491ffbf5d7ea635ce43ffc078ffcbbf03116f5"
@@ -200,13 +365,18 @@
       ]
     },
     {
+      "kind": "skill",
       "source": "aix",
-      "sourceType": "bundled",
+      "sourceType": "git",
+      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
+      "requestedRef": "master",
+      "resolvedCommit": "3f8cb32e64a21d29efb5251d66b2a0cca169e193",
       "sourcePath": "work-verify",
-      "installPath": ".agents/skills/work-verify",
+      "packagePath": ".agents/packages/skills/aix/work-verify",
+      "activationPath": ".agents/skills/work-verify",
       "originalName": "work-verify",
-      "installedName": "work-verify",
-      "files": [
+      "activeName": "work-verify",
+      "packageFiles": [
         {
           "path": "agents/openai.yaml",
           "sha256": "fc3343a500a54ba56cbd86664ab218e30ca8e7e15c9c0bf032dee4351f3cfac6"
@@ -214,6 +384,41 @@
         {
           "path": "SKILL.md",
           "sha256": "f139071a27618911c7b266c8b8d4ea2e2a5031e37534a170175ec4f808953d7e"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "fc3343a500a54ba56cbd86664ab218e30ca8e7e15c9c0bf032dee4351f3cfac6"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "f139071a27618911c7b266c8b8d4ea2e2a5031e37534a170175ec4f808953d7e"
+        }
+      ]
+    },
+    {
+      "kind": "skill",
+      "source": "cursor-pstack",
+      "sourceType": "git",
+      "sourceUrl": "https://github.com/cursor/plugins.git",
+      "requestedRef": "main",
+      "resolvedCommit": "fd6dd6f7276956a532bb78a748a8d2818b6eb5f4",
+      "sourcePath": "unslop",
+      "packagePath": ".agents/packages/skills/cursor-pstack/unslop",
+      "activationPath": ".agents/skills/unslop",
+      "originalName": "unslop",
+      "activeName": "unslop",
+      "packageFiles": [
+        {
+          "path": "SKILL.md",
+          "sha256": "181883e539caec8258ec9129e3ba5f133409144a2cbf2aa361158ab94cfc3441"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "SKILL.md",
+          "sha256": "181883e539caec8258ec9129e3ba5f133409144a2cbf2aa361158ab94cfc3441"
         }
       ]
     }

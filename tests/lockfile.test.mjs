@@ -23,16 +23,24 @@ test("writeLockfile writes parseable JSON atomically", async () => {
       lockfileVersion: 1,
       skills: [
         {
+          kind: "skill",
           source: "example",
           sourceType: "git",
           sourceUrl: "https://example.com/skills.git",
           requestedRef: "main",
           resolvedCommit: "abc123",
           sourcePath: "skills/tdd",
-          installPath: ".agents/skills/tdd",
+          packagePath: ".agents/packages/skills/example/skills/tdd",
+          activationPath: ".agents/skills/tdd",
           originalName: "tdd",
-          installedName: "tdd",
-          files: [
+          activeName: "tdd",
+          packageFiles: [
+            {
+              path: "SKILL.md",
+              sha256: "abc"
+            }
+          ],
+          activeFiles: [
             {
               path: "SKILL.md",
               sha256: "abc"
@@ -44,7 +52,7 @@ test("writeLockfile writes parseable JSON atomically", async () => {
     filePath
   );
 
-  assert.deepEqual(parseLockfile(JSON.parse(await readFile(filePath, "utf8"))).skills[0]?.installedName, "tdd");
+  assert.deepEqual(parseLockfile(JSON.parse(await readFile(filePath, "utf8"))).skills[0]?.activeName, "tdd");
 });
 
 test("loadLockfile reports malformed JSON", async () => {

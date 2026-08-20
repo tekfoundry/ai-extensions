@@ -67,6 +67,33 @@ architecture, commands, and safety boundaries.
 - Avoid all-in-one files that mix UI, state, transport, and persistence.
 - Prefer small focused files with one primary concern.
 - Split a file when it contains multiple responsibilities, becomes hard to navigate, or resists isolated testing.
+- Use the module topology checkpoints below before adding more behavior to an
+  area that is already growing.
+
+## Module Topology Checkpoints
+- Review module organization before adding more behavior to an area that is
+  already growing.
+- Pause and consider a small structural refactor when one file or module has
+  more than one clear reason to change.
+- Pause when orchestration, domain rules, I/O, presentation, persistence, or
+  integration concerns are mixed together.
+- Pause when a local helper is becoming a shared subsystem.
+- Pause when related files are accumulating without a naming or folder pattern
+  that reveals ownership.
+- Pause when generated, compiled, packaged, or published artifacts mirror source
+  layout and have become hard to navigate.
+- Pause when tests need broad setup because responsibilities are not isolated.
+- Prefer extracting around stable roles that already exist in the code. Do not
+  invent structure for speculative future behavior, but do create a clear home
+  for repeated roles once they appear.
+
+## Shared Utility Decisions
+- Before writing reusable utilities for interaction, formatting, parsing,
+  tables, diffing, logging, scheduling, validation, protocol handling, or other
+  common infrastructure concerns, check whether a mature platform API,
+  framework feature, or library already solves the problem.
+- Prefer a project-owned wrapper when the dependency affects many callers,
+  testability, user-facing behavior, or future replacement cost.
 
 ## Error Handling
 - Handle low-level errors close to the source.

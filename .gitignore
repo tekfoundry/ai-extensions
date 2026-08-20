@@ -52,6 +52,7 @@ temp/
 
 # AIX-managed caches and transient state
 .agents/.cache/
+.agents/packages/
 .agents/tmp/
 aix-cache/
 .aix-cache/

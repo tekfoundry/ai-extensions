@@ -9,42 +9,46 @@ AI Extensions should start with three default sources:
 
 1. `aix`
    - Type: Git source
-   - URL: `https://github.com/tekfoundry/ai-extension.git`
+   - URL: `https://github.com/tekfoundry/ai-extensions.git`
    - Path: `aix/skills`
    - Ref: `master`
-   - Behavior: installed by default when AI Extensions initializes a project
+   - Behavior: indexed, materialized, and activated by default when AI
+     Extensions initializes a project
 2. `mattpocock`
    - Type: Git source
    - URL: `https://github.com/mattpocock/skills.git`
    - Path: `skills`
-   - Behavior: discoverable and installable on demand
+   - Behavior: discoverable and activatable on demand
 3. `cursor-pstack`
    - Type: Git source
    - URL: `https://github.com/cursor/plugins.git`
    - Path: `pstack/skills`
-   - Behavior: discoverable and installable on demand
+   - Behavior: discoverable and activatable on demand
 
 The `aix` source is the default workflow pack. All default sources use the same
 Git resolution path.
 
 `aix/skills` is the canonical source path inside the `aix` Git source.
-`.agents/skills` is the local installed working set and should remain available
-for the agent workflow while AI Extensions is being built.
+`.agents/packages/skills` is the local source-organized package store for
+active skills. The extra `skills` segment leaves `.agents/packages` available
+for future extension kinds without changing the active-skill layout.
+`.agents/skills` is the active working set exposed to agents and should remain
+available for the agent workflow while AI Extensions is being built.
 
 For example:
 
 ```bash
-aix list aix
-aix list mattpocock
-aix list cursor-pstack
+aix list skills aix
+aix list skills mattpocock
+aix list skills cursor-pstack
 ```
 
-Skills from external sources should become installed only after an explicit
-install action.
+Skills from external sources should become active only after an explicit
+activation action.
 
 ```bash
-aix install cursor-pstack/tdd
-aix install mattpocock/engineering/typescript
+aix activate cursor-pstack/tdd
+aix activate mattpocock/engineering/typescript
 ```
 
 These repository-local skills should be available for import by other projects:
@@ -63,7 +67,7 @@ These repository-local skills should be available for import by other projects:
 - `work-verify`
 
 The `unslop` skill is intentionally not included in `aix/skills`. `aix init`
-should declare and install `cursor-pstack/unslop` from the `cursor-pstack`
+should declare and activate `cursor-pstack/unslop` from the `cursor-pstack`
 source rather than from a local AI Extensions-only skill directory.
 
 These `aix` source skills should be loaded by default when AI Extensions

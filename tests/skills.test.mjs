@@ -30,6 +30,13 @@ async function createProject() {
   return projectPath;
 }
 
+function assertNoManagedProjectWrites(projectPath) {
+  assert.equal(existsSync(join(projectPath, "aix.lock.json")), false);
+  assert.equal(existsSync(join(projectPath, ".agents/packages")), false);
+  assert.equal(existsSync(join(projectPath, ".agents/packages/skills")), false);
+  assert.equal(existsSync(join(projectPath, ".agents/skills")), false);
+}
+
 async function createAixGitSource() {
   const directory = await mkdtemp(join(tmpdir(), "aix-list-aix-"));
 
@@ -114,13 +121,14 @@ test("run list reports aix git source skills without mutating project files", as
       "utf8"
     );
     const beforeManifest = readFileSync("aix.json", "utf8");
-    const result = run(["list", "aix"]);
+    const result = run(["list", "skills", "aix"]);
 
     assert.equal(result.exitCode, 0);
-    assert.match(result.stdout, /task-execute\ttask-execute/);
+    assert.match(result.stdout, /Skills in aix:/);
+    assert.match(result.stdout, /Path\s+Name/);
+    assert.match(result.stdout, /task-execute\s+task-execute/);
     assert.equal(readFileSync("aix.json", "utf8"), beforeManifest);
-    assert.equal(existsSync(join(projectPath, "aix.lock.json")), false);
-    assert.equal(existsSync(join(projectPath, ".agents/skills")), false);
+    assertNoManagedProjectWrites(projectPath);
   } finally {
     if (previousCache === undefined) {
       delete process.env.AIX_CACHE_DIR;
@@ -164,14 +172,15 @@ test("run list reports git source skills from a manifest source", async () => {
     );
 
     const beforeManifest = readFileSync("aix.json", "utf8");
-    const result = run(["list", "fixture"]);
+    const result = run(["list", "skills", "fixture"]);
 
     assert.equal(result.exitCode, 0);
-    assert.match(result.stdout, /flat\tflat/);
-    assert.match(result.stdout, /group\/nested\tnested/);
+    assert.match(result.stdout, /Skills in fixture:/);
+    assert.match(result.stdout, /Path\s+Name/);
+    assert.match(result.stdout, /flat\s+flat/);
+    assert.match(result.stdout, /group\/nested\s+nested/);
     assert.equal(readFileSync("aix.json", "utf8"), beforeManifest);
-    assert.equal(existsSync(join(projectPath, "aix.lock.json")), false);
-    assert.equal(existsSync(join(projectPath, ".agents/skills")), false);
+    assertNoManagedProjectWrites(projectPath);
   } finally {
     if (previousCache === undefined) {
       delete process.env.AIX_CACHE_DIR;
@@ -183,6 +192,46 @@ test("run list reports git source skills from a manifest source", async () => {
   }
 });
 
+test("run list skills without a source uses the interactive path", async () => {
+  const gitSource = await createNestedGitSource();
+  const projectPath = await createProject();
+  const previousCwd = process.cwd();
+
+  process.chdir(projectPath);
+
+  try {
+    writeFileSync(
+      "aix.json",
+      JSON.stringify(
+        {
+          sources: {
+            fixture: {
+              type: "git",
+              url: gitSource,
+              path: "skills",
+              ref: "main"
+            }
+          },
+          skills: []
+        },
+        null,
+        2
+      ) + "\n",
+      "utf8"
+    );
+
+    const beforeManifest = readFileSync("aix.json", "utf8");
+    const result = run(["list", "skills"]);
+
+    assert.equal(result.exitCode, 1);
+    assert.equal(result.stderr, "Usage: aix list skills <source>");
+    assert.equal(readFileSync("aix.json", "utf8"), beforeManifest);
+    assertNoManagedProjectWrites(projectPath);
+  } finally {
+    process.chdir(previousCwd);
+  }
+});
+
 test("run list fails clearly for unknown sources", async () => {
   const projectPath = await createProject();
   const previousCwd = process.cwd();
@@ -190,7 +239,7 @@ test("run list fails clearly for unknown sources", async () => {
   process.chdir(projectPath);
 
   try {
-    const result = run(["list", "missing"]);
+    const result = run(["list", "skills", "missing"]);
 
     assert.equal(result.exitCode, 2);
     assert.equal(result.stderr, "Unknown source: missing");

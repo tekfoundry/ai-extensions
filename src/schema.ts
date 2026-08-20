@@ -3,6 +3,7 @@ export const LOCKFILE_FILE_NAME = "aix.lock.json";
 export const LOCKFILE_VERSION = 1;
 
 export type SourceType = "git";
+export type PackageKind = "skill";
 
 export interface BaseSourceDefinition {
   type: SourceType;
@@ -16,6 +17,7 @@ export interface GitSourceDefinition extends BaseSourceDefinition {
 }
 
 export type SourceDefinition = GitSourceDefinition;
+export type SourceManifestEntry = SourceDefinition | string;
 
 export interface SkillRequest {
   source: string;
@@ -27,7 +29,7 @@ export interface SkillRequest {
 export type SkillManifestEntry = string | SkillRequest;
 
 export interface SkillsManifest {
-  sources?: Record<string, SourceDefinition>;
+  sources?: Record<string, SourceManifestEntry>;
   skills: SkillManifestEntry[];
 }
 
@@ -37,17 +39,20 @@ export interface FileHash {
 }
 
 export interface LockfileSkillEntry {
+  kind: PackageKind;
   source: string;
   sourceType: SourceType;
   sourceUrl?: string;
   requestedRef?: string;
   resolvedCommit?: string;
   sourcePath: string;
-  installPath: string;
+  packagePath: string;
+  activationPath: string;
   originalName: string;
-  installedName: string;
+  activeName: string;
   alias?: string;
-  files: FileHash[];
+  packageFiles: FileHash[];
+  activeFiles: FileHash[];
 }
 
 export interface SkillsLockfile {

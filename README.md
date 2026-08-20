@@ -4,8 +4,9 @@ AI Extensions is a small package-manager-style CLI for managing AI-agent
 extensions inside software projects. The first extension type is agent skills.
 
 The goal is simple: let a project declare the agent skills it depends on,
-install them into `.agents/skills`, lock exact versions, update them
-intentionally, and refuse to overwrite local edits silently.
+materialize them under `.agents/packages/skills`, activate them through
+`.agents/skills`, lock exact versions, update them intentionally, and refuse to
+overwrite local edits silently.
 
 AI Extensions is early. The repository currently contains the product design
 and the default workflow skills that `aix` should eventually install for new
@@ -21,8 +22,9 @@ dependencies:
 
 - declare skills in a manifest
 - resolve skills from Git sources
-- install them into a predictable project-local directory
-- lock resolved commits and installed file hashes
+- materialize them into a predictable project-local package directory
+- activate selected skills into the agent-facing skills directory
+- lock resolved commits and package plus active file hashes
 - detect local drift before updates
 - fail clearly on naming collisions
 - keep package-managed agent files separate from project-owned docs
@@ -32,19 +34,23 @@ dependencies:
 The command will be `aix`.
 
 ```bash
-aix install
+aix init
+aix add skills <git-or-github-tree-url> [alias]
+aix remove skills <source-name>
+aix activate skill <source>/<path> [alias]
+aix deactivate skill <active-name>
 aix update
 aix diff
 aix verify
-aix list <source>
+aix list
+aix list skills [source]
 ```
 
 Later commands may include:
 
 ```bash
-aix add <source>/<path>
-aix remove <source>/<path>
 aix outdated
+aix prune
 ```
 
 The npm package is expected to be scoped so the project can publish under a
@@ -57,7 +63,7 @@ npm install -g @tekfoundry/aix
 Users would still run the short command:
 
 ```bash
-aix install
+aix init
 ```
 
 ## Project layout
@@ -75,9 +81,13 @@ aix/
   README.md
   workflow.md
   engineering-best-practices.md
+  packages/
+    skills/
+      <source>/
+        <package-skill>/
+          SKILL.md
   skills/
-    <installed-skill>/
-      SKILL.md
+    <active-skill> -> ../packages/skills/<source>/<package-skill>
 
 _docs/
   design/
@@ -96,24 +106,25 @@ but it should not routinely rewrite project documentation.
 
 AI Extensions should start with these default sources:
 
-- `aix`: `https://github.com/tekfoundry/ai-extension.git`, path `aix/skills`,
-  ref `master`
-- `mattpocock`: `https://github.com/mattpocock/skills.git`, path `skills`
-- `cursor-pstack`: `https://github.com/cursor/plugins.git`, path `pstack/skills`
+- `aix`: `https://github.com/tekfoundry/ai-extensions/tree/master/aix/skills`
+- `mattpocock`: `https://github.com/mattpocock/skills/tree/main/skills`
+- `cursor-pstack`: `https://github.com/cursor/plugins/tree/main/pstack/skills`
 
-External sources should be discoverable without automatic installation:
+External sources should be discoverable without automatic activation:
 
 ```bash
-aix list mattpocock
-aix list cursor-pstack
+aix list
+aix list skills
+aix list skills mattpocock
+aix list skills cursor-pstack
 ```
 
-Specific skills from those sources should install only after an explicit
+Specific skills from those sources should activate only after an explicit
 command:
 
 ```bash
-aix install cursor-pstack/tdd
-aix install mattpocock/engineering/typescript
+aix activate skill cursor-pstack/tdd
+aix activate skill mattpocock/engineering/typescript
 ```
 
 ## Bundled skills
@@ -145,7 +156,7 @@ The current design lives in `_docs/design`.
 - [_docs/design/README.md](_docs/design/README.md): design index
 - [_docs/design/overview.md](_docs/design/overview.md): product goal and implementation direction
 - [_docs/design/cli.md](_docs/design/cli.md): command name, distribution, and command surface
-- [_docs/design/package-management.md](_docs/design/package-management.md): manifest, lockfile, install flow, drift protection, and naming
+- [_docs/design/package-management.md](_docs/design/package-management.md): manifest, lockfile, activation flow, drift protection, and naming
 - [_docs/design/bundled-skills.md](_docs/design/bundled-skills.md): default sources and bundled skills
 
 ## Implementation direction

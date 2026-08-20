@@ -9,11 +9,13 @@ test("parseManifest accepts git sources and compact skill requests", () => {
   assert.deepEqual(
     parseManifest({
       sources: {
-        example: {
-          type: "git",
-          url: "https://example.com/skills.git",
-          path: "skills",
-          ref: "main"
+        skills: {
+          example: {
+            type: "git",
+            url: "https://example.com/skills.git",
+            path: "skills",
+            ref: "main"
+          }
         }
       },
       skills: ["example:workflow/tdd"]
@@ -34,6 +36,72 @@ test("parseManifest accepts git sources and compact skill requests", () => {
         }
       ]
     }
+  );
+});
+
+test("parseManifest accepts GitHub tree source strings", () => {
+  assert.deepEqual(
+    parseManifest({
+      sources: {
+        skills: {
+          "cursor-pstack": "https://github.com/cursor/plugins/tree/main/pstack/skills"
+        }
+      },
+      skills: ["cursor-pstack:unslop"]
+    }),
+    {
+      sources: {
+        "cursor-pstack": {
+          type: "git",
+          url: "https://github.com/cursor/plugins.git",
+          ref: "main",
+          path: "pstack/skills"
+        }
+      },
+      skills: [
+        {
+          source: "cursor-pstack",
+          path: "unslop"
+        }
+      ]
+    }
+  );
+});
+
+test("parseManifest accepts legacy flat skill sources", () => {
+  assert.deepEqual(
+    parseManifest({
+      sources: {
+        example: "https://github.com/example/skills/tree/main/skills"
+      },
+      skills: []
+    }),
+    {
+      sources: {
+        example: {
+          type: "git",
+          url: "https://github.com/example/skills.git",
+          ref: "main",
+          path: "skills"
+        }
+      },
+      skills: []
+    }
+  );
+});
+
+test("parseManifest rejects unsupported source strings", () => {
+  assert.throws(
+    () =>
+      parseManifest({
+        sources: {
+          skills: {
+            example: "https://example.com/skills.git"
+          }
+        },
+        skills: []
+      }),
+    (error) => error instanceof ManifestError && error.message === "sources.skills.example must be a GitHub tree URL or a source object."
   );
 });
 
