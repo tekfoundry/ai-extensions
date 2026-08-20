@@ -1,4 +1,6 @@
-import { existsSync, mkdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { AixError } from "../errors.js";
 import { copyFilesSafely } from "../fs/files.js";
 import { parseManifest } from "../manifest.js";
@@ -27,12 +29,15 @@ function preflightWorkflowInstall(
   workflow: ReturnType<typeof readWorkflowManifest>,
   stagedPackagePath: string,
   finalPackagePath: string,
-  lockfile: { skills: LockfileSkillEntry[]; workflows?: LockfileWorkflowEntry[] }
+  lockfile: { skills: LockfileSkillEntry[]; workflows?: LockfileWorkflowEntry[] },
+  allowExistingWorkflow = false
 ): LockfileWorkflowEntry | undefined {
   const existingWorkflow = (lockfile.workflows || [])[0];
 
-  if (existingWorkflow && existingWorkflow.name !== workflow.name) {
-    throw new AixError(`A workflow is already active: ${existingWorkflow.name}. Remove it before installing ${workflow.name}.`);
+  if (existingWorkflow && !allowExistingWorkflow) {
+    throw new AixError(
+      `A workflow is already active: ${existingWorkflow.name}. Run aix uninstall workflow before installing another workflow.`
+    );
   }
 
   if (existingWorkflow) {
@@ -61,14 +66,22 @@ export function installResolvedWorkflow(
   resolvedRoot: string,
   resolvedCommit: string | undefined,
   manifestJson: Record<string, unknown>,
-  lockfile: { skills: LockfileSkillEntry[]; workflows?: LockfileWorkflowEntry[] }
+  lockfile: { skills: LockfileSkillEntry[]; workflows?: LockfileWorkflowEntry[] },
+  options: { allowExistingWorkflow?: boolean } = {}
 ): InstallWorkflowResult {
   const stagedPackage = stageWorkflowPackage(resolvedRoot);
 
   try {
     const workflow = readWorkflowManifest(stagedPackage.path);
     const packagePath = packageWorkflowPath(source, workflow.name);
-    const existingWorkflow = preflightWorkflowInstall(source, workflow, stagedPackage.path, packagePath, lockfile);
+    const existingWorkflow = preflightWorkflowInstall(
+      source,
+      workflow,
+      stagedPackage.path,
+      packagePath,
+      lockfile,
+      options.allowExistingWorkflow
+    );
     const packageFiles = writeWorkflowPackage(stagedPackage.path, packagePath);
     const docs = installWorkflowDocs(workflow, packagePath);
     const agentsMd = installAgentsMdBlock(workflow.agentsMd, packagePath);
@@ -116,7 +129,8 @@ export function installResolvedWorkflow(
 
 export function installWorkflowFromDefinitions(
   sourceDefinitions: Record<string, SourceDefinition>,
-  cacheRoot = defaultCacheRoot()
+  cacheRoot = defaultCacheRoot(),
+  options: { allowExistingWorkflow?: boolean } = {}
 ): InstallWorkflowResult {
   const manifestJson = existsSync(MANIFEST_FILE_NAME) ? readJsonObject(MANIFEST_FILE_NAME) : { sources: { skills: {}, workflows: {} }, skills: [] };
   parseManifest(manifestJson);
@@ -140,7 +154,8 @@ export function installWorkflowFromDefinitions(
     resolved.rootPath,
     resolved.resolvedCommit,
     manifestJson,
-    lockfile
+    lockfile,
+    options
   );
 
   writeJsonObjectAtomic(MANIFEST_FILE_NAME, manifestJson);
@@ -159,4 +174,52 @@ export function installWorkflow(input?: string, alias?: string, cacheRoot = defa
   assertFolderNameSafe(source, "workflow source name");
 
   return installWorkflowFromDefinitions({ [source]: definition }, cacheRoot);
+}
+
+export interface BundledWorkflow {
+  name: string;
+  title?: string;
+  path: string;
+  source: SourceDefinition;
+}
+
+export function bundledWorkflowsRoot(): string {
+  return resolve(dirname(fileURLToPath(import.meta.url)), "../../aix/workflows");
+}
+
+export function listBundledWorkflows(root = bundledWorkflowsRoot()): BundledWorkflow[] {
+  if (!existsSync(root)) {
+    return [];
+  }
+
+  return readdirSync(root, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => {
+      const path = resolve(root, entry.name);
+      const manifest = readWorkflowManifest(path);
+      const defaultSource = getDefaultWorkflowSources().aix;
+
+      return {
+        name: manifest.name,
+        ...(manifest.title ? { title: manifest.title } : {}),
+        path,
+        source: {
+          type: "git" as const,
+          url: defaultSource.url,
+          path: `aix/workflows/${manifest.name}`,
+          ...(defaultSource.ref ? { ref: defaultSource.ref } : {})
+        }
+      };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function installBundledWorkflow(workflowName: string, cacheRoot = defaultCacheRoot()): InstallWorkflowResult {
+  const workflow = listBundledWorkflows().find((candidate) => candidate.name === workflowName);
+
+  if (!workflow) {
+    throw new AixError(`Unknown bundled workflow: ${workflowName}`);
+  }
+
+  return installWorkflowFromDefinitions({ aix: workflow.source }, cacheRoot);
 }

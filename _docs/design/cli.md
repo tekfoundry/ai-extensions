@@ -52,8 +52,8 @@ The first implementation should focus on:
 
 ```bash
 aix init
-aix install workflow <git-or-github-tree-url> [alias]
-aix remove workflow
+aix install workflow [git-or-github-tree-url] [alias]
+aix uninstall workflow
 aix add skills <git-or-github-tree-url> [alias]
 aix remove skills <source-name>
 aix activate skill [source/path] [alias]
@@ -75,25 +75,26 @@ aix prune
 aix replace workflow <git-or-github-tree-url> [alias]
 ```
 
-`aix install workflow <git-or-github-tree-url> [alias]` should install one
-Git-backed workflow as the project's active AI Agent Workflow. Workflow install
-normalizes GitHub tree URLs, fetches the source into the shared Git cache,
-reads `workflow.json`, copies recognized workflow docs into `.agents/`, inserts
-or updates the workflow-managed block in root `AGENTS.md`, activates
-workflow-local skills, scaffolds missing `_docs` directories, and writes
-workflow docs, the managed `AGENTS.md` block, and workflow-owned skill hashes
-to `aix.lock.json`.
+`aix install workflow [git-or-github-tree-url] [alias]` should install one
+Git-backed workflow as the project's active AI Agent Workflow. Without a URL,
+the command should list bundled workflows from `aix/workflows` and let the user
+pick one. With a URL, workflow install normalizes the GitHub tree URL, fetches
+the source into the shared Git cache, reads `workflow.json`, copies recognized
+workflow docs into `.agents/`, inserts or updates the workflow-managed block in
+root `AGENTS.md`, activates workflow-local skills, scaffolds missing `_docs`
+directories, and writes workflow docs, the managed `AGENTS.md` block, and
+workflow-owned skill hashes to `aix.lock.json`.
 
 Workflows are all-or-nothing for the MVP. Only one workflow may be active at a
-time. Installing a second workflow should fail until a later explicit replace
-flow owns that behavior.
+time. Installing a second workflow should fail and tell the user to run
+`aix uninstall workflow` before installing the next workflow.
 
 Workflow-local skills are owned by the workflow, not by user-requested root
 skill activation. `aix deactivate skill <active-name>` should refuse to remove
-a workflow-owned skill and tell the user to remove or replace the workflow
+a workflow-owned skill and tell the user to uninstall or replace the workflow
 instead.
 
-`aix remove workflow` should remove the active workflow docs and workflow-owned
+`aix uninstall workflow` should remove the active workflow docs and workflow-owned
 skills only after local drift checks pass. It should remove only the managed
 workflow block from root `AGENTS.md` and leave project-owned `AGENTS.md` and
 `_docs` content in place.

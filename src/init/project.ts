@@ -11,7 +11,9 @@ export function initProject(options: InitOptions = {}): InitResult {
   }
 
   const cacheRoot = options.cacheRoot || defaultCacheRoot();
-  const workflow = installWorkflowFromDefinitions(options.workflowSources || getDefaultWorkflowSources(), cacheRoot);
+  const workflow = installWorkflowFromDefinitions(options.workflowSources || getDefaultWorkflowSources(), cacheRoot, {
+    allowExistingWorkflow: true
+  });
 
   return {
     declaredCount: 1,

@@ -89,25 +89,29 @@ Workflows should use an install command instead of the skill `add` plus
 `activate` split:
 
 ```bash
-aix install workflow <git-or-github-tree-url> [alias]
+aix install workflow [git-or-github-tree-url] [alias]
 ```
 
 Installing a workflow should:
 
-1. Normalize the Git or GitHub tree URL into Git URL, ref, and workflow path.
-2. Fetch the source into the shared Git cache.
-3. Read and validate `workflow.json`.
-4. Discover workflow docs and workflow-local skills from the manifest and
+1. If no URL is provided, list bundled workflows from `aix/workflows` and ask
+   the user which workflow to install.
+2. If a URL is provided, normalize the Git or GitHub tree URL into Git URL,
+   ref, and workflow path.
+3. Fetch the selected source into the shared Git cache.
+4. Read and validate `workflow.json`.
+5. Discover workflow docs and workflow-local skills from the manifest and
    directory convention.
-5. Refuse when another workflow is active unless a later explicit replace flow
-   owns that behavior.
-6. Copy recognized workflow docs into `.agents/`.
-7. Insert or update the workflow-managed block in root `AGENTS.md`.
-8. Materialize workflow-local skills under `.agents/packages/workflows`.
-9. Expose workflow-owned skills through `.agents/skills`.
-10. Create missing project-owned `_docs` directories when needed.
-11. Write root workflow intent to `aix.json`.
-12. Write exact workflow doc, `AGENTS.md` managed block, and workflow-owned
+6. Refuse when another workflow is active unless a later explicit replace flow
+   owns that behavior. The error should tell the user to run
+   `aix uninstall workflow` first.
+7. Copy recognized workflow docs into `.agents/`.
+8. Insert or update the workflow-managed block in root `AGENTS.md`.
+9. Materialize workflow-local skills under `.agents/packages/workflows`.
+10. Expose workflow-owned skills through `.agents/skills`.
+11. Create missing project-owned `_docs` directories when needed.
+12. Write root workflow intent to `aix.json`.
+13. Write exact workflow doc, `AGENTS.md` managed block, and workflow-owned
     skill hashes to `aix.lock.json`.
 
 Workflow install should be transactional. If any workflow doc or workflow-owned
@@ -174,8 +178,8 @@ workflow` and `aix update workflow` in consuming projects.
 The MVP workflow command set should be small:
 
 ```bash
-aix install workflow <git-or-github-tree-url> [alias]
-aix remove workflow
+aix install workflow [git-or-github-tree-url] [alias]
+aix uninstall workflow
 aix diff workflow
 aix update workflow
 ```
@@ -183,7 +187,7 @@ aix update workflow
 `aix verify` should include workflow checks alongside existing manifest,
 lockfile, package, and active skill checks.
 
-`aix remove workflow` should remove the active workflow docs and workflow-owned
+`aix uninstall workflow` should remove the active workflow docs and workflow-owned
 skills only after local drift checks pass. It should leave project-owned
 `_docs` content in place.
 

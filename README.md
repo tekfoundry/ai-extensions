@@ -90,15 +90,21 @@ are exposed through `.agents/skills`.
 ### install a workflow
 
 ```bash
+aix install workflow
 aix install workflow https://github.com/example/ai-assets/tree/main/workflows/team-flow team-flow
 ```
 
 **What Happens**
 
-`aix` resolves the Git source, reads `workflow.json`, copies the workflow as one
-unit, installs its docs, appends its managed `AGENTS.md` block, activates its
-local skills, scaffolds missing `_docs` directories, and records all installed
-files in `aix.lock.json`. Only one workflow can be active at a time.
+Without a URL, `aix` lists bundled workflows from `aix/workflows` and asks which
+one to install. With a URL, it installs that Git-backed workflow directly.
+
+After selection, `aix` resolves the Git source, reads `workflow.json`, copies
+the workflow as one unit, installs its docs, appends its managed `AGENTS.md`
+block, activates its local skills, scaffolds missing `_docs` directories, and
+records all installed files in `aix.lock.json`. Only one workflow can be active
+at a time. If another workflow is already active, install stops and tells you to
+run `aix uninstall workflow` first.
 
 ### add skill sources
 
@@ -193,12 +199,12 @@ aix deactivate skill cursor-tdd
 `aix` removes the active skill, updates manifest and lockfile
 state, checks for local edits first, and cleans up package copies that are no
 longer needed. If the skill is owned by the active workflow, the command stops
-and tells you to remove the workflow instead.
+and tells you to uninstall the workflow instead.
 
-### remove a workflow
+### uninstall a workflow
 
 ```bash
-aix remove workflow
+aix uninstall workflow
 ```
 
 **What Happens**
@@ -226,8 +232,8 @@ source.
 
 ```bash
 aix init
-aix install workflow <git-or-github-tree-url> [alias]
-aix remove workflow
+aix install workflow [git-or-github-tree-url] [alias]
+aix uninstall workflow
 aix add skills <git-or-github-tree-url> [alias]
 aix remove skills <source-name>
 aix activate skill [source/path] [alias]

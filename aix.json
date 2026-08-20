@@ -3,9 +3,13 @@
     "skills": {
       "mattpocock": "https://github.com/mattpocock/skills/tree/main/skills",
       "cursor-pstack": "https://github.com/cursor/plugins/tree/main/pstack/skills"
+    },
+    "workflows": {
+      "aix": "https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute"
     }
   },
   "skills": [
     "cursor-pstack:unslop"
-  ]
+  ],
+  "workflow": "aix:aix/workflows/design-plan-execute"
 }

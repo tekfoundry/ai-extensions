@@ -26,7 +26,630 @@
           "sha256": "181883e539caec8258ec9129e3ba5f133409144a2cbf2aa361158ab94cfc3441"
         }
       ]
+    },
+    {
+      "kind": "skill",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "skills/design-promote",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/skills/design-promote",
+      "activationPath": ".agents/skills/design-promote",
+      "originalName": "design-promote",
+      "activeName": "design-promote",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "34d5ed62ef97240bfa0b4a51671d44393e5530bb7c1ceb15a167a091979adfca"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "6ee892d0c56369284fab152f98a0ddc01e335393f6392bb9abb7fb0d5740cc81"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "34d5ed62ef97240bfa0b4a51671d44393e5530bb7c1ceb15a167a091979adfca"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "6ee892d0c56369284fab152f98a0ddc01e335393f6392bb9abb7fb0d5740cc81"
+        }
+      ]
+    },
+    {
+      "kind": "skill",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "skills/phase-execute",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/skills/phase-execute",
+      "activationPath": ".agents/skills/phase-execute",
+      "originalName": "phase-execute",
+      "activeName": "phase-execute",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "09dd990c4bdbc9574664266028985addd408cef667f1adeb2e05fe44b826ab83"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "d3fd4b1eca7586cbcaa117ed371df10939f5e6cda2aad70b5bec1025256f079c"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "09dd990c4bdbc9574664266028985addd408cef667f1adeb2e05fe44b826ab83"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "d3fd4b1eca7586cbcaa117ed371df10939f5e6cda2aad70b5bec1025256f079c"
+        }
+      ]
+    },
+    {
+      "kind": "skill",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "skills/plan-activate",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/skills/plan-activate",
+      "activationPath": ".agents/skills/plan-activate",
+      "originalName": "plan-activate",
+      "activeName": "plan-activate",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "fa9633ad16c6de543de35f9dc6c3dbfcd8face707d72e263e171c9a649358e0a"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "f114ce5d6cc03ab097572d102fc0601ed0067a9490137c97dda7e8cff1c2fa24"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "fa9633ad16c6de543de35f9dc6c3dbfcd8face707d72e263e171c9a649358e0a"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "f114ce5d6cc03ab097572d102fc0601ed0067a9490137c97dda7e8cff1c2fa24"
+        }
+      ]
+    },
+    {
+      "kind": "skill",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "skills/plan-complete",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/skills/plan-complete",
+      "activationPath": ".agents/skills/plan-complete",
+      "originalName": "plan-complete",
+      "activeName": "plan-complete",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "a5ba6c2dffbdad0c60cd5904657f18c425ba90c53ea07852fa60c7fcea219427"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "72a4da0e7e93d18c238e755c76a8e694929233e783575f5c08c1bb30f4ffbaac"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "a5ba6c2dffbdad0c60cd5904657f18c425ba90c53ea07852fa60c7fcea219427"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "72a4da0e7e93d18c238e755c76a8e694929233e783575f5c08c1bb30f4ffbaac"
+        }
+      ]
+    },
+    {
+      "kind": "skill",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "skills/plan-create",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/skills/plan-create",
+      "activationPath": ".agents/skills/plan-create",
+      "originalName": "plan-create",
+      "activeName": "plan-create",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "7e33bba87ba93cecde0d0d450c3df7ab86e71e2c1ece0e695d9ec990ab6246d8"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "899f003b67da41cccb1df8ccb1502fe1a717a9316185dbf05a6109d7638857e4"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "7e33bba87ba93cecde0d0d450c3df7ab86e71e2c1ece0e695d9ec990ab6246d8"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "899f003b67da41cccb1df8ccb1502fe1a717a9316185dbf05a6109d7638857e4"
+        }
+      ]
+    },
+    {
+      "kind": "skill",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "skills/plan-defer",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/skills/plan-defer",
+      "activationPath": ".agents/skills/plan-defer",
+      "originalName": "plan-defer",
+      "activeName": "plan-defer",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "7a02446b81dbc7f4cf97733afa76292ade58c57a3dcc05ead8ed04479af86496"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "e128bf9348f88bef436c07c8cba3a2aaa0f507f251d7c83ede5d5fa5a1b46091"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "7a02446b81dbc7f4cf97733afa76292ade58c57a3dcc05ead8ed04479af86496"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "e128bf9348f88bef436c07c8cba3a2aaa0f507f251d7c83ede5d5fa5a1b46091"
+        }
+      ]
+    },
+    {
+      "kind": "skill",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "skills/plan-execute",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/skills/plan-execute",
+      "activationPath": ".agents/skills/plan-execute",
+      "originalName": "plan-execute",
+      "activeName": "plan-execute",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "091ce2b30964b967367b487d8037e41fc9efd96d5eb57e367b39e274ef1a2e5a"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "010fe7082165c09ebfa2d2f2d4fcb795cee7469f0f3f169a2ab9a67dc578d965"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "091ce2b30964b967367b487d8037e41fc9efd96d5eb57e367b39e274ef1a2e5a"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "010fe7082165c09ebfa2d2f2d4fcb795cee7469f0f3f169a2ab9a67dc578d965"
+        }
+      ]
+    },
+    {
+      "kind": "skill",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "skills/plan-review",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/skills/plan-review",
+      "activationPath": ".agents/skills/plan-review",
+      "originalName": "plan-review",
+      "activeName": "plan-review",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "6d48202c7f74827619f29912747da7b47c509dcdee899afdd470942d8bd12f1f"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "840e3b5d3286cac2bda2329f1fb80118648975b51dd0abd7ca46c30e4c2361ad"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "6d48202c7f74827619f29912747da7b47c509dcdee899afdd470942d8bd12f1f"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "840e3b5d3286cac2bda2329f1fb80118648975b51dd0abd7ca46c30e4c2361ad"
+        }
+      ]
+    },
+    {
+      "kind": "skill",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "skills/plan-update",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/skills/plan-update",
+      "activationPath": ".agents/skills/plan-update",
+      "originalName": "plan-update",
+      "activeName": "plan-update",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "f00e61f9c5528afc84a16d14dbcf3c2cd9aacc46509b78eb7c08a6d728529aa9"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "e037177e841577ba85580e61e4ef3477a942b621c2c609e3e1f09dab3607be35"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "f00e61f9c5528afc84a16d14dbcf3c2cd9aacc46509b78eb7c08a6d728529aa9"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "e037177e841577ba85580e61e4ef3477a942b621c2c609e3e1f09dab3607be35"
+        }
+      ]
+    },
+    {
+      "kind": "skill",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "skills/project-init",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/skills/project-init",
+      "activationPath": ".agents/skills/project-init",
+      "originalName": "project-init",
+      "activeName": "project-init",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "91335c99d9cc7f92d77dc0c24ff500f717300c56229b9f52ad3e5df0e64ec78f"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "f448d95ee55ec95fc1d6b474151ac9d221804666c3c38a6fdc867e5f43aee500"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "91335c99d9cc7f92d77dc0c24ff500f717300c56229b9f52ad3e5df0e64ec78f"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "f448d95ee55ec95fc1d6b474151ac9d221804666c3c38a6fdc867e5f43aee500"
+        }
+      ]
+    },
+    {
+      "kind": "skill",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "skills/task-execute",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/skills/task-execute",
+      "activationPath": ".agents/skills/task-execute",
+      "originalName": "task-execute",
+      "activeName": "task-execute",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "3837ee87987d7def575635be74491ffbf5d7ea635ce43ffc078ffcbbf03116f5"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "4c06ae7d3e69060850352aaa9f16df8b1fe8772ac9672e76f8014c8be475ea8d"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "3837ee87987d7def575635be74491ffbf5d7ea635ce43ffc078ffcbbf03116f5"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "4c06ae7d3e69060850352aaa9f16df8b1fe8772ac9672e76f8014c8be475ea8d"
+        }
+      ]
+    },
+    {
+      "kind": "skill",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "skills/work-verify",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/skills/work-verify",
+      "activationPath": ".agents/skills/work-verify",
+      "originalName": "work-verify",
+      "activeName": "work-verify",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "fc3343a500a54ba56cbd86664ab218e30ca8e7e15c9c0bf032dee4351f3cfac6"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "f139071a27618911c7b266c8b8d4ea2e2a5031e37534a170175ec4f808953d7e"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "agents/openai.yaml",
+          "sha256": "fc3343a500a54ba56cbd86664ab218e30ca8e7e15c9c0bf032dee4351f3cfac6"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "f139071a27618911c7b266c8b8d4ea2e2a5031e37534a170175ec4f808953d7e"
+        }
+      ]
     }
   ],
-  "workflows": []
+  "workflows": [
+    {
+      "kind": "workflow",
+      "source": "aix",
+      "sourceType": "git",
+      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
+      "requestedRef": "master",
+      "resolvedCommit": "588f75d27465956d6fb560256e2b3884fb39b104",
+      "sourcePath": "aix/workflows/design-plan-execute",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute",
+      "name": "design-plan-execute",
+      "title": "Design, Plan, Execute",
+      "docs": [
+        {
+          "sourcePath": "README.md",
+          "targetPath": ".agents/README.md",
+          "sha256": "0f89ffa2c64d14be5472548583ade1e7f276ec6225d5f14339b48f727dcee9e5"
+        },
+        {
+          "sourcePath": "workflow.md",
+          "targetPath": ".agents/workflow.md",
+          "sha256": "9ca4560b3236bf21d5dc0ce97bba8928ac1857096bbf90a14ed8bf99561f9f96"
+        },
+        {
+          "sourcePath": "engineering-best-practices.md",
+          "targetPath": ".agents/engineering-best-practices.md",
+          "sha256": "0cfdc9fac8f17a01ddafac8d2fdf2b2fccca1b5240edf536dc2efcd648f7206a"
+        }
+      ],
+      "agentsMd": {
+        "path": "AGENTS.md",
+        "marker": "aix:workflow design-plan-execute",
+        "sha256": "561237986dda078befa6c253bd34cacd9a509021cda2ebcbb0dc78b023cbbbe9"
+      },
+      "skills": [
+        {
+          "sourcePath": "skills/design-promote",
+          "activeName": "design-promote"
+        },
+        {
+          "sourcePath": "skills/phase-execute",
+          "activeName": "phase-execute"
+        },
+        {
+          "sourcePath": "skills/plan-activate",
+          "activeName": "plan-activate"
+        },
+        {
+          "sourcePath": "skills/plan-complete",
+          "activeName": "plan-complete"
+        },
+        {
+          "sourcePath": "skills/plan-create",
+          "activeName": "plan-create"
+        },
+        {
+          "sourcePath": "skills/plan-defer",
+          "activeName": "plan-defer"
+        },
+        {
+          "sourcePath": "skills/plan-execute",
+          "activeName": "plan-execute"
+        },
+        {
+          "sourcePath": "skills/plan-review",
+          "activeName": "plan-review"
+        },
+        {
+          "sourcePath": "skills/plan-update",
+          "activeName": "plan-update"
+        },
+        {
+          "sourcePath": "skills/project-init",
+          "activeName": "project-init"
+        },
+        {
+          "sourcePath": "skills/task-execute",
+          "activeName": "task-execute"
+        },
+        {
+          "sourcePath": "skills/work-verify",
+          "activeName": "work-verify"
+        }
+      ],
+      "packageFiles": [
+        {
+          "path": "AGENTS.append.md",
+          "sha256": "cba30ec79c8631380ca8346f4297d7f239e25c4dc72a70f49d419f1962924bb0"
+        },
+        {
+          "path": "engineering-best-practices.md",
+          "sha256": "0cfdc9fac8f17a01ddafac8d2fdf2b2fccca1b5240edf536dc2efcd648f7206a"
+        },
+        {
+          "path": "README.md",
+          "sha256": "0f89ffa2c64d14be5472548583ade1e7f276ec6225d5f14339b48f727dcee9e5"
+        },
+        {
+          "path": "skills/design-promote/agents/openai.yaml",
+          "sha256": "34d5ed62ef97240bfa0b4a51671d44393e5530bb7c1ceb15a167a091979adfca"
+        },
+        {
+          "path": "skills/design-promote/SKILL.md",
+          "sha256": "6ee892d0c56369284fab152f98a0ddc01e335393f6392bb9abb7fb0d5740cc81"
+        },
+        {
+          "path": "skills/phase-execute/agents/openai.yaml",
+          "sha256": "09dd990c4bdbc9574664266028985addd408cef667f1adeb2e05fe44b826ab83"
+        },
+        {
+          "path": "skills/phase-execute/SKILL.md",
+          "sha256": "d3fd4b1eca7586cbcaa117ed371df10939f5e6cda2aad70b5bec1025256f079c"
+        },
+        {
+          "path": "skills/plan-activate/agents/openai.yaml",
+          "sha256": "fa9633ad16c6de543de35f9dc6c3dbfcd8face707d72e263e171c9a649358e0a"
+        },
+        {
+          "path": "skills/plan-activate/SKILL.md",
+          "sha256": "f114ce5d6cc03ab097572d102fc0601ed0067a9490137c97dda7e8cff1c2fa24"
+        },
+        {
+          "path": "skills/plan-complete/agents/openai.yaml",
+          "sha256": "a5ba6c2dffbdad0c60cd5904657f18c425ba90c53ea07852fa60c7fcea219427"
+        },
+        {
+          "path": "skills/plan-complete/SKILL.md",
+          "sha256": "72a4da0e7e93d18c238e755c76a8e694929233e783575f5c08c1bb30f4ffbaac"
+        },
+        {
+          "path": "skills/plan-create/agents/openai.yaml",
+          "sha256": "7e33bba87ba93cecde0d0d450c3df7ab86e71e2c1ece0e695d9ec990ab6246d8"
+        },
+        {
+          "path": "skills/plan-create/SKILL.md",
+          "sha256": "899f003b67da41cccb1df8ccb1502fe1a717a9316185dbf05a6109d7638857e4"
+        },
+        {
+          "path": "skills/plan-defer/agents/openai.yaml",
+          "sha256": "7a02446b81dbc7f4cf97733afa76292ade58c57a3dcc05ead8ed04479af86496"
+        },
+        {
+          "path": "skills/plan-defer/SKILL.md",
+          "sha256": "e128bf9348f88bef436c07c8cba3a2aaa0f507f251d7c83ede5d5fa5a1b46091"
+        },
+        {
+          "path": "skills/plan-execute/agents/openai.yaml",
+          "sha256": "091ce2b30964b967367b487d8037e41fc9efd96d5eb57e367b39e274ef1a2e5a"
+        },
+        {
+          "path": "skills/plan-execute/SKILL.md",
+          "sha256": "010fe7082165c09ebfa2d2f2d4fcb795cee7469f0f3f169a2ab9a67dc578d965"
+        },
+        {
+          "path": "skills/plan-review/agents/openai.yaml",
+          "sha256": "6d48202c7f74827619f29912747da7b47c509dcdee899afdd470942d8bd12f1f"
+        },
+        {
+          "path": "skills/plan-review/SKILL.md",
+          "sha256": "840e3b5d3286cac2bda2329f1fb80118648975b51dd0abd7ca46c30e4c2361ad"
+        },
+        {
+          "path": "skills/plan-update/agents/openai.yaml",
+          "sha256": "f00e61f9c5528afc84a16d14dbcf3c2cd9aacc46509b78eb7c08a6d728529aa9"
+        },
+        {
+          "path": "skills/plan-update/SKILL.md",
+          "sha256": "e037177e841577ba85580e61e4ef3477a942b621c2c609e3e1f09dab3607be35"
+        },
+        {
+          "path": "skills/project-init/agents/openai.yaml",
+          "sha256": "91335c99d9cc7f92d77dc0c24ff500f717300c56229b9f52ad3e5df0e64ec78f"
+        },
+        {
+          "path": "skills/project-init/SKILL.md",
+          "sha256": "f448d95ee55ec95fc1d6b474151ac9d221804666c3c38a6fdc867e5f43aee500"
+        },
+        {
+          "path": "skills/task-execute/agents/openai.yaml",
+          "sha256": "3837ee87987d7def575635be74491ffbf5d7ea635ce43ffc078ffcbbf03116f5"
+        },
+        {
+          "path": "skills/task-execute/SKILL.md",
+          "sha256": "4c06ae7d3e69060850352aaa9f16df8b1fe8772ac9672e76f8014c8be475ea8d"
+        },
+        {
+          "path": "skills/work-verify/agents/openai.yaml",
+          "sha256": "fc3343a500a54ba56cbd86664ab218e30ca8e7e15c9c0bf032dee4351f3cfac6"
+        },
+        {
+          "path": "skills/work-verify/SKILL.md",
+          "sha256": "f139071a27618911c7b266c8b8d4ea2e2a5031e37534a170175ec4f808953d7e"
+        },
+        {
+          "path": "workflow.json",
+          "sha256": "0ebee573b6a4fa430c0a14ee580a5bf9324270cecaf9cc42ed3dfc373c1c3b88"
+        },
+        {
+          "path": "workflow.md",
+          "sha256": "9ca4560b3236bf21d5dc0ce97bba8928ac1857096bbf90a14ed8bf99561f9f96"
+        }
+      ]
+    }
+  ]
 }

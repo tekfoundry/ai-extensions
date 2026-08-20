@@ -62,7 +62,7 @@ export function deactivateSkill(activeName: string | undefined): DeactivateSkill
 
   if (entry.owner?.kind === "workflow") {
     throw new AixError(
-      `Cannot deactivate ${activeName} directly because it is owned by workflow ${entry.owner.name}. Use aix remove workflow first.`
+      `Cannot deactivate ${activeName} directly because it is owned by workflow ${entry.owner.name}. Use aix uninstall workflow first.`
     );
   }
 

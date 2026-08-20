@@ -183,7 +183,7 @@ workflow should fail until a later explicit replace flow is designed.
 `aix deactivate skill <active-name>` should refuse direct removal of
 workflow-owned skills. Removing or replacing the workflow owns that lifecycle.
 Local edits to workflow docs, the managed `AGENTS.md` block, or workflow-owned
-skills are drift. Verify should report them, and update/remove workflow
+skills are drift. Verify should report them, and workflow update/uninstall
 commands should refuse to overwrite or delete them.
 
 ## Source Discovery

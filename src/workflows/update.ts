@@ -37,7 +37,8 @@ export function updateWorkflow(cacheRoot = defaultCacheRoot()): UpdateWorkflowRe
     resolved.rootPath,
     resolved.resolvedCommit,
     manifestJson,
-    lockfile
+    lockfile,
+    { allowExistingWorkflow: true }
   );
 
   writeJsonObjectAtomic(MANIFEST_FILE_NAME, manifestJson);

@@ -15,6 +15,8 @@ test("run renders a splash screen with a zero exit code", () => {
   assert.match(result.stdout, /AI Extensions/);
   assert.match(result.stdout, /aix v0\.0\.0/);
   assert.match(result.stdout, /init\s+Initialize AI Extensions/);
+  assert.match(result.stdout, /install workflow \[url\] \[alias\]\s+Install an AI workflow/);
+  assert.match(result.stdout, /uninstall workflow\s+Uninstall an AI workflow/);
   assert.match(result.stdout, /add skills <url> \[alias\]\s+Add a Git skill source/);
 });
 
@@ -29,7 +31,7 @@ test("run renders help with a zero exit code", () => {
 test("command registry owns splash command metadata", () => {
   assert.deepEqual(
     commands.map((command) => command.name),
-    ["init", "install", "add", "remove", "activate", "deactivate", "update", "diff", "verify", "list"]
+    ["init", "install", "uninstall", "add", "remove", "activate", "deactivate", "update", "diff", "verify", "list"]
   );
 
   const result = run([]);

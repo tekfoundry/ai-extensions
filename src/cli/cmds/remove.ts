@@ -27,7 +27,7 @@ function renderRemoveSourceResult(result: RemoveSourceResult): string {
   ].join("\n");
 }
 
-function renderRemoveWorkflowResult(result: RemoveWorkflowResult): string {
+export function renderRemoveWorkflowResult(result: RemoveWorkflowResult): string {
   return [
     `Removed workflow ${result.name}.`,
     `Removed ${result.removedDocs.length} workflow docs.`,
@@ -76,7 +76,7 @@ export function runRemoveCommand(argv: string[]): CliResult {
   }
 
   if (argv[1] !== "skills" || !argv[2]) {
-    throw new CliError("Usage: aix remove skills <source-name> | aix remove workflow", EXIT_USAGE);
+    throw new CliError("Usage: aix remove skills <source-name>", EXIT_USAGE);
   }
 
   return { exitCode: 0, stdout: renderRemoveSourceResult(removeSource(argv[2])) };
@@ -111,8 +111,8 @@ export async function promptForRemovedSkillSource(input: Readable, output: Writa
 
 export const removeCommand: Command = {
   name: "remove",
-  usage: "remove skills <source-name> | remove workflow",
-  summary: "Remove a skill source or workflow",
+  usage: "remove skills <source-name>",
+  summary: "Remove a skill source",
   splash: "remove skills <source>",
   run: runRemoveCommand,
   async runInteractive(argv, context) {

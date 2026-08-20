@@ -4,8 +4,9 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { PassThrough } from "node:stream";
 import { test } from "node:test";
-import { run } from "../dist/cli.js";
+import { run, runInteractive } from "../dist/cli.js";
 import { installWorkflowFromDefinitions } from "../dist/workflows/index.js";
 
 function git(args, cwd) {
@@ -22,10 +23,11 @@ function git(args, cwd) {
   }).trim();
 }
 
-async function createWorkflowRepo(prefix) {
+async function createWorkflowRepo(prefix, workflowName = "fixture-workflow", workflowPath = ".") {
   const directory = await mkdtemp(join(tmpdir(), prefix));
+  const root = workflowPath === "." ? directory : join(directory, workflowPath);
 
-  writeWorkflow(directory, "Initial Workflow", "Use this workflow.");
+  writeWorkflow(root, "Initial Workflow", "Use this workflow.", workflowName);
   git(["init", "-b", "master"], directory);
   git(["add", "."], directory);
   git(["commit", "-m", "workflow"], directory);
@@ -33,18 +35,18 @@ async function createWorkflowRepo(prefix) {
   return directory;
 }
 
-function writeWorkflow(directory, title, skillBody) {
+function writeWorkflow(directory, title, skillBody, workflowName = "fixture-workflow") {
   mkdirSync(join(directory, "skills/alpha"), { recursive: true });
   writeFileSync(
     join(directory, "workflow.json"),
     JSON.stringify(
       {
-        name: "fixture-workflow",
+        name: workflowName,
         title,
         agentsMd: {
           mode: "managed-block",
           source: "AGENTS.append.md",
-          marker: "aix:workflow fixture-workflow"
+          marker: `aix:workflow ${workflowName}`
         },
         docs: ["README.md", "workflow.md", "engineering-best-practices.md"],
         skillsDir: "skills"
@@ -103,6 +105,62 @@ test("run install workflow installs docs, managed AGENTS block, and workflow-own
   });
 });
 
+test("runInteractive install workflow prompts for a bundled workflow when no URL is provided", async () => {
+  const source = await createWorkflowRepo("aix-bundled-workflow-source-", "design-plan-execute", "aix/workflows/design-plan-execute");
+  const input = new PassThrough();
+  const output = new PassThrough();
+  let rendered = "";
+
+  output.on("data", (chunk) => {
+    rendered += chunk.toString("utf8");
+  });
+
+  input.end("1\n");
+
+  await withProject(async (projectPath) => {
+    const previousUrl = process.env.AIX_SOURCE_AIX_URL;
+    const previousRef = process.env.AIX_SOURCE_AIX_REF;
+    const previousWorkflowPath = process.env.AIX_SOURCE_AIX_WORKFLOW_PATH;
+
+    process.env.AIX_SOURCE_AIX_URL = source;
+    process.env.AIX_SOURCE_AIX_REF = "master";
+    delete process.env.AIX_SOURCE_AIX_WORKFLOW_PATH;
+
+    try {
+      const result = await runInteractive(["install", "workflow"], input, output);
+      const manifest = JSON.parse(readFileSync("aix.json", "utf8"));
+
+      assert.equal(result.exitCode, 0);
+      assert.match(rendered, /Select a bundled workflow to install:/);
+      assert.match(rendered, /1\. design-plan-execute/);
+      assert.match(rendered, /q - Quit/);
+      assert.match(result.stdout, /Installed workflow design-plan-execute/);
+      assert.equal(manifest.workflow, "aix:aix/workflows/design-plan-execute");
+      assert.equal(manifest.sources.workflows.aix.url, source);
+      assert.ok(existsSync(join(projectPath, ".agents/README.md")));
+      assert.ok(existsSync(join(projectPath, ".agents/skills/alpha/SKILL.md")));
+    } finally {
+      if (previousUrl === undefined) {
+        delete process.env.AIX_SOURCE_AIX_URL;
+      } else {
+        process.env.AIX_SOURCE_AIX_URL = previousUrl;
+      }
+
+      if (previousRef === undefined) {
+        delete process.env.AIX_SOURCE_AIX_REF;
+      } else {
+        process.env.AIX_SOURCE_AIX_REF = previousRef;
+      }
+
+      if (previousWorkflowPath === undefined) {
+        delete process.env.AIX_SOURCE_AIX_WORKFLOW_PATH;
+      } else {
+        process.env.AIX_SOURCE_AIX_WORKFLOW_PATH = previousWorkflowPath;
+      }
+    }
+  });
+});
+
 test("run install workflow refuses to replace a different active workflow", async () => {
   const firstSource = await createWorkflowRepo("aix-workflow-source-");
   const secondSource = await mkdtemp(join(tmpdir(), "aix-workflow-source-"));
@@ -119,7 +177,20 @@ test("run install workflow refuses to replace a different active workflow", asyn
     const result = run(["install", "workflow", secondSource, "second"]);
 
     assert.equal(result.exitCode, 2);
-    assert.match(result.stderr, /A workflow is already active: fixture-workflow/);
+    assert.match(result.stderr, /A workflow is already active: fixture-workflow. Run aix uninstall workflow before installing another workflow./);
+  });
+});
+
+test("run install workflow refuses when a workflow is already active", async () => {
+  const source = await createWorkflowRepo("aix-workflow-source-");
+
+  await withProject(async () => {
+    assert.equal(run(["install", "workflow", source, "fixture"]).exitCode, 0);
+
+    const result = run(["install", "workflow", source, "fixture"]);
+
+    assert.equal(result.exitCode, 2);
+    assert.match(result.stderr, /A workflow is already active: fixture-workflow. Run aix uninstall workflow before installing another workflow./);
   });
 });
 
@@ -179,7 +250,7 @@ test("run diff workflow reports source changes and update workflow applies them"
   });
 });
 
-test("run verify reports workflow doc drift and remove workflow preserves project AGENTS text", async () => {
+test("run verify reports workflow doc drift and uninstall workflow preserves project AGENTS text", async () => {
   const source = await createWorkflowRepo("aix-workflow-source-");
 
   await withProject(async () => {
@@ -192,7 +263,7 @@ test("run verify reports workflow doc drift and remove workflow preserves projec
     assert.match(verify.stdout, /Workflow doc hash changed: .agents\/workflow.md/);
 
     writeFileSync(".agents/workflow.md", "# Workflow\n", "utf8");
-    const remove = run(["remove", "workflow"]);
+    const remove = run(["uninstall", "workflow"]);
 
     assert.equal(remove.exitCode, 0);
     assert.match(remove.stdout, /Removed workflow fixture-workflow/);
@@ -200,5 +271,19 @@ test("run verify reports workflow doc drift and remove workflow preserves projec
     assert.equal(existsSync(".agents/README.md"), false);
     assert.match(readFileSync("AGENTS.md", "utf8"), /Keep me/);
     assert.doesNotMatch(readFileSync("AGENTS.md", "utf8"), /aix:workflow fixture-workflow/);
+  });
+});
+
+test("run remove workflow remains a compatibility alias", async () => {
+  const source = await createWorkflowRepo("aix-workflow-source-");
+
+  await withProject(async () => {
+    assert.equal(run(["install", "workflow", source, "fixture"]).exitCode, 0);
+
+    const result = run(["remove", "workflow"]);
+
+    assert.equal(result.exitCode, 0);
+    assert.match(result.stdout, /Removed workflow fixture-workflow/);
+    assert.equal(existsSync(".agents/skills/alpha"), false);
   });
 });
