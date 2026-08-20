@@ -16,7 +16,7 @@ function shortCommit(value: string | undefined): string {
 }
 
 function colorEnabled(): boolean {
-  if (process.env.FORCE_COLOR !== undefined && process.env.FORCE_COLOR !== "0") {
+  if (process.env.AIX_FORCE_COLOR !== undefined && process.env.AIX_FORCE_COLOR !== "0") {
     return true;
   }
 
