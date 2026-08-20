@@ -5,7 +5,7 @@ function pendingCommand(name: string, splash: string, summary: string): Command 
   return {
     name,
     usage: splash,
-    splash,
+    splash: [{ usage: splash, summary }],
     summary,
     run(): CliResult {
       throw new CliError(`Command not implemented yet: ${name}`);

@@ -76,13 +76,13 @@ async function withProject(callback) {
   }
 }
 
-test("run install workflow installs docs, managed AGENTS block, and workflow-owned skills", async () => {
+test("run workflow install installs docs, managed AGENTS block, and workflow-owned skills", async () => {
   const source = await createWorkflowRepo("aix-workflow-source-");
 
   await withProject(async (projectPath) => {
     writeFileSync("AGENTS.md", "# Project Rules\n\nKeep this project text.\n", "utf8");
 
-    const result = run(["install", "workflow", source, "fixture"]);
+    const result = run(["workflow", "install", source, "fixture"]);
     const manifest = JSON.parse(readFileSync("aix.json", "utf8"));
     const lockfile = JSON.parse(readFileSync("aix.lock.json", "utf8"));
     const agents = readFileSync("AGENTS.md", "utf8");
@@ -105,7 +105,7 @@ test("run install workflow installs docs, managed AGENTS block, and workflow-own
   });
 });
 
-test("runInteractive install workflow prompts for a bundled workflow when no URL is provided", async () => {
+test("runInteractive workflow install prompts for a bundled workflow when no URL is provided", async () => {
   const source = await createWorkflowRepo("aix-bundled-workflow-source-", "design-plan-execute", "aix/workflows/design-plan-execute");
   const input = new PassThrough();
   const output = new PassThrough();
@@ -127,7 +127,7 @@ test("runInteractive install workflow prompts for a bundled workflow when no URL
     delete process.env.AIX_SOURCE_AIX_WORKFLOW_PATH;
 
     try {
-      const result = await runInteractive(["install", "workflow"], input, output);
+      const result = await runInteractive(["workflow", "install"], input, output);
       const manifest = JSON.parse(readFileSync("aix.json", "utf8"));
 
       assert.equal(result.exitCode, 0);
@@ -161,7 +161,7 @@ test("runInteractive install workflow prompts for a bundled workflow when no URL
   });
 });
 
-test("run install workflow refuses to replace a different active workflow", async () => {
+test("run workflow install refuses to replace a different active workflow", async () => {
   const firstSource = await createWorkflowRepo("aix-workflow-source-");
   const secondSource = await mkdtemp(join(tmpdir(), "aix-workflow-source-"));
 
@@ -172,25 +172,25 @@ test("run install workflow refuses to replace a different active workflow", asyn
   git(["commit", "-m", "workflow"], secondSource);
 
   await withProject(async () => {
-    assert.equal(run(["install", "workflow", firstSource, "first"]).exitCode, 0);
+    assert.equal(run(["workflow", "install", firstSource, "first"]).exitCode, 0);
 
-    const result = run(["install", "workflow", secondSource, "second"]);
+    const result = run(["workflow", "install", secondSource, "second"]);
 
     assert.equal(result.exitCode, 2);
-    assert.match(result.stderr, /A workflow is already active: fixture-workflow. Run aix uninstall workflow before installing another workflow./);
+    assert.match(result.stderr, /A workflow is already active: fixture-workflow. Run aix workflow uninstall before installing another workflow./);
   });
 });
 
-test("run install workflow refuses when a workflow is already active", async () => {
+test("run workflow install refuses when a workflow is already active", async () => {
   const source = await createWorkflowRepo("aix-workflow-source-");
 
   await withProject(async () => {
-    assert.equal(run(["install", "workflow", source, "fixture"]).exitCode, 0);
+    assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
 
-    const result = run(["install", "workflow", source, "fixture"]);
+    const result = run(["workflow", "install", source, "fixture"]);
 
     assert.equal(result.exitCode, 2);
-    assert.match(result.stderr, /A workflow is already active: fixture-workflow. Run aix uninstall workflow before installing another workflow./);
+    assert.match(result.stderr, /A workflow is already active: fixture-workflow. Run aix workflow uninstall before installing another workflow./);
   });
 });
 
@@ -198,16 +198,16 @@ test("workflow-owned skills cannot be deactivated directly", async () => {
   const source = await createWorkflowRepo("aix-workflow-source-");
 
   await withProject(async () => {
-    assert.equal(run(["install", "workflow", source, "fixture"]).exitCode, 0);
+    assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
 
-    const result = run(["deactivate", "skill", "alpha"]);
+    const result = run(["skill", "deactivate", "alpha"]);
 
     assert.equal(result.exitCode, 2);
     assert.match(result.stderr, /owned by workflow fixture-workflow/);
   });
 });
 
-test("run diff workflow reports source changes and update workflow applies them", async () => {
+test("run workflow diff reports source changes and workflow update applies them", async () => {
   const source = await createWorkflowRepo("aix-workflow-source-");
 
   await withProject(async () => {
@@ -232,11 +232,11 @@ test("run diff workflow reports source changes and update workflow applies them"
     git(["add", "."], source);
     git(["commit", "-m", "update workflow"], source);
 
-    const diff = run(["diff", "workflow"]);
+    const diff = run(["workflow", "diff"]);
     assert.equal(diff.exitCode, 0);
     assert.match(diff.stdout, /Updated body/);
 
-    const update = run(["update", "workflow"]);
+    const update = run(["workflow", "update"]);
     assert.equal(update.exitCode, 0);
     assert.match(update.stdout, /Updated workflow/);
     assert.match(readFileSync(".agents/skills/alpha/SKILL.md", "utf8"), /Updated body/);
@@ -250,12 +250,12 @@ test("run diff workflow reports source changes and update workflow applies them"
   });
 });
 
-test("run verify reports workflow doc drift and uninstall workflow preserves project AGENTS text", async () => {
+test("run verify reports workflow doc drift and workflow uninstall preserves project AGENTS text", async () => {
   const source = await createWorkflowRepo("aix-workflow-source-");
 
   await withProject(async () => {
     writeFileSync("AGENTS.md", "# Project Rules\n\nKeep me.\n", "utf8");
-    assert.equal(run(["install", "workflow", source, "fixture"]).exitCode, 0);
+    assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
     writeFileSync(".agents/workflow.md", "# Local edit\n", "utf8");
 
     const verify = run(["verify"]);
@@ -263,7 +263,7 @@ test("run verify reports workflow doc drift and uninstall workflow preserves pro
     assert.match(verify.stdout, /Workflow doc hash changed: .agents\/workflow.md/);
 
     writeFileSync(".agents/workflow.md", "# Workflow\n", "utf8");
-    const remove = run(["uninstall", "workflow"]);
+    const remove = run(["workflow", "uninstall"]);
 
     assert.equal(remove.exitCode, 0);
     assert.match(remove.stdout, /Removed workflow fixture-workflow/);
@@ -274,16 +274,16 @@ test("run verify reports workflow doc drift and uninstall workflow preserves pro
   });
 });
 
-test("run remove workflow remains a compatibility alias", async () => {
+test("old remove workflow syntax is not a compatibility alias", async () => {
   const source = await createWorkflowRepo("aix-workflow-source-");
 
   await withProject(async () => {
-    assert.equal(run(["install", "workflow", source, "fixture"]).exitCode, 0);
+    assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
 
     const result = run(["remove", "workflow"]);
 
-    assert.equal(result.exitCode, 0);
-    assert.match(result.stdout, /Removed workflow fixture-workflow/);
-    assert.equal(existsSync(".agents/skills/alpha"), false);
+    assert.equal(result.exitCode, 1);
+    assert.match(result.stderr, /Unknown command: remove/);
+    assert.equal(existsSync(".agents/skills/alpha"), true);
   });
 });

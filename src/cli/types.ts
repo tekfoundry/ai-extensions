@@ -11,11 +11,16 @@ export interface CommandContext {
   output: Writable;
 }
 
+export interface CommandSplashLine {
+  usage: string;
+  summary: string;
+}
+
 export interface Command {
   name: string;
   usage: string;
   summary: string;
-  splash: string;
+  splash: CommandSplashLine[];
   run: (argv: string[]) => CliResult;
   runInteractive?: (argv: string[], context: CommandContext) => Promise<CliResult>;
 }

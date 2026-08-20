@@ -17,8 +17,8 @@ function readVersion(): string {
   }
 }
 
-function renderCommandSplashLine(command: { splash: string; summary: string }): string {
-  return `  ${command.splash.padEnd(29)} ${command.summary}`;
+function renderCommandSplashLine(command: { usage: string; summary: string }): string {
+  return `  ${command.usage.padEnd(39)} ${command.summary}`;
 }
 
 export function renderSplash(version = readVersion()): string {
@@ -27,7 +27,7 @@ export function renderSplash(version = readVersion()): string {
     `aix v${version}`,
     "",
     "Commands:",
-    ...commands.map(renderCommandSplashLine),
+    ...commands.flatMap((command) => command.splash.map(renderCommandSplashLine)),
     "",
     "Run aix <command> --help for command details as commands land."
   ].join("\n");

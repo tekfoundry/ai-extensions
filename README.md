@@ -34,7 +34,7 @@ The command is `aix`. The npm package is `@tekfoundry/aix`.
 - Track exactly which Git commit each skill came from.
 - Catch local edits before an update overwrites someone’s work.
 - Give agents a predictable `.agents/skills` directory to scan.
-- Make skill updates reviewable through `aix diff` before running `aix update`.
+- Make skill updates reviewable through `aix skills diff` before running `aix skills update`.
 - Use aliases when different sources publish skills with the same name.
 - Start with Git instead of a new registry, account, or hosting service.
 - Leave room for other AI assets without changing the daily `aix` command.
@@ -90,8 +90,8 @@ are exposed through `.agents/skills`.
 ### install a workflow
 
 ```bash
-aix install workflow
-aix install workflow https://github.com/example/ai-assets/tree/main/workflows/team-flow team-flow
+aix workflow install
+aix workflow install https://github.com/example/ai-assets/tree/main/workflows/team-flow team-flow
 ```
 
 **What Happens**
@@ -104,14 +104,14 @@ the workflow as one unit, installs its docs, appends its managed `AGENTS.md`
 block, activates its local skills, scaffolds missing `_docs` directories, and
 records all installed files in `aix.lock.json`. Only one workflow can be active
 at a time. If another workflow is already active, install stops and tells you to
-run `aix uninstall workflow` first.
+run `aix workflow uninstall` first.
 
 ### add skill sources
 
 ```bash
-aix add skills https://github.com/example/skills/tree/main/skills team-skills
-aix add skills https://github.com/mattpocock/skills/tree/main/skills mattpocock
-aix add skills https://github.com/cursor/plugins/tree/main/pstack/skills cursor-pstack
+aix skills add https://github.com/example/skills/tree/main/skills team-skills
+aix skills add https://github.com/mattpocock/skills/tree/main/skills mattpocock
+aix skills add https://github.com/cursor/plugins/tree/main/pstack/skills cursor-pstack
 ```
 
 **What Happens**
@@ -123,7 +123,7 @@ folders. It does not copy every skill into your project or activate anything.
 ### list available skills
 
 ```bash
-aix list skills mattpocock
+aix skills list mattpocock
 ```
 
 **What Happens**
@@ -135,7 +135,7 @@ folders without changing `aix.json`, `aix.lock.json`, `.agents/packages`, or
 ### activate a skill
 
 ```bash
-aix activate skill mattpocock/engineering/typescript
+aix skill activate mattpocock/engineering/typescript
 ```
 
 **What Happens**
@@ -148,7 +148,7 @@ skill to `aix.json`, and records the resolved Git commit plus file hashes in
 ### activate with an alias
 
 ```bash
-aix activate skill cursor-pstack/tdd cursor-tdd
+aix skill activate cursor-pstack/tdd cursor-tdd
 ```
 
 **What Happens**
@@ -172,26 +172,26 @@ ownership metadata, and active-name collisions.
 ### review and accept updates
 
 ```bash
-aix diff
-aix update
-aix diff workflow
-aix update workflow
+aix skills diff
+aix skills update
+aix workflow diff
+aix workflow update
 ```
 
 **What Happens**
 
-`aix diff` compares locked skill package copies with the currently resolved
-source version without changing files. `aix update` refreshes locked skill
+`aix skills diff` compares locked skill package copies with the currently resolved
+source version without changing files. `aix skills update` refreshes locked skill
 packages and hashes only after local drift checks pass.
 
-`aix diff workflow` and `aix update workflow` do the same for the active
+`aix workflow diff` and `aix workflow update` do the same for the active
 workflow package, installed workflow docs, the managed `AGENTS.md` block, and
 workflow-owned skills.
 
 ### deactivate a root skill
 
 ```bash
-aix deactivate skill cursor-tdd
+aix skill deactivate cursor-tdd
 ```
 
 **What Happens**
@@ -204,7 +204,7 @@ and tells you to uninstall the workflow instead.
 ### uninstall a workflow
 
 ```bash
-aix uninstall workflow
+aix workflow uninstall
 ```
 
 **What Happens**
@@ -217,9 +217,9 @@ content in place.
 ### remove unused sources
 
 ```bash
-aix remove skills team-skills
-aix remove skills mattpocock
-aix remove skills cursor-pstack
+aix skills remove team-skills
+aix skills remove mattpocock
+aix skills remove cursor-pstack
 ```
 
 **What Happens**
@@ -232,26 +232,26 @@ source.
 
 ```bash
 aix init
-aix install workflow [git-or-github-tree-url] [alias]
-aix uninstall workflow
-aix add skills <git-or-github-tree-url> [alias]
-aix remove skills <source-name>
-aix activate skill [source/path] [alias]
-aix deactivate skill <active-name>
-aix update
-aix update <source>/<path>
-aix update workflow
-aix diff
-aix diff <source>/<path>
-aix diff workflow
+aix status
+aix workflow install [git-or-github-tree-url] [alias]
+aix workflow uninstall
+aix skills add <git-or-github-tree-url> [alias]
+aix skills remove <source-name>
+aix skill activate [source/path] [alias]
+aix skill deactivate <active-name>
+aix skills update
+aix skills update <source>/<path>
+aix workflow update
+aix skills diff
+aix skills diff <source>/<path>
+aix workflow diff
 aix verify
-aix list
-aix list skills [source]
+aix skills list [source]
 ```
 
-Interactive forms are available for `list`, `list skills`, `activate skill`,
-`deactivate`, `deactivate skill`, and `remove skills` when the target is not
-provided.
+Interactive forms are available for `workflow install`, `skills list`,
+`skills remove`, `skill activate`, and `skill deactivate` when the target is
+not provided.
 
 ## manifest
 
@@ -373,8 +373,8 @@ during activation are written to `aix.lock.json`, not to the manifest.
 }
 ```
 
-The lockfile is how `aix verify`, `aix diff`, `aix update`, and
-`aix deactivate skill` decide whether workflow docs, package files, active
+The lockfile is how `aix verify`, `aix status`, `aix skills diff`, `aix skills update`, and
+`aix skill deactivate` decide whether workflow docs, package files, active
 skill files, and managed `AGENTS.md` blocks are still managed by AI Extensions.
 If a managed file changes locally, commands that would overwrite or remove it
 stop with an error.

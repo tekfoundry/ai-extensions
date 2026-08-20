@@ -30,6 +30,10 @@ The manifest represents root user intent. The lockfile represents the exact
 fetched and active state, including dependency-only active skills and the
 active workflow.
 
+`aix status` should read both files and summarize the installed state without
+changing project files. It should report missing manifest or lockfile files as
+workspace setup status, not as a destructive repair action.
+
 The initial manifest schema is:
 
 ```json
@@ -66,7 +70,7 @@ transition, but commands should write the nested `sources.skills` shape.
 
 `sources.workflows` contains configured workflow sources. The first workflow
 implementation should usually write this entry as part of
-`aix install workflow` instead of requiring a separate add step. The manifest
+`aix workflow install` instead of requiring a separate add step. The manifest
 should allow one active root workflow through `workflow`, because workflows are
 all-or-nothing process packages for the MVP.
 
@@ -172,7 +176,7 @@ Workflow-owned skills should be materialized under
 `.agents/skills/<active-name>`. They should not be added to the manifest
 `skills` list, because the root user intent is the active workflow.
 
-Root `AGENTS.md` is mixed ownership. `aix install workflow` should insert or
+Root `AGENTS.md` is mixed ownership. `aix workflow install` should insert or
 update the workflow text from `AGENTS.append.md` inside a marker-delimited
 managed block. The block is package-managed and hash-checked in the lockfile.
 Everything outside the block is project-owned and must be preserved.
@@ -180,17 +184,17 @@ Everything outside the block is project-owned and must be preserved.
 Only one workflow may be active at a time in the MVP. Installing another
 workflow should fail until a later explicit replace flow is designed.
 
-`aix deactivate skill <active-name>` should refuse direct removal of
+`aix skill deactivate <active-name>` should refuse direct removal of
 workflow-owned skills. Removing or replacing the workflow owns that lifecycle.
 Local edits to workflow docs, the managed `AGENTS.md` block, or workflow-owned
-skills are drift. Verify should report them, and workflow update/uninstall
+skills are drift. `aix verify` and `aix status` should report them, and workflow update/uninstall
 commands should refuse to overwrite or delete them.
 
 ## Source Discovery
 
 Default external sources should be discoverable without automatic activation.
 
-`aix add skills <git-or-github-tree-url> [alias]` should add a skill source
+`aix skills add <git-or-github-tree-url> [alias]` should add a skill source
 definition, resolve the Git ref, and discover valid skill folders. The optional
 alias sets the local source name. The command should accept normal Git URLs
 plus GitHub tree URLs and normalize tree URLs into `url`, `ref`, and `path`
@@ -200,43 +204,40 @@ fields. For example,
 `skills`.
 
 Source addition should prefetch into the shared Git cache and write enough
-local source metadata to support `aix list skills <source>` without another network
+local source metadata to support `aix skills list <source>` without another network
 round trip. It should not copy every discovered skill into `.agents/packages`
 by default, because skill collections may contain many skills or heavy
 supporting files. `.agents/packages/skills/<source>/...` is reserved for the
 project-local package copies needed by active skills.
 
 This keeps source discovery local and fast while avoiding project directory
-bloat. `aix activate` materializes the requested skill package from the cache
+bloat. `aix skill activate` materializes the requested skill package from the cache
 into `.agents/packages/skills/<source>/...`, records only the user-requested
 root skill in the manifest `skills` list, then exposes the requested skill and
 any inferred dependency skills through `.agents/skills`.
 
-The MVP supports the `skills` source kind. Using `aix add skills` keeps the
-command semantic and leaves room for later `aix add agents` or
-`aix add automations` commands.
+The MVP supports the `skills` source kind. Using `aix skills add` keeps the
+command semantic and leaves room for later `aix agents add` or
+`aix automations add` commands.
 
-`aix remove skills <source-name>` removes a configured skill source only when
+`aix skills remove <source-name>` removes a configured skill source only when
 no active skills depend on it. If active manifest or lockfile entries still
 reference the source, it should fail and tell the user to deactivate those
 skills first. When safe, it should remove the source entry, matching source
 metadata, and the empty top-level `.agents/packages/skills/<source-name>`
 directory. It should not recursively delete package contents.
 
-`aix remove skills` without a source name should prompt the user to select one
+`aix skills remove` without a source name should prompt the user to select one
 configured skill source by number, then run the same remove path as
-`aix remove skills <source-name>`. The interactive list should include
+`aix skills remove <source-name>`. The interactive list should include
 configured manifest sources, not built-in defaults that are not present in
 `aix.json`. Every user selection menu should include `q - Quit` directly after
 the selectable options. Sources that cannot be removed yet should be shown in a
 final section headed `To remove the following sources deactivate their skills
 first:`.
 
-`aix list` should show an interactive list-kind picker. The MVP should include
-`Skills` and `q - Quit`; later versions can add kinds such as `Agents`.
-
-`aix list skills` should show an interactive source picker and then list valid
-skill folders from the selected source. `aix list skills <source>` should
+`aix skills list` should show an interactive source picker and then list valid
+skill folders from the selected source. `aix skills list <source>` should
 resolve the source, inspect its configured path, and report valid skill
 folders without prompting. For flat sources, direct child folders containing
 `SKILL.md` are skills. For nested sources, descendant folders containing
@@ -247,8 +248,11 @@ Skill-list output uses one skill per line:
 source-relative/path<TAB>skill-name
 ```
 
-Discovery through `aix list skills <source>` must not modify `aix.json`,
-`aix.lock.json`, `.agents/packages`, or `.agents/skills`.
+Discovery through `aix skills list <source>` must not modify `aix.json`,
+`aix.lock.json`, `.agents/packages`, or `.agents/skills`. Status output should
+follow the same default: it may inspect local files and compare source refs for
+update availability, but it must not update the manifest, lockfile, package
+copies, active skills, workflow docs, or managed `AGENTS.md` content.
 
 ## Skill Dependencies
 

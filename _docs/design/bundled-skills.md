@@ -54,17 +54,17 @@ available for the agent workflow while AI Extensions is being built.
 For example:
 
 ```bash
-aix list skills aix
-aix list skills mattpocock
-aix list skills cursor-pstack
+aix skills list aix
+aix skills list mattpocock
+aix skills list cursor-pstack
 ```
 
 Skills from external sources should become active only after an explicit
 activation action.
 
 ```bash
-aix activate cursor-pstack/tdd
-aix activate mattpocock/engineering/typescript
+aix skill activate cursor-pstack/tdd
+aix skill activate mattpocock/engineering/typescript
 ```
 
 These repository-local skills should be available as workflow-owned skills in

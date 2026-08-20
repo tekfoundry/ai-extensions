@@ -16,11 +16,12 @@ AI-agent extensions in software projects.
 The CLI command is `aix`. Common commands include:
 
 ```bash
-aix add skills
-aix remove skills
-aix activate skill
-aix deactivate skill
+aix skills add
+aix skills remove
+aix skill activate
+aix skill deactivate
 aix verify
+aix status
 ```
 
 The package is implemented in TypeScript on Node.js and distributed as a scoped

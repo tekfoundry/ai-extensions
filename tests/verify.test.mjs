@@ -45,7 +45,7 @@ async function withProject(callback) {
   process.env.AIX_CACHE_DIR = cacheRoot;
 
   try {
-    assert.equal(run(["add", "skills", gitSource.directory, "fixture"]).exitCode, 0);
+    assert.equal(run(["skills", "add", gitSource.directory, "fixture"]).exitCode, 0);
     await callback(projectRoot);
   } finally {
     if (previousCache === undefined) {
@@ -60,7 +60,7 @@ async function withProject(callback) {
 
 test("run verify passes when manifest, lockfile, package, and active skill agree", async () => {
   await withProject(async () => {
-    assert.equal(run(["activate", "skill", "fixture/skills/demo"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/demo"]).exitCode, 0);
 
     const result = run(["verify"]);
 
@@ -71,7 +71,7 @@ test("run verify passes when manifest, lockfile, package, and active skill agree
 
 test("run verify reports package and active hash drift", async () => {
   await withProject(async (projectRoot) => {
-    assert.equal(run(["activate", "skill", "fixture/skills/demo"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/demo"]).exitCode, 0);
     writeFileSync(join(projectRoot, ".agents/packages/skills/fixture/skills/demo/notes.md"), "edited\n", "utf8");
 
     const result = run(["verify"]);
@@ -85,7 +85,7 @@ test("run verify reports package and active hash drift", async () => {
 
 test("run verify reports active front matter alias mismatches", async () => {
   await withProject(async (projectRoot) => {
-    assert.equal(run(["activate", "skill", "fixture/skills/demo", "demo-alias"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/demo", "demo-alias"]).exitCode, 0);
     writeFileSync(join(projectRoot, ".agents/skills/demo-alias/SKILL.md"), "---\nname: wrong\n---\n\n# Demo\n", "utf8");
 
     const result = run(["verify"]);

@@ -4,7 +4,7 @@ export function activationTargetFromInput(target: string): { source: string; sou
   const separatorIndex = target.indexOf("/");
 
   if (separatorIndex <= 0 || separatorIndex === target.length - 1) {
-    throw new AixError("Usage: aix activate skill <source/path> [alias]");
+    throw new AixError("Usage: aix skill activate <source/path> [alias]");
   }
 
   return {

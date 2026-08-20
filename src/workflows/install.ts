@@ -36,7 +36,7 @@ function preflightWorkflowInstall(
 
   if (existingWorkflow && !allowExistingWorkflow) {
     throw new AixError(
-      `A workflow is already active: ${existingWorkflow.name}. Run aix uninstall workflow before installing another workflow.`
+      `A workflow is already active: ${existingWorkflow.name}. Run aix workflow uninstall before installing another workflow.`
     );
   }
 

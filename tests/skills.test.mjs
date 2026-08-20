@@ -90,7 +90,7 @@ test("discoverSkills rejects SKILL.md without a usable name", async () => {
   );
 });
 
-test("run list reports aix git source skills without mutating project files", async () => {
+test("run skills list reports aix git source skills without mutating project files", async () => {
   const gitSource = await createAixGitSource();
   const projectPath = await createProject();
   const previousCwd = process.cwd();
@@ -121,7 +121,7 @@ test("run list reports aix git source skills without mutating project files", as
       "utf8"
     );
     const beforeManifest = readFileSync("aix.json", "utf8");
-    const result = run(["list", "skills", "aix"]);
+    const result = run(["skills", "list", "aix"]);
 
     assert.equal(result.exitCode, 0);
     assert.match(result.stdout, /Skills in aix:/);
@@ -140,7 +140,7 @@ test("run list reports aix git source skills without mutating project files", as
   }
 });
 
-test("run list reports git source skills from a manifest source", async () => {
+test("run skills list reports git source skills from a manifest source", async () => {
   const gitSource = await createNestedGitSource();
   const projectPath = await createProject();
   const previousCwd = process.cwd();
@@ -172,7 +172,7 @@ test("run list reports git source skills from a manifest source", async () => {
     );
 
     const beforeManifest = readFileSync("aix.json", "utf8");
-    const result = run(["list", "skills", "fixture"]);
+    const result = run(["skills", "list", "fixture"]);
 
     assert.equal(result.exitCode, 0);
     assert.match(result.stdout, /Skills in fixture:/);
@@ -192,7 +192,7 @@ test("run list reports git source skills from a manifest source", async () => {
   }
 });
 
-test("run list skills without a source uses the interactive path", async () => {
+test("run skills list without a source uses the interactive path", async () => {
   const gitSource = await createNestedGitSource();
   const projectPath = await createProject();
   const previousCwd = process.cwd();
@@ -221,10 +221,10 @@ test("run list skills without a source uses the interactive path", async () => {
     );
 
     const beforeManifest = readFileSync("aix.json", "utf8");
-    const result = run(["list", "skills"]);
+    const result = run(["skills", "list"]);
 
     assert.equal(result.exitCode, 1);
-    assert.equal(result.stderr, "Usage: aix list skills <source>");
+    assert.equal(result.stderr, "Usage: aix skills list <source>");
     assert.equal(readFileSync("aix.json", "utf8"), beforeManifest);
     assertNoManagedProjectWrites(projectPath);
   } finally {
@@ -232,14 +232,14 @@ test("run list skills without a source uses the interactive path", async () => {
   }
 });
 
-test("run list fails clearly for unknown sources", async () => {
+test("run skills list fails clearly for unknown sources", async () => {
   const projectPath = await createProject();
   const previousCwd = process.cwd();
 
   process.chdir(projectPath);
 
   try {
-    const result = run(["list", "skills", "missing"]);
+    const result = run(["skills", "list", "missing"]);
 
     assert.equal(result.exitCode, 2);
     assert.equal(result.stderr, "Unknown source: missing");

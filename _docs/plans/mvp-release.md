@@ -16,10 +16,9 @@ around:
 
 - a TypeScript and Node.js CLI distributed as a scoped npm package that exposes
   the short `aix` binary
-- commands for `install workflow`, `remove workflow`, `add skills`,
-  `remove skills`, `activate skill`, `deactivate skill`, `update`, `diff`,
-  `verify`, and `list skills [source]`
-- initialization through `aix init`
+- top-level whole-workspace commands for init, verify, and status, plus
+  object-first commands for workflow lifecycle, skill source management, skill
+  activation, update, diff, and listing
 - Git-based skill sources only
 - project manifests in `aix.json`
 - exact fetched and active state in `aix.lock.json`
@@ -75,21 +74,21 @@ explicit while the product rules are still settling.
 The CLI should expose these commands:
 
 - `aix init`
-- `aix install workflow <git-or-github-tree-url> [alias]`
-- `aix remove workflow`
-- `aix add skills <git-or-github-tree-url> [alias]`
-- `aix remove skills <source-name>`
-- `aix activate skill [source/path] [alias]`
-- `aix deactivate skill <active-name>`
-- `aix update`
-- `aix update <source>/<path>`
-- `aix update workflow`
-- `aix diff`
-- `aix diff <source>/<path>`
-- `aix diff workflow`
 - `aix verify`
-- `aix list`
-- `aix list skills [source]`
+- `aix status`
+- `aix workflow install <git-or-github-tree-url> [alias]`
+- `aix workflow uninstall`
+- `aix workflow update`
+- `aix workflow diff`
+- `aix skills add <git-or-github-tree-url> [alias]`
+- `aix skills remove <source-name>`
+- `aix skills list [source]`
+- `aix skills update`
+- `aix skills update <source>/<path>`
+- `aix skills diff`
+- `aix skills diff <source>/<path>`
+- `aix skill activate [source/path] [alias]`
+- `aix skill deactivate <active-name>`
 
 Terminal UX should stay consistent across commands. Command modules should use
 shared terminal UI helpers for selection menus, tables, color, and later status
@@ -97,13 +96,11 @@ messages instead of formatting each interaction by hand. The MVP should prefer
 lightweight prompt and color dependencies over a full terminal app framework;
 Ink can be revisited if later workflows need persistent interactive screens.
 
-`aix list` opens an interactive kind picker with `skills` and `q - Quit`.
-`aix list skills` opens an interactive source picker. `aix list skills
-<source>` discovers skills from a configured source without prompting. None of
-these forms write to the manifest, lockfile, `.agents/packages`, or
-`.agents/skills`.
+`aix skills list` opens an interactive source picker. `aix skills list
+<source>` discovers skills from a configured source without prompting. Neither
+form writes to the manifest, lockfile, `.agents/packages`, or `.agents/skills`.
 
-`aix install workflow <git-or-github-tree-url> [alias]` installs one
+`aix workflow install <git-or-github-tree-url> [alias]` installs one
 Git-backed workflow as the project's active AI Agent Workflow. Workflow install
 normalizes GitHub tree URLs, fetches the source into the shared Git cache,
 discovers the workflow by directory convention, copies recognized workflow docs
@@ -118,53 +115,57 @@ through ordinary skill deactivation. Local edits to workflow docs or
 workflow-owned skills are drift; verify should report them, and workflow update
 or removal should refuse to overwrite or delete them.
 
-`aix remove workflow` removes the active workflow docs and workflow-owned skills
-only after local drift checks pass. It leaves project-owned `_docs` content in
-place.
+`aix workflow uninstall` removes the active workflow docs and workflow-owned
+skills only after local drift checks pass. It leaves project-owned `_docs`
+content in place.
 
-`aix diff workflow` compares locked workflow docs and workflow-owned skills
+`aix workflow diff` compares locked workflow docs and workflow-owned skills
 with the currently resolved workflow source without changing files.
 
-`aix update workflow` refreshes locked workflow docs and workflow-owned skills
+`aix workflow update` refreshes locked workflow docs and workflow-owned skills
 only after local drift checks pass.
 
-`aix add skills <git-or-github-tree-url> [alias]` adds a Git-backed skill source
+`aix skills add <git-or-github-tree-url> [alias]` adds a Git-backed skill source
 to `aix.json` under `sources.skills`, normalizes GitHub tree URLs into Git URL,
 ref, and source path, discovers valid skill folders, and prefetches the source
 into the shared Git cache. Source addition is the network-fetch and indexing
 step; it does not copy every discovered skill into `.agents/packages` by
-default. The plural `skills` names the source collection kind and leaves room
-for later commands such as `aix add agents <url>` or
-`aix add automations <url>`.
+default. The plural `skills` names the source collection kind and keeps the
+command grammar object-first.
 
-`aix remove skills <source-name>` removes a configured skill source only when no
+`aix skills remove <source-name>` removes a configured skill source only when no
 active skills still depend on it. If active manifest or lockfile entries still
 reference the source, it fails and tells the user to deactivate those skills
 first. When safe, it removes the source entry, matching source metadata, and
 the empty top-level `.agents/packages/skills/<source-name>` directory. It does
 not recursively delete package contents.
 
-`aix remove skills` without a source name provides an interactive picker over
+`aix skills remove` without a source name provides an interactive picker over
 configured manifest skill sources, then runs the same safety checks and removal
 behavior as the explicit command. The picker lists removable sources by number,
 places `q - Quit` directly after the selectable options, and shows blocked
 sources under `To remove the following sources deactivate their skills first:`.
 
-`aix activate skill <source>/<path> [alias]` exposes a materialized skill
+`aix skill activate <source>/<path> [alias]` exposes a materialized skill
 through `.agents/skills/<active-name>`. Without an alias, activation normally
 creates a symlink to the materialized package skill folder. With an alias,
 activation may need a managed wrapper directory so the active `SKILL.md` front
 matter `name:` matches the alias without mutating the package copy.
 
-`aix activate skill` without a target should eventually provide an interactive
+`aix skill activate` without a target should eventually provide an interactive
 flow: list configured skill sources, let the user select a source by number,
 list inactive skills from that source, and let the user select a skill by
 number. The MVP may implement non-interactive activation first if terminal
 prompts add too much risk.
 
-`aix deactivate skill <active-name>` removes one active skill from
+`aix skill deactivate <active-name>` removes one active skill from
 `.agents/skills` and updates manifest and lockfile state without deleting the
 materialized package copy.
+
+Whole-workspace lifecycle commands are intentionally top-level. `aix init`,
+`aix verify`, and `aix status` are canonical commands, not compatibility
+aliases for old verb-first object commands. Asset-specific commands keep the
+object-first grammar.
 
 `aix init` initializes the local AI Extensions environment. It creates
 `.agents/`, `.agents/packages/`, `.agents/skills/`, `aix.json`, and
@@ -181,24 +182,33 @@ written to the manifest `skills` list unless the user explicitly activates
 them. Object entries are reserved for aliases, per-skill refs, or later
 metadata.
 
-`aix activate skill` reads `aix.json`, resolves the cached source metadata,
+`aix skill activate` reads `aix.json`, resolves the cached source metadata,
 materializes the requested package under `.agents/packages/skills`, validates
 the requested skill, detects naming collisions, checks local drift against the
 lockfile, creates the active symlink or wrapper under `.agents/skills`, hashes
 package and active files, and writes `aix.lock.json` atomically.
 
-`aix deactivate skill` reads `aix.json` and `aix.lock.json`, resolves the
+`aix skill deactivate` reads `aix.json` and `aix.lock.json`, resolves the
 active skill by active name, checks local drift against active file hashes,
 removes the active entry when safe, and writes updated state atomically.
 
-`aix update` intentionally refreshes locked Git commits plus package and active
-file hashes. It must run the same local drift checks before changing files.
+`aix skills update` intentionally refreshes locked Git commits plus package and
+active file hashes for locked skills. It must run the same local drift checks
+before changing files.
 
-`aix diff` shows the difference between the locked package or active copy and
-the currently resolved source version. It does not change project files.
+`aix skills diff` shows the difference between the locked skill package or
+active copy and the currently resolved source version. It does not change
+project files.
 
-`aix verify` checks that the manifest, lockfile, package files, active files,
-hashes, skill front matter, and naming rules still agree.
+`aix verify` checks that the manifest, lockfile, package files, active
+files, hashes, skill front matter, workflow state, and naming rules still
+agree.
+
+`aix status` reports the current AI Extensions workspace state without changing
+project files. It should show whether the workspace is initialized, the active
+workflow, configured workflow and skill sources, user-requested active skills,
+dependency-only active skills, workflow-owned skills, local drift or verify
+issues, and update availability when source refs can be resolved.
 
 File operations are safety-sensitive. All writes stay scoped to
 `aix.json`, `aix.lock.json`, `.agents/`, `.agents/packages`, and
@@ -243,7 +253,7 @@ first release or an emergency release.
 - Active skills live under `.agents/skills/<active-name>`.
 - Only one workflow may be active at a time in the MVP.
 - Workflow-owned skills cannot be deactivated directly with
-  `aix deactivate skill`.
+  `aix skill deactivate`.
 - Workflow install may create missing `_docs` directories but must not rewrite
   project-authored `_docs` documents.
 - A skill folder is valid only when it contains a valid `SKILL.md`.
@@ -926,7 +936,199 @@ Completion evidence:
   remains intentionally unresolved because the plan does not authorize choosing
   one.
 
-### Phase 7: Workflow packaging and installation (status: completed)
+### Phase 7: Pragmatic command interface migration and status (status: completed)
+
+Goal: keep asset-specific commands on the durable `aix <object> <verb>`
+grammar while making whole-workspace lifecycle commands top-level, add a
+read-only workspace status command, organize command modules by ownership, and
+remove stale unsupported syntax from code, tests, package docs, workflow docs,
+and project design docs.
+
+Tasks:
+
+- ✅ Replace verb-first command dispatch with object-first routing for the
+      initial strict object-first surface: `aix workspace init`, `aix workspace verify`,
+      `aix workflow install`, `aix workflow uninstall`, `aix workflow update`,
+      `aix workflow diff`, `aix skills add`, `aix skills remove`,
+      `aix skills list`, `aix skills update`, `aix skills diff`,
+      `aix skill activate`, and `aix skill deactivate`.
+- ✅ Organize command modules under object directories in `src/cli/cmds/`, such
+      as `workspace/`, `workflow/`, `skills/`, and `skill/`, so each object owns
+      its verbs, help metadata, usage text, tests, and object-local helpers.
+- ✅ Keep shared CLI concerns such as registry types, dispatch, error mapping,
+      and terminal UI outside the object directories unless an object-specific
+      helper clearly belongs with that object.
+- ✅ Remove old command forms from the strict object-first help and splash output,
+      including `aix init`, `aix install workflow`, `aix remove workflow`,
+      `aix add skills`, `aix remove skills`, `aix list skills`,
+      `aix activate skill`, `aix deactivate skill`, `aix update`,
+      `aix update workflow`, `aix diff`, `aix diff workflow`, and
+      `aix verify`.
+- ✅ Remove legacy verb-first command support completely. Do not keep hidden
+      aliases, compatibility shims, migration warnings, or local-development
+      shortcuts for the old spellings.
+- ✅ Update command modules, command registry metadata, usage errors, terminal
+      output, and command-level tests so examples and assertions use only the
+      object-first syntax.
+- ✅ Update init integration so the default workflow install path runs through
+      `aix workspace init` and all generated user-facing instructions point at
+      object-first follow-up commands.
+- ✅ Update workflow lifecycle integration so install, uninstall, update, and
+      diff behavior is exposed under `aix workflow ...`, including the managed
+      root `AGENTS.md` block wording when it references commands.
+- ✅ Update skill source, activation, deactivation, update, diff, list, and
+      verify behavior so internal names, tests, and user-facing messages no
+      longer teach the old verb-first grammar.
+- ✅ Update `README.md`, root `AGENTS.md` command examples if appropriate,
+      `_docs/design/`, active plan current-state sections, bundled workflow
+      README/agent instructions, package smoke expectations, and any other
+      tracked reference to old command syntax.
+- ✅ Search tracked source, docs, tests, package assets, and built output for
+      stale old command examples and either update them or explicitly preserve
+      them only as historical completion evidence in this plan.
+- ✅ Add or update regression coverage for help output, no-argument splash
+      output, unknown commands, each object-first command route, interactive
+      no-target command forms, old verb-first commands failing as unsupported,
+      and failure messages that include usage text.
+- ✅ Run focused command/CLI tests first, then `npm run build`,
+      `npm run typecheck`, `npm test`, package smoke checks if command output
+      is packed, and `git diff --check`.
+- ✅ Review & Refactor
+- ✅ Replace the temporary `workspace` object commands with canonical top-level
+      `aix init` and `aix verify`. These are not legacy aliases; they are the
+      intended syntax for whole-workspace lifecycle actions.
+- ✅ Add top-level `aix status` as a read-only workspace summary command.
+- ✅ Define status collection behavior so it reads `aix.json`, `aix.lock.json`,
+      installed workflow state, configured sources, package copies, active
+      skills, workflow-owned skills, dependency-only skills, and local drift
+      without changing project files.
+- ✅ Include update availability in status when source refs can be resolved,
+      while keeping local status usable if network access or ref resolution is
+      unavailable.
+- ✅ Present status output cleanly with compact sections or tables for
+      workspace setup, active workflow, sources, active skills, dependency-only
+      skills, workflow-owned skills, drift or verification issues, and update
+      availability.
+- ✅ Update command module organization so top-level workspace lifecycle
+      commands live under the `workspace/` source owner, while `workflow/`,
+      `skills/`, and `skill/` continue to own asset-specific verbs.
+- ✅ Update help, splash output, usage errors, README examples, bundled
+      workflow docs, generated package output, tests, and design docs for the
+      pragmatic grammar: top-level `init`, `verify`, `status`, and object-first
+      asset commands.
+- ✅ Add regression coverage proving reversed old asset commands such as
+      `aix install workflow`, `aix add skills`, and `aix activate skill` remain
+      unsupported, while `aix init`, `aix verify`, and `aix status` are
+      supported canonical commands.
+- ✅ Add status tests for uninitialized workspaces, initialized workspaces with
+      workflow and active skills, local drift reporting, no-mutation behavior,
+      and unavailable update checks.
+- ✅ Run focused status and CLI tests first, then `npm run build`,
+      `npm run typecheck`, `npm test`, package smoke checks if command output
+      is packed, stale-syntax scans, and `git diff --check`.
+- ✅ Review & Refactor after the reopened Phase 7 scope.
+
+Verification:
+
+- command-level tests for every accepted object-first route
+- module organization checks or targeted import tests proving commands are
+  grouped by object under `src/cli/cmds/`
+- tests proving old canonical forms are no longer advertised in help, splash,
+  README examples, or generated workflow instructions
+- tests proving old verb-first command forms are unsupported rather than aliases
+- targeted interactive command tests for no-target `skills remove`,
+  `skills list`, `skill activate`, and `skill deactivate`
+- `npm run build`
+- `npm run typecheck`
+- `npm test`
+- package smoke test for packed CLI help output
+- `git diff --check`
+- command-level tests for top-level `aix init`, `aix verify`, and `aix status`
+- status tests for initialized, uninitialized, drifted, up-to-date,
+  out-of-date, and update-check-unavailable states
+- tests proving status does not mutate `aix.json`, `aix.lock.json`,
+  `.agents/packages`, `.agents/skills`, workflow docs, or `AGENTS.md`
+- tests proving old reversed asset command forms remain unsupported while
+  top-level workspace lifecycle commands are canonical
+
+Completion evidence:
+
+- 2026-08-20: Completed the initial strict object-first command migration. The CLI now
+  dispatches through object commands under `src/cli/cmds/workspace`,
+  `src/cli/cmds/workflow`, `src/cli/cmds/skills`, and `src/cli/cmds/skill`.
+  At that point, canonical routes were `aix workspace init`, `aix workspace verify`,
+  `aix workflow install`, `aix workflow uninstall`, `aix workflow update`,
+  `aix workflow diff`, `aix skills add`, `aix skills remove`,
+  `aix skills list`, `aix skills update`, `aix skills diff`,
+  `aix skill activate`, and `aix skill deactivate`. The later pragmatic grammar
+  update in this phase supersedes the `workspace` object for init and verify.
+- 2026-08-20: Removed the old verb-first command registrations and deleted the
+  old flat command modules. No hidden aliases, compatibility shims, migration
+  warnings, or local-development shortcuts remain for the old reversed asset
+  syntax. Regression tests prove forms such as `aix add skills`, `aix activate
+  skill`, `aix update`, and `aix remove workflow` fail as unsupported. The
+  later pragmatic grammar update in this phase makes top-level `aix init` and
+  `aix verify` canonical workspace lifecycle commands, not aliases.
+- 2026-08-20: Updated help and splash metadata so object commands can expose
+  every accepted verb in the command list. Updated usage errors, workflow
+  replacement guidance, activation/deactivation diagnostics, and skill-list
+  hints to use the new syntax.
+- 2026-08-20: Updated `README.md`, `AGENTS.md`, `_docs/design/cli.md`,
+  `_docs/design/package-management.md`, `_docs/design/workflows.md`,
+  `_docs/design/bundled-skills.md`, bundled workflow docs, source code,
+  generated `dist`, and tests so tracked release-facing references use only
+  object-first syntax. A stale-syntax scan across `AGENTS.md`, `README.md`,
+  `_docs/design`, `aix`, `src`, `dist`, and `tests` returned no old advertised
+  command forms.
+- 2026-08-20: Added regression coverage for help/splash output, unsupported
+  old verb-first commands, object-directory command module organization, and
+  package docs avoiding old command syntax. Interactive no-target coverage now
+  targets `aix workflow install`, `aix skills remove`, `aix skills list`,
+  `aix skill activate`, and `aix skill deactivate`.
+- 2026-08-20: Verification passed with targeted
+  `node --test tests/cli.test.mjs tests/workflow.test.mjs tests/activation.test.mjs tests/sources.test.mjs tests/skills.test.mjs tests/update.test.mjs tests/diff.test.mjs tests/verify.test.mjs tests/init.test.mjs tests/package-smoke.test.mjs`,
+  `npm run build`, `npm run typecheck`, `npm test` with 97 passing tests, and
+  `git diff --check`.
+- 2026-08-20: Review and refactor gate passed. The file-size scan used
+  `find src tests -type f | xargs wc -l | sort -nr | head -25`; no new or
+  heavily changed production file exceeded 250 lines. The largest changed
+  command module is `src/cli/cmds/skills/index.ts` at 238 lines, and it remains
+  one object-owned command module without mixed domain ownership.
+- 2026-08-20: Replaced the temporary `aix workspace init` and
+  `aix workspace verify` commands with canonical top-level `aix init` and
+  `aix verify`. The lifecycle command source lives under
+  `src/cli/cmds/workspace/`, but the `workspace` command is not registered.
+- 2026-08-20: Added top-level `aix status`. The command reads the manifest,
+  lockfile, active workflow, configured sources, active skills,
+  dependency-only skills, workflow-owned skills, verification issues, and
+  pending source diffs. If source resolution or network access fails, status
+  reports update checks as unavailable and still returns the local workspace
+  summary.
+- 2026-08-20: Updated help/splash text, usage errors, README examples, root
+  `AGENTS.md`, stable design docs, tests, and generated output for the
+  pragmatic grammar: top-level `init`, `verify`, `status`, plus object-first
+  asset commands. Stale-syntax scans across `README.md`, `AGENTS.md`,
+  `_docs/design`, `aix`, `src`, and `dist` found no advertised
+  `aix workspace init`, `aix workspace verify`, or reversed asset command
+  syntax.
+- 2026-08-20: Added status coverage for uninitialized workspaces, initialized
+  workspaces with workflow and skill state, local drift reporting, no project
+  mutation, unavailable update checks, and usage errors. Regression coverage
+  continues to prove reversed asset command forms are unsupported while
+  `aix init`, `aix verify`, and `aix status` are canonical commands.
+- 2026-08-20: Verification for the reopened Phase 7 scope passed with
+  `node --test tests/cli.test.mjs tests/status.test.mjs tests/init.test.mjs tests/verify.test.mjs tests/workflow.test.mjs`,
+  `npm run build`, `npm run typecheck`, `npm test` with 102 passing tests
+  including package smoke, stale-syntax scans, and `git diff --check`.
+- 2026-08-20: Review and refactor gate passed again for the reopened scope.
+  The file-size scan used
+  `find src tests -type f | xargs wc -l | sort -nr | head -25`; the changed
+  production status files are `src/status/index.ts` at 196 lines and
+  `src/cli/cmds/status/index.ts` at 150 lines. The larger
+  `tests/status.test.mjs` file is fixture-heavy test code and carries no mixed
+  production ownership.
+
+### Phase 8: Workflow packaging and installation (status: completed)
 
 Goal: make the default AI Agent Workflow an installable AI asset that owns
 `.agents` process docs and workflow-local skills.
@@ -1009,10 +1211,10 @@ Completion evidence:
 - 2026-08-20: Created the initial tracked workflow source directory at
   `aix/workflows/design-plan-execute/` with a temporary `.gitkeep` so the
   package path is visible before moving docs or skills. Aligned the active
-  design docs and Phase 7 plan references to the agreed
+  design docs and Phase 8 plan references to the agreed
   `design-plan-execute` workflow name. The workflow manifest,
   `AGENTS.append.md`, workflow docs, and workflow-owned skill moves remain open
-  as separate Phase 7 tasks.
+  as separate Phase 8 tasks.
 - 2026-08-20: Packaged the default workflow under
   `aix/workflows/design-plan-execute/` with `workflow.json`,
   `AGENTS.append.md`, workflow docs, and workflow-owned skills while preserving
@@ -1051,7 +1253,7 @@ Completion evidence:
   `npm_config_cache=/private/tmp/aix-npm-cache npm test` with 92 passing tests,
   and `git diff --check`.
 
-### Phase 8: Repeatable versioning and publishing (status: accepted)
+### Phase 9: Repeatable versioning and publishing (status: accepted)
 
 Goal: publish AI Extensions as a versioned package and make future releases
 repeatable.
@@ -1090,13 +1292,13 @@ Verification:
 ## Open Questions / Decisions
 
 - Manifest shape: define the exact JSON schema before Phase 1 implementation.
-- Activation declaration behavior: decided on 2026-08-20. `aix activate skill
+- Activation declaration behavior: decided on 2026-08-20. `aix skill activate
   <source>/<path> [alias]` updates the `skills` list in `aix.json` only for
   the user-selected root skill. Inferred dependency-only active skills are
   recorded in `aix.lock.json` and materialized under `.agents/skills`, but are
   not manifest entries unless the user explicitly activates them.
 - Interactive activation behavior: decided on 2026-08-20. No-argument
-  `aix activate skill` ships with an interactive source/skill picker in the
+  `aix skill activate` ships with an interactive source/skill picker in the
   MVP.
 - Git cache location: decide before Phase 2 whether the cache lives under a
   project-local path, an OS cache directory, or a temporary test-controlled
@@ -1110,7 +1312,7 @@ Verification:
   workflow phase migrates init and tests.
 - Diff format: decide before Phase 5 whether MVP output is unified diff text,
   a structured summary, or both.
-- Initialization behavior: decide before Phase 6 whether `aix activate skill`
+- Initialization behavior: decide before Phase 6 whether `aix skill activate`
   may scaffold missing `.agents` and `_docs` folders, or whether that belongs
   to a later explicit command.
 - Workflow package format: decided on 2026-08-20 and refined later the same
@@ -1121,19 +1323,26 @@ Verification:
 - Workflow dependencies: decided on 2026-08-20. Workflow-owned skills must live
   inside the workflow package for the MVP. External workflow skill dependencies
   are deferred.
-- Workflow lifecycle: decided on 2026-08-20. Workflows use
-  `aix install workflow` as a one-step install path rather than `add` plus
-  `activate`, and only one workflow may be active at a time.
+- Workflow lifecycle: decided on 2026-08-20 and superseded for command grammar
+  later the same day. Workflows use `aix workflow install` as a one-step
+  install path rather than `add` plus `activate`, and only one workflow may be
+  active at a time.
+- Command grammar: decided on 2026-08-20 before external release and refined
+  later the same day. Whole-workspace lifecycle commands are top-level:
+  `aix init`, `aix verify`, and `aix status`. Asset-specific commands use
+  object-first syntax, such as `aix workflow install`, `aix skills add`,
+  `aix skills list`, and `aix skill activate`. Reversed asset spellings
+  recorded in completed phase history remain unsupported.
 - Workflow-owned skill removal: decided on 2026-08-20.
-  `aix deactivate skill` must refuse direct removal of workflow-owned skills.
+  `aix skill deactivate` must refuse direct removal of workflow-owned skills.
 - Root agent instructions: decided on 2026-08-20. Workflow install updates root
   `AGENTS.md` through a marker-delimited managed block. Content outside that
   block remains project-owned.
-- Release workflow: choose before Phase 8 whether to use Changesets,
+- Release workflow: choose before Phase 9 whether to use Changesets,
   semantic-release, or a simpler npm-version workflow.
-- Publish trigger: choose before Phase 8 whether releases are triggered by
+- Publish trigger: choose before Phase 9 whether releases are triggered by
   tags, GitHub releases, or a manually approved workflow.
-- First release scope: confirm before Phase 8 that `@tekfoundry/aix` is the npm
+- First release scope: confirm before Phase 9 that `@tekfoundry/aix` is the npm
   package target and that the package owner has permission to publish it.
 
 ## Risks
@@ -1152,11 +1361,11 @@ Verification:
 - Targeted activation behavior can surprise users if the command silently edits
   the manifest. Decide this before implementation.
 - Source removal can surprise users if it recursively deletes materialized
-  package contents. MVP `aix remove skills` should refuse while active skills
+  package contents. MVP `aix skills remove` should refuse while active skills
   depend on the source, then remove only the source intent, metadata, and empty
   top-level package source directory.
 - Deactivation can surprise users if it removes cached package content. MVP
-  `aix deactivate skill` should remove the active entry only and preserve the
+  `aix skill deactivate` should remove the active entry only and preserve the
   package copy unless a later cleanup command owns pruning.
 - Default external sources require network access in normal use. Tests should
   rely on local fixture repositories so verification stays deterministic.
@@ -1181,6 +1390,12 @@ Verification:
   handling could overwrite repo-specific instructions or leave duplicated
   workflow blocks. Use marker-delimited updates, hash the managed block, and
   preserve all content outside the managed block.
+- Command grammar migration can leave stale examples in docs, help, tests, or
+  bundled workflow files. Search both source and generated package assets, and
+  make the pragmatic grammar the only advertised release surface.
+- Status can accidentally blur read-only inspection with update or repair
+  behavior. Keep `aix status` non-mutating even when it checks remote refs for
+  update availability.
 
 ## Lessons To Carry Forward
 
@@ -1197,6 +1412,10 @@ Verification:
 - Keep workflow-local skills self-contained until there is a proven need for
   external workflow skill dependencies.
 - Treat repeatable publishing as part of the MVP, not cleanup after the MVP.
+- Make command grammar changes before the first external release. With no
+  existing users, clarity is more valuable than preserving old public aliases.
+  Keep top-level workspace lifecycle commands intentional, and do not ship
+  compatibility aliases for reversed asset syntax.
 - Use the workflow task status markers in plan task lists from the start:
   `⬜️`, `🟨`, `✅`, and `⚠️`.
 
@@ -1212,6 +1431,7 @@ especially:
 - built-in `aix` source packaging behavior
 - workflow package layout, install/update/diff/remove semantics, and
   workflow-owned skill safeguards
+- pragmatic CLI grammar, status behavior, and the final advertised command list
 - CLI output and exit-code conventions
 - release workflow, versioning rules, publish trigger, and npm package access
   requirements

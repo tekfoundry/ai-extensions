@@ -43,7 +43,7 @@ function orphanedDependencyEntries(lockfile: { skills: LockfileSkillEntry[] }): 
 
 export function deactivateSkill(activeName: string | undefined): DeactivateSkillResult {
   if (!activeName) {
-    throw new AixError("Usage: aix deactivate skill <active-name>");
+    throw new AixError("Usage: aix skill deactivate <active-name>");
   }
 
   assertFolderNameSafe(activeName, "active skill name");
@@ -62,7 +62,7 @@ export function deactivateSkill(activeName: string | undefined): DeactivateSkill
 
   if (entry.owner?.kind === "workflow") {
     throw new AixError(
-      `Cannot deactivate ${activeName} directly because it is owned by workflow ${entry.owner.name}. Use aix uninstall workflow first.`
+      `Cannot deactivate ${activeName} directly because it is owned by workflow ${entry.owner.name}. Use aix workflow uninstall first.`
     );
   }
 

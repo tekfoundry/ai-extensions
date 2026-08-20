@@ -1,7 +1,7 @@
-import { verifySkills, type VerifySkillsResult } from "../../activation.js";
-import { verifyWorkflow } from "../../workflows/index.js";
-import { CliError, EXIT_USAGE } from "../errors.js";
-import type { CliResult, Command } from "../types.js";
+import { verifySkills, type VerifySkillsResult } from "../../../activation.js";
+import { verifyWorkflow } from "../../../workflows/index.js";
+import { CliError, EXIT_USAGE } from "../../errors.js";
+import type { CliResult, Command } from "../../types.js";
 
 function renderVerifyResult(result: VerifySkillsResult): string {
   if (result.issues.length === 0) {
@@ -14,7 +14,7 @@ function renderVerifyResult(result: VerifySkillsResult): string {
   ].join("\n");
 }
 
-export function runVerifyCommand(argv: string[]): CliResult {
+function runVerify(argv: string[]): CliResult {
   if (argv.length > 1) {
     throw new CliError("Usage: aix verify", EXIT_USAGE);
   }
@@ -33,6 +33,6 @@ export const verifyCommand: Command = {
   name: "verify",
   usage: "verify",
   summary: "Check installed AI Extension state",
-  splash: "verify",
-  run: runVerifyCommand
+  splash: [{ usage: "verify", summary: "Check installed AI Extension state" }],
+  run: runVerify
 };

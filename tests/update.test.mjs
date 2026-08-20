@@ -62,7 +62,7 @@ async function withProject(callback) {
   process.env.AIX_CACHE_DIR = cacheRoot;
 
   try {
-    assert.equal(run(["add", "skills", gitSource.directory, "fixture"]).exitCode, 0);
+    assert.equal(run(["skills", "add", gitSource.directory, "fixture"]).exitCode, 0);
     await callback(projectRoot, gitSource);
   } finally {
     if (previousCache === undefined) {
@@ -75,12 +75,12 @@ async function withProject(callback) {
   }
 }
 
-test("run update refreshes all locked direct skill packages and hashes", async () => {
+test("run skills update refreshes all locked direct skill packages and hashes", async () => {
   await withProject(async (projectRoot, gitSource) => {
-    assert.equal(run(["activate", "skill", "fixture/skills/demo"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/demo"]).exitCode, 0);
     const updatedCommit = commitSourceUpdate(gitSource.directory);
 
-    const result = run(["update"]);
+    const result = run(["skills", "update"]);
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
 
     assert.equal(result.exitCode, 0);
@@ -93,12 +93,12 @@ test("run update refreshes all locked direct skill packages and hashes", async (
   });
 });
 
-test("run update refreshes aliased active wrappers without changing the active name", async () => {
+test("run skills update refreshes aliased active wrappers without changing the active name", async () => {
   await withProject(async (projectRoot, gitSource) => {
-    assert.equal(run(["activate", "skill", "fixture/skills/demo", "demo-alias"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/demo", "demo-alias"]).exitCode, 0);
     commitSourceUpdate(gitSource.directory);
 
-    const result = run(["update"]);
+    const result = run(["skills", "update"]);
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
     const activeSkill = readFileSync(join(projectRoot, ".agents/skills/demo-alias/SKILL.md"), "utf8");
 
@@ -111,14 +111,14 @@ test("run update refreshes aliased active wrappers without changing the active n
   });
 });
 
-test("run update refuses package drift before changing files or lockfile state", async () => {
+test("run skills update refuses package drift before changing files or lockfile state", async () => {
   await withProject(async (projectRoot, gitSource) => {
-    assert.equal(run(["activate", "skill", "fixture/skills/demo"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/demo"]).exitCode, 0);
     const originalLockfile = readFileSync(join(projectRoot, "aix.lock.json"), "utf8");
     commitSourceUpdate(gitSource.directory);
     writeFileSync(join(projectRoot, ".agents/packages/skills/fixture/skills/demo/notes.md"), "local edit\n", "utf8");
 
-    const result = run(["update"]);
+    const result = run(["skills", "update"]);
 
     assert.equal(result.exitCode, 2);
     assert.match(result.stderr, /Refusing to update modified package: \.agents\/packages\/skills\/fixture\/skills\/demo/);
@@ -128,14 +128,14 @@ test("run update refuses package drift before changing files or lockfile state",
   });
 });
 
-test("run update refuses active drift before changing files or lockfile state", async () => {
+test("run skills update refuses active drift before changing files or lockfile state", async () => {
   await withProject(async (projectRoot, gitSource) => {
-    assert.equal(run(["activate", "skill", "fixture/skills/demo", "demo-alias"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/demo", "demo-alias"]).exitCode, 0);
     const originalLockfile = readFileSync(join(projectRoot, "aix.lock.json"), "utf8");
     commitSourceUpdate(gitSource.directory);
     writeFileSync(join(projectRoot, ".agents/skills/demo-alias/SKILL.md"), "---\nname: edited\n---\n", "utf8");
 
-    const result = run(["update"]);
+    const result = run(["skills", "update"]);
 
     assert.equal(result.exitCode, 2);
     assert.match(result.stderr, /Refusing to update modified active skill: \.agents\/skills\/demo-alias/);
@@ -145,13 +145,13 @@ test("run update refuses active drift before changing files or lockfile state", 
   });
 });
 
-test("run update with a target refreshes only the matching locked skill", async () => {
+test("run skills update with a target refreshes only the matching locked skill", async () => {
   await withProject(async (projectRoot, gitSource) => {
-    assert.equal(run(["activate", "skill", "fixture/skills/demo"]).exitCode, 0);
-    assert.equal(run(["activate", "skill", "fixture/skills/other"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/demo"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/other"]).exitCode, 0);
     const updatedCommit = commitSourceUpdate(gitSource.directory);
 
-    const result = run(["update", "fixture/skills/demo"]);
+    const result = run(["skills", "update", "fixture/skills/demo"]);
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
     const demo = lockfile.skills.find((skill) => skill.sourcePath === "skills/demo");
     const other = lockfile.skills.find((skill) => skill.sourcePath === "skills/other");
@@ -166,18 +166,18 @@ test("run update with a target refreshes only the matching locked skill", async 
   });
 });
 
-test("run update with a target fails for unknown locked skills", async () => {
+test("run skills update with a target fails for unknown locked skills", async () => {
   await withProject(async () => {
-    const result = run(["update", "fixture/skills/missing"]);
+    const result = run(["skills", "update", "fixture/skills/missing"]);
 
     assert.equal(result.exitCode, 2);
     assert.equal(result.stderr, "Unknown locked skill: fixture/skills/missing");
   });
 });
 
-test("run update reports when no skills are locked", async () => {
+test("run skills update reports when no skills are locked", async () => {
   await withProject(async () => {
-    const result = run(["update"]);
+    const result = run(["skills", "update"]);
 
     assert.equal(result.exitCode, 0);
     assert.equal(result.stdout, "No locked skills to update.");

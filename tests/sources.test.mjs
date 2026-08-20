@@ -160,7 +160,7 @@ test("resolveSource updates a cached remote when a source URL changes", async ()
   }
 });
 
-test("run add skills adds a git source and writes cache metadata without activating skills", async () => {
+test("run skills add adds a git source and writes cache metadata without activating skills", async () => {
   const gitSource = await createGitSource();
   const cacheRoot = await mkdtemp(join(tmpdir(), "aix-cache-test-"));
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-source-project-"));
@@ -171,7 +171,7 @@ test("run add skills adds a git source and writes cache metadata without activat
   process.env.AIX_CACHE_DIR = cacheRoot;
 
   try {
-    const result = run(["add", "skills", gitSource.directory, "fixture"]);
+    const result = run(["skills", "add", gitSource.directory, "fixture"]);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
     const metadata = JSON.parse(readFileSync(join(cacheRoot, "metadata/fixture.json"), "utf8"));
 
@@ -198,7 +198,7 @@ test("run add skills adds a git source and writes cache metadata without activat
   }
 });
 
-test("run list uses source metadata written by source addition", async () => {
+test("run skills list uses source metadata written by source addition", async () => {
   const gitSource = await createGitSource();
   const cacheRoot = await mkdtemp(join(tmpdir(), "aix-cache-test-"));
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-source-project-"));
@@ -209,10 +209,10 @@ test("run list uses source metadata written by source addition", async () => {
   process.env.AIX_CACHE_DIR = cacheRoot;
 
   try {
-    assert.equal(run(["add", "skills", gitSource.directory, "fixture"]).exitCode, 0);
+    assert.equal(run(["skills", "add", gitSource.directory, "fixture"]).exitCode, 0);
     rmSync(gitSource.directory, { recursive: true, force: true });
 
-    const result = run(["list", "skills", "fixture"]);
+    const result = run(["skills", "list", "fixture"]);
 
     assert.equal(result.exitCode, 0);
     assert.match(result.stdout, /Skills in fixture:/);
@@ -232,7 +232,7 @@ test("run list uses source metadata written by source addition", async () => {
   }
 });
 
-test("run add skills normalizes a GitHub tree URL", async () => {
+test("run skills add normalizes a GitHub tree URL", async () => {
   const gitSource = await createGitSource();
   const cacheRoot = await mkdtemp(join(tmpdir(), "aix-cache-test-"));
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-source-project-"));
@@ -253,7 +253,7 @@ test("run add skills normalizes a GitHub tree URL", async () => {
 
   try {
     const sourceUrl = "https://github.com/example/repo/tree/main/skills";
-    const result = run(["add", "skills", sourceUrl, "fixture"]);
+    const result = run(["skills", "add", sourceUrl, "fixture"]);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
     const metadata = JSON.parse(readFileSync(join(cacheRoot, "metadata/fixture.json"), "utf8"));
 
@@ -282,7 +282,7 @@ test("run add skills normalizes a GitHub tree URL", async () => {
   }
 });
 
-test("run remove skills removes a manifest source and cached metadata", async () => {
+test("run skills remove removes a manifest source and cached metadata", async () => {
   const gitSource = await createGitSource();
   const cacheRoot = await mkdtemp(join(tmpdir(), "aix-cache-test-"));
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-source-project-"));
@@ -293,12 +293,12 @@ test("run remove skills removes a manifest source and cached metadata", async ()
   process.env.AIX_CACHE_DIR = cacheRoot;
 
   try {
-    assert.equal(run(["add", "skills", gitSource.directory, "fixture"]).exitCode, 0);
+    assert.equal(run(["skills", "add", gitSource.directory, "fixture"]).exitCode, 0);
     mkdirSync(join(projectRoot, ".agents/packages/skills/fixture"), { recursive: true });
     assert.equal(existsSync(join(cacheRoot, "metadata/fixture.json")), true);
     assert.equal(existsSync(join(projectRoot, ".agents/packages/skills/fixture")), true);
 
-    const result = run(["remove", "skills", "fixture"]);
+    const result = run(["skills", "remove", "fixture"]);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
 
     assert.equal(result.exitCode, 0);
@@ -320,7 +320,7 @@ test("run remove skills removes a manifest source and cached metadata", async ()
   }
 });
 
-test("run remove skills refuses sources with active manifest skills", async () => {
+test("run skills remove refuses sources with active manifest skills", async () => {
   const gitSource = await createGitSource();
   const cacheRoot = await mkdtemp(join(tmpdir(), "aix-cache-test-"));
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-source-project-"));
@@ -331,14 +331,14 @@ test("run remove skills refuses sources with active manifest skills", async () =
   process.env.AIX_CACHE_DIR = cacheRoot;
 
   try {
-    assert.equal(run(["add", "skills", gitSource.directory, "fixture"]).exitCode, 0);
+    assert.equal(run(["skills", "add", gitSource.directory, "fixture"]).exitCode, 0);
 
     const manifestPath = join(projectRoot, "aix.json");
     const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
     manifest.skills = ["fixture:skills/demo"];
     writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 
-    const result = run(["remove", "skills", "fixture"]);
+    const result = run(["skills", "remove", "fixture"]);
     const unchangedManifest = JSON.parse(readFileSync(manifestPath, "utf8"));
 
     assert.equal(result.exitCode, 2);
@@ -356,7 +356,7 @@ test("run remove skills refuses sources with active manifest skills", async () =
   }
 });
 
-test("run remove skills refuses sources with active lockfile skills", async () => {
+test("run skills remove refuses sources with active lockfile skills", async () => {
   const gitSource = await createGitSource();
   const cacheRoot = await mkdtemp(join(tmpdir(), "aix-cache-test-"));
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-source-project-"));
@@ -367,7 +367,7 @@ test("run remove skills refuses sources with active lockfile skills", async () =
   process.env.AIX_CACHE_DIR = cacheRoot;
 
   try {
-    assert.equal(run(["add", "skills", gitSource.directory, "fixture"]).exitCode, 0);
+    assert.equal(run(["skills", "add", gitSource.directory, "fixture"]).exitCode, 0);
 
     writeFileSync(
       join(projectRoot, "aix.lock.json"),
@@ -398,7 +398,7 @@ test("run remove skills refuses sources with active lockfile skills", async () =
       "utf8"
     );
 
-    const result = run(["remove", "skills", "fixture"]);
+    const result = run(["skills", "remove", "fixture"]);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
 
     assert.equal(result.exitCode, 2);
@@ -416,7 +416,7 @@ test("run remove skills refuses sources with active lockfile skills", async () =
   }
 });
 
-test("run remove skills refuses a non-empty package source directory", async () => {
+test("run skills remove refuses a non-empty package source directory", async () => {
   const gitSource = await createGitSource();
   const cacheRoot = await mkdtemp(join(tmpdir(), "aix-cache-test-"));
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-source-project-"));
@@ -427,11 +427,11 @@ test("run remove skills refuses a non-empty package source directory", async () 
   process.env.AIX_CACHE_DIR = cacheRoot;
 
   try {
-    assert.equal(run(["add", "skills", gitSource.directory, "fixture"]).exitCode, 0);
+    assert.equal(run(["skills", "add", gitSource.directory, "fixture"]).exitCode, 0);
     mkdirSync(join(projectRoot, ".agents/packages/skills/fixture"), { recursive: true });
     writeFileSync(join(projectRoot, ".agents/packages/skills/fixture/leftover.txt"), "leftover", "utf8");
 
-    const result = run(["remove", "skills", "fixture"]);
+    const result = run(["skills", "remove", "fixture"]);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
 
     assert.equal(result.exitCode, 2);

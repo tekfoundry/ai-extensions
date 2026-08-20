@@ -89,7 +89,7 @@ Workflows should use an install command instead of the skill `add` plus
 `activate` split:
 
 ```bash
-aix install workflow [git-or-github-tree-url] [alias]
+aix workflow install [git-or-github-tree-url] [alias]
 ```
 
 Installing a workflow should:
@@ -104,7 +104,7 @@ Installing a workflow should:
    directory convention.
 6. Refuse when another workflow is active unless a later explicit replace flow
    owns that behavior. The error should tell the user to run
-   `aix uninstall workflow` first.
+   `aix workflow uninstall` first.
 7. Copy recognized workflow docs into `.agents/`.
 8. Insert or update the workflow-managed block in root `AGENTS.md`.
 9. Materialize workflow-local skills under `.agents/packages/workflows`.
@@ -168,26 +168,26 @@ Remove or replace the workflow instead.
 ```
 
 Users can still edit workflow docs or workflow-owned skills locally, but those
-edits become drift. `aix verify` should report the drift, and workflow updates
-should refuse to overwrite it. The healthy team path is to improve the
-workflow source repository, review the change there, then run `aix diff
-workflow` and `aix update workflow` in consuming projects.
+edits become drift. `aix verify` and `aix status` should report the drift, and
+workflow updates should refuse to overwrite it. The healthy team path is to
+improve the workflow source repository, review the change there, then run
+`aix workflow diff` and `aix workflow update` in consuming projects.
 
 ## Commands
 
 The MVP workflow command set should be small:
 
 ```bash
-aix install workflow [git-or-github-tree-url] [alias]
-aix uninstall workflow
-aix diff workflow
-aix update workflow
+aix workflow install [git-or-github-tree-url] [alias]
+aix workflow uninstall
+aix workflow diff
+aix workflow update
 ```
 
 `aix verify` should include workflow checks alongside existing manifest,
 lockfile, package, and active skill checks.
 
-`aix uninstall workflow` should remove the active workflow docs and workflow-owned
+`aix workflow uninstall` should remove the active workflow docs and workflow-owned
 skills only after local drift checks pass. It should leave project-owned
 `_docs` content in place.
 

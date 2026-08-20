@@ -1,28 +1,16 @@
-import { activateCommand } from "./cmds/activate.js";
-import { addCommand } from "./cmds/add.js";
-import { deactivateCommand } from "./cmds/deactivate.js";
-import { diffCommand } from "./cmds/diff.js";
-import { initCommand } from "./cmds/init.js";
-import { installCommand } from "./cmds/install.js";
-import { listCommand } from "./cmds/list.js";
-import { uninstallCommand } from "./cmds/uninstall.js";
-import { updateCommand } from "./cmds/update.js";
-import { verifyCommand } from "./cmds/verify.js";
-import { removeCommand } from "./cmds/remove.js";
+import { skillCommand } from "./cmds/skill/index.js";
+import { skillsCommand } from "./cmds/skills/index.js";
+import { workflowCommand } from "./cmds/workflow/index.js";
+import { initCommand, statusCommand, verifyCommand } from "./cmds/workspace/index.js";
 import type { Command } from "./types.js";
 
 export const commands: Command[] = [
   initCommand,
-  installCommand,
-  uninstallCommand,
-  addCommand,
-  removeCommand,
-  activateCommand,
-  deactivateCommand,
-  updateCommand,
-  diffCommand,
   verifyCommand,
-  listCommand
+  statusCommand,
+  workflowCommand,
+  skillsCommand,
+  skillCommand
 ];
 
 export function findCommand(name: string): Command | undefined {

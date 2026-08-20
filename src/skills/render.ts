@@ -36,6 +36,6 @@ export function renderSourceList(sources: NamedSourceDefinition[]): string {
     "Available sources:",
     ...sources.map(renderSourceDefinition),
     "",
-    "Run aix list skills <source> to list skills from a source."
+    "Run aix skills list <source> to list skills from a source."
   ].join("\n");
 }

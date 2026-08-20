@@ -70,7 +70,7 @@ async function withProject(callback) {
   process.env.AIX_CACHE_DIR = cacheRoot;
 
   try {
-    assert.equal(run(["add", "skills", gitSource.directory, "fixture"]).exitCode, 0);
+    assert.equal(run(["skills", "add", gitSource.directory, "fixture"]).exitCode, 0);
     await callback(projectRoot, gitSource, cacheRoot);
   } finally {
     if (previousCache === undefined) {
@@ -83,9 +83,9 @@ async function withProject(callback) {
   }
 }
 
-test("run activate skill materializes a package, updates manifest, writes lockfile, and creates a symlink", async () => {
+test("run skill activate materializes a package, updates manifest, writes lockfile, and creates a symlink", async () => {
   await withProject(async (projectRoot, gitSource) => {
-    const result = run(["activate", "skill", "fixture/skills/demo"]);
+    const result = run(["skill", "activate", "fixture/skills/demo"]);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
     const activePath = join(projectRoot, ".agents/skills/demo");
@@ -112,9 +112,9 @@ test("run activate skill materializes a package, updates manifest, writes lockfi
   });
 });
 
-test("run activate skill with an alias writes a manifest object and managed active wrapper", async () => {
+test("run skill activate with an alias writes a manifest object and managed active wrapper", async () => {
   await withProject(async (projectRoot) => {
-    const result = run(["activate", "skill", "fixture/skills/demo", "demo-alias"]);
+    const result = run(["skill", "activate", "fixture/skills/demo", "demo-alias"]);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
     const activeSkill = readFileSync(join(projectRoot, ".agents/skills/demo-alias/SKILL.md"), "utf8");
@@ -132,12 +132,12 @@ test("run activate skill with an alias writes a manifest object and managed acti
   });
 });
 
-test("run activate skill detects active-name collisions before materializing a package", async () => {
+test("run skill activate detects active-name collisions before materializing a package", async () => {
   await withProject(async (projectRoot) => {
     mkdirSync(join(projectRoot, ".agents/skills/demo"), { recursive: true });
     writeFileSync(join(projectRoot, ".agents/skills/demo/SKILL.md"), "local skill\n", "utf8");
 
-    const result = run(["activate", "skill", "fixture/skills/demo"]);
+    const result = run(["skill", "activate", "fixture/skills/demo"]);
 
     assert.equal(result.exitCode, 2);
     assert.match(result.stderr, /Active skill name collision: \.agents\/skills\/demo/);
@@ -146,12 +146,12 @@ test("run activate skill detects active-name collisions before materializing a p
   });
 });
 
-test("run activate skill refuses a dirty untracked package directory", async () => {
+test("run skill activate refuses a dirty untracked package directory", async () => {
   await withProject(async (projectRoot) => {
     mkdirSync(join(projectRoot, ".agents/packages/skills/fixture/skills/demo"), { recursive: true });
     writeFileSync(join(projectRoot, ".agents/packages/skills/fixture/skills/demo/SKILL.md"), "local package edit\n", "utf8");
 
-    const result = run(["activate", "skill", "fixture/skills/demo"]);
+    const result = run(["skill", "activate", "fixture/skills/demo"]);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
 
     assert.equal(result.exitCode, 2);
@@ -162,7 +162,7 @@ test("run activate skill refuses a dirty untracked package directory", async () 
   });
 });
 
-test("run activate skill activates inferred dependencies first and records lockfile edges", async () => {
+test("run skill activate activates inferred dependencies first and records lockfile edges", async () => {
   const gitSource = await createGitSourceWithDependency();
   const cacheRoot = await mkdtemp(join(tmpdir(), "aix-activation-cache-"));
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-activation-project-"));
@@ -173,9 +173,9 @@ test("run activate skill activates inferred dependencies first and records lockf
   process.env.AIX_CACHE_DIR = cacheRoot;
 
   try {
-    assert.equal(run(["add", "skills", gitSource.directory, "fixture"]).exitCode, 0);
+    assert.equal(run(["skills", "add", gitSource.directory, "fixture"]).exitCode, 0);
 
-    const result = run(["activate", "skill", "fixture/skills/grill-me"]);
+    const result = run(["skill", "activate", "fixture/skills/grill-me"]);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
     const grillMe = lockfile.skills.find((skill) => skill.activeName === "grill-me");
@@ -210,7 +210,7 @@ test("run activate skill activates inferred dependencies first and records lockf
   }
 });
 
-test("run deactivate skill refuses active skills that other skills depend on", async () => {
+test("run skill deactivate refuses active skills that other skills depend on", async () => {
   const gitSource = await createGitSourceWithDependency();
   const cacheRoot = await mkdtemp(join(tmpdir(), "aix-activation-cache-"));
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-activation-project-"));
@@ -221,10 +221,10 @@ test("run deactivate skill refuses active skills that other skills depend on", a
   process.env.AIX_CACHE_DIR = cacheRoot;
 
   try {
-    assert.equal(run(["add", "skills", gitSource.directory, "fixture"]).exitCode, 0);
-    assert.equal(run(["activate", "skill", "fixture/skills/grill-me"]).exitCode, 0);
+    assert.equal(run(["skills", "add", gitSource.directory, "fixture"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/grill-me"]).exitCode, 0);
 
-    const result = run(["deactivate", "skill", "grilling"]);
+    const result = run(["skill", "deactivate", "grilling"]);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
 
@@ -245,7 +245,7 @@ test("run deactivate skill refuses active skills that other skills depend on", a
   }
 });
 
-test("run deactivate skill removes orphaned dependency-only active skills", async () => {
+test("run skill deactivate removes orphaned dependency-only active skills", async () => {
   const gitSource = await createGitSourceWithDependency();
   const cacheRoot = await mkdtemp(join(tmpdir(), "aix-activation-cache-"));
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-activation-project-"));
@@ -256,10 +256,10 @@ test("run deactivate skill removes orphaned dependency-only active skills", asyn
   process.env.AIX_CACHE_DIR = cacheRoot;
 
   try {
-    assert.equal(run(["add", "skills", gitSource.directory, "fixture"]).exitCode, 0);
-    assert.equal(run(["activate", "skill", "fixture/skills/grill-me"]).exitCode, 0);
+    assert.equal(run(["skills", "add", gitSource.directory, "fixture"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/grill-me"]).exitCode, 0);
 
-    const result = run(["deactivate", "skill", "grill-me"]);
+    const result = run(["skill", "deactivate", "grill-me"]);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
 
@@ -288,7 +288,7 @@ test("run deactivate skill removes orphaned dependency-only active skills", asyn
   }
 });
 
-test("runInteractive deactivate skill lists only user-requested root skills", async () => {
+test("runInteractive skill deactivate lists only user-requested root skills", async () => {
   const gitSource = await createGitSourceWithDependency();
   const cacheRoot = await mkdtemp(join(tmpdir(), "aix-activation-cache-"));
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-activation-project-"));
@@ -307,10 +307,10 @@ test("runInteractive deactivate skill lists only user-requested root skills", as
   process.env.AIX_CACHE_DIR = cacheRoot;
 
   try {
-    assert.equal(run(["add", "skills", gitSource.directory, "fixture"]).exitCode, 0);
-    assert.equal(run(["activate", "skill", "fixture/skills/grill-me"]).exitCode, 0);
+    assert.equal(run(["skills", "add", gitSource.directory, "fixture"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/grill-me"]).exitCode, 0);
 
-    const result = await runInteractive(["deactivate", "skill"], input, output);
+    const result = await runInteractive(["skill", "deactivate"], input, output);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
 
@@ -340,7 +340,7 @@ test("runInteractive deactivate skill lists only user-requested root skills", as
   }
 });
 
-test("runInteractive activate skill prompts for source and skill when no target is provided", async () => {
+test("runInteractive skill activate prompts for source and skill when no target is provided", async () => {
   const gitSource = await createGitSource();
   const cacheRoot = await mkdtemp(join(tmpdir(), "aix-activation-cache-"));
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-activation-project-"));
@@ -365,9 +365,9 @@ test("runInteractive activate skill prompts for source and skill when no target 
   process.env.AIX_CACHE_DIR = cacheRoot;
 
   try {
-    assert.equal(run(["add", "skills", gitSource.directory, "aaa"]).exitCode, 0);
+    assert.equal(run(["skills", "add", gitSource.directory, "aaa"]).exitCode, 0);
 
-    const result = await runInteractive(["activate", "skill"], input, output);
+    const result = await runInteractive(["skill", "activate"], input, output);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
 
     assert.equal(result.exitCode, 0);
@@ -388,7 +388,7 @@ test("runInteractive activate skill prompts for source and skill when no target 
   }
 });
 
-test("runInteractive activate prompts for activation type before source and skill", async () => {
+test("runInteractive skill activate prompts for source and skill", async () => {
   const gitSource = await createGitSource();
   const cacheRoot = await mkdtemp(join(tmpdir(), "aix-activation-cache-"));
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-activation-project-"));
@@ -419,14 +419,12 @@ test("runInteractive activate prompts for activation type before source and skil
   process.env.AIX_CACHE_DIR = cacheRoot;
 
   try {
-    assert.equal(run(["add", "skills", gitSource.directory, "aaa"]).exitCode, 0);
+    assert.equal(run(["skills", "add", gitSource.directory, "aaa"]).exitCode, 0);
 
-    const result = await runInteractive(["activate"], input, output);
+    const result = await runInteractive(["skill", "activate"], input, output);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
 
     assert.equal(result.exitCode, 0);
-    assert.match(rendered, /What would you like to activate:/);
-    assert.match(rendered, /1\. Skills/);
     assert.match(rendered, /q - Quit/);
     assert.match(rendered, /Select a skills source to activate from:/);
     assert.match(rendered, /Select a skill from aaa:/);
@@ -443,7 +441,7 @@ test("runInteractive activate prompts for activation type before source and skil
   }
 });
 
-test("runInteractive activate top-level menu supports quit", async () => {
+test("runInteractive skill activate supports quit", async () => {
   const input = new PassThrough();
   const output = new PassThrough();
   let rendered = "";
@@ -454,20 +452,19 @@ test("runInteractive activate top-level menu supports quit", async () => {
 
   input.end("q\n");
 
-  const result = await runInteractive(["activate"], input, output);
+  const result = await runInteractive(["skill", "activate"], input, output);
 
   assert.equal(result.exitCode, 0);
-  assert.match(rendered, /What would you like to activate:/);
-  assert.match(rendered, /1\. Skills/);
+  assert.match(rendered, /Select a skills source to activate from:/);
   assert.match(rendered, /q - Quit/);
-  assert.equal(result.stdout, "No activation selected.");
+  assert.equal(result.stdout, "No skills source selected.");
 });
 
-test("run deactivate skill removes active state and package copy", async () => {
+test("run skill deactivate removes active state and package copy", async () => {
   await withProject(async (projectRoot) => {
-    assert.equal(run(["activate", "skill", "fixture/skills/demo"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/demo"]).exitCode, 0);
 
-    const result = run(["deactivate", "skill", "demo"]);
+    const result = run(["skill", "deactivate", "demo"]);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
 
@@ -484,13 +481,13 @@ test("run deactivate skill removes active state and package copy", async () => {
   });
 });
 
-test("run deactivate skill preserves non-empty package parent directories", async () => {
+test("run skill deactivate preserves non-empty package parent directories", async () => {
   await withProject(async (projectRoot) => {
-    assert.equal(run(["activate", "skill", "fixture/skills/demo"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/demo"]).exitCode, 0);
     mkdirSync(join(projectRoot, ".agents/packages/skills/fixture/skills/other"), { recursive: true });
     writeFileSync(join(projectRoot, ".agents/packages/skills/fixture/skills/other/notes.md"), "other package\n", "utf8");
 
-    const result = run(["deactivate", "skill", "demo"]);
+    const result = run(["skill", "deactivate", "demo"]);
 
     assert.equal(result.exitCode, 0);
     assert.equal(existsSync(join(projectRoot, ".agents/packages/skills/fixture/skills/demo")), false);
@@ -500,9 +497,9 @@ test("run deactivate skill preserves non-empty package parent directories", asyn
   });
 });
 
-test("runInteractive deactivate prompts for deactivation type before active skill", async () => {
+test("runInteractive skill deactivate prompts for an active skill", async () => {
   await withProject(async (projectRoot) => {
-    assert.equal(run(["activate", "skill", "fixture/skills/demo"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/demo"]).exitCode, 0);
 
     const input = new PassThrough();
     const output = new PassThrough();
@@ -518,15 +515,11 @@ test("runInteractive deactivate prompts for deactivation type before active skil
       }
     });
 
-    input.write("1\n");
-
-    const result = await runInteractive(["deactivate"], input, output);
+    const result = await runInteractive(["skill", "deactivate"], input, output);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
 
     assert.equal(result.exitCode, 0);
-    assert.match(rendered, /What would you like to deactivate:/);
-    assert.match(rendered, /1\. Skills/);
     assert.match(rendered, /q - Quit/);
     assert.match(rendered, /Select a skill to deactivate:/);
     assert.match(rendered, /1\. demo/);
@@ -537,9 +530,9 @@ test("runInteractive deactivate prompts for deactivation type before active skil
   });
 });
 
-test("runInteractive deactivate skill prompts for active skill when no target is provided", async () => {
+test("runInteractive skill deactivate prompts for active skill when no target is provided", async () => {
   await withProject(async (projectRoot) => {
-    assert.equal(run(["activate", "skill", "fixture/skills/demo"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/demo"]).exitCode, 0);
 
     const input = new PassThrough();
     const output = new PassThrough();
@@ -551,7 +544,7 @@ test("runInteractive deactivate skill prompts for active skill when no target is
 
     input.end("1\n");
 
-    const result = await runInteractive(["deactivate", "skill"], input, output);
+    const result = await runInteractive(["skill", "deactivate"], input, output);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
 
     assert.equal(result.exitCode, 0);
@@ -562,7 +555,7 @@ test("runInteractive deactivate skill prompts for active skill when no target is
   });
 });
 
-test("runInteractive deactivate top-level menu supports quit", async () => {
+test("runInteractive skill deactivate supports quit", async () => {
   const input = new PassThrough();
   const output = new PassThrough();
   let rendered = "";
@@ -573,21 +566,20 @@ test("runInteractive deactivate top-level menu supports quit", async () => {
 
   input.end("q\n");
 
-  const result = await runInteractive(["deactivate"], input, output);
+  const result = await runInteractive(["skill", "deactivate"], input, output);
 
   assert.equal(result.exitCode, 0);
-  assert.match(rendered, /What would you like to deactivate:/);
-  assert.match(rendered, /1\. Skills/);
+  assert.match(rendered, /Select a skill to deactivate:/);
   assert.match(rendered, /q - Quit/);
-  assert.equal(result.stdout, "No deactivation selected.");
+  assert.equal(result.stdout, "No skill selected.");
 });
 
-test("run deactivate skill refuses to remove an edited active skill", async () => {
+test("run skill deactivate refuses to remove an edited active skill", async () => {
   await withProject(async (projectRoot) => {
-    assert.equal(run(["activate", "skill", "fixture/skills/demo", "demo-alias"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/demo", "demo-alias"]).exitCode, 0);
     writeFileSync(join(projectRoot, ".agents/skills/demo-alias/SKILL.md"), "---\nname: edited\n---\n", "utf8");
 
-    const result = run(["deactivate", "skill", "demo-alias"]);
+    const result = run(["skill", "deactivate", "demo-alias"]);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
 
@@ -600,12 +592,12 @@ test("run deactivate skill refuses to remove an edited active skill", async () =
   });
 });
 
-test("run activate skill refuses to refresh an active skill with edited active files", async () => {
+test("run skill activate refuses to refresh an active skill with edited active files", async () => {
   await withProject(async (projectRoot) => {
-    assert.equal(run(["activate", "skill", "fixture/skills/demo", "demo-alias"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/demo", "demo-alias"]).exitCode, 0);
     writeFileSync(join(projectRoot, ".agents/skills/demo-alias/SKILL.md"), "---\nname: edited\n---\n", "utf8");
 
-    const result = run(["activate", "skill", "fixture/skills/demo", "demo-alias"]);
+    const result = run(["skill", "activate", "fixture/skills/demo", "demo-alias"]);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
 
@@ -617,12 +609,12 @@ test("run activate skill refuses to refresh an active skill with edited active f
   });
 });
 
-test("run deactivate skill refuses to remove an edited package copy", async () => {
+test("run skill deactivate refuses to remove an edited package copy", async () => {
   await withProject(async (projectRoot) => {
-    assert.equal(run(["activate", "skill", "fixture/skills/demo", "demo-alias"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/demo", "demo-alias"]).exitCode, 0);
     writeFileSync(join(projectRoot, ".agents/packages/skills/fixture/skills/demo/notes.md"), "package edit\n", "utf8");
 
-    const result = run(["deactivate", "skill", "demo-alias"]);
+    const result = run(["skill", "deactivate", "demo-alias"]);
     const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
 

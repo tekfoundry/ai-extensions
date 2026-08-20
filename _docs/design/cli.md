@@ -7,14 +7,16 @@ The CLI command should be `aix`.
 This keeps the daily command surface small:
 
 ```bash
-aix add
-aix install
-aix activate
-aix remove
-aix deactivate
-aix update
-aix diff
+aix init
 aix verify
+aix status
+aix workflow install
+aix workflow update
+aix skills add
+aix skills list
+aix skills diff
+aix skill activate
+aix skill deactivate
 ```
 
 The name also leaves room for the tool to grow beyond direct skill installation
@@ -52,19 +54,21 @@ The first implementation should focus on:
 
 ```bash
 aix init
-aix install workflow [git-or-github-tree-url] [alias]
-aix uninstall workflow
-aix add skills <git-or-github-tree-url> [alias]
-aix remove skills <source-name>
-aix activate skill [source/path] [alias]
-aix deactivate skill <active-name>
-aix update
-aix update workflow
-aix diff
-aix diff workflow
 aix verify
-aix list
-aix list skills [source]
+aix status
+aix workflow install [git-or-github-tree-url] [alias]
+aix workflow uninstall
+aix skills add <git-or-github-tree-url> [alias]
+aix skills remove <source-name>
+aix skills list [source]
+aix skill activate [source/path] [alias]
+aix skill deactivate <active-name>
+aix skills update
+aix skills update <source>/<path>
+aix workflow update
+aix skills diff
+aix skills diff <source>/<path>
+aix workflow diff
 ```
 
 Later commands can include:
@@ -72,10 +76,10 @@ Later commands can include:
 ```bash
 aix outdated
 aix prune
-aix replace workflow <git-or-github-tree-url> [alias]
+aix workflow replace <git-or-github-tree-url> [alias]
 ```
 
-`aix install workflow [git-or-github-tree-url] [alias]` should install one
+`aix workflow install [git-or-github-tree-url] [alias]` should install one
 Git-backed workflow as the project's active AI Agent Workflow. Without a URL,
 the command should list bundled workflows from `aix/workflows` and let the user
 pick one. With a URL, workflow install normalizes the GitHub tree URL, fetches
@@ -87,27 +91,27 @@ workflow-owned skill hashes to `aix.lock.json`.
 
 Workflows are all-or-nothing for the MVP. Only one workflow may be active at a
 time. Installing a second workflow should fail and tell the user to run
-`aix uninstall workflow` before installing the next workflow.
+`aix workflow uninstall` before installing the next workflow.
 
 Workflow-local skills are owned by the workflow, not by user-requested root
-skill activation. `aix deactivate skill <active-name>` should refuse to remove
+skill activation. `aix skill deactivate <active-name>` should refuse to remove
 a workflow-owned skill and tell the user to uninstall or replace the workflow
 instead.
 
-`aix uninstall workflow` should remove the active workflow docs and workflow-owned
+`aix workflow uninstall` should remove the active workflow docs and workflow-owned
 skills only after local drift checks pass. It should remove only the managed
 workflow block from root `AGENTS.md` and leave project-owned `AGENTS.md` and
 `_docs` content in place.
 
-`aix diff workflow` should compare locked workflow docs and workflow-owned
+`aix workflow diff` should compare locked workflow docs and workflow-owned
 skill package copies with the currently resolved workflow source without
 changing files.
 
-`aix update workflow` should refresh the locked workflow docs and workflow-owned
+`aix workflow update` should refresh the locked workflow docs and workflow-owned
 skills, including the managed `AGENTS.md` block, only after local drift checks
 pass.
 
-`aix add skills <git-or-github-tree-url> [alias]` should add a Git-backed skill
+`aix skills add <git-or-github-tree-url> [alias]` should add a Git-backed skill
 source to `aix.json` under `sources.skills`, resolve the requested ref,
 discover skill folders under the configured path, and prefetch source metadata
 into the shared Git cache. The optional alias sets the local source name.
@@ -120,23 +124,23 @@ discovered skill into `.agents/packages` by default; activation materializes
 only the requested skill package into the project.
 
 The command uses the plural `skills` because it adds a source collection. This
-keeps future kinds open without flags, for example `aix add agents <url>`.
+keeps future kinds open without flags, for example `aix agents add <url>`.
 
-`aix remove skills <source-name>` should remove a configured skill source only
+`aix skills remove <source-name>` should remove a configured skill source only
 when no active skills still depend on it. If any active skills depend on the
 source, it should fail and tell the user to deactivate those skills first. When
 safe, it should remove the source entry, matching source metadata, and the
 empty top-level `.agents/packages/skills/<source-name>` directory. It should
 not recursively delete package contents.
 
-`aix remove skills` without a source name should provide an interactive picker
+`aix skills remove` without a source name should provide an interactive picker
 over configured skill sources in `aix.json`. The picker should show an
 enumerated source list, include `q - Quit` directly after the selectable
 options, and remove the selected source through the same safety checks as the
 explicit command. Sources that cannot be removed yet should appear in a final
 section headed `To remove the following sources deactivate their skills first:`.
 
-`aix activate skill <source>/<path> [alias]` should expose one materialized
+`aix skill activate <source>/<path> [alias]` should expose one materialized
 skill through `.agents/skills/<active-name>`. Without an alias, the active name
 is the skill's front matter `name`, and activation can usually be a symlink to
 the materialized package skill folder. With an alias, the active name is the
@@ -149,18 +153,14 @@ skills are activated and locked but remain dependency-only entries in
 and is not safely accounted for by the lockfile or the resolved source content,
 activation should stop instead of overwriting it.
 
-`aix activate` without a kind provides an interactive kind picker with `Skills`
-and `q - Quit`. Choosing `Skills` opens the skill activation flow.
-`aix activate skill` without a target lists configured skill sources, lets the
+`aix skill activate` without a target lists configured skill sources, lets the
 user select a source by number, lists skills from that source, and lets the
 user select a skill by number.
 
-`aix deactivate` without a kind provides an interactive kind picker with
-`Skills` and `q - Quit`. Choosing `Skills` opens the skill deactivation flow.
-`aix deactivate skill` without a target lists only user-requested root active
+`aix skill deactivate` without a target lists only user-requested root active
 skills and lets the user select one by number. Dependency-only active skills
 are omitted from the picker because root deactivation owns dependency cleanup.
-`aix deactivate skill <active-name>` undoes activation for one active skill. It
+`aix skill deactivate <active-name>` undoes activation for one active skill. It
 removes the active entry from
 `.agents/skills`, removes package copies that are no longer needed when their
 files still match the lockfile hashes, removes empty package parent directories
@@ -171,21 +171,44 @@ root skills. Directly selecting a dependency-only skill that another active
 skill still depends on fails with an actionable error. If active or package
 files have local edits, deactivation should fail before removing anything.
 
-`aix list` without a kind should provide an interactive picker with `Skills` as
-the first option and `q - Quit`, leaving room for later kinds such as `agents`.
-
-`aix list skills` should provide an interactive picker over skill sources and
-then list discoverable skills from the selected source. `aix list skills
+`aix skills list` should provide an interactive picker over skill sources and
+then list discoverable skills from the selected source. `aix skills list
 <source>` should list discoverable skills from a configured source without
 prompting. This is especially important for default external sources such as
 `mattpocock` and `cursor-pstack`, which should be browseable before the user
 chooses specific skills to activate.
+
+Whole-workspace lifecycle commands are intentionally top-level. `aix init`,
+`aix verify`, and `aix status` are not compatibility aliases for an old syntax;
+they are the canonical commands for actions that apply to the current
+workspace as a whole. Asset-specific commands keep the object-first grammar,
+such as `aix workflow install`, `aix skills add`, and `aix skill activate`.
 
 `aix init` should initialize a project-local AI Extensions environment. It
 creates the expected local files, installs the default `aix` workflow, adds the
 default external skill sources, fetches source metadata, materializes default
 workflow content, and activates the default workflow-owned skills so the
 project can start using AI Extensions immediately.
+
+`aix verify` should check whether the manifest, lockfile, package files, active
+files, workflow docs, managed `AGENTS.md` block, hashes, skill front matter,
+owner metadata, and naming rules agree. It should stay check-focused and return
+a non-zero exit code when the installed state is invalid or locally drifted.
+
+`aix status` should provide a clean read-only summary of the current AI
+Extensions workspace. It should show whether the workspace is initialized, the
+active workflow if present, configured workflow and skill sources, active
+user-requested skills, dependency-only active skills, workflow-owned skills,
+local drift or verification issues, and update availability when it can be
+determined. Status output should be human-scannable first, with clear section
+headings and compact tables rather than raw JSON.
+
+Out-of-date detection in `aix status` may require resolving remote Git refs.
+The MVP should keep status read-only, but it may fetch source metadata or refs
+when needed to compare locked commits with currently resolved source commits.
+If network access or ref resolution fails, status should still report local
+installed state and show the update check as unavailable rather than treating
+the whole status command as failed.
 
 Running `aix` with no arguments should print a minimal splash screen with the
 product name, package version, and current or planned command list. It should
