@@ -29,3 +29,36 @@ export interface DeactivateSkillResult {
     packagePath: string;
   }>;
 }
+
+export interface UpdatedSkill {
+  source: string;
+  sourcePath: string;
+  activeName: string;
+  previousResolvedCommit?: string;
+  resolvedCommit?: string;
+  packagePath: string;
+  activationPath: string;
+}
+
+export interface UpdateSkillsResult {
+  lockfilePath: string;
+  updatedSkills: UpdatedSkill[];
+}
+
+export interface SkillDiff {
+  source: string;
+  sourcePath: string;
+  activeName: string;
+  packagePath: string;
+  sourceSkillPath: string;
+  diff: string;
+}
+
+export interface DiffSkillsResult {
+  lockfilePath: string;
+  diffs: SkillDiff[];
+}
+
+export interface VerifySkillsResult {
+  issues: string[];
+}

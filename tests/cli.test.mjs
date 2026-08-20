@@ -47,11 +47,11 @@ test("run returns a usage failure for unknown commands", () => {
   assert.match(result.stderr, /Unknown command: wat/);
 });
 
-test("run returns a non-zero failure for commands that are not implemented yet", () => {
-  const result = run(["update"]);
+test("run returns a usage failure for too many verify arguments", () => {
+  const result = run(["verify", "extra"]);
 
-  assert.equal(result.exitCode, 2);
-  assert.equal(result.stderr, "Command not implemented yet: update");
+  assert.equal(result.exitCode, 1);
+  assert.equal(result.stderr, "Usage: aix verify");
 });
 
 test("run list requires an interactive path when no kind is provided", () => {

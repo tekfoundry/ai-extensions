@@ -600,6 +600,23 @@ test("run deactivate skill refuses to remove an edited active skill", async () =
   });
 });
 
+test("run activate skill refuses to refresh an active skill with edited active files", async () => {
+  await withProject(async (projectRoot) => {
+    assert.equal(run(["activate", "skill", "fixture/skills/demo", "demo-alias"]).exitCode, 0);
+    writeFileSync(join(projectRoot, ".agents/skills/demo-alias/SKILL.md"), "---\nname: edited\n---\n", "utf8");
+
+    const result = run(["activate", "skill", "fixture/skills/demo", "demo-alias"]);
+    const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
+    const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
+
+    assert.equal(result.exitCode, 2);
+    assert.match(result.stderr, /Refusing to refresh modified active skill: \.agents\/skills\/demo-alias/);
+    assert.deepEqual(manifest.skills, [{ source: "fixture", path: "skills/demo", alias: "demo-alias" }]);
+    assert.equal(lockfile.skills.length, 1);
+    assert.match(readFileSync(join(projectRoot, ".agents/skills/demo-alias/SKILL.md"), "utf8"), /^name: edited$/m);
+  });
+});
+
 test("run deactivate skill refuses to remove an edited package copy", async () => {
   await withProject(async (projectRoot) => {
     assert.equal(run(["activate", "skill", "fixture/skills/demo", "demo-alias"]).exitCode, 0);

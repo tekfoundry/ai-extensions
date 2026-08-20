@@ -65,16 +65,22 @@ function cloneOrFetchGitSource(name: string, definition: SourceDefinition, cache
   }
 
   const requestedRef = definition.ref || "HEAD";
-  let resolvedCommit: string;
+  let resolvedCommit: string | undefined;
+  const refCandidates = requestedRef === "HEAD"
+    ? ["origin/HEAD^{commit}", "HEAD^{commit}"]
+    : [`${requestedRef}^{commit}`, `origin/${requestedRef}^{commit}`];
 
-  try {
-    resolvedCommit = runGit(["rev-parse", `${requestedRef}^{commit}`], sourceCachePath);
-  } catch {
+  for (const refCandidate of refCandidates) {
     try {
-      resolvedCommit = runGit(["rev-parse", `origin/${requestedRef}^{commit}`], sourceCachePath);
+      resolvedCommit = runGit(["rev-parse", refCandidate], sourceCachePath);
+      break;
     } catch {
-      throw new AixError(`Unable to resolve ref "${requestedRef}" for source "${name}" from ${definition.url}.`);
+      // Try the next supported ref spelling before reporting a source error.
     }
+  }
+
+  if (!resolvedCommit) {
+    throw new AixError(`Unable to resolve ref "${requestedRef}" for source "${name}" from ${definition.url}.`);
   }
 
   runGit(["checkout", "--detach", resolvedCommit], sourceCachePath);

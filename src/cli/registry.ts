@@ -1,13 +1,11 @@
 import { activateCommand } from "./cmds/activate.js";
 import { addCommand } from "./cmds/add.js";
 import { deactivateCommand } from "./cmds/deactivate.js";
+import { diffCommand } from "./cmds/diff.js";
 import { initCommand } from "./cmds/init.js";
 import { listCommand } from "./cmds/list.js";
-import {
-  diffCommand,
-  updateCommand,
-  verifyCommand
-} from "./pending.js";
+import { updateCommand } from "./cmds/update.js";
+import { verifyCommand } from "./cmds/verify.js";
 import { removeCommand } from "./cmds/remove.js";
 import type { Command } from "./types.js";
 

@@ -1,42 +1,16 @@
 import { existsSync, lstatSync, readdirSync, rmSync, rmdirSync } from "node:fs";
-import { dirname, relative } from "node:path";
+import { dirname } from "node:path";
 import { AixError } from "../errors.js";
-import { listFilesRecursively } from "../fs/files.js";
-import { hashFile } from "../fs/hashing.js";
+import { assertFileHashesMatchLockfile, fileHashesForPath } from "../lockfile/drift.js";
 import { SKILL_PACKAGES_DIR } from "../paths/agents.js";
 import type { FileHash, LockfileSkillEntry } from "../schema.js";
 
 export function packageFileHashes(packagePath: string): FileHash[] {
-  return listFilesRecursively(packagePath)
-    .map((file) => ({
-      path: relative(packagePath, file),
-      sha256: hashFile(file)
-    }))
-    .sort((a, b) => a.path.localeCompare(b.path));
+  return fileHashesForPath(packagePath);
 }
 
-function assertFileHashesMatch(root: string, expectedFiles: FileHash[], errorMessage: string): void {
-  if (!existsSync(root)) {
-    throw new AixError(errorMessage);
-  }
-
-  const actualFiles = packageFileHashes(root);
-  const actualByPath = new Map(actualFiles.map((file) => [file.path, file.sha256]));
-  const expectedPaths = new Set(expectedFiles.map((file) => file.path));
-
-  if (actualFiles.some((file) => !expectedPaths.has(file.path))) {
-    throw new AixError(errorMessage);
-  }
-
-  for (const expected of expectedFiles) {
-    if (actualByPath.get(expected.path) !== expected.sha256) {
-      throw new AixError(errorMessage);
-    }
-  }
-}
-
-export function assertPackageFilesMatchLockfile(entry: LockfileSkillEntry): void {
-  assertFileHashesMatch(entry.packagePath, entry.packageFiles, `Refusing to remove modified package: ${entry.packagePath}`);
+export function assertPackageFilesMatchLockfile(entry: LockfileSkillEntry, action = "remove"): void {
+  assertFileHashesMatchLockfile(entry.packagePath, entry.packageFiles, `Refusing to ${action} modified package: ${entry.packagePath}`);
 }
 
 export function assertPackagePathMatchesSource(
@@ -55,7 +29,7 @@ export function assertPackagePathMatchesSource(
     );
   }
 
-  assertFileHashesMatch(
+  assertFileHashesMatchLockfile(
     packagePath,
     packageFileHashes(sourceSkillPath),
     `Refusing to activate ${source}/${sourcePath} because an untracked package directory has local changes: ${packagePath}`

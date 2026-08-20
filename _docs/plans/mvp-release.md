@@ -720,24 +720,24 @@ Completion evidence:
   `node --test tests/activation.test.mjs`, `npm run typecheck`, `npm test`
   with 65 passing tests, and `git diff --check`.
 
-### Phase 5: Drift protection, update, diff, and verify (status: accepted)
+### Phase 5: Drift protection, update, diff, and verify (status: completed)
 
 Goal: make repeated use safe. AI Extensions should detect local edits, show
 pending changes, and check fetched package plus active skill state.
 
 Tasks:
 
-- ⬜️ Implement lockfile hash comparison against package and active skill files.
-- ⬜️ Fail activate, deactivate, and update when local drift is detected.
-- ⬜️ Implement `aix update` for all locked skills.
-- ⬜️ Implement targeted update filtering if the command shape is accepted.
-- ⬜️ Implement `aix diff` against the currently resolved source version.
-- ⬜️ Implement targeted diff filtering if the command shape is accepted.
-- ⬜️ Implement `aix verify` for manifest, lockfile, package files, active
+- ✅ Implement lockfile hash comparison against package and active skill files.
+- ✅ Fail activate, deactivate, and update when local drift is detected.
+- ✅ Implement `aix update` for all locked skills.
+- ✅ Implement targeted update filtering if the command shape is accepted.
+- ✅ Implement `aix diff` against the currently resolved source version.
+- ✅ Implement targeted diff filtering if the command shape is accepted.
+- ✅ Implement `aix verify` for manifest, lockfile, package files, active
       files, hashes, skill front matter, aliases, and collision rules.
-- ⬜️ Add actionable error messages for drift, missing package or active files,
+- ✅ Add actionable error messages for drift, missing package or active files,
       lockfile mismatch, unresolved sources, and invalid skills.
-- ⬜️ Review & Refactor
+- ✅ Review & Refactor
 
 Verification:
 
@@ -746,6 +746,80 @@ Verification:
 - tests proving locally edited files are not overwritten
 - `npm run typecheck`
 - `npm test`
+
+Completion evidence:
+
+- 2026-08-20: Added shared lockfile hash comparison helpers that compute
+  package or active file hashes, compare them with lockfile records, and report
+  missing roots, missing files, changed files, and unexpected files. Existing
+  activation/deactivation package and active-file safety checks now use the
+  shared comparison path while preserving their command-specific refusal
+  messages. Verification passed with `npm run build`, targeted
+  `node --test tests/lockfile-drift.test.mjs tests/activation.test.mjs`,
+  `npm run typecheck`, `npm test` with 69 passing tests, and
+  `git diff --check`.
+  The next drift task remains open because its `update` behavior depends on
+  implementing the `aix update` command.
+- 2026-08-20: Implemented `aix update` for all locked skills. Update now
+  validates the manifest and lockfile, refuses package or active-file drift
+  before changing files, resolves each locked source to the latest requested
+  Git ref, refreshes managed package copies, refreshes alias wrappers while
+  preserving active names, updates package and active file hashes, and writes
+  `aix.lock.json` atomically. Source resolution now treats an omitted ref as
+  `origin/HEAD` after fetch instead of the cache worktree's detached `HEAD`,
+  so repeated updates can see new default-branch commits. Activation now also
+  checks active-file drift before refreshing an already-locked active skill.
+  Verification passed with `npm run build`, targeted
+  `node --test tests/activation.test.mjs tests/update.test.mjs tests/lockfile-drift.test.mjs`,
+  `npm run typecheck`, `npm test` with 75 passing tests, and
+  `git diff --check`.
+- 2026-08-20: Implemented targeted `aix update <source>/<path>` filtering for
+  exact locked skill entries. Targeted update refreshes only the matching
+  package and active skill state, leaves sibling lockfile entries and package
+  copies unchanged, and fails clearly for unknown locked targets. Verification
+  passed with `npm run build`, targeted `node --test tests/update.test.mjs`,
+  `npm run typecheck`, `npm test` with 77 passing tests, and
+  `git diff --check`.
+- 2026-08-20: Implemented `aix diff` for all locked skills. Diff resolves each
+  locked source to the currently requested Git ref, compares managed package
+  copies against the resolved source with Git no-index diff, reports pending
+  source changes, and leaves `aix.lock.json` plus package files unchanged.
+  Verification passed with `npm run build`, targeted
+  `node --test tests/diff.test.mjs`, `npm run typecheck`, `npm test` with 80
+  passing tests, and `git diff --check`.
+- 2026-08-20: Implemented targeted `aix diff <source>/<path>` filtering for
+  exact locked skill entries. Targeted diff reports only the requested locked
+  skill, leaves sibling package and lockfile state untouched, and fails clearly
+  for unknown locked targets. Verification passed with `npm run build`,
+  targeted `node --test tests/diff.test.mjs`, `npm run typecheck`, `npm test`
+  with 82 passing tests, and `git diff --check`.
+- 2026-08-20: Implemented `aix verify` for local manifest, lockfile, package,
+  and active skill consistency. Verify reports hash drift, missing package or
+  active files, unexpected files, invalid `SKILL.md` front matter, alias and
+  active-name mismatches, lockfile path mismatches, active-name collisions, and
+  manifest root skills missing from the lockfile. Verification passed with
+  `npm run build`, targeted `node --test tests/verify.test.mjs tests/cli.test.mjs`,
+  `npm run typecheck`, `npm test` with 86 passing tests, and
+  `git diff --check`.
+- 2026-08-20: Improved drift refusal diagnostics so activate, deactivate, and
+  update report operation-specific messages such as `refresh`, `remove`, or
+  `update` instead of reusing deactivation wording for every path. Verify
+  diagnostics cover missing package or active paths, missing locked files,
+  changed hashes, unexpected files, lockfile path mismatches, unresolved
+  manifest-to-lockfile roots, and invalid skill front matter. Verification
+  passed with `npm run build`, targeted
+  `node --test tests/activation.test.mjs tests/update.test.mjs`,
+  `npm run typecheck`, `npm test` with 86 passing tests, and
+  `git diff --check`.
+- 2026-08-20: Completed the Phase 5 review and refactor pass. Update now
+  precomputes and validates resolved source skill paths and front matter before
+  replacing any managed package files, reducing partial-update risk when an
+  upstream source removes or invalidates a later locked skill. Stable design
+  documentation was promoted to record omitted-ref behavior: update and diff
+  resolve `origin/HEAD` after fetch instead of the cache worktree's detached
+  `HEAD`. Verification passed with `npm run build`, targeted
+  `node --test tests/update.test.mjs`, `npm run typecheck`, `npm test` with
+  86 passing tests, and `git diff --check`.
 
 ### Phase 6: Package readiness (status: accepted)
 

@@ -246,7 +246,10 @@ project by default. The default cache root is the operating system temp
 directory under `aix-cache`; tests and callers can override it with
 `AIX_CACHE_DIR`. Source cache directory names are derived from source names
 using only filesystem-safe characters. Git refs resolve to exact commit SHAs
-before discovery reads source files.
+before discovery reads source files. When a source omits an explicit ref, AI
+Extensions resolves `origin/HEAD` after fetching so update and diff commands
+track the source repository's default branch instead of the cache worktree's
+detached `HEAD`.
 
 Default verification should use local fixture Git repositories so normal test
 runs stay deterministic and offline-friendly. Tests that reach public remote

@@ -7,7 +7,7 @@ import { activeSkillPath, packageSkillPath, SKILL_PACKAGES_DIR } from "../paths/
 import { LOCKFILE_FILE_NAME, MANIFEST_FILE_NAME, type LockfileSkillDependency, type LockfileSkillEntry, type SourceDefinition } from "../schema.js";
 import { discoverSkills, parseSkillNameFromDirectory } from "../skills.js";
 import { defaultCacheRoot, loadSourceDefinitions, resolveSourceFromDefinitions, type ResolvedSource } from "../sources/index.js";
-import { activateAliasWrapper, activateDirectSymlink, assertActivationPathAvailable } from "./active-files.js";
+import { activateAliasWrapper, activateDirectSymlink, assertActivationPathAvailable, assertActiveFilesMatchLockfile } from "./active-files.js";
 import { resolveInferredDependencies } from "./dependencies.js";
 import { readJsonObject, writeJsonObjectAtomic } from "./json.js";
 import { assertNoActiveNameCollision, readLockfileJson, upsertLockfileEntry } from "./lockfile.js";
@@ -94,7 +94,8 @@ function assertActivationPlanSafe(lockfile: { skills: LockfileSkillEntry[] }, pl
   const packagePath = packageSkillPath(plan.source, plan.sourcePath);
 
   if (existingSkill) {
-    assertPackageFilesMatchLockfile(existingSkill);
+    assertPackageFilesMatchLockfile(existingSkill, "refresh");
+    assertActiveFilesMatchLockfile(existingSkill, "refresh");
   } else {
     assertPackagePathMatchesSource(packagePath, plan.sourceSkillPath, plan.source, plan.sourcePath);
   }
