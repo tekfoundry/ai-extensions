@@ -1,9 +1,10 @@
-# ASM Overview
+# AI Extensions Overview
 
 ## Goal
 
-Build a small package-manager-style CLI for managing AI-agent skills inside
-software projects.
+Build a small package-manager-style CLI for managing AI-agent extensions inside
+software projects. The MVP starts with skills, but the product name leaves room
+for other extension types later.
 
 The tool should let a project declare required skills, install them into a
 local `.agents/skills` directory, lock exact resolved versions, update them
@@ -11,11 +12,14 @@ intentionally, detect local drift, and avoid accidental overwrites.
 
 ## Project Ownership Model
 
-The project separates package-managed agent process files from project-owned
-documentation:
+The project separates bundled extension source, package-managed agent process
+files, and project-owned documentation:
 
-- `.agents/` is managed by the skills package manager.
+- `aix/skills/` is the bundled workflow skill source shipped by this repository.
+- `.agents/` is managed by the skills package manager in consuming projects.
 - `.agents/skills/` contains installed skill packages.
+- In this repository, `.agents/skills/` remains the local working skill set so
+  AI Extensions can later install into it from `aix/skills`.
 - `_docs/` is owned by the consuming project.
 - `_docs/design/` captures design intent and architecture notes.
 - `_docs/plans/` captures implementation plans, active work, and completed plans.

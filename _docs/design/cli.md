@@ -2,15 +2,15 @@
 
 ## Command Name
 
-The CLI command should be `asm`, short for Agent Skills Manager.
+The CLI command should be `aix`.
 
 This keeps the daily command surface small:
 
 ```bash
-asm install
-asm update
-asm diff
-asm verify
+aix install
+aix update
+aix diff
+aix verify
 ```
 
 The name also leaves room for the tool to grow beyond direct skill installation
@@ -18,20 +18,20 @@ later, while still matching the current `.agents/` ownership model.
 
 ## Distribution
 
-The unscoped npm package name `asm` is already taken, so the project should not
-assume it can publish there.
+The project should publish under a scoped package name instead of depending on
+the unscoped npm package name.
 
 The recommended distribution path is a scoped npm package that installs an
-`asm` binary:
+`aix` binary:
 
 ```bash
-npm install -g @tekfoundry/asm
+npm install -g @tekfoundry/aix
 ```
 
 Users would then run:
 
 ```bash
-asm install
+aix install
 ```
 
 The package name can be explicit and namespaced while the executable remains
@@ -42,22 +42,42 @@ short and pleasant to use.
 The first implementation should focus on:
 
 ```bash
-asm install
-asm update
-asm diff
-asm verify
-asm list <source>
+aix init
+aix install
+aix update
+aix diff
+aix verify
+aix list <source>
 ```
 
 Later commands can include:
 
 ```bash
-asm add <source>/<path>
-asm remove <source>/<path>
-asm outdated
+aix add <source>/<path>
+aix remove <source>/<path>
+aix outdated
 ```
 
-`asm list <source>` should list discoverable skills from a configured source
+`aix list <source>` should list discoverable skills from a configured source
 without installing them. This is especially important for default external
 sources such as `mattpocock` and `cursor-pstack`, which should be browseable
 before the user chooses specific skills to install.
+
+`aix init` should initialize a project-local AI Extensions environment. It
+creates the expected local files and installs the default local workflow skills
+so the project can start using AI Extensions immediately.
+
+Running `aix` with no arguments should print a minimal splash screen with the
+product name, package version, and current or planned command list. It should
+exit successfully.
+
+## Exit Codes
+
+The CLI uses structured errors with explicit exit codes:
+
+- `0` for successful commands such as help output
+- `1` for command-line usage errors, including unknown commands
+- `2` for runtime command failures
+
+Until each MVP command is implemented, recognized commands fail through the
+runtime error path with a non-zero exit code.

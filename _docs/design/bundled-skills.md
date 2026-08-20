@@ -1,16 +1,18 @@
 # Bundled Skills
 
-ASM should include a curated set of reusable workflow skills as importable
-packages.
+AI Extensions should include a curated set of reusable workflow skills as
+importable packages.
 
 ## Default Sources
 
-ASM should start with three default sources:
+AI Extensions should start with three default sources:
 
-1. `asm`
-   - Type: bundled or local project source
-   - Path: this repository's `.agents/skills`
-   - Behavior: installed by default when ASM initializes a project
+1. `aix`
+   - Type: Git source
+   - URL: `https://github.com/tekfoundry/ai-extension.git`
+   - Path: `aix/skills`
+   - Ref: `master`
+   - Behavior: installed by default when AI Extensions initializes a project
 2. `mattpocock`
    - Type: Git source
    - URL: `https://github.com/mattpocock/skills.git`
@@ -22,24 +24,27 @@ ASM should start with three default sources:
    - Path: `pstack/skills`
    - Behavior: discoverable and installable on demand
 
-The `asm` source is the default workflow pack. External sources should be
-available through discovery commands without installing their skills
-automatically.
+The `aix` source is the default workflow pack. All default sources use the same
+Git resolution path.
+
+`aix/skills` is the canonical source path inside the `aix` Git source.
+`.agents/skills` is the local installed working set and should remain available
+for the agent workflow while AI Extensions is being built.
 
 For example:
 
 ```bash
-asm list asm
-asm list mattpocock
-asm list cursor-pstack
+aix list aix
+aix list mattpocock
+aix list cursor-pstack
 ```
 
 Skills from external sources should become installed only after an explicit
 install action.
 
 ```bash
-asm install cursor-pstack/tdd
-asm install mattpocock/engineering/typescript
+aix install cursor-pstack/tdd
+aix install mattpocock/engineering/typescript
 ```
 
 These repository-local skills should be available for import by other projects:
@@ -57,8 +62,13 @@ These repository-local skills should be available for import by other projects:
 - `task-execute`
 - `work-verify`
 
-These `asm` source skills should be loaded by default when ASM initializes a
-project unless the user explicitly chooses a smaller profile later.
+The `unslop` skill is intentionally not included in `aix/skills`. `aix init`
+should declare and install `cursor-pstack/unslop` from the `cursor-pstack`
+source rather than from a local AI Extensions-only skill directory.
+
+These `aix` source skills should be loaded by default when AI Extensions
+initializes a project unless the user explicitly chooses a smaller profile
+later.
 
 Default skills should remain project-agnostic. Skills that depend heavily on a
 specific application's build scripts, release flow, runtime stack, deployment

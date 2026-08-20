@@ -1,21 +1,23 @@
-# ASM
+# AI Extensions
 
-ASM is Agent Skills Manager, a small package-manager-style CLI for managing
-AI-agent skills inside software projects.
+AI Extensions is a small package-manager-style CLI for managing AI-agent
+extensions inside software projects. The first extension type is agent skills.
 
 The goal is simple: let a project declare the agent skills it depends on,
 install them into `.agents/skills`, lock exact versions, update them
 intentionally, and refuse to overwrite local edits silently.
 
-ASM is early. The repository currently contains the product design and the
-default workflow skills that ASM should eventually install for new projects.
+AI Extensions is early. The repository currently contains the product design
+and the default workflow skills that `aix` should eventually install for new
+projects.
 
 ## Why this exists
 
 AI-agent skills are useful across tools like Codex, Cursor, Claude, and other
 coding agents, but project-local skill management is still mostly manual.
 
-ASM aims to make skills feel closer to normal project dependencies:
+AI Extensions aims to make agent extensions feel closer to normal project
+dependencies:
 
 - declare skills in a manifest
 - resolve skills from Git sources
@@ -27,42 +29,48 @@ ASM aims to make skills feel closer to normal project dependencies:
 
 ## Planned CLI
 
-The command will be `asm`.
+The command will be `aix`.
 
 ```bash
-asm install
-asm update
-asm diff
-asm verify
-asm list <source>
+aix install
+aix update
+aix diff
+aix verify
+aix list <source>
 ```
 
 Later commands may include:
 
 ```bash
-asm add <source>/<path>
-asm remove <source>/<path>
-asm outdated
+aix add <source>/<path>
+aix remove <source>/<path>
+aix outdated
 ```
 
-The npm package is expected to be scoped because the unscoped `asm` package
-name is already taken:
+The npm package is expected to be scoped so the project can publish under a
+clear owned namespace:
 
 ```bash
-npm install -g @tekfoundry/asm
+npm install -g @tekfoundry/aix
 ```
 
 Users would still run the short command:
 
 ```bash
-asm install
+aix install
 ```
 
 ## Project layout
 
-ASM separates package-managed agent files from project-owned documentation.
+AI Extensions separates package-managed agent files from project-owned
+documentation.
 
 ```text
+aix/
+  skills/
+    <bundled-skill>/
+      SKILL.md
+
 .agents/
   README.md
   workflow.md
@@ -76,38 +84,42 @@ _docs/
   plans/
 ```
 
-`.agents/` is package-managed agent process structure.
+`aix/skills/` is the repository source for the default workflow skills. The
+generated `aix.json` points at this path through the remote `aix` Git source.
 
-`_docs/` belongs to the project. ASM may create the initial folders, but it
-should not routinely rewrite project documentation.
+`.agents/` is the local installed agent process structure for this repository.
+
+`_docs/` belongs to the project. AI Extensions may create the initial folders,
+but it should not routinely rewrite project documentation.
 
 ## Default sources
 
-ASM should start with these default sources:
+AI Extensions should start with these default sources:
 
-- `asm`: bundled workflow skills from this repository, installed by default
+- `aix`: `https://github.com/tekfoundry/ai-extension.git`, path `aix/skills`,
+  ref `master`
 - `mattpocock`: `https://github.com/mattpocock/skills.git`, path `skills`
 - `cursor-pstack`: `https://github.com/cursor/plugins.git`, path `pstack/skills`
 
 External sources should be discoverable without automatic installation:
 
 ```bash
-asm list mattpocock
-asm list cursor-pstack
+aix list mattpocock
+aix list cursor-pstack
 ```
 
 Specific skills from those sources should install only after an explicit
 command:
 
 ```bash
-asm install cursor-pstack/tdd
-asm install mattpocock/engineering/typescript
+aix install cursor-pstack/tdd
+aix install mattpocock/engineering/typescript
 ```
 
 ## Bundled skills
 
-This repository includes the first default ASM workflow skills under
-`.agents/skills`.
+This repository includes the first default AI Extensions workflow skills under
+`aix/skills`.
 
 Current bundled skills:
 
@@ -124,8 +136,7 @@ Current bundled skills:
 - `task-execute`
 - `work-verify`
 
-The local `unslop` skill is included in this repository for use while building
-ASM. It is attributed in its own `SKILL.md` file.
+The `unslop` skill is imported from `cursor-pstack`, not from the `aix` source.
 
 ## Design docs
 
@@ -150,4 +161,5 @@ publishing workflows can come later.
 
 ## Status
 
-This project is in design and bootstrap mode. The CLI is not implemented yet.
+This project is in early implementation. The CLI scaffold exists, and command
+behavior is being built through the active MVP plan.

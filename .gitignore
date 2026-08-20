@@ -22,6 +22,8 @@ node_modules/
 .yarn/unplugged/
 .yarn/build-state.yml
 .yarn/install-state.gz
+.turbo/
+.parcel-cache/
 
 # Build and test output
 dist/
@@ -30,6 +32,9 @@ coverage/
 .nyc_output/
 .tsbuildinfo
 *.tsbuildinfo
+.eslintcache
+junit.xml
+test-results/
 
 # Logs
 logs/
@@ -45,9 +50,14 @@ temp/
 .tmp/
 .cache/
 
-# ASM-managed caches and transient state
+# AIX-managed caches and transient state
 .agents/.cache/
 .agents/tmp/
+aix-cache/
+.aix-cache/
+
+# Local package artifacts
+*.tgz
 
 # Tool-specific local state.
 # Keep the skill compatibility symlinks shareable.

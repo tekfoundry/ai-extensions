@@ -1,0 +1,29 @@
+{
+  "name": "@tekfoundry/aix",
+  "version": "0.0.0",
+  "description": "AI Extensions: a package-manager-style CLI for project-local AI-agent extensions.",
+  "type": "module",
+  "bin": {
+    "aix": "./bin/aix.js"
+  },
+  "files": [
+    "aix",
+    "bin",
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "aix": "npm run build && node bin/aix.js",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}

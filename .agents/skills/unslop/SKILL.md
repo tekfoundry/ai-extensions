@@ -7,12 +7,36 @@ description: Cut AI tells from any writing. Must always apply.
 
 Edit text to remove AI patterns and add human voice.
 
+## Scope
+
+Use this skill for every agent-generated prose output, whether the text is:
+
+- a user-facing reply
+- an intermediary progress update
+- a plan, design doc, README, handoff, changelog, or other file content
+- comments or explanatory prose in code when the wording is agent-generated
+
+Apply it before the text is shown to the user or written to a file. Do not wait
+for the user to ask for an unslop pass.
+
+This skill is not a reason to rewrite literal code, command output, test
+fixtures, quoted source text, API names, config keys, filenames, or terminology
+that must stay exact. When preserving exact text matters more than voice,
+preserve the exact text and apply this skill to the surrounding prose.
+
 ## Process
 
-1. Scan for the patterns below.
-2. Rewrite. Preserve meaning, match intended tone.
-3. Add soul (see next section).
-4. Self-audit: "What makes this obviously AI generated?" Fix remaining tells.
+1. Draft the answer or file content.
+2. Scan the generated prose for the patterns below.
+3. Rewrite. Preserve meaning, match intended tone.
+4. Add soul when the context allows it. See the next section.
+5. Self-audit: "What makes this obviously AI generated?" Fix remaining tells.
+6. For files, run the pass before writing when practical, then skim the written
+   diff for leftover tells.
+
+For short operational updates, keep the pass fast. Cut filler, avoid formulaic
+openers, and make the sentence sound like a person who knows what they are
+doing.
 
 ## Adding soul
 

@@ -496,6 +496,8 @@ Each plan document in `_docs/plans` should include, at minimum, the following se
 - The intended end state for the change
 - The key behaviors, interfaces, boundaries, and invariants that should exist when the work is complete
 - Any design decisions that should later become part of stable design documentation
+- For backlog plans, track review acceptance inline on the relevant section
+  heading once accepted, for example `### Design Intent (status: accepted)`.
 
 ### 3. Implementation Phases
 
@@ -504,6 +506,10 @@ Each plan document in `_docs/plans` should include, at minimum, the following se
 - Each phase should contain concrete tasks
 - Each phase should define success goals so completion can be judged explicitly
 - Include verification expectations where relevant
+- For backlog plans, track phase acceptance inline on each phase heading once
+  accepted, for example `#### Phase 1: Name (status: accepted)`.
+- Do not add a detached review-gates section after acceptance. Status should
+  stay with the section or phase it describes.
 
 ### Task Status Tracking
 
@@ -539,6 +545,22 @@ Each plan document in `_docs/plans` should include, at minimum, the following se
 - Read `_docs/plans/completed` only when relevant historical context is needed
 - If the work is early-stage product definition, also review the product summary and competitive analysis if they exist
 
+### Active Plan Resolution
+
+When an execution skill needs an active plan, resolve it this way:
+
+1. If the user names a plan file, use that file.
+2. If the user names no plan file, inspect active plan files directly under
+   `_docs/plans/`.
+3. Treat files under `_docs/plans/backlog/` as backlog plans and files under
+   `_docs/plans/completed/` as completed plans, not active candidates.
+4. If exactly one active plan file exists, select it and say it was selected
+   because it is the only in-progress plan.
+5. If no active plan file exists, stop and ask for the plan to execute.
+6. If more than one active plan file exists, stop and ask which plan to use.
+7. Stop if the selected plan is backlog or completed when active-plan work is
+   required.
+
 ### 2. Create or Update the Plan
 
 - Create a new backlog plan document for the change, or extend an existing active plan if the work clearly belongs there
@@ -561,6 +583,11 @@ Each plan document in `_docs/plans` should include, at minimum, the following se
 
 - Choose the targeted test, deterministic check, or manual repro that most
   directly covers the changed behavior
+- Tests may be written before, during, or after the implementation. The required
+  outcome is that important design intent is locked down by automated tests when
+  automation is practical.
+- Use manual verification only when automated coverage would be impractical or
+  low-value, and record that judgment in the plan or final handoff.
 - Run broad repository checks only after targeted verification passes, or after
   a targeted-check failure or blocker is recorded with residual risk
 - Run the relevant tests, lint, typecheck, build, or deterministic manual repro
@@ -652,6 +679,7 @@ Before archiving a plan, confirm all of the following:
 A task is done when:
 
 - The implementation matches the accepted design intent
+- Important design intent has automated test coverage where practical
 - Relevant verification has been run, or any gaps are explicitly documented
 - The active plan document reflects the final state of the work
 - Durable design knowledge has been promoted into `_docs/design` when the work is complete
@@ -677,6 +705,12 @@ Brief name for the effort.
 - Key decisions
 - Boundaries and invariants
 
+For accepted backlog plans, write this heading as:
+
+```text
+### Design Intent (status: accepted)
+```
+
 ### Implementation Phases
 
 #### Phase 1: Name
@@ -688,6 +722,12 @@ Brief name for the effort.
   - `✅` Completed task
 - Success goals
 - Verification
+
+For accepted backlog phases, write phase headings as:
+
+```text
+#### Phase 1: Name (status: accepted)
+```
 
 #### Phase 2: Name
 

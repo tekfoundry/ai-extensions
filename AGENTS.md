@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file is the repo-specific entrypoint for AI coding agents working in `asm`.
+This file is the repo-specific entrypoint for AI coding agents working in `aix`.
 
 ## Read Order
 
@@ -17,25 +17,26 @@ skill's `SKILL.md` and follow it.
 
 ## Project Snapshot
 
-`asm` is Agent Skills Manager: a small package-manager-style CLI for managing
-AI-agent skills in software projects.
+`aix` is the CLI for AI Extensions, a package-manager-style tool for managing
+AI-agent extensions in software projects. The MVP starts with agent skills.
 
 The intended CLI command is:
 
 ```bash
-asm install
-asm update
-asm diff
-asm verify
+aix install
+aix update
+aix diff
+aix verify
 ```
 
 The package is expected to be implemented in TypeScript on Node.js and
-distributed as a scoped npm package, while installing the short `asm` binary.
+distributed as a scoped npm package, while installing the short `aix` binary.
 
 ## Repository Map
 
-- `.agents/`: reusable agent process structure and project-local skills
-- `.agents/skills/`: canonical reusable workflow skills
+- `aix/skills/`: canonical bundled workflow skills imported by AI Extensions
+- `.agents/`: reusable agent process structure and project-local installed skills
+- `.agents/skills/`: local working skill set for this repository
 - `.codex/skills`, `.claude/skills`: tool-specific compatibility symlinks to `.agents/skills`
 - `_docs/design/README.md`: stable current design intent
 - `_docs/plans/`: implementation plans
@@ -96,6 +97,7 @@ Every final handoff should include documentation impact when docs were relevant.
 - Reusable agent process router: `.agents/README.md`
 - Workflow and planning rules: `.agents/workflow.md`
 - Agent-facing engineering guidance: `.agents/engineering-best-practices.md`
-- Reusable workflow skills: `.agents/skills`
-- Stable ASM design intent: `_docs/design/README.md`
-- ASM implementation plans: `_docs/plans`
+- Bundled AI Extensions skills: `aix/skills`
+- Local working skills: `.agents/skills`
+- Stable AI Extensions design intent: `_docs/design/README.md`
+- AI Extensions implementation plans: `_docs/plans`
