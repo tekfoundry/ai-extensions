@@ -140,8 +140,11 @@ content needed by defaults; activates the default skills from the remote `aix`
 source path `aix/skills`; and activates `cursor-pstack/unslop` from the
 `cursor-pstack` source.
 
-`aix.json` should declare common skill dependencies as compact `source:path`
-strings. Object entries are reserved for aliases, per-skill refs, or later
+`aix.json` should declare user-requested root active skills as compact
+`source:path` strings. Dependency-only skills inferred during activation belong
+in `aix.lock.json` and `.agents/skills` while required, but they should not be
+written to the manifest `skills` list unless the user explicitly activates
+them. Object entries are reserved for aliases, per-skill refs, or later
 metadata.
 
 `aix activate skill` reads `aix.json`, resolves the cached source metadata,
@@ -166,8 +169,8 @@ hashes, skill front matter, and naming rules still agree.
 File operations are safety-sensitive. All writes stay scoped to
 `aix.json`, `aix.lock.json`, `.agents/packages`, and `.agents/skills` unless a
 command explicitly initializes missing documentation folders. The MVP does not add
-registry support, plugin package support, dependency resolution, global
-installs, or per-tool compatibility symlink management beyond keeping
+registry support, plugin package support, global installs, or per-tool
+compatibility symlink management beyond keeping
 `.codex/skills` and `.claude/skills` as optional directory-level symlinks to
 `.agents/skills`.
 
@@ -231,6 +234,7 @@ Tasks:
 - ✅ Add tests for schema validation, missing files, malformed JSON, and
       atomic lockfile writes.
 - ✅ Create a build command that allows `aix` commands to work.
+- ✅ Review & Refactor
 
 Verification:
 
@@ -297,6 +301,7 @@ Tasks:
       command modules to depend directly on third-party prompt APIs.
 - ✅ Prove `aix list skills <source>` does not change `aix.json`, `aix.lock.json`,
       `.agents/packages`, or `.agents/skills`.
+- ✅ Review & Refactor
 
 Verification:
 
@@ -475,6 +480,7 @@ Tasks:
       validation into `src/validation/`.
 - ✅ Split skill discovery, source-backed listing, rendering, and skill-domain
       types into `src/skills/`; reuse skills-domain parsing from init.
+- ✅ Review & Refactor
 
 Verification:
 
@@ -561,7 +567,7 @@ Completion evidence:
   `npm run typecheck`, `npm test` with 47 passing tests, and
   `git diff --check`.
 
-### Phase 4: Activation, deactivation, and lockfile integrity (status: accepted)
+### Phase 4: Activation, deactivation, and lockfile integrity (status: completed)
 
 Goal: materialize declared or requested skill packages, activate them into
 `.agents/skills`, deactivate active skills when requested, and record exact
@@ -569,25 +575,55 @@ package plus activation lockfile state.
 
 Tasks:
 
-- ⬜️ Implement activation selection from declared manifest entries and targeted
+- ✅ Implement activation selection from declared manifest entries and targeted
       `aix activate skill <source>/<path> [alias]`.
-- ⬜️ Decide before implementation whether no-argument `aix activate skill`
+- ✅ Decide before implementation whether no-argument `aix activate skill`
       ships with an interactive source/skill picker in the MVP or is explicitly
       deferred after non-interactive activation works.
-- ⬜️ Locate requested source-relative skill paths.
-- ⬜️ Determine active names from natural names or aliases.
-- ⬜️ Validate aliases as safe folder names.
-- ⬜️ Detect active-name collisions before changing `.agents/skills`.
-- ⬜️ Create direct symlinks for non-aliased activation when safe.
-- ⬜️ Create managed wrapper or materialized active directories for aliases when
+- ✅ Locate requested source-relative skill paths.
+- ✅ Determine active names from natural names or aliases.
+- ✅ Validate aliases as safe folder names.
+- ✅ Detect active-name collisions before changing `.agents/skills`.
+- ✅ Create direct symlinks for non-aliased activation when safe.
+- ✅ Create managed wrapper or materialized active directories for aliases when
       needed so `SKILL.md` front matter matches the alias.
-- ⬜️ Hash package files and active skill files with SHA-256.
-- ⬜️ Write lockfile entries with source URL, requested ref, resolved commit,
+- ✅ Hash package files and active skill files with SHA-256.
+- ✅ Write lockfile entries with source URL, requested ref, resolved commit,
       package kind, source path, package path, activation path, original name,
       active name, alias metadata, and file hashes.
-- ⬜️ Implement `aix deactivate skill <active-name>` with local-drift checks,
-      manifest updates, lockfile updates, and package-copy preservation.
-- ⬜️ Preserve package-managed and project-owned boundaries during activation.
+- ✅ Implement `aix deactivate skill <active-name>` with local-drift checks,
+      manifest updates, lockfile updates, and safe package-copy cleanup.
+- ✅ Preserve package-managed and project-owned boundaries during activation.
+- ✅ Infer and lock skill dependency trees during activation, auto-activate
+      unambiguous dependencies, and refuse deactivation when another active
+      skill depends on the requested active skill.
+- ✅ Add interactive `aix deactivate` and `aix deactivate skill` picker flows.
+- ✅ Update design docs so `aix.json.skills` represents user-requested root
+      active skills while dependency-only active skills live in `aix.lock.json`.
+- ✅ Update activation so inferred dependency-only skills are activated and
+      locked without being added to `aix.json.skills`.
+- ✅ Mark lockfile skill entries as user-requested roots or dependency-only
+      activations.
+- ✅ Update deactivation so removing a root skill also removes orphaned
+      dependency-only active skills while preserving package copies.
+- ✅ Keep direct deactivation of dependency-only skills blocked while active
+      skills still depend on them.
+- ✅ Add regression coverage for manifest root-only activation and dependency
+      cleanup on deactivation.
+- ✅ Update interactive deactivation so dependency-only active skills are not
+      shown as selectable root deactivation options.
+- ✅ Update design docs so deactivate symmetrically removes no-longer-needed
+      package copies when package files are unchanged, and activation refuses
+      ambiguous existing package directories.
+- ✅ Update deactivation to remove no-longer-needed package copies after
+      package hash checks.
+- ✅ Update activation to refuse existing untracked package directories that do
+      not match the resolved source skill.
+- ✅ Add regression coverage for package cleanup, package local-edit refusal,
+      and dirty orphan package activation refusal.
+- ✅ Remove empty package parent directories after package-copy cleanup without
+      deleting past the managed skills package boundary.
+- ✅ Review & Refactor
 
 Verification:
 
@@ -599,6 +635,90 @@ Verification:
 - interactive activation tests if the no-argument picker ships in the MVP
 - `npm run typecheck`
 - `npm test`
+
+Completion evidence:
+
+- 2026-08-20: Implemented `aix activate skill <source>/<path> [alias]` so
+  activation materializes the package under `.agents/packages/skills`, updates
+  the activated `skills` list in `aix.json`, creates a direct symlink for
+  natural-name activation, creates a managed active wrapper for aliases with
+  alias-matched `SKILL.md` front matter, and writes lockfile package plus
+  active file hashes. Added the no-argument interactive source and skill
+  picker for `aix activate skill`. Verification passed with `npm run build`,
+  targeted `node --test tests/activation.test.mjs`, `npm run typecheck`,
+  `npm test` with 51 passing tests, and `git diff --check`.
+- 2026-08-20: Implemented `aix deactivate skill <active-name>` so
+  deactivation resolves active skills by lockfile active name, refuses edited
+  active files, removes only `.agents/skills/<active-name>`, removes the
+  matching activated skill from `aix.json`, removes the lockfile entry, and
+  preserves `.agents/packages/skills/<source>/...`. Updated design docs for
+  the accepted activation manifest-write and interactive picker behavior.
+  Verification passed with `npm run build`, targeted
+  `node --test tests/activation.test.mjs`, `npm run typecheck`, `npm test`
+  with 53 passing tests, and `git diff --check`.
+- 2026-08-20: Reopened Phase 4 for inferred skill dependency handling.
+  Activation now infers dependencies from `SKILL.md` skill-tool call
+  instructions such as `Call the Skill tool with "grilling"`, resolves them
+  unambiguously against discovered skills in the same source, activates
+  dependencies before the requested skill, records dependency edges in
+  `aix.lock.json`, and reports activated dependencies in CLI output.
+  Deactivation now refuses to remove active skills that another active lockfile
+  entry depends on. The review and refactor pass kept dependency behavior in
+  focused activation-domain modules rather than broadening command modules.
+  Verification passed with `npm run build`, targeted
+  `node --test tests/activation.test.mjs`, `npm run typecheck`, `npm test`
+  with 57 passing tests, and `git diff --check`.
+- 2026-08-20: Added interactive deactivation UX. `aix deactivate` now opens a
+  kind picker with `Skills` and `q - Quit`, while `aix deactivate skill`
+  without a target lists active skills from the lockfile and deactivates the
+  selected active skill through the same local-drift and dependency guards as
+  the explicit command. Updated CLI design docs for the picker behavior.
+  Verification passed with `npm run build`, `npm run typecheck`, targeted
+  `node --test tests/activation.test.mjs`, `npm test` with 60 passing tests,
+  and `git diff --check`.
+- 2026-08-20: Reopened Phase 4 to align dependency activation/deactivation
+  with package-manager root versus transitive dependency behavior. Activation
+  now writes only the user-selected root skill to `aix.json.skills`, marks
+  lockfile entries with `requested: true` for roots and `requested: false` for
+  inferred dependency-only activations, and keeps dependency edges in
+  `aix.lock.json`. Deactivation still refuses direct removal of a
+  dependency-only skill while active skills depend on it, but removing a root
+  skill now prunes orphaned dependency-only active skills from
+  `.agents/skills` and the lockfile while preserving package copies under
+  `.agents/packages/skills`. The review and refactor pass added a guard
+  against reactivating an already-active source skill under a different active
+  name. Verification passed with `npm run build`, targeted
+  `node --test tests/activation.test.mjs`, `npm run typecheck`, `npm test`
+  with 62 passing tests, and `git diff --check`.
+- 2026-08-20: Reopened Phase 4 for a deactivation picker UX correction.
+  Interactive `aix deactivate` and `aix deactivate skill` now list only
+  user-requested root active skills, omitting dependency-only active skills
+  because root deactivation owns dependency cleanup. Non-interactive direct
+  deactivation of a dependency-only skill remains blocked while active skills
+  depend on it. Updated design docs and regression coverage. Verification
+  passed with `npm run build`, targeted
+  `node --test tests/activation.test.mjs`, `npm run typecheck`, `npm test`
+  with 62 passing tests, and `git diff --check`.
+- 2026-08-20: Reopened Phase 4 to make deactivation symmetrical with
+  activation for project-local package copies. Deactivation now checks package
+  files against lockfile hashes, refuses to remove locally edited package
+  copies, removes no-longer-needed package directories for deactivated roots
+  and pruned dependency-only skills, and reports removed packages in command
+  output. Activation now refuses dirty untracked package directories instead
+  of overwriting ambiguous local files. The review and refactor pass moved
+  package hash comparison, orphan package validation, and package removal into
+  a focused activation package-file helper. Verification passed with
+  `npm run build`, targeted `node --test tests/activation.test.mjs`,
+  `npm run typecheck`, `npm test` with 64 passing tests, and
+  `git diff --check`.
+- 2026-08-20: Reopened Phase 4 to clean up empty package parent directories
+  after deactivation removes package copies. Package cleanup now removes empty
+  parents below `.agents/packages/skills`, stops at the first non-empty parent,
+  and never removes the managed skills package root. Regression coverage proves
+  empty parents are removed and non-empty parents with sibling packages remain.
+  Verification passed with `npm run build`, targeted
+  `node --test tests/activation.test.mjs`, `npm run typecheck`, `npm test`
+  with 65 passing tests, and `git diff --check`.
 
 ### Phase 5: Drift protection, update, diff, and verify (status: accepted)
 
@@ -617,6 +737,7 @@ Tasks:
       files, hashes, skill front matter, aliases, and collision rules.
 - ⬜️ Add actionable error messages for drift, missing package or active files,
       lockfile mismatch, unresolved sources, and invalid skills.
+- ⬜️ Review & Refactor
 
 Verification:
 
@@ -638,6 +759,7 @@ Tasks:
 - ⬜️ Document the default sources and the Git-only MVP boundary.
 - ⬜️ Add a local package smoke test using `npm pack` or equivalent.
 - ⬜️ Run full verification.
+- ⬜️ Review & Refactor
 
 Verification:
 
@@ -671,6 +793,7 @@ Tasks:
 - ⬜️ Verify the package can be installed by another project and that the
       installed `aix` binary runs.
 - ⬜️ Record any deferred behavior that should become a later plan.
+- ⬜️ Review & Refactor
 
 Verification:
 
@@ -684,13 +807,14 @@ Verification:
 ## Open Questions / Decisions
 
 - Manifest shape: define the exact JSON schema before Phase 1 implementation.
-- Activation declaration behavior: decide before Phase 4 whether
-  `aix activate skill <source>/<path> [alias]` automatically records the active
-  skill in `aix.json`, or whether it only activates skills already declared
-  there.
-- Interactive activation behavior: decide before Phase 4 whether
-  no-argument `aix activate skill` ships as an MVP picker or is deferred until
-  after the non-interactive workflow is complete.
+- Activation declaration behavior: decided on 2026-08-20. `aix activate skill
+  <source>/<path> [alias]` updates the `skills` list in `aix.json` only for
+  the user-selected root skill. Inferred dependency-only active skills are
+  recorded in `aix.lock.json` and materialized under `.agents/skills`, but are
+  not manifest entries unless the user explicitly activates them.
+- Interactive activation behavior: decided on 2026-08-20. No-argument
+  `aix activate skill` ships with an interactive source/skill picker in the
+  MVP.
 - Git cache location: decide before Phase 2 whether the cache lives under a
   project-local path, an OS cache directory, or a temporary test-controlled
   location.

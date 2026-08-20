@@ -70,6 +70,36 @@ architecture, commands, and safety boundaries.
 - Use the module topology checkpoints below before adding more behavior to an
   area that is already growing.
 
+## New File Design Check
+- Before creating a brand-new implementation file, identify the file's primary
+  role in one sentence.
+- A new file should usually be one of:
+  - a narrow entrypoint, route, command, handler, adapter, or component
+  - a focused domain or service module with one clear reason to change
+  - a small facade that delegates to focused implementation modules
+  - a shared utility whose callers and ownership are clear
+- If the file's purpose cannot be described without "and", "plus", or a list
+  of unrelated responsibilities, split the design before committing the first
+  version.
+- Match the repository's existing module topology. If similar domains use
+  folders, layered modules, facades, adapters, or service boundaries, new code
+  should follow that shape from the first implementation unless there is a
+  documented reason not to.
+- Do not postpone obvious separation just because the file is new. When the
+  responsibilities are already known, prefer the intended maintainable shape in
+  the first implementation slice.
+- Split a new file before committing when it combines three or more of these
+  responsibility types:
+  - user interaction, rendering, or output formatting
+  - workflow orchestration
+  - domain rules or business decisions
+  - validation, parsing, or normalization
+  - persistence, configuration, or state mutation
+  - filesystem, network, database, or external-system I/O
+  - security, authorization, trust, or safety checks
+  - error mapping or user-facing diagnostics
+  - test fixtures, mocks, or environment setup
+
 ## Module Topology Checkpoints
 - Review module organization before adding more behavior to an area that is
   already growing.
@@ -132,6 +162,9 @@ architecture, commands, and safety boundaries.
 - Review for correctness first, then maintainability, then style.
 - Push back on blurred ownership boundaries.
 - Ask for extraction when a file or service starts owning too many concerns.
+- For every brand-new file, review whether its responsibility, name, and
+  location fit the surrounding architecture. Treat a large new file with mixed
+  concerns as a design issue, not just a cleanup opportunity.
 - Require tests or a documented reason when changing non-trivial logic.
 
 ## Refactoring Guidance

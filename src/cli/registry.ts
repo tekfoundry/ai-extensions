@@ -1,9 +1,9 @@
+import { activateCommand } from "./cmds/activate.js";
 import { addCommand } from "./cmds/add.js";
+import { deactivateCommand } from "./cmds/deactivate.js";
 import { initCommand } from "./cmds/init.js";
 import { listCommand } from "./cmds/list.js";
 import {
-  activateCommand,
-  deactivateCommand,
   diffCommand,
   updateCommand,
   verifyCommand

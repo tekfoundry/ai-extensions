@@ -44,7 +44,7 @@ export async function promptForSkillSourceList(input: Readable, output: Writable
 export async function promptForListKind(input: Readable, output: Writable): Promise<CliResult> {
   const listKind = await promptForSelection(
     "What would you like to list:",
-    [{ value: "skills", label: "skills" }],
+    [{ value: "skills", label: "Skills" }],
     [],
     input,
     output,

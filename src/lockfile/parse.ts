@@ -2,6 +2,7 @@ import {
   LOCKFILE_FILE_NAME,
   LOCKFILE_VERSION,
   type FileHash,
+  type LockfileSkillDependency,
   type LockfileSkillEntry,
   type SkillsLockfile
 } from "../schema.js";
@@ -24,6 +25,18 @@ function optionalString(value: unknown, path: string): string | undefined {
   return requireString(value, path);
 }
 
+function optionalBoolean(value: unknown, path: string, defaultValue: boolean): boolean {
+  if (value === undefined) {
+    return defaultValue;
+  }
+
+  if (typeof value !== "boolean") {
+    throw new LockfileError(`${path} must be a boolean.`);
+  }
+
+  return value;
+}
+
 function parseFileHash(value: unknown, path: string): FileHash {
   if (!isRecord(value)) {
     throw new LockfileError(`${path} must be an object.`);
@@ -32,6 +45,25 @@ function parseFileHash(value: unknown, path: string): FileHash {
   return {
     path: requireString(value.path, `${path}.path`),
     sha256: requireString(value.sha256, `${path}.sha256`)
+  };
+}
+
+function parseSkillDependency(value: unknown, path: string): LockfileSkillDependency {
+  if (!isRecord(value)) {
+    throw new LockfileError(`${path} must be an object.`);
+  }
+
+  const type = requireString(value.type, `${path}.type`);
+  if (type !== "inferred") {
+    throw new LockfileError(`${path}.type must be "inferred".`);
+  }
+
+  return {
+    source: requireString(value.source, `${path}.source`),
+    sourcePath: requireString(value.sourcePath, `${path}.sourcePath`),
+    activeName: requireString(value.activeName, `${path}.activeName`),
+    type,
+    reason: requireString(value.reason, `${path}.reason`)
   };
 }
 
@@ -62,6 +94,11 @@ function parseSkillEntry(value: unknown, path: string): LockfileSkillEntry {
   const requestedRef = optionalString(value.requestedRef, `${path}.requestedRef`);
   const resolvedCommit = optionalString(value.resolvedCommit, `${path}.resolvedCommit`);
   const alias = optionalString(value.alias, `${path}.alias`);
+  const dependencies = value.dependencies;
+
+  if (dependencies !== undefined && !Array.isArray(dependencies)) {
+    throw new LockfileError(`${path}.dependencies must be an array.`);
+  }
 
   return {
     kind,
@@ -76,6 +113,8 @@ function parseSkillEntry(value: unknown, path: string): LockfileSkillEntry {
     originalName: requireString(value.originalName, `${path}.originalName`),
     activeName: requireString(value.activeName, `${path}.activeName`),
     ...(alias ? { alias } : {}),
+    requested: optionalBoolean(value.requested, `${path}.requested`, true),
+    ...(dependencies ? { dependencies: dependencies.map((dependency, index) => parseSkillDependency(dependency, `${path}.dependencies[${index}]`)) } : {}),
     packageFiles: value.packageFiles.map((file, index) => parseFileHash(file, `${path}.packageFiles[${index}]`)),
     activeFiles: value.activeFiles.map((file, index) => parseFileHash(file, `${path}.activeFiles[${index}]`))
   };

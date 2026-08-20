@@ -85,7 +85,7 @@ export async function runInteractive(
     }
 
     if (command.runInteractive) {
-      return command.runInteractive(argv, { input, output });
+      return await command.runInteractive(argv, { input, output });
     }
 
     return command.run(argv);

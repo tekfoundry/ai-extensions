@@ -48,10 +48,10 @@ test("run returns a usage failure for unknown commands", () => {
 });
 
 test("run returns a non-zero failure for commands that are not implemented yet", () => {
-  const result = run(["activate"]);
+  const result = run(["update"]);
 
   assert.equal(result.exitCode, 2);
-  assert.equal(result.stderr, "Command not implemented yet: activate");
+  assert.equal(result.stderr, "Command not implemented yet: update");
 });
 
 test("run list requires an interactive path when no kind is provided", () => {
@@ -184,7 +184,7 @@ test("runInteractive list shows a kind picker with skills and quit", async () =>
 
   assert.equal(result.exitCode, 0);
   assert.match(rendered, /What would you like to list:/);
-  assert.match(rendered, /1\. skills/);
+  assert.match(rendered, /1\. Skills/);
   assert.match(rendered, /q - Quit/);
   assert.equal(result.stdout, "No list selected.");
 });

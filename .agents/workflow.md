@@ -506,6 +506,17 @@ Each plan document in `_docs/plans` should include, at minimum, the following se
 - Each phase should contain concrete tasks
 - Each phase should define success goals so completion can be judged explicitly
 - Include verification expectations where relevant
+- Every future or incomplete implementation phase must include a final
+  `Review & Refactor` task
+- The `Review & Refactor` task should be the last task in the phase, after
+  implementation and targeted verification tasks
+- Do not mark a phase complete until its `Review & Refactor` task is complete
+  or an explicit follow-on risk has been recorded
+- If a completed phase is reopened, mark its `Review & Refactor` task as
+  in progress so the changed phase receives a fresh maintainability review
+  before it is closed again
+- When updating an active or backlog plan, add `Review & Refactor` to any
+  future or incomplete phase that does not already include it
 - For backlog plans, track phase acceptance inline on each phase heading once
   accepted, for example `#### Phase 1: Name (status: accepted)`.
 - Do not add a detached review-gates section after acceptance. Status should
@@ -594,7 +605,32 @@ When an execution skill needs an active plan, resolve it this way:
 - Compare baseline behavior against changed behavior when relevant
 - If verification cannot be run, say what was not verified and how it should be checked
 
-### 5. Complete the Plan
+### 5. Review And Refactor Before Phase Closeout
+
+Use this step to complete the final `Review & Refactor` task in each phase.
+
+1. Review the phase's changed surface, including code, tests, docs, config,
+   workflows, generated artifacts, and other changed project assets.
+2. Check that the work is still understandable, cohesive, appropriately
+   organized, and aligned with existing ownership boundaries and repository
+   patterns.
+3. Look for obvious maintainability issues introduced during the phase, such
+   as mixed responsibilities, unclear names, duplicated rules, overly broad
+   files or artifacts, hidden side effects, or tests that require excessive
+   setup.
+4. Apply small, behavior-preserving refactors that reduce the risk of carrying
+   those issues forward.
+5. Re-run the targeted verification affected by the refactor, plus any broader
+   checks required by the phase.
+6. If a structural issue is too large or risky to fix inside the phase, record
+   it as an explicit risk or follow-on task before marking `Review & Refactor`
+   complete.
+
+Keep the review scoped to the phase's changed surface. Do not use phase
+closeout for unrelated cleanup, speculative abstractions, or broad
+reorganization that belongs in a separate plan.
+
+### 6. Complete the Plan
 
 - Confirm that the phase success goals were met
 - Update the plan document to reflect what was completed, what changed, and any remaining risks or follow-on work
@@ -682,6 +718,8 @@ A task is done when:
 - Important design intent has automated test coverage where practical
 - Relevant verification has been run, or any gaps are explicitly documented
 - The active plan document reflects the final state of the work
+- The phase's `Review & Refactor` task has been completed, with any remaining
+  structural concerns fixed or recorded as explicit follow-on work
 - Durable design knowledge has been promoted into `_docs/design` when the work is complete
 - Reusable lessons have been considered for inclusion in this document
 
@@ -720,6 +758,7 @@ For accepted backlog plans, write this heading as:
   - `⬜️` Not started task
   - `🟨` In progress task
   - `✅` Completed task
+  - `⬜️` Review & Refactor
 - Success goals
 - Verification
 
@@ -736,6 +775,7 @@ For accepted backlog phases, write phase headings as:
   - `⬜️` Not started task
   - `🟨` In progress task
   - `✅` Completed task
+  - `⬜️` Review & Refactor
 - Success goals
 - Verification
 

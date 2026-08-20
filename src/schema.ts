@@ -38,6 +38,16 @@ export interface FileHash {
   sha256: string;
 }
 
+export type SkillDependencyType = "inferred";
+
+export interface LockfileSkillDependency {
+  source: string;
+  sourcePath: string;
+  activeName: string;
+  type: SkillDependencyType;
+  reason: string;
+}
+
 export interface LockfileSkillEntry {
   kind: PackageKind;
   source: string;
@@ -51,6 +61,8 @@ export interface LockfileSkillEntry {
   originalName: string;
   activeName: string;
   alias?: string;
+  requested: boolean;
+  dependencies?: LockfileSkillDependency[];
   packageFiles: FileHash[];
   activeFiles: FileHash[];
 }

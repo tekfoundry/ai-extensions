@@ -20,10 +20,12 @@ including:
 - original skill name
 - active skill name
 - alias metadata when applicable
+- whether the skill was directly requested by the user or activated only as a
+  dependency
 - package and active file hashes
 
-The manifest represents intent. The lockfile represents the exact fetched and
-active state.
+The manifest represents root user intent. The lockfile represents the exact
+fetched and active state, including dependency-only active skills.
 
 The initial manifest schema is:
 
@@ -55,9 +57,12 @@ entries require a `url`; `path` and `ref` are optional non-empty strings when
 present. The parser may tolerate the older flat `sources` shape during the MVP
 transition, but commands should write the nested `sources.skills` shape.
 
-Skill entries represent active skills and should use compact `source:path`
-strings by default. Use object entries only when the skill needs metadata such
-as an alias or skill-level ref:
+Skill entries represent user-requested root active skills and should use
+compact `source:path` strings by default. Dependency-only skills inferred
+during activation are not written to `aix.json`; they are resolved into
+`aix.lock.json` and exposed through `.agents/skills` only while still needed by
+a root active skill. Use object entries only when the root skill needs metadata
+such as an alias or skill-level ref:
 
 ```json
 {
@@ -91,6 +96,16 @@ The initial lockfile schema is versioned:
       "originalName": "natural-name",
       "activeName": "active-name",
       "alias": "optional-active-name",
+      "requested": true,
+      "dependencies": [
+        {
+          "source": "source-name",
+          "sourcePath": "path/to/dependency",
+          "activeName": "dependency-active-name",
+          "type": "inferred",
+          "reason": "Call the Skill tool with \"dependency-name\"."
+        }
+      ],
       "packageFiles": [
         {
           "path": "SKILL.md",
@@ -134,8 +149,9 @@ project-local package copies needed by active skills.
 
 This keeps source discovery local and fast while avoiding project directory
 bloat. `aix activate` materializes the requested skill package from the cache
-into `.agents/packages/skills/<source>/...`, then exposes it through
-`.agents/skills`.
+into `.agents/packages/skills/<source>/...`, records only the user-requested
+root skill in the manifest `skills` list, then exposes the requested skill and
+any inferred dependency skills through `.agents/skills`.
 
 The MVP supports the `skills` source kind. Using `aix add skills` keeps the
 command semantic and leaves room for later `aix add agents` or
@@ -158,7 +174,7 @@ final section headed `To remove the following sources deactivate their skills
 first:`.
 
 `aix list` should show an interactive list-kind picker. The MVP should include
-`skills` and `q - Quit`; later versions can add kinds such as `agents`.
+`Skills` and `q - Quit`; later versions can add kinds such as `Agents`.
 
 `aix list skills` should show an interactive source picker and then list valid
 skill folders from the selected source. `aix list skills <source>` should
@@ -174,6 +190,56 @@ source-relative/path<TAB>skill-name
 
 Discovery through `aix list skills <source>` must not modify `aix.json`,
 `aix.lock.json`, `.agents/packages`, or `.agents/skills`.
+
+## Skill Dependencies
+
+AI Extensions should preserve skill dependency safety even when third-party
+skills do not declare a formal dependency field. The MVP infers dependencies
+from `SKILL.md` instructions that tell the agent to call another skill, such as
+`Call the Skill tool with "grilling".`
+
+Dependency inference should:
+
+1. Parse the target skill's `SKILL.md` for skill-tool call instructions.
+2. Resolve each inferred skill name against discovered skills in the same
+   source by `SKILL.md` front matter `name`.
+3. Continue only when each inferred dependency resolves to exactly one skill.
+4. Activate inferred dependencies before activating the requested skill.
+5. Resolve dependencies recursively and stop with a clear error if a cycle is
+   found.
+6. Record resolved dependency edges in `aix.lock.json`, including the source,
+   source path, active name, dependency type, and the instruction that caused
+   the inference.
+7. Mark lockfile skill entries with whether they were directly requested by
+   the user or activated only to satisfy another active skill.
+
+The dependency graph in `aix.lock.json` is the durable source for deactivation
+protection and dependency cleanup. Deactivation should refuse to remove a
+dependency-only active skill while another active lockfile entry depends on it.
+When a user-requested root skill is deactivated, AI Extensions should remove
+that root skill from `aix.json`, remove its active link, then remove any
+dependency-only active skills that are no longer reachable from the remaining
+requested roots. Deactivation should also remove package copies for every
+removed active skill when the package files still match the lockfile hashes.
+After removing a package copy, deactivation should remove empty package parent
+directories until it reaches `.agents/packages/skills`, stopping at the first
+non-empty directory and never deleting the managed skills package root.
+If package files have local edits, deactivation must stop before removing
+active files, package files, manifest entries, or lockfile entries.
+
+Package copies that are still required by another active root must remain in
+place. Package copies that cannot be removed because of local edits are left
+for the user to move, restore, or clean up with a later explicit pruning
+workflow.
+
+Interactive deactivation should present only user-requested root active skills.
+Dependency-only active skills should be omitted from the picker because they
+are removed automatically when their last root dependent is deactivated.
+
+If a future shared `SKILL.md` metadata standard defines explicit dependencies,
+AI Extensions can support that field in addition to inference. Until then,
+inference reflects the way agents already discover skill-to-skill calls while
+executing a skill.
 
 Git sources are cloned or fetched into a deterministic cache outside the
 project by default. The default cache root is the operating system temp
@@ -217,37 +283,50 @@ An activation should:
 1. Read and validate `aix.json`.
 2. Resolve each Git source and requested ref.
 3. Locate the requested skill in the cache or source metadata.
-4. Materialize the requested skill package under `.agents/packages/skills`.
-5. Validate `SKILL.md` front matter.
-6. Determine the active name from alias or natural skill name.
-7. Detect active-name collisions before changing `.agents/skills`.
-8. Check local files against lockfile hashes.
-9. Refuse to overwrite local edits.
-10. Create `.agents/skills/<active-name>` as a symlink to the package skill
+4. Infer and resolve the requested skill's dependency tree.
+5. Refuse activation when a target package directory already exists outside
+   the lockfile and its files do not exactly match the resolved source skill.
+6. Materialize each dependency package before the requested skill package under
+   `.agents/packages/skills`.
+7. Validate `SKILL.md` front matter.
+8. Determine the active name from alias or natural skill name.
+9. Detect active-name collisions before changing `.agents/skills`.
+10. Check local files against lockfile hashes.
+11. Refuse to overwrite local edits.
+12. Create `.agents/skills/<active-name>` as a symlink to the package skill
    folder when the active name matches the package skill name.
-11. For aliases, create a managed activation wrapper or materialized directory
+13. For aliases, create a managed activation wrapper or materialized directory
    only when needed so `SKILL.md` front matter `name:` matches the active name
    without mutating the package copy.
-12. Hash package files and active skill files.
-13. Write `aix.lock.json` atomically.
+14. Add or update only the user-requested root skill in the manifest `skills`
+   list.
+15. Hash package files and active skill files.
+16. Write `aix.lock.json` atomically with dependency edges and requested versus
+   dependency-only activation state.
 
 A deactivation should:
 
 1. Read and validate `aix.json` and `aix.lock.json`.
 2. Resolve the requested active skill by active name.
-3. Check active files against lockfile hashes.
-4. Refuse to remove locally edited active files.
-5. Remove `.agents/skills/<active-name>`.
-6. Update manifest and lockfile active state.
-7. Leave `.agents/packages/skills/<source>/...` in place unless a later cleanup
-   command owns package pruning.
+3. Refuse direct deactivation of a dependency-only active skill when another
+   active skill depends on it.
+4. Check active and package files against lockfile hashes.
+5. Refuse to remove locally edited active or package files.
+6. Remove `.agents/skills/<active-name>`.
+7. Remove no-longer-needed `.agents/packages/skills/<source>/...` package
+   copies.
+8. If the deactivated skill was a user-requested root, remove it from
+   `aix.json` and remove orphaned dependency-only active skills that are no
+   longer reachable from remaining requested roots.
+9. Update lockfile active state.
 
 ## Local Drift Protection
 
 The tool must never silently overwrite local edits.
 
 If a materialized package file or active skill file differs from the checksum
-in the lockfile, activate or update should stop with an actionable error.
+in the lockfile, activate, deactivate, or update should stop with an
+actionable error.
 
 The MVP should not attempt automatic merges.
 

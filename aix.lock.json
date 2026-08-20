@@ -13,6 +13,7 @@
       "activationPath": ".agents/skills/design-promote",
       "originalName": "design-promote",
       "activeName": "design-promote",
+      "requested": true,
       "packageFiles": [
         {
           "path": "agents/openai.yaml",
@@ -46,6 +47,7 @@
       "activationPath": ".agents/skills/phase-execute",
       "originalName": "phase-execute",
       "activeName": "phase-execute",
+      "requested": true,
       "packageFiles": [
         {
           "path": "agents/openai.yaml",
@@ -79,6 +81,7 @@
       "activationPath": ".agents/skills/plan-activate",
       "originalName": "plan-activate",
       "activeName": "plan-activate",
+      "requested": true,
       "packageFiles": [
         {
           "path": "agents/openai.yaml",
@@ -112,6 +115,7 @@
       "activationPath": ".agents/skills/plan-complete",
       "originalName": "plan-complete",
       "activeName": "plan-complete",
+      "requested": true,
       "packageFiles": [
         {
           "path": "agents/openai.yaml",
@@ -145,6 +149,7 @@
       "activationPath": ".agents/skills/plan-create",
       "originalName": "plan-create",
       "activeName": "plan-create",
+      "requested": true,
       "packageFiles": [
         {
           "path": "agents/openai.yaml",
@@ -178,6 +183,7 @@
       "activationPath": ".agents/skills/plan-defer",
       "originalName": "plan-defer",
       "activeName": "plan-defer",
+      "requested": true,
       "packageFiles": [
         {
           "path": "agents/openai.yaml",
@@ -211,6 +217,7 @@
       "activationPath": ".agents/skills/plan-execute",
       "originalName": "plan-execute",
       "activeName": "plan-execute",
+      "requested": true,
       "packageFiles": [
         {
           "path": "agents/openai.yaml",
@@ -244,6 +251,7 @@
       "activationPath": ".agents/skills/plan-review",
       "originalName": "plan-review",
       "activeName": "plan-review",
+      "requested": true,
       "packageFiles": [
         {
           "path": "agents/openai.yaml",
@@ -277,6 +285,7 @@
       "activationPath": ".agents/skills/plan-update",
       "originalName": "plan-update",
       "activeName": "plan-update",
+      "requested": true,
       "packageFiles": [
         {
           "path": "agents/openai.yaml",
@@ -310,6 +319,7 @@
       "activationPath": ".agents/skills/project-init",
       "originalName": "project-init",
       "activeName": "project-init",
+      "requested": true,
       "packageFiles": [
         {
           "path": "agents/openai.yaml",
@@ -343,6 +353,7 @@
       "activationPath": ".agents/skills/task-execute",
       "originalName": "task-execute",
       "activeName": "task-execute",
+      "requested": true,
       "packageFiles": [
         {
           "path": "agents/openai.yaml",
@@ -376,6 +387,7 @@
       "activationPath": ".agents/skills/work-verify",
       "originalName": "work-verify",
       "activeName": "work-verify",
+      "requested": true,
       "packageFiles": [
         {
           "path": "agents/openai.yaml",
@@ -409,6 +421,7 @@
       "activationPath": ".agents/skills/unslop",
       "originalName": "unslop",
       "activeName": "unslop",
+      "requested": true,
       "packageFiles": [
         {
           "path": "SKILL.md",

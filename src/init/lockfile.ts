@@ -41,6 +41,7 @@ export function createLockEntry(skill: SkillSource): LockfileSkillEntry {
     activationPath,
     originalName,
     activeName,
+    requested: true,
     packageFiles: files,
     activeFiles: files
   };

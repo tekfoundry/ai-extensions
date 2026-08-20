@@ -99,20 +99,36 @@ is the skill's front matter `name`, and activation can usually be a symlink to
 the materialized package skill folder. With an alias, the active name is the
 alias. If the agent runtime requires `SKILL.md` front matter `name:` to match
 the active name, aliased activation may need a small managed wrapper directory
-instead of a direct symlink so the package copy remains unchanged.
+instead of a direct symlink so the package copy remains unchanged. Activation
+should add only the user-selected root skill to `aix.json`; inferred dependency
+skills are activated and locked but remain dependency-only entries in
+`aix.lock.json`. If a package directory already exists for the requested skill
+and is not safely accounted for by the lockfile or the resolved source content,
+activation should stop instead of overwriting it.
 
-`aix activate skill` without a target should later provide an interactive flow:
-list configured skill sources, let the user select a source by number, list
-inactive skills from that source, and let the user select a skill by number.
-The MVP may implement non-interactive activation first if terminal prompts add
-too much test or runtime complexity.
+`aix activate` without a kind provides an interactive kind picker with `Skills`
+and `q - Quit`. Choosing `Skills` opens the skill activation flow.
+`aix activate skill` without a target lists configured skill sources, lets the
+user select a source by number, lists skills from that source, and lets the
+user select a skill by number.
 
-`aix deactivate skill <active-name>` should undo activation for one active
-skill. It removes the active entry from `.agents/skills` and updates the
-manifest/lockfile state without deleting the materialized package copy unless a
-later cleanup command owns package pruning.
+`aix deactivate` without a kind provides an interactive kind picker with
+`Skills` and `q - Quit`. Choosing `Skills` opens the skill deactivation flow.
+`aix deactivate skill` without a target lists only user-requested root active
+skills and lets the user select one by number. Dependency-only active skills
+are omitted from the picker because root deactivation owns dependency cleanup.
+`aix deactivate skill <active-name>` undoes activation for one active skill. It
+removes the active entry from
+`.agents/skills`, removes package copies that are no longer needed when their
+files still match the lockfile hashes, removes empty package parent directories
+below `.agents/packages/skills`, and updates the manifest/lockfile state.
+When the selected skill is a user-requested root, deactivation also removes
+orphaned dependency-only active skills that are no longer required by remaining
+root skills. Directly selecting a dependency-only skill that another active
+skill still depends on fails with an actionable error. If active or package
+files have local edits, deactivation should fail before removing anything.
 
-`aix list` without a kind should provide an interactive picker with `skills` as
+`aix list` without a kind should provide an interactive picker with `Skills` as
 the first option and `q - Quit`, leaving room for later kinds such as `agents`.
 
 `aix list skills` should provide an interactive picker over skill sources and
