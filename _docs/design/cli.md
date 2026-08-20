@@ -8,6 +8,7 @@ This keeps the daily command surface small:
 
 ```bash
 aix add
+aix install
 aix activate
 aix remove
 aix deactivate
@@ -40,18 +41,27 @@ aix init
 The package name can be explicit and namespaced while the executable remains
 short and pleasant to use.
 
+The package metadata should keep the published package name scoped as
+`@tekfoundry/aix`, expose the binary through `"bin": { "aix": "./bin/aix.js" }`,
+and set `"publishConfig": { "access": "public" }` so npm publishes the scoped
+package publicly when the release workflow reaches the publish step.
+
 ## MVP Commands
 
 The first implementation should focus on:
 
 ```bash
 aix init
+aix install workflow <git-or-github-tree-url> [alias]
+aix remove workflow
 aix add skills <git-or-github-tree-url> [alias]
 aix remove skills <source-name>
 aix activate skill [source/path] [alias]
 aix deactivate skill <active-name>
 aix update
+aix update workflow
 aix diff
+aix diff workflow
 aix verify
 aix list
 aix list skills [source]
@@ -62,7 +72,39 @@ Later commands can include:
 ```bash
 aix outdated
 aix prune
+aix replace workflow <git-or-github-tree-url> [alias]
 ```
+
+`aix install workflow <git-or-github-tree-url> [alias]` should install one
+Git-backed workflow as the project's active AI Agent Workflow. Workflow install
+normalizes GitHub tree URLs, fetches the source into the shared Git cache,
+reads `workflow.json`, copies recognized workflow docs into `.agents/`, inserts
+or updates the workflow-managed block in root `AGENTS.md`, activates
+workflow-local skills, scaffolds missing `_docs` directories, and writes
+workflow docs, the managed `AGENTS.md` block, and workflow-owned skill hashes
+to `aix.lock.json`.
+
+Workflows are all-or-nothing for the MVP. Only one workflow may be active at a
+time. Installing a second workflow should fail until a later explicit replace
+flow owns that behavior.
+
+Workflow-local skills are owned by the workflow, not by user-requested root
+skill activation. `aix deactivate skill <active-name>` should refuse to remove
+a workflow-owned skill and tell the user to remove or replace the workflow
+instead.
+
+`aix remove workflow` should remove the active workflow docs and workflow-owned
+skills only after local drift checks pass. It should remove only the managed
+workflow block from root `AGENTS.md` and leave project-owned `AGENTS.md` and
+`_docs` content in place.
+
+`aix diff workflow` should compare locked workflow docs and workflow-owned
+skill package copies with the currently resolved workflow source without
+changing files.
+
+`aix update workflow` should refresh the locked workflow docs and workflow-owned
+skills, including the managed `AGENTS.md` block, only after local drift checks
+pass.
 
 `aix add skills <git-or-github-tree-url> [alias]` should add a Git-backed skill
 source to `aix.json` under `sources.skills`, resolve the requested ref,
@@ -139,10 +181,10 @@ prompting. This is especially important for default external sources such as
 chooses specific skills to activate.
 
 `aix init` should initialize a project-local AI Extensions environment. It
-creates the expected local files, adds the default sources, fetches the default
-source metadata, materializes the default package content, and activates the
-default local workflow skills so the project can start using AI Extensions
-immediately.
+creates the expected local files, installs the default `aix` workflow, adds the
+default external skill sources, fetches source metadata, materializes default
+workflow content, and activates the default workflow-owned skills so the
+project can start using AI Extensions immediately.
 
 Running `aix` with no arguments should print a minimal splash screen with the
 product name, package version, and current or planned command list. It should

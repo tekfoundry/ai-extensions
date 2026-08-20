@@ -23,15 +23,21 @@ including:
 - whether the skill was directly requested by the user or activated only as a
   dependency
 - package and active file hashes
+- active workflow name, source, resolved commit, installed docs, workflow-owned
+  skills, and workflow file hashes when a workflow is installed
 
 The manifest represents root user intent. The lockfile represents the exact
-fetched and active state, including dependency-only active skills.
+fetched and active state, including dependency-only active skills and the
+active workflow.
 
 The initial manifest schema is:
 
 ```json
 {
   "sources": {
+    "workflows": {
+      "aix": "https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute"
+    },
     "skills": {
       "source-name": "https://github.com/example/skills/tree/main/skills",
       "private-source": {
@@ -42,6 +48,7 @@ The initial manifest schema is:
       }
     }
   },
+  "workflow": "aix:aix/workflows/design-plan-execute",
   "skills": [
     "source-name:path/to/skill"
   ]
@@ -56,6 +63,12 @@ future metadata. Source entries currently support Git sources only. Object
 entries require a `url`; `path` and `ref` are optional non-empty strings when
 present. The parser may tolerate the older flat `sources` shape during the MVP
 transition, but commands should write the nested `sources.skills` shape.
+
+`sources.workflows` contains configured workflow sources. The first workflow
+implementation should usually write this entry as part of
+`aix install workflow` instead of requiring a separate add step. The manifest
+should allow one active root workflow through `workflow`, because workflows are
+all-or-nothing process packages for the MVP.
 
 Skill entries represent user-requested root active skills and should use
 compact `source:path` strings by default. Dependency-only skills inferred
@@ -126,6 +139,52 @@ The initial lockfile schema is versioned:
 Missing lockfiles load as an empty v1 lockfile. Lockfile writes use a
 same-directory temporary file followed by rename so replacement is atomic on
 the target filesystem.
+
+## Workflow Packages
+
+Workflows are first-class AI assets. A workflow installs process guidance under
+`.agents/`, creates missing project-owned documentation directories, and
+activates the workflow-local skills needed to follow that process.
+
+Workflow packages should use a small `workflow.json` install manifest plus a
+conventional directory layout. The manifest names the workflow and declares
+integration points that convention cannot safely infer, especially the root
+`AGENTS.md` managed block. Recognized docs such as `README.md`, `workflow.md`,
+and `engineering-best-practices.md` are installed into `.agents/`. Valid skills
+under `skills/<name>/SKILL.md` are workflow-owned skills.
+
+The default `aix` workflow source should live under:
+
+```text
+aix/workflows/design-plan-execute/
+  workflow.json
+  AGENTS.append.md
+  README.md
+  workflow.md
+  engineering-best-practices.md
+  skills/
+    project-init/
+      SKILL.md
+```
+
+Workflow-owned skills should be materialized under
+`.agents/packages/workflows/<source>/<workflow>/skills/...` and exposed through
+`.agents/skills/<active-name>`. They should not be added to the manifest
+`skills` list, because the root user intent is the active workflow.
+
+Root `AGENTS.md` is mixed ownership. `aix install workflow` should insert or
+update the workflow text from `AGENTS.append.md` inside a marker-delimited
+managed block. The block is package-managed and hash-checked in the lockfile.
+Everything outside the block is project-owned and must be preserved.
+
+Only one workflow may be active at a time in the MVP. Installing another
+workflow should fail until a later explicit replace flow is designed.
+
+`aix deactivate skill <active-name>` should refuse direct removal of
+workflow-owned skills. Removing or replacing the workflow owns that lifecycle.
+Local edits to workflow docs, the managed `AGENTS.md` block, or workflow-owned
+skills are drift. Verify should report them, and update/remove workflow
+commands should refuse to overwrite or delete them.
 
 ## Source Discovery
 
@@ -265,14 +324,16 @@ An init should:
 
 1. Create `.agents/`, `.agents/packages/`, and `.agents/skills/` when missing.
 2. Create `aix.json` when missing.
-3. Write initial source definitions for `aix`, `mattpocock`, and
+3. Install the default `aix/design-plan-execute` workflow from `aix/workflows`.
+4. Write initial source definitions for `aix`, `mattpocock`, and
    `cursor-pstack`.
-4. Resolve and prefetch source metadata for the `aix` Git source.
-5. Resolve and prefetch source metadata for `cursor-pstack` enough to activate
+5. Resolve and prefetch source metadata for the `aix` Git source.
+6. Resolve and prefetch source metadata for `cursor-pstack` enough to activate
    `cursor-pstack/unslop`.
-6. Declare every default active skill using compact `source:path` entries.
-7. Activate all default skills into `.agents/skills`.
-8. Write `aix.lock.json` with package and activation file hashes.
+7. Declare the active workflow in `aix.json`.
+8. Activate workflow-owned skills into `.agents/skills`.
+9. Write `aix.lock.json` with workflow doc, package, and activation file
+   hashes.
 
 Init must not overwrite local edits silently. If `.agents/skills`, `aix.json`,
 `.agents/packages`, or `aix.lock.json` already exist, init should validate the

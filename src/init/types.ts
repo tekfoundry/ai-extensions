@@ -17,5 +17,6 @@ export interface InitResult {
 
 export interface InitOptions {
   sources?: Record<string, SourceDefinition>;
+  workflowSources?: Record<string, SourceDefinition>;
   cacheRoot?: string;
 }

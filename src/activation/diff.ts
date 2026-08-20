@@ -32,12 +32,17 @@ export function diffSkills(target?: string, cacheRoot = defaultCacheRoot()): Dif
 
   const lockfile = readLockfileJson();
   const requestedTarget = target ? activationTargetFromInput(target) : undefined;
+  const skillEntries = lockfile.skills.filter((skill) => !skill.owner);
   const entriesToDiff = requestedTarget
     ? lockfile.skills.filter((skill) => skill.source === requestedTarget.source && skill.sourcePath === requestedTarget.sourcePath)
-    : lockfile.skills;
+    : skillEntries;
 
   if (requestedTarget && entriesToDiff.length === 0) {
     throw new AixError(`Unknown locked skill: ${requestedTarget.source}/${requestedTarget.sourcePath}`);
+  }
+
+  if (requestedTarget && entriesToDiff.some((skill) => skill.owner?.kind === "workflow")) {
+    throw new AixError(`Cannot diff workflow-owned skill directly: ${requestedTarget.source}/${requestedTarget.sourcePath}`);
   }
 
   if (entriesToDiff.length === 0) {

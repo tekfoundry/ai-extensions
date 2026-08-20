@@ -2,25 +2,29 @@
 
 ## Goal
 
-Build a small package-manager-style CLI for managing AI-agent extensions inside
-software projects. The MVP starts with skills, but the product name leaves room
-for other extension types later.
+Build a small package-manager-style CLI for managing AI assets inside software
+projects. The MVP starts with skills and one installable agent workflow.
 
-The tool should let a project declare skill sources, fetch them into a managed
-local package store, activate selected skills into the agent-facing skills
-directory, lock exact resolved versions, update them intentionally, detect local
-drift, and avoid accidental overwrites.
+The tool should let a project declare skill sources, install an agent workflow,
+fetch Git sources into a managed local package store, activate selected skills
+into the agent-facing skills directory, lock exact resolved versions, update
+them intentionally, detect local drift, and avoid accidental overwrites.
 
 ## Project Ownership Model
 
 The project separates bundled extension source, package-managed agent process
 files, and project-owned documentation:
 
-- `aix/skills/` is the bundled workflow skill source shipped by this repository.
+- `aix/workflows/` is the bundled workflow package source shipped by this
+  repository. The default workflow owns reusable `.agents` process docs and
+  workflow-local skills.
+- `aix/skills/` is the current bundled workflow skill source. It should be
+  folded into `aix/workflows/<workflow>/skills` during workflow packaging.
 - `.agents/` is managed by the skills package manager in consuming projects.
 - `.agents/packages/` contains project-local package copies, organized first by
   extension kind. The MVP uses `.agents/packages/skills/<source>/...` for
-  active skill packages.
+  active skill packages and should use `.agents/packages/workflows/...` for
+  workflow-owned docs and skills.
 - `.agents/skills/` contains the active skill set exposed to agents.
 - In this repository, `.agents/skills/` remains the local working skill set so
   AI Extensions can later activate skills into it from `aix/skills`.
@@ -63,6 +67,7 @@ Recommended implementation modules:
 - local drift detection
 - update and diff behavior
 - verification checks
+- workflow package installation and workflow-owned skill protection
 - command orchestration modules separated from domain modules
 - shared terminal UI helpers for prompts, tables, colors, and status output
 
@@ -101,6 +106,12 @@ listing, rendering, and skill-domain types in focused modules. Shared
 skill-file parsing should live in the skills domain so init and later
 activation workflows use the same interpretation of `SKILL.md`.
 
+Workflow behavior should be grouped under `src/workflows/`. Keep workflow
+source resolution, conventional workflow discovery, workflow doc installation,
+workflow-owned skill activation, drift checks, update, diff, removal, and
+verification in focused modules. Workflow command modules should orchestrate
+that domain behavior without duplicating skill activation rules.
+
 Shared modules should throw application-level errors without knowing about CLI
 exit codes. CLI-specific error mapping, usage failures, and process exit-code
 selection should live with the CLI support code.
@@ -112,5 +123,5 @@ dispatch. Filesystem-based dynamic discovery is deferred until command count or
 packaging needs justify the extra runtime and test complexity.
 
 Start with Git-based sources only. Registry support, plugin package support,
-dependency resolution, global installs, and richer publishing workflows can come
-later.
+external workflow skill dependencies, global installs, workflow replacement,
+and richer publishing workflows can come later.

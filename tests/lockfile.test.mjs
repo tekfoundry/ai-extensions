@@ -10,7 +10,8 @@ test("loadLockfile returns an empty v1 lockfile when the file is missing", async
 
   assert.deepEqual(await loadLockfile(join(directory, "aix.lock.json")), {
     lockfileVersion: 1,
-    skills: []
+    skills: [],
+    workflows: []
   });
 });
 

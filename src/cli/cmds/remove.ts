@@ -5,6 +5,7 @@ import {
   type RemoveSourceChoices,
   type RemoveSourceResult
 } from "../../sources/management.js";
+import { removeWorkflow, type RemoveWorkflowResult } from "../../workflows/index.js";
 import { promptForSelection, renderSelectionMenu, type SelectionMenuSection, type SelectionOption } from "../../ui/selection-prompt.js";
 import { CliError, EXIT_USAGE } from "../errors.js";
 import type { CliResult, Command } from "../types.js";
@@ -23,6 +24,17 @@ function renderRemoveSourceResult(result: RemoveSourceResult): string {
       ? `Removed empty package source directory ${result.packageSourcePath}.`
       : `No package source directory found at ${result.packageSourcePath}.`,
     `Wrote ${result.manifestPath}.`
+  ].join("\n");
+}
+
+function renderRemoveWorkflowResult(result: RemoveWorkflowResult): string {
+  return [
+    `Removed workflow ${result.name}.`,
+    `Removed ${result.removedDocs.length} workflow docs.`,
+    `Removed ${result.removedSkills.length} workflow-owned skills.`,
+    result.removedAgentsMdBlock ? "Removed workflow block from AGENTS.md." : "No workflow block found in AGENTS.md.",
+    `Wrote ${result.manifestPath}.`,
+    `Wrote ${result.lockfilePath}.`
   ].join("\n");
 }
 
@@ -55,8 +67,16 @@ export function renderRemoveSourcePrompt(choices: RemoveSourceChoices, options: 
 }
 
 export function runRemoveCommand(argv: string[]): CliResult {
+  if (argv[1] === "workflow") {
+    if (argv.length > 2) {
+      throw new CliError("Usage: aix remove workflow", EXIT_USAGE);
+    }
+
+    return { exitCode: 0, stdout: renderRemoveWorkflowResult(removeWorkflow()) };
+  }
+
   if (argv[1] !== "skills" || !argv[2]) {
-    throw new CliError("Usage: aix remove skills <source-name>", EXIT_USAGE);
+    throw new CliError("Usage: aix remove skills <source-name> | aix remove workflow", EXIT_USAGE);
   }
 
   return { exitCode: 0, stdout: renderRemoveSourceResult(removeSource(argv[2])) };
@@ -91,8 +111,8 @@ export async function promptForRemovedSkillSource(input: Readable, output: Writa
 
 export const removeCommand: Command = {
   name: "remove",
-  usage: "remove skills <source-name>",
-  summary: "Remove a Git skill source",
+  usage: "remove skills <source-name> | remove workflow",
+  summary: "Remove a skill source or workflow",
   splash: "remove skills <source>",
   run: runRemoveCommand,
   async runInteractive(argv, context) {

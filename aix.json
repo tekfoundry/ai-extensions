@@ -1,24 +1,11 @@
 {
   "sources": {
     "skills": {
-      "aix": "https://github.com/tekfoundry/ai-extensions/tree/master/aix/skills",
       "mattpocock": "https://github.com/mattpocock/skills/tree/main/skills",
       "cursor-pstack": "https://github.com/cursor/plugins/tree/main/pstack/skills"
     }
   },
   "skills": [
-    "aix:design-promote",
-    "aix:phase-execute",
-    "aix:plan-activate",
-    "aix:plan-complete",
-    "aix:plan-create",
-    "aix:plan-defer",
-    "aix:plan-execute",
-    "aix:plan-review",
-    "aix:plan-update",
-    "aix:project-init",
-    "aix:task-execute",
-    "aix:work-verify",
     "cursor-pstack:unslop"
   ]
 }

@@ -1,7 +1,7 @@
-# Bundled Skills
+# Bundled Skills And Workflows
 
-AI Extensions should include a curated set of reusable workflow skills as
-importable packages.
+AI Extensions should include a curated agent workflow and the reusable skills
+that workflow needs.
 
 ## Default Sources
 
@@ -28,7 +28,23 @@ AI Extensions should start with three default sources:
 The `aix` source is the default workflow pack. All default sources use the same
 Git resolution path.
 
-`aix/skills` is the canonical source path inside the `aix` Git source.
+The default workflow should live under:
+
+```text
+aix/workflows/design-plan-execute/
+  README.md
+  workflow.md
+  engineering-best-practices.md
+  skills/
+```
+
+`aix init` should install that workflow as a unit. The workflow docs are copied
+into `.agents/`, and the workflow-local skills under `skills/` are exposed
+through `.agents/skills`.
+
+`aix/skills` is the current transitional skill source path inside the `aix` Git
+source. It should be folded into `aix/workflows/design-plan-execute/skills` so the
+workflow and its owned skills can ship together.
 `.agents/packages/skills` is the local source-organized package store for
 active skills. The extra `skills` segment leaves `.agents/packages` available
 for future extension kinds without changing the active-skill layout.
@@ -51,7 +67,8 @@ aix activate cursor-pstack/tdd
 aix activate mattpocock/engineering/typescript
 ```
 
-These repository-local skills should be available for import by other projects:
+These repository-local skills should be available as workflow-owned skills in
+the default `aix` workflow:
 
 - `project-init`
 - `design-promote`
@@ -70,7 +87,7 @@ The `unslop` skill is intentionally not included in `aix/skills`. `aix init`
 should declare and activate `cursor-pstack/unslop` from the `cursor-pstack`
 source rather than from a local AI Extensions-only skill directory.
 
-These `aix` source skills should be loaded by default when AI Extensions
+These workflow-owned skills should be loaded by default when AI Extensions
 initializes a project unless the user explicitly chooses a smaller profile
 later.
 

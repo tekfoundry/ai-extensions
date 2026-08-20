@@ -7,6 +7,10 @@ import { hashFile } from "./hashing.js";
 export function listFilesRecursively(root: string): string[] {
   return readdirSync(root, { withFileTypes: true })
     .flatMap((entry) => {
+      if (entry.name === ".git" && entry.isDirectory()) {
+        return [];
+      }
+
       const path = join(root, entry.name);
 
       if (entry.isDirectory()) {

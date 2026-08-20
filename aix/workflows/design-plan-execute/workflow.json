@@ -1,0 +1,15 @@
+{
+  "name": "design-plan-execute",
+  "title": "Design, Plan, Execute",
+  "agentsMd": {
+    "mode": "managed-block",
+    "source": "AGENTS.append.md",
+    "marker": "aix:workflow design-plan-execute"
+  },
+  "docs": [
+    "README.md",
+    "workflow.md",
+    "engineering-best-practices.md"
+  ],
+  "skillsDir": "skills"
+}

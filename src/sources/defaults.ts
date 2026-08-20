@@ -23,6 +23,17 @@ export function getDefaultSources(): Record<string, SourceDefinition> {
   };
 }
 
+export function getDefaultWorkflowSources(): Record<string, SourceDefinition> {
+  return {
+    aix: {
+      type: "git",
+      url: process.env.AIX_SOURCE_AIX_URL || "https://github.com/tekfoundry/ai-extensions.git",
+      path: process.env.AIX_SOURCE_AIX_WORKFLOW_PATH || "aix/workflows/design-plan-execute",
+      ref: process.env.AIX_SOURCE_AIX_REF || "master"
+    }
+  };
+}
+
 export function createSkillRequest(source: string, path: string): SkillRequest {
   return { source, path };
 }

@@ -66,7 +66,7 @@ export function verifySkills(): VerifySkillsResult {
       activeNames.set(skill.activeName, skill);
     }
 
-    if (skill.packagePath !== packageSkillPath(skill.source, skill.sourcePath)) {
+    if (!skill.owner && skill.packagePath !== packageSkillPath(skill.source, skill.sourcePath)) {
       issues.push(`Lockfile package path mismatch for ${skill.source}/${skill.sourcePath}: ${skill.packagePath}`);
     }
 

@@ -59,6 +59,13 @@ export function deactivateSkill(activeName: string | undefined): DeactivateSkill
   }
 
   const entry = lockfile.skills[entryIndex];
+
+  if (entry.owner?.kind === "workflow") {
+    throw new AixError(
+      `Cannot deactivate ${activeName} directly because it is owned by workflow ${entry.owner.name}. Use aix remove workflow first.`
+    );
+  }
+
   const dependents = skillsDependingOn(lockfile, entry.source, entry.sourcePath)
     .filter((skill) => skill.activeName !== entry.activeName);
 

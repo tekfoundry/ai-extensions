@@ -3,15 +3,33 @@
   "version": "0.0.0",
   "description": "AI Extensions: a package-manager-style CLI for project-local AI-agent extensions.",
   "type": "module",
+  "packageManager": "npm@10.8.2",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tekfoundry/ai-extensions.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tekfoundry/ai-extensions/issues"
+  },
+  "homepage": "https://github.com/tekfoundry/ai-extensions#readme",
+  "keywords": [
+    "ai",
+    "agents",
+    "cli",
+    "skills",
+    "extensions"
+  ],
   "bin": {
     "aix": "./bin/aix.js"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "files": [
     "aix",
     "bin",
     "dist",
-    "README.md",
-    "LICENSE"
+    "README.md"
   ],
   "engines": {
     "node": ">=20.17"

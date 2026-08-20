@@ -1,13 +1,14 @@
 import { existsSync, readFileSync } from "node:fs";
 import { AixError } from "../errors.js";
 import { parseLockfile } from "../lockfile.js";
-import { LOCKFILE_FILE_NAME, LOCKFILE_VERSION, type LockfileSkillEntry } from "../schema.js";
+import { LOCKFILE_FILE_NAME, LOCKFILE_VERSION, type LockfileSkillEntry, type SkillsLockfile } from "../schema.js";
 
-export function readLockfileJson(): { lockfileVersion: typeof LOCKFILE_VERSION; skills: LockfileSkillEntry[] } {
+export function readLockfileJson(): SkillsLockfile {
   if (!existsSync(LOCKFILE_FILE_NAME)) {
     return {
       lockfileVersion: LOCKFILE_VERSION,
-      skills: []
+      skills: [],
+      workflows: []
     };
   }
 

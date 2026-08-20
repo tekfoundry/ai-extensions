@@ -63,12 +63,17 @@ export function updateSkills(target?: string, cacheRoot = defaultCacheRoot()): U
 
   const lockfile = readLockfileJson();
   const requestedTarget = target ? activationTargetFromInput(target) : undefined;
+  const skillEntries = lockfile.skills.filter((skill) => !skill.owner);
   const entriesToUpdate = requestedTarget
     ? lockfile.skills.filter((skill) => skill.source === requestedTarget.source && skill.sourcePath === requestedTarget.sourcePath)
-    : lockfile.skills;
+    : skillEntries;
 
   if (requestedTarget && entriesToUpdate.length === 0) {
     throw new AixError(`Unknown locked skill: ${requestedTarget.source}/${requestedTarget.sourcePath}`);
+  }
+
+  if (requestedTarget && entriesToUpdate.some((skill) => skill.owner?.kind === "workflow")) {
+    throw new AixError(`Cannot update workflow-owned skill directly: ${requestedTarget.source}/${requestedTarget.sourcePath}`);
   }
 
   if (entriesToUpdate.length === 0) {

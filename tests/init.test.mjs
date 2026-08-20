@@ -40,8 +40,12 @@ async function createGitRepo(prefix, populate) {
 
 async function createDefaultSources() {
   const aixSource = await createGitRepo("aix-init-aix-source-", (directory) => {
-    mkdirSync(join(directory, "aix"), { recursive: true });
-    cpSync(resolve(repoRoot, "aix/skills"), join(directory, "aix/skills"), { recursive: true });
+    mkdirSync(join(directory, "aix/workflows"), { recursive: true });
+    cpSync(
+      resolve(repoRoot, "aix/workflows/design-plan-execute"),
+      join(directory, "aix/workflows/design-plan-execute"),
+      { recursive: true }
+    );
   });
   const cursorSource = await createGitRepo("aix-init-cursor-source-", (directory) => {
     mkdirSync(join(directory, "pstack/skills/unslop"), { recursive: true });
@@ -49,11 +53,19 @@ async function createDefaultSources() {
   });
 
   return {
+    workflowSources: {
+      aix: {
+        type: "git",
+        url: aixSource.directory,
+        path: "aix/workflows/design-plan-execute",
+        ref: "master"
+      }
+    },
     sources: {
       aix: {
         type: "git",
         url: aixSource.directory,
-        path: "aix/skills",
+        path: "aix/workflows/design-plan-execute/skills",
         ref: "master"
       },
       mattpocock: {
@@ -91,37 +103,40 @@ async function withProject(callback) {
 
 test("initProject initializes an empty project with default sources and skills", async () => {
   await withProject(async (projectPath, defaults, cacheRoot) => {
-    const result = initProject({ sources: defaults.sources, cacheRoot });
+    const result = initProject({ workflowSources: defaults.workflowSources, cacheRoot });
     const manifest = JSON.parse(readFileSync(join(projectPath, "aix.json"), "utf8"));
     const lockfile = JSON.parse(readFileSync(join(projectPath, "aix.lock.json"), "utf8"));
 
-    assert.equal(result.declaredCount, 13);
-    assert.equal(result.materializedCount, 13);
-    assert.equal(result.activatedCount, 13);
-    assert.deepEqual(Object.keys(manifest.sources.skills).sort(), ["aix", "cursor-pstack", "mattpocock"]);
-    assert.equal(manifest.sources.skills.aix.type, "git");
-    assert.equal(manifest.sources.skills.aix.url, defaults.sources.aix.url);
-    assert.equal(manifest.sources.skills.aix.path, "aix/skills");
-    assert.equal(manifest.sources.skills["cursor-pstack"].url, defaults.sources["cursor-pstack"].url);
-    assert.equal(manifest.skills.length, 13);
-    assert.ok(manifest.skills.includes("cursor-pstack:unslop"));
+    assert.equal(result.declaredCount, 1);
+    assert.equal(result.materializedCount, 15);
+    assert.equal(result.activatedCount, 12);
+    assert.deepEqual(Object.keys(manifest.sources.workflows), ["aix"]);
+    assert.equal(manifest.sources.workflows.aix.type, "git");
+    assert.equal(manifest.sources.workflows.aix.url, defaults.workflowSources.aix.url);
+    assert.equal(manifest.sources.workflows.aix.path, "aix/workflows/design-plan-execute");
+    assert.equal(manifest.workflow, "aix:aix/workflows/design-plan-execute");
+    assert.equal(manifest.skills.length, 0);
     assert.equal(lockfile.lockfileVersion, 1);
-    assert.equal(lockfile.skills.length, 13);
+    assert.equal(lockfile.workflows.length, 1);
+    assert.equal(lockfile.workflows[0].name, "design-plan-execute");
+    assert.equal(lockfile.workflows[0].docs.length, 3);
+    assert.equal(lockfile.workflows[0].skills.length, 12);
+    assert.equal(lockfile.skills.length, 12);
     assert.ok(lockfile.skills.every((skill) => skill.kind === "skill"));
+    assert.ok(lockfile.skills.every((skill) => skill.owner?.kind === "workflow"));
     assert.ok(lockfile.skills.every((skill) => skill.sourceType === "git"));
-    assert.ok(lockfile.skills.some((skill) => skill.source === "cursor-pstack" && skill.resolvedCommit === defaults.cursorCommit));
-    assert.ok(lockfile.skills.every((skill) => skill.packagePath.startsWith(".agents/packages/skills/")));
+    assert.ok(lockfile.workflows.some((workflow) => workflow.source === "aix" && workflow.resolvedCommit === defaults.aixCommit));
+    assert.ok(lockfile.skills.every((skill) => skill.packagePath.startsWith(".agents/packages/workflows/aix/design-plan-execute/skills/")));
     assert.ok(lockfile.skills.every((skill) => skill.activationPath.startsWith(".agents/skills/")));
     assert.ok(lockfile.skills.every((skill) => skill.packageFiles.length > 0));
     assert.ok(lockfile.skills.every((skill) => skill.activeFiles.length > 0));
-    assert.ok(existsSync(join(projectPath, ".agents/packages/skills/aix/task-execute/SKILL.md")));
-    assert.ok(existsSync(join(projectPath, ".agents/packages/skills/cursor-pstack/unslop/SKILL.md")));
-    assert.ok(existsSync(join(cacheRoot, "mattpocock/.git")));
-    assert.equal(existsSync(join(projectPath, ".agents/packages/skills/mattpocock")), false);
+    assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/design-plan-execute/workflow.json")));
+    assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/design-plan-execute/skills/task-execute/SKILL.md")));
+    assert.ok(existsSync(join(projectPath, ".agents/README.md")));
+    assert.ok(readFileSync(join(projectPath, "AGENTS.md"), "utf8").includes("<!-- aix:workflow design-plan-execute start -->"));
     assert.ok(existsSync(join(projectPath, ".agents/skills/task-execute/SKILL.md")));
-    assert.ok(existsSync(join(projectPath, ".agents/skills/unslop/SKILL.md")));
     assert.equal(lstatSync(join(projectPath, ".agents/skills/task-execute")).isSymbolicLink(), true);
-    assert.equal(readlinkSync(join(projectPath, ".agents/skills/task-execute")), "../packages/skills/aix/task-execute");
+    assert.equal(readlinkSync(join(projectPath, ".agents/skills/task-execute")), "../packages/workflows/aix/design-plan-execute/skills/task-execute");
   });
 });
 
@@ -130,7 +145,7 @@ test("run init initializes a project through the CLI command path", async () => 
     const previousEnv = {
       AIX_CACHE_DIR: process.env.AIX_CACHE_DIR,
       AIX_SOURCE_AIX_URL: process.env.AIX_SOURCE_AIX_URL,
-      AIX_SOURCE_AIX_PATH: process.env.AIX_SOURCE_AIX_PATH,
+      AIX_SOURCE_AIX_WORKFLOW_PATH: process.env.AIX_SOURCE_AIX_WORKFLOW_PATH,
       AIX_SOURCE_AIX_REF: process.env.AIX_SOURCE_AIX_REF,
       AIX_SOURCE_MATTPOCOCK_URL: process.env.AIX_SOURCE_MATTPOCOCK_URL,
       AIX_SOURCE_MATTPOCOCK_PATH: process.env.AIX_SOURCE_MATTPOCOCK_PATH,
@@ -141,9 +156,9 @@ test("run init initializes a project through the CLI command path", async () => 
     };
 
     process.env.AIX_CACHE_DIR = cacheRoot;
-    process.env.AIX_SOURCE_AIX_URL = defaults.sources.aix.url;
-    process.env.AIX_SOURCE_AIX_PATH = defaults.sources.aix.path;
-    process.env.AIX_SOURCE_AIX_REF = defaults.sources.aix.ref;
+    process.env.AIX_SOURCE_AIX_URL = defaults.workflowSources.aix.url;
+    process.env.AIX_SOURCE_AIX_WORKFLOW_PATH = defaults.workflowSources.aix.path;
+    process.env.AIX_SOURCE_AIX_REF = defaults.workflowSources.aix.ref;
     process.env.AIX_SOURCE_MATTPOCOCK_URL = defaults.sources.mattpocock.url;
     process.env.AIX_SOURCE_MATTPOCOCK_PATH = defaults.sources.mattpocock.path;
     process.env.AIX_SOURCE_MATTPOCOCK_REF = defaults.sources.mattpocock.ref;
@@ -156,9 +171,9 @@ test("run init initializes a project through the CLI command path", async () => 
     try {
       assert.equal(result.exitCode, 0);
       assert.match(result.stdout, /Initialized AI Extensions/);
-      assert.match(result.stdout, /Declared 13 skills/);
-      assert.match(result.stdout, /Materialized 13 package skills/);
-      assert.match(result.stdout, /Activated 13 local skills/);
+      assert.match(result.stdout, /Declared 1 workflow/);
+      assert.match(result.stdout, /Materialized 15 workflow assets/);
+      assert.match(result.stdout, /Activated 12 workflow-owned skills/);
     } finally {
       for (const [key, value] of Object.entries(previousEnv)) {
         if (value === undefined) {
@@ -173,33 +188,33 @@ test("run init initializes a project through the CLI command path", async () => 
 
 test("initProject is idempotent when files match", async () => {
   await withProject(async (_projectPath, defaults, cacheRoot) => {
-    assert.doesNotThrow(() => initProject({ sources: defaults.sources, cacheRoot }));
-    assert.doesNotThrow(() => initProject({ sources: defaults.sources, cacheRoot }));
+    assert.doesNotThrow(() => initProject({ workflowSources: defaults.workflowSources, cacheRoot }));
+    assert.doesNotThrow(() => initProject({ workflowSources: defaults.workflowSources, cacheRoot }));
   });
 });
 
 test("initProject refuses to overwrite a local package edit", async () => {
   await withProject(async (projectPath, defaults, cacheRoot) => {
-    initProject({ sources: defaults.sources, cacheRoot });
-    writeFileSync(join(projectPath, ".agents/packages/skills/aix/task-execute/SKILL.md"), "local edit\n", "utf8");
+    initProject({ workflowSources: defaults.workflowSources, cacheRoot });
+    writeFileSync(join(projectPath, ".agents/packages/workflows/aix/design-plan-execute/skills/task-execute/SKILL.md"), "local edit\n", "utf8");
 
     assert.throws(
-      () => initProject({ sources: defaults.sources, cacheRoot }),
-      (error) => error.message === "Refusing to overwrite local edit: .agents/packages/skills/aix/task-execute/SKILL.md"
+      () => initProject({ workflowSources: defaults.workflowSources, cacheRoot }),
+      (error) => error.message === "Refusing to update modified workflow package: .agents/packages/workflows/aix/design-plan-execute"
     );
   });
 });
 
 test("initProject refuses to replace a local active skill edit", async () => {
   await withProject(async (projectPath, defaults, cacheRoot) => {
-    initProject({ sources: defaults.sources, cacheRoot });
+    initProject({ workflowSources: defaults.workflowSources, cacheRoot });
     unlinkSync(join(projectPath, ".agents/skills/task-execute"));
     mkdirSync(join(projectPath, ".agents/skills/task-execute"), { recursive: true });
     writeFileSync(join(projectPath, ".agents/skills/task-execute/SKILL.md"), "local edit\n", "utf8");
 
     assert.throws(
-      () => initProject({ sources: defaults.sources, cacheRoot }),
-      (error) => error.message === "Refusing to overwrite local edit: .agents/skills/task-execute"
+      () => initProject({ workflowSources: defaults.workflowSources, cacheRoot }),
+      (error) => error.message === "Refusing to update modified active skill: .agents/skills/task-execute"
     );
   });
 });

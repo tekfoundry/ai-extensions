@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { AixError } from "../errors.js";
 import { parseManifest } from "../manifest.js";
 import { MANIFEST_FILE_NAME, type SourceDefinition } from "../schema.js";
-import { getDefaultSources } from "./defaults.js";
+import { getDefaultSources, getDefaultWorkflowSources } from "./defaults.js";
 import { safeCacheName } from "./metadata.js";
 import type { NamedSourceDefinition, ResolvedSource } from "./types.js";
 
@@ -41,6 +41,20 @@ export function loadSourceDefinitions(): Record<string, SourceDefinition> {
   };
 }
 
+export function loadWorkflowSourceDefinitions(): Record<string, SourceDefinition> {
+  if (!existsSync(MANIFEST_FILE_NAME)) {
+    return getDefaultWorkflowSources();
+  }
+
+  const manifest = parseManifest(JSON.parse(readFileSync(MANIFEST_FILE_NAME, "utf8")));
+  const manifestSources = (manifest.workflowSources || {}) as Record<string, SourceDefinition>;
+
+  return {
+    ...getDefaultWorkflowSources(),
+    ...manifestSources
+  };
+}
+
 export function listSourceDefinitions(): NamedSourceDefinition[] {
   return Object.entries(loadSourceDefinitions())
     .map(([name, definition]) => ({ name, definition }))
@@ -68,7 +82,7 @@ function cloneOrFetchGitSource(name: string, definition: SourceDefinition, cache
   let resolvedCommit: string | undefined;
   const refCandidates = requestedRef === "HEAD"
     ? ["origin/HEAD^{commit}", "HEAD^{commit}"]
-    : [`${requestedRef}^{commit}`, `origin/${requestedRef}^{commit}`];
+    : [`origin/${requestedRef}^{commit}`, `${requestedRef}^{commit}`];
 
   for (const refCandidate of refCandidates) {
     try {

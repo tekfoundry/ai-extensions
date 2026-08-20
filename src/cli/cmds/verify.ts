@@ -1,4 +1,5 @@
 import { verifySkills, type VerifySkillsResult } from "../../activation.js";
+import { verifyWorkflow } from "../../workflows/index.js";
 import { CliError, EXIT_USAGE } from "../errors.js";
 import type { CliResult, Command } from "../types.js";
 
@@ -19,17 +20,19 @@ export function runVerifyCommand(argv: string[]): CliResult {
   }
 
   const result = verifySkills();
+  const workflowResult = verifyWorkflow();
+  const issues = [...result.issues, ...workflowResult.issues];
 
   return {
-    exitCode: result.issues.length === 0 ? 0 : 2,
-    stdout: renderVerifyResult(result)
+    exitCode: issues.length === 0 ? 0 : 2,
+    stdout: renderVerifyResult({ issues })
   };
 }
 
 export const verifyCommand: Command = {
   name: "verify",
   usage: "verify",
-  summary: "Check installed skill state",
+  summary: "Check installed AI Extension state",
   splash: "verify",
   run: runVerifyCommand
 };

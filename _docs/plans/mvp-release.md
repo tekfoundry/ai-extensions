@@ -9,14 +9,16 @@ implementation record for the MVP release.
 
 ## Context
 
-AI Extensions is a small package-manager-style CLI for managing AI-agent
-extensions inside software projects. The MVP starts with skills. The accepted
-design lives in `_docs/design/` and defines the MVP around:
+AI Extensions is a small package-manager-style CLI for managing AI assets
+inside software projects. The MVP starts with skills and one installable agent
+workflow. The accepted design lives in `_docs/design/` and defines the MVP
+around:
 
 - a TypeScript and Node.js CLI distributed as a scoped npm package that exposes
   the short `aix` binary
-- commands for `add skills`, `remove skills`, `activate skill`,
-  `deactivate skill`, `update`, `diff`, `verify`, and `list skills [source]`
+- commands for `install workflow`, `remove workflow`, `add skills`,
+  `remove skills`, `activate skill`, `deactivate skill`, `update`, `diff`,
+  `verify`, and `list skills [source]`
 - initialization through `aix init`
 - Git-based skill sources only
 - project manifests in `aix.json`
@@ -24,10 +26,12 @@ design lives in `_docs/design/` and defines the MVP around:
 - source metadata fetched into the shared Git cache
 - active skill packages materialized under `.agents/packages/skills/<source>/...`
 - active skills exposed through `.agents/skills/<active-name>`
+- one active workflow installed under `.agents/` with workflow-owned skills
+  materialized under `.agents/packages/workflows/...`
 - clear collision handling and explicit aliases
 - lockfile hashes and local drift protection before overwrites
 - default source discovery for `aix`, `mattpocock`, and `cursor-pstack`
-- workflow skills from the remote `aix` Git source at path `aix/skills`
+- the default `aix` workflow source at `aix/workflows/design-plan-execute`
 - repeatable versioning and npm publishing so other projects can install it
 
 Reviewed context:
@@ -39,6 +43,7 @@ Reviewed context:
 - `_docs/design/overview.md`
 - `_docs/design/cli.md`
 - `_docs/design/package-management.md`
+- `_docs/design/workflows.md`
 - `_docs/design/bundled-skills.md`
 - `README.md`
 
@@ -48,14 +53,14 @@ project documentation router.
 ## High-Level Goal (status: accepted)
 
 Ship the first usable AI Extensions MVP as a versioned npm package. The
-package exposes an `aix` CLI that adds and removes skill sources, activates and
-deactivates skills, updates, diffs, and verifies AI-agent skills from Git-based
-sources. It protects local edits and records exact resolved state.
+package exposes an `aix` CLI that installs one agent workflow, adds and removes
+skill sources, activates and deactivates skills, updates, diffs, and verifies
+Git-based AI assets. It protects local edits and records exact resolved state.
 
-The release should let a project manage skills the way it manages other local
-dependencies. A project declares sources and active skills, fetches source
-metadata into the shared Git cache, materializes active skill package copies
-under `.agents/packages/skills`, exposes selected skills through
+The release should let a project manage AI skills and an agent workflow the way
+it manages other local dependencies. A project declares sources, installs one
+workflow, fetches source metadata into the shared Git cache, materializes active
+skill and workflow package copies, exposes selected skills through
 `.agents/skills`, reviews changes before accepting updates, and can trust that
 AI Extensions will not overwrite modified local files without warning.
 
@@ -70,14 +75,18 @@ explicit while the product rules are still settling.
 The CLI should expose these commands:
 
 - `aix init`
+- `aix install workflow <git-or-github-tree-url> [alias]`
+- `aix remove workflow`
 - `aix add skills <git-or-github-tree-url> [alias]`
 - `aix remove skills <source-name>`
 - `aix activate skill [source/path] [alias]`
 - `aix deactivate skill <active-name>`
 - `aix update`
 - `aix update <source>/<path>`
+- `aix update workflow`
 - `aix diff`
 - `aix diff <source>/<path>`
+- `aix diff workflow`
 - `aix verify`
 - `aix list`
 - `aix list skills [source]`
@@ -93,6 +102,31 @@ Ink can be revisited if later workflows need persistent interactive screens.
 <source>` discovers skills from a configured source without prompting. None of
 these forms write to the manifest, lockfile, `.agents/packages`, or
 `.agents/skills`.
+
+`aix install workflow <git-or-github-tree-url> [alias]` installs one
+Git-backed workflow as the project's active AI Agent Workflow. Workflow install
+normalizes GitHub tree URLs, fetches the source into the shared Git cache,
+discovers the workflow by directory convention, copies recognized workflow docs
+into `.agents/`, activates workflow-local skills, scaffolds missing `_docs`
+directories, and writes workflow plus workflow-owned skill hashes to
+`aix.lock.json`.
+
+The MVP should allow only one active workflow at a time. Installing another
+workflow should fail until a later explicit replacement flow is designed.
+Workflow-local skills are owned by the workflow and should not be removable
+through ordinary skill deactivation. Local edits to workflow docs or
+workflow-owned skills are drift; verify should report them, and workflow update
+or removal should refuse to overwrite or delete them.
+
+`aix remove workflow` removes the active workflow docs and workflow-owned skills
+only after local drift checks pass. It leaves project-owned `_docs` content in
+place.
+
+`aix diff workflow` compares locked workflow docs and workflow-owned skills
+with the currently resolved workflow source without changing files.
+
+`aix update workflow` refreshes locked workflow docs and workflow-owned skills
+only after local drift checks pass.
 
 `aix add skills <git-or-github-tree-url> [alias]` adds a Git-backed skill source
 to `aix.json` under `sources.skills`, normalizes GitHub tree URLs into Git URL,
@@ -135,10 +169,10 @@ materialized package copy.
 `aix init` initializes the local AI Extensions environment. It creates
 `.agents/`, `.agents/packages/`, `.agents/skills/`, `aix.json`, and
 `aix.lock.json`; writes Git source definitions for `aix`, `mattpocock`, and
-`cursor-pstack`; fetches default source metadata; materializes the package
-content needed by defaults; activates the default skills from the remote `aix`
-source path `aix/skills`; and activates `cursor-pstack/unslop` from the
-`cursor-pstack` source.
+`cursor-pstack`; installs the default workflow from remote source path
+`aix/workflows/design-plan-execute`; fetches default source metadata; materializes
+the package content needed by defaults; activates workflow-owned skills; and
+activates `cursor-pstack/unslop` from the `cursor-pstack` source.
 
 `aix.json` should declare user-requested root active skills as compact
 `source:path` strings. Dependency-only skills inferred during activation belong
@@ -167,9 +201,12 @@ the currently resolved source version. It does not change project files.
 hashes, skill front matter, and naming rules still agree.
 
 File operations are safety-sensitive. All writes stay scoped to
-`aix.json`, `aix.lock.json`, `.agents/packages`, and `.agents/skills` unless a
-command explicitly initializes missing documentation folders. The MVP does not add
-registry support, plugin package support, global installs, or per-tool
+`aix.json`, `aix.lock.json`, `.agents/`, `.agents/packages`, and
+`.agents/skills` unless a command explicitly initializes missing project-owned
+documentation folders. Workflow install may create missing `_docs` directories,
+but routine workflow updates must not rewrite project-authored `_docs` content.
+The MVP does not add registry support, plugin package support, external
+workflow skill dependencies, global installs, workflow replacement, or per-tool
 compatibility symlink management beyond keeping
 `.codex/skills` and `.claude/skills` as optional directory-level symlinks to
 `.agents/skills`.
@@ -195,12 +232,20 @@ first release or an emergency release.
 ## Boundaries And Invariants
 
 - `.agents/` is package-managed agent process structure.
-- `aix/skills/` is the canonical workflow skill source path inside the remote
-  `aix` Git source.
+- `aix/workflows/design-plan-execute/` is the canonical default workflow source path
+  inside the remote `aix` Git source.
+- `aix/skills/` is transitional until default workflow-owned skills are moved
+  under `aix/workflows/design-plan-execute/skills/`.
 - `_docs/` is project-owned documentation.
 - Source repositories are fetched into the shared Git cache.
 - Active skill package copies live under `.agents/packages/skills/<source>/...`.
+- Workflow package copies live under `.agents/packages/workflows/...`.
 - Active skills live under `.agents/skills/<active-name>`.
+- Only one workflow may be active at a time in the MVP.
+- Workflow-owned skills cannot be deactivated directly with
+  `aix deactivate skill`.
+- Workflow install may create missing `_docs` directories but must not rewrite
+  project-authored `_docs` documents.
 - A skill folder is valid only when it contains a valid `SKILL.md`.
 - Natural skill names are used unless the manifest declares an alias.
 - Active-name collisions fail before changing `.agents/skills`.
@@ -821,19 +866,19 @@ Completion evidence:
   `node --test tests/update.test.mjs`, `npm run typecheck`, `npm test` with
   86 passing tests, and `git diff --check`.
 
-### Phase 6: Package readiness (status: accepted)
+### Phase 6: Package readiness (status: completed)
 
 Goal: make the package understandable, buildable, and locally packable.
 
 Tasks:
 
-- ⬜️ Add package metadata for scoped npm distribution with the `aix` binary.
-- ⬜️ Add README usage examples that match implemented behavior.
-- ⬜️ Document manifest and lockfile examples.
-- ⬜️ Document the default sources and the Git-only MVP boundary.
-- ⬜️ Add a local package smoke test using `npm pack` or equivalent.
-- ⬜️ Run full verification.
-- ⬜️ Review & Refactor
+- ✅ Add package metadata for scoped npm distribution with the `aix` binary.
+- ✅ Add README usage examples that match implemented behavior.
+- ✅ Document manifest and lockfile examples.
+- ✅ Document the default sources and the Git-only MVP boundary.
+- ✅ Add a local package smoke test using `npm pack` or equivalent.
+- ✅ Run full verification.
+- ✅ Review & Refactor
 
 Verification:
 
@@ -842,7 +887,171 @@ Verification:
 - `npm test`
 - local packed CLI smoke test
 
-### Phase 7: Repeatable versioning and publishing (status: accepted)
+Completion evidence:
+
+- 2026-08-20: Added npm-facing package metadata for the scoped
+  `@tekfoundry/aix` package, including repository, bugs, homepage, keywords,
+  package manager, public scoped-package publish config, and the existing
+  `aix` binary declaration. Removed a stale `LICENSE` package-file include
+  because no `LICENSE` file exists yet. Refreshed `package-lock.json` with
+  `npm_config_cache=/private/tmp/aix-npm-cache npm install --package-lock-only
+  --ignore-scripts --no-audit`. A first `npm pack --dry-run --json` was
+  blocked by root-owned files in `/Users/rcravens/.npm`; rerunning with the
+  temporary npm cache passed and listed `bin/aix.js`, `dist`, `aix/skills`,
+  `README.md`, and `package.json` in the pack preview.
+- 2026-08-20: Reworked `README.md` into current package documentation with
+  install guidance, quick-start command examples, the implemented command list,
+  manifest and lockfile examples, default sources, and Git-only MVP
+  boundaries. Applied the `unslop` skill's audit by removing stale future-tense
+  claims and checking for obvious AI-copy markers, including em dashes and
+  filler phrases. No targeted code test was needed for the README-only slice.
+- 2026-08-20: Added `tests/package-smoke.test.mjs`, which runs `npm pack` into
+  a temporary directory, unpacks the tarball, checks package metadata and
+  expected packaged files, and runs the packed `bin/aix.js --help` entrypoint
+  with local runtime dependencies linked into the unpacked package. A first
+  version tried to install the tarball into a clean temp project and was
+  stopped after hanging on dependency resolution. Verification passed with
+  `npm_config_cache=/private/tmp/aix-npm-cache node --test
+  tests/package-smoke.test.mjs`.
+- 2026-08-20: Full Phase 6 verification passed with
+  `npm_config_cache=/private/tmp/aix-npm-cache npm run build`,
+  `npm_config_cache=/private/tmp/aix-npm-cache npm run typecheck`,
+  `npm_config_cache=/private/tmp/aix-npm-cache npm test` with 87 passing
+  tests, `npm_config_cache=/private/tmp/aix-npm-cache npm pack --dry-run
+  --json`, and `git diff --check`.
+- 2026-08-20: Completed the Phase 6 review and refactor pass. No code
+  refactor was needed after diff review. Promoted the package metadata decision
+  to `_docs/design/cli.md`, including the scoped package name, `aix` binary
+  mapping, and public scoped-package publish config. The license decision
+  remains intentionally unresolved because the plan does not authorize choosing
+  one.
+
+### Phase 7: Workflow packaging and installation (status: completed)
+
+Goal: make the default AI Agent Workflow an installable AI asset that owns
+`.agents` process docs and workflow-local skills.
+
+Tasks:
+
+- ✅ Restructure the local `aix` package source so the default workflow lives
+      under `aix/workflows/design-plan-execute/`.
+- ✅ Add a small `workflow.json` install manifest for the default workflow.
+- ✅ Add `AGENTS.append.md` to the workflow package with the root
+      `AGENTS.md` managed-block content that ties agents into `.agents`
+      workflow docs.
+- ✅ Move or copy the reusable workflow docs into that workflow package:
+      `README.md`, `workflow.md`, and `engineering-best-practices.md`.
+- ✅ Move the default lifecycle skills into
+      `aix/workflows/design-plan-execute/skills/` so the workflow and its owned
+      skills ship together.
+- ✅ Preserve compatibility for the existing `aix/skills` source path only as
+      long as needed for migration, tests, or current init behavior.
+- ✅ Define workflow source and active workflow types in the manifest and
+      lockfile model.
+- ✅ Add workflow lockfile entries for installed docs, workflow-local package
+      files, active skill files, the root `AGENTS.md` managed block, resolved
+      Git commit, and owner metadata.
+- ✅ Implement workflow manifest parsing and validation for `workflow.json`,
+      keeping the manifest focused on install integration rather than external
+      dependency resolution.
+- ✅ Implement conventional workflow discovery using `workflow.json`, known
+      workflow doc names, and `skills/` layout.
+- ✅ Implement `aix install workflow <git-or-github-tree-url> [alias]` as a
+      one-step fetch, install, and lock workflow operation.
+- ✅ Enforce one active workflow at a time and defer explicit workflow
+      replacement.
+- ✅ Install recognized workflow docs into `.agents/` with local drift checks.
+- ✅ Insert or update the workflow-managed block in root `AGENTS.md` from
+      `AGENTS.append.md`, preserving all project-owned content outside the
+      managed markers.
+- ✅ Materialize workflow-local skills under `.agents/packages/workflows/...`
+      and expose them through `.agents/skills`.
+- ✅ Mark workflow-owned skills so `aix deactivate skill <active-name>` refuses
+      to remove them directly.
+- ✅ Scaffold missing `_docs/design`, `_docs/plans`, `_docs/plans/backlog`,
+      and `_docs/plans/completed` directories during workflow install without
+      overwriting project-owned docs.
+- ✅ Update `aix init` to install the default workflow instead of activating
+      loose default skills from `aix/skills`.
+- ✅ Implement `aix remove workflow` with drift checks, workflow doc removal,
+      workflow-owned skill cleanup, managed `AGENTS.md` block removal, and no
+      deletion of project-owned `AGENTS.md` or `_docs` content.
+- ✅ Implement `aix diff workflow` for locked workflow docs, the managed
+      `AGENTS.md` block, and workflow-owned skills.
+- ✅ Implement `aix update workflow` with preflight source validation and local
+      drift refusal for workflow docs, the managed `AGENTS.md` block, and
+      workflow-owned skills.
+- ✅ Extend `aix verify` to validate active workflow manifest, lockfile,
+      workflow docs, the managed `AGENTS.md` block, workflow-owned skills,
+      hashes, owner metadata, and one active workflow invariants.
+- ✅ Update command help, splash metadata, terminal output, and README examples
+      for workflow install, update, diff, remove, and verify.
+- ✅ Add regression coverage for install, one-workflow guard, drift refusal,
+      root `AGENTS.md` managed-block preservation, workflow-owned skill
+      deactivation refusal, update, diff, remove, verify, and init integration.
+- ✅ Review & Refactor
+
+Verification:
+
+- targeted workflow command tests using local fixture Git repositories
+- init tests proving default workflow installation
+- deactivate tests proving workflow-owned skills cannot be removed directly
+- verify tests for workflow docs, workflow-owned skills, hashes, and owner
+  metadata
+- tests proving `AGENTS.md` content outside the managed block is preserved
+- `npm run build`
+- `npm run typecheck`
+- `npm test`
+- `git diff --check`
+
+Completion evidence:
+
+- 2026-08-20: Created the initial tracked workflow source directory at
+  `aix/workflows/design-plan-execute/` with a temporary `.gitkeep` so the
+  package path is visible before moving docs or skills. Aligned the active
+  design docs and Phase 7 plan references to the agreed
+  `design-plan-execute` workflow name. The workflow manifest,
+  `AGENTS.append.md`, workflow docs, and workflow-owned skill moves remain open
+  as separate Phase 7 tasks.
+- 2026-08-20: Packaged the default workflow under
+  `aix/workflows/design-plan-execute/` with `workflow.json`,
+  `AGENTS.append.md`, workflow docs, and workflow-owned skills while preserving
+  the transitional `aix/skills` source path.
+- 2026-08-20: Implemented workflow manifest and lockfile support,
+  `aix install workflow`, `aix remove workflow`, `aix diff workflow`,
+  `aix update workflow`, workflow verification, root `AGENTS.md` managed-block
+  handling, `_docs` scaffolding, and workflow-owned skill protection for
+  direct deactivate/update/diff paths.
+- 2026-08-20: Updated `aix init` so the default install unit is the
+  `design-plan-execute` workflow. Added workflow command regression coverage
+  for install, one-workflow guard, drift refusal, `AGENTS.md` preservation,
+  workflow-owned skill deactivation refusal, update, diff, remove, verify, and
+  init integration.
+- 2026-08-20: Updated README command examples and user-facing command output
+  for workflow install, update, diff, remove, verify, and init. Review pass
+  removed stale workflow path examples and kept the existing `aix/skills` path
+  documented only as transitional compatibility.
+- 2026-08-20: Verification passed with
+  `npm_config_cache=/private/tmp/aix-npm-cache npm run build`,
+  `npm_config_cache=/private/tmp/aix-npm-cache npm run typecheck`,
+  `npm_config_cache=/private/tmp/aix-npm-cache npm test` with 92 passing tests,
+  and `git diff --check`.
+- 2026-08-20: Reopened the review task after the maintainability retrospective.
+  Split the 718-line `src/workflows/index.ts` all-in-one module into focused
+  workflow modules for manifest parsing, source normalization, managed
+  `AGENTS.md` blocks, workflow docs, workflow-owned skills, diff helpers,
+  install, remove, update, shared helpers, and exports. The workflow package
+  install path now stages source files and completes drift/collision preflight
+  before replacing the managed package, and `aix remove workflow` now refuses
+  modified workflow package files before deletion. The maintainability scan
+  showed the largest workflow production file is now `src/workflows/install.ts`
+  at 162 lines. Verification passed with `npm_config_cache=/private/tmp/aix-npm-cache npm run build`,
+  targeted `node --test tests/workflow.test.mjs`,
+  `npm_config_cache=/private/tmp/aix-npm-cache npm run typecheck`,
+  `npm_config_cache=/private/tmp/aix-npm-cache npm test` with 92 passing tests,
+  and `git diff --check`.
+
+### Phase 8: Repeatable versioning and publishing (status: accepted)
 
 Goal: publish AI Extensions as a versioned package and make future releases
 repeatable.
@@ -894,16 +1103,37 @@ Verification:
   location.
 - Built-in `aix` source packaging: keep `aix/skills` as the source path inside
   `https://github.com/tekfoundry/ai-extensions.git` at ref `master`.
+  Superseded for the default workflow on 2026-08-20: restructure the built-in
+  source so the AI Agent Workflow lives under
+  `aix/workflows/design-plan-execute/` with workflow docs and workflow-owned skills
+  together. Keep `aix/skills` only as transitional compatibility while the
+  workflow phase migrates init and tests.
 - Diff format: decide before Phase 5 whether MVP output is unified diff text,
   a structured summary, or both.
 - Initialization behavior: decide before Phase 6 whether `aix activate skill`
   may scaffold missing `.agents` and `_docs` folders, or whether that belongs
   to a later explicit command.
-- Release workflow: choose before Phase 7 whether to use Changesets,
+- Workflow package format: decided on 2026-08-20 and refined later the same
+  day. The first workflow package uses a small `workflow.json` install
+  manifest plus conventional `docs` and `skills/` layout. The manifest declares
+  install integration points such as root `AGENTS.md`; Markdown append content
+  lives in `AGENTS.append.md`, not inline JSON.
+- Workflow dependencies: decided on 2026-08-20. Workflow-owned skills must live
+  inside the workflow package for the MVP. External workflow skill dependencies
+  are deferred.
+- Workflow lifecycle: decided on 2026-08-20. Workflows use
+  `aix install workflow` as a one-step install path rather than `add` plus
+  `activate`, and only one workflow may be active at a time.
+- Workflow-owned skill removal: decided on 2026-08-20.
+  `aix deactivate skill` must refuse direct removal of workflow-owned skills.
+- Root agent instructions: decided on 2026-08-20. Workflow install updates root
+  `AGENTS.md` through a marker-delimited managed block. Content outside that
+  block remains project-owned.
+- Release workflow: choose before Phase 8 whether to use Changesets,
   semantic-release, or a simpler npm-version workflow.
-- Publish trigger: choose before Phase 7 whether releases are triggered by
+- Publish trigger: choose before Phase 8 whether releases are triggered by
   tags, GitHub releases, or a manually approved workflow.
-- First release scope: confirm before Phase 7 that `@tekfoundry/aix` is the npm
+- First release scope: confirm before Phase 8 that `@tekfoundry/aix` is the npm
   package target and that the package owner has permission to publish it.
 
 ## Risks
@@ -936,6 +1166,21 @@ Verification:
   version bumps are not tied to reviewed changes.
 - npm package contents can accidentally include local-only files if the package
   files allowlist is too broad.
+- Workflow installation can break the agent process if workflow docs and
+  workflow-owned skills are updated independently. Keep them packaged together
+  and lock them as one active workflow.
+- Allowing direct deactivation of workflow-owned skills would leave a workflow
+  half-installed. Block direct removal and make workflow removal own that
+  lifecycle.
+- Workflow install can overwrite important local process guidance if drift
+  checks are incomplete. Check `.agents` workflow docs and workflow-owned
+  skills before every install, update, or remove.
+- Workflow install should create missing `_docs` directories but must not treat
+  project-owned `_docs` documents as package-managed files.
+- Root `AGENTS.md` is mixed ownership after workflow install. Bad marker
+  handling could overwrite repo-specific instructions or leave duplicated
+  workflow blocks. Use marker-delimited updates, hash the managed block, and
+  preserve all content outside the managed block.
 
 ## Lessons To Carry Forward
 
@@ -947,6 +1192,10 @@ Verification:
   happen during active skill changes.
 - Keep the MVP small enough that users can trust the tool before adding richer
   source types or automation.
+- Treat workflows differently from skill catalogs. A workflow is an installed
+  process, not a source to browse one file at a time.
+- Keep workflow-local skills self-contained until there is a proven need for
+  external workflow skill dependencies.
 - Treat repeatable publishing as part of the MVP, not cleanup after the MVP.
 - Use the workflow task status markers in plan task lists from the start:
   `⬜️`, `🟨`, `✅`, and `⚠️`.
@@ -961,6 +1210,8 @@ especially:
 - targeted command semantics
 - Git cache rules
 - built-in `aix` source packaging behavior
+- workflow package layout, install/update/diff/remove semantics, and
+  workflow-owned skill safeguards
 - CLI output and exit-code conventions
 - release workflow, versioning rules, publish trigger, and npm package access
   requirements

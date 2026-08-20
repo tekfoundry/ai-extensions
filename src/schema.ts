@@ -3,7 +3,7 @@ export const LOCKFILE_FILE_NAME = "aix.lock.json";
 export const LOCKFILE_VERSION = 1;
 
 export type SourceType = "git";
-export type PackageKind = "skill";
+export type PackageKind = "skill" | "workflow";
 
 export interface BaseSourceDefinition {
   type: SourceType;
@@ -28,8 +28,18 @@ export interface SkillRequest {
 
 export type SkillManifestEntry = string | SkillRequest;
 
+export interface WorkflowRequest {
+  source: string;
+  path: string;
+  alias?: string;
+}
+
+export type WorkflowManifestEntry = string | WorkflowRequest;
+
 export interface SkillsManifest {
   sources?: Record<string, SourceManifestEntry>;
+  workflowSources?: Record<string, SourceManifestEntry>;
+  workflow?: WorkflowManifestEntry;
   skills: SkillManifestEntry[];
 }
 
@@ -49,7 +59,7 @@ export interface LockfileSkillDependency {
 }
 
 export interface LockfileSkillEntry {
-  kind: PackageKind;
+  kind: "skill";
   source: string;
   sourceType: SourceType;
   sourceUrl?: string;
@@ -62,14 +72,51 @@ export interface LockfileSkillEntry {
   activeName: string;
   alias?: string;
   requested: boolean;
+  owner?: {
+    kind: "workflow";
+    name: string;
+  };
   dependencies?: LockfileSkillDependency[];
   packageFiles: FileHash[];
   activeFiles: FileHash[];
 }
 
+export interface LockfileWorkflowDoc {
+  sourcePath: string;
+  targetPath: string;
+  sha256: string;
+}
+
+export interface LockfileAgentsMdBlock {
+  path: string;
+  marker: string;
+  sha256: string;
+}
+
+export interface LockfileWorkflowEntry {
+  kind: "workflow";
+  source: string;
+  sourceType: SourceType;
+  sourceUrl?: string;
+  requestedRef?: string;
+  resolvedCommit?: string;
+  sourcePath: string;
+  packagePath: string;
+  name: string;
+  title?: string;
+  docs: LockfileWorkflowDoc[];
+  agentsMd?: LockfileAgentsMdBlock;
+  skills: Array<{
+    sourcePath: string;
+    activeName: string;
+  }>;
+  packageFiles: FileHash[];
+}
+
 export interface SkillsLockfile {
   lockfileVersion: typeof LOCKFILE_VERSION;
   skills: LockfileSkillEntry[];
+  workflows?: LockfileWorkflowEntry[];
 }
 
 export interface SkillTarget {
