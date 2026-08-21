@@ -31,6 +31,8 @@ The first assets are workflows and skills.
 
 The command is `aix`. The npm package is `@tekfoundry/aix`.
 
+See the project promotion page at [tekfoundry.com/aix](https://tekfoundry.com/aix).
+
 ## Why use it
 
 Use `aix` when you want AI-agent behavior to be shared, reviewable, and tied to
