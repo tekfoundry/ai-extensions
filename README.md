@@ -1,11 +1,8 @@
 # AI Extensions
 
-<div style="border: 2px solid #b42318; background: #fff1f0; color: #7a271a; padding: 12px 16px; border-radius: 6px; margin: 16px 0;">
-  <strong>Pre-release notice:</strong>
-  <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 700; color: #7a271a;">@tekfoundry/aix</span>
-  has not been published to npm yet. The first public npm release is being
-  prepared.
-</div>
+> [!WARNING]
+> **Pre-release notice:** `@tekfoundry/aix` has not been published to npm yet.
+> The first public npm release is being prepared.
 
 AI Extensions (`aix`) is a package-manager-style CLI for AI-agent assets in a
 software project.
