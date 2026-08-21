@@ -34,6 +34,21 @@ AI Extensions uses Release Please to prepare version and changelog changes for
    restored. Until then, npm may emit login-related dry-run warnings that are
    not useful in automatic CI.
 
+### Temporary GitHub artifact install
+
+Until npm publishing is available, attach a locally packed npm artifact to a
+GitHub Release so users can install `aix` without cloning the repository:
+
+```bash
+npm run release:github-artifact
+```
+
+Create or update a temporary `v0.0.0` GitHub Release, attach the generated
+`release-artifacts/tekfoundry-aix-0.0.0.tgz` file, and paste the printed
+checksum block into the release notes. The helper also writes a
+`.tgz.sha256` sidecar file for local reference. The README temporary install
+command depends on that exact release tag and artifact name.
+
 5. Let Release Please create the release PR. For the first release, review the
    proposed `package.json`, `package-lock.json`, `CHANGELOG.md`, and
    `.release-please-manifest.json` changes before merging. The Release Please

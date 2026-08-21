@@ -1,8 +1,13 @@
 # AI Extensions
 
 > [!WARNING]
-> **Pre-release notice:** `@tekfoundry/aix` has not been published to npm yet.
-> The first public npm release is being prepared.
+> **Temporary install path:** I am still working through npm account setup for
+> the `@tekfoundry` scope. Until `@tekfoundry/aix` is published to npm, install
+> the packed build from the GitHub Release artifact:
+>
+> ```bash
+> npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.0.0/tekfoundry-aix-0.0.0.tgz
+> ```
 
 AI Extensions (`aix`) is a package-manager-style CLI for AI-agent assets in a
 software project.
@@ -46,14 +51,21 @@ Common cases:
 
 ## Install
 
-The package is prepared for scoped npm distribution, but it has not been
-published yet:
+The package is prepared for scoped npm distribution. Once it is published, the
+install path will be:
 
 ```bash
 npm install -g @tekfoundry/aix
 ```
 
-For now, run it from this repository:
+For now, install the packed artifact attached to the GitHub Release:
+
+```bash
+npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.0.0/tekfoundry-aix-0.0.0.tgz
+aix --help
+```
+
+To build and test from this repository:
 
 ```bash
 npm install
@@ -61,13 +73,10 @@ npm run build
 node bin/aix.js --help
 ```
 
-Or install a local packed build:
+To create the release artifact locally:
 
 ```bash
-npm run build
-npm pack --pack-destination /tmp/aix-pack
-npm install -g /tmp/aix-pack/tekfoundry-aix-0.0.0.tgz
-aix --help
+npm run release:github-artifact
 ```
 
 ## Quick start

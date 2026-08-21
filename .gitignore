@@ -62,6 +62,7 @@ aix-cache/
 
 # Local package artifacts
 *.tgz
+release-artifacts/
 
 # Tool-specific local state.
 # Keep the skill compatibility symlinks shareable.

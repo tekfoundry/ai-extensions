@@ -37,6 +37,7 @@
   "scripts": {
     "aix": "npm run build && node bin/aix.js",
     "build": "tsc -p tsconfig.json",
+    "release:github-artifact": "node scripts/github-release-artifact.mjs",
     "release:local-smoke": "node scripts/local-install-smoke.mjs",
     "release:pack-preview": "node scripts/pack-preview.mjs",
     "release:publish-dry-run": "node scripts/publish-dry-run.mjs",
