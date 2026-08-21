@@ -2,96 +2,474 @@
 
 # Design, Plan, Execute
 
-`design-plan-execute` is the default `aix` workflow for coding agents. It gives
-agents a project-local process for reading design intent, planning work,
-executing small tasks, verifying changes, and keeping project documentation in
-sync with accepted behavior.
+`design-plan-execute` is an `aix` workflow for development teams that want to
+use AI agents to ship high-quality, maintainable code. It gives organizations a
+way to standardize agent-assisted development across teams and projects.
 
-Install it directly:
+Teams use the workflow to keep agent work grounded in design intent, small
+plans, verified changes, and project documentation that stays current with the
+code.
 
-```bash
-aix workflow install https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute aix
-```
+## Quick Start
 
-You can also install it through project initialization:
+`design-plan-execute` is installed by default when you initialize a project
+with `aix`:
 
 ```bash
 aix init
 ```
 
-## What it installs
+Use a direct workflow install when a project was not initialized with the
+default workflow, or when you need to install it from a specific source:
 
-`.agents/` owns reusable AI-agent process structure for this repository:
-workflow rules, engineering guidance for agents, and reusable workflow skills.
+```bash
+aix workflow install https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute aix
+```
 
-`_docs/` owns project knowledge only: stable design intent, product documents,
-analysis, active/backlog/completed plans, and project-specific lessons.
+Check whether your installed workflow has pending upstream changes:
 
-## Files
+```bash
+aix workflow diff
+```
+
+Update the active workflow after reviewing the diff:
+
+```bash
+aix workflow update
+```
+
+Check workspace health and installed workflow state:
+
+```bash
+aix status
+aix verify
+```
+
+After initialization or workflow installation, `aix` updates the project:
+
+1. `AGENTS.md` gets a managed block marked
+   `aix:workflow design-plan-execute`.
+2. `.agents/` gets the workflow router, lifecycle rules, engineering guidance,
+   and workflow skills. These are reusable process files for agent-assisted
+   development.
+3. The workflow installs the reusable files listed in
+   [Included Files](#included-files).
+4. `_docs/` gets the standard project documentation structure when directories
+   are missing. These files belong to the project:
+   - `_docs/design/` holds stable design intent for the current accepted
+     system.
+   - `_docs/plans/` holds active in-progress implementation plans.
+   - `_docs/plans/backlog/` holds planned but intentionally not started work.
+   - `_docs/plans/completed/` holds archived plans after completion and design
+     promotion.
+
+Developers usually do not create or maintain those plan files by hand. The
+agent creates and updates them while following the developer workflow below.
+
+Existing project-owned documentation is preserved. Routine workflow updates do
+not rewrite project documents.
+
+## Installed Skills
+
+This workflow installs these skills:
+
+- `project-init`: create or repair the project-owned `_docs` structure.
+- `plan-create`: turn an idea into a backlog plan for review.
+- `plan-review`: review a plan for scope, authorization, design completeness,
+  risks, and verification readiness.
+- `plan-activate`: move a human-authorized backlog plan into active
+  implementation.
+- `plan-update`: revise an active or backlog plan without implementing it.
+- `plan-execute`: run an active implementation plan across phases.
+- `phase-execute`: execute one phase of an active plan through focused tasks.
+- `task-execute`: implement one concrete task from an active plan, or one
+  approved micro-fix.
+- `work-verify`: choose and run targeted checks for changed behavior.
+- `plan-defer`: move active planned work back to the backlog.
+- `plan-complete`: close a plan after tasks, verification, documentation, and
+  risks are resolved or recorded.
+- `design-promote`: move accepted behavior from completed plans into stable
+  design docs.
+
+The workflow activates these skills under `.agents/skills/`. Remove or update
+the workflow to change them. Do not deactivate them like normal root skills.
+
+## Developer Workflow
+
+To use the workflow, modify your prompt to name the skill you want the agent to
+run, such as `use plan-create`. That is the safest and most repeatable form.
+Natural prompts like "let's create a plan for this" often work too, but naming
+the skill removes guesswork.
+
+### Core Prompts
+
+Most planned work follows this order:
+
+1. Create a plan with `plan-create`.
+2. Activate the plan with `plan-activate`.
+3. Execute the plan with `plan-execute`, `phase-execute`, or `task-execute`.
+4. Complete the plan with `plan-complete`.
+
+For a complete approved backlog plan example, see
+[Plan example](plan-example.md).
+
+#### 1. Create a plan
+
+Use `plan-create` when you have an idea that needs design work before the team
+starts changing code.
+
+<table>
+<tr>
+<th align="left" width="45%">Typical prompts</th>
+<th align="left">What happens next</th>
+</tr>
+<tr>
+<td>
+<blockquote>
+<p>Use plan-create to turn this idea into an implementation plan: add saved search filters so users can reuse common searches.</p>
+</blockquote>
+<blockquote>
+<p>Create a plan for a new saved search feature that lets users reuse common searches.</p>
+</blockquote>
+<blockquote>
+<p>Help me create a new plan.</p>
+</blockquote>
+</td>
+<td>
+The agent reads repository instructions, relevant design docs, related plans,
+and the current worktree. If the goal is not clear yet, it asks discovery
+questions. Then it creates a living plan under <code>_docs/plans/backlog/</code>
+and works with you through the main planning gates: goal, design intent,
+implementation phases, and final backlog acceptance.
+See the example plan's <a href="plan-example.md#context">context</a>,
+<a href="plan-example.md#high-level-goal-status-accepted">goal</a>,
+<a href="plan-example.md#design-intent-status-accepted">design intent</a>, and
+<a href="plan-example.md#implementation-phases">implementation phases</a>.
+</td>
+</tr>
+</table>
+
+Plan creation stops at an approved backlog plan. It does not authorize
+implementation.
+
+> [!WARNING]
+> **Plan quality matters:** Spend real time on this step. The more clearly the
+> plan captures design intent and organizes phases and tasks, the more
+> direction the agent has when it starts building. A thin plan leaves too much
+> for the agent to infer later.
+
+#### 2. Activate the plan
+
+Use `plan-activate` when a backlog plan is approved and ready for
+implementation.
+
+<table>
+<tr>
+<th align="left" width="45%">Typical prompts</th>
+<th align="left">What happens next</th>
+</tr>
+<tr>
+<td>
+<blockquote>
+<p>Use plan-activate on <code>_docs/plans/backlog/saved-search-filters.md</code>.</p>
+</blockquote>
+<blockquote>
+<p>Activate the saved search filters plan.</p>
+</blockquote>
+</td>
+<td>
+The agent treats activation as a human-controlled boundary. If the backlog plan
+is ready, it moves the plan from <code>_docs/plans/backlog/</code> to
+<code>_docs/plans/</code>, records the activation, verifies that no duplicate
+backlog copy remains, and reports readiness notes.
+See the example plan's <a href="plan-example.md#status">status</a> and
+<a href="plan-example.md#implementation-phases">accepted phases</a>.
+</td>
+</tr>
+</table>
+
+Activation makes a plan eligible for implementation. It does not start coding
+unless you ask for execution too.
+
+#### 3. Execute the plan
+
+Choose the execution prompt based on how much control you want. `plan-execute`
+runs the broadest slice. `phase-execute` stays inside one phase. `task-execute`
+is the tightest option.
+
+<table>
+<tr>
+<th align="left" width="45%">Typical prompts</th>
+<th align="left">What happens next</th>
+</tr>
+<tr>
+<td>
+<blockquote>
+<p>Use plan-execute on <code>_docs/plans/saved-search-filters.md</code>.</p>
+</blockquote>
+<blockquote>
+<p>Use phase-execute on Phase 2 in <code>_docs/plans/saved-search-filters.md</code>.</p>
+</blockquote>
+<blockquote>
+<p>Use task-execute for the "persist saved search filters" task in <code>_docs/plans/saved-search-filters.md</code>.</p>
+</blockquote>
+<blockquote>
+<p>Execute the next task.</p>
+</blockquote>
+<blockquote>
+<p>Continue the current phase.</p>
+</blockquote>
+<blockquote>
+<p>Keep going on the active plan.</p>
+</blockquote>
+</td>
+<td>
+The agent reads the active plan, selects the requested scope, updates plan
+status, makes the code and documentation changes, runs targeted verification,
+and reports files changed, checks run, documentation impact, and any remaining
+risk.
+
+Depending on the task, phase, or plan, execution may create or update:
+<ul>
+<li>implementation code, tests, fixtures, command output, and generated assets</li>
+<li>automated test coverage, including targeted regression tests for the changed behavior</li>
+<li>documentation, help text, README examples, design docs, and release notes</li>
+<li>project state files such as manifests, lockfiles, package files, or active skill/workflow links</li>
+<li>the active plan's task status, completion evidence, verification notes, risk notes, validation gaps, and follow-up work</li>
+<li>verification results from targeted checks, type checks, builds, full test runs, package smoke checks, stale-syntax scans, and <code>git diff --check</code></li>
+<li>maintainability review notes, including file-size scans and refactor decisions when a review task requires them</li>
+</ul>
+
+See the example plan's <a href="plan-example.md#implementation-phases">phases
+and tasks</a>, <a href="plan-example.md#risks">risks</a>, and
+<a href="plan-example.md#promotion-to-design">promotion notes</a>.
+</td>
+</tr>
+</table>
+
+Execution should stay as small as the work allows. Use `task-execute` when you
+want tight control over scope.
+
+#### 4. Complete the plan
+
+Use `plan-complete` when the implementation is done and you want to close the
+record properly.
+
+<table>
+<tr>
+<th align="left" width="45%">Typical prompts</th>
+<th align="left">What happens next</th>
+</tr>
+<tr>
+<td>
+<blockquote>
+<p>Use plan-complete on <code>_docs/plans/saved-search-filters.md</code>.</p>
+</blockquote>
+<blockquote>
+<p>Complete and archive the saved search filters plan.</p>
+</blockquote>
+</td>
+<td>
+The agent confirms tasks, success goals, verification, documentation impact,
+and risks. It promotes accepted behavior into <code>_docs/design/</code>
+through <code>design-promote</code>, records final evidence and follow-up work,
+then archives the completed plan under <code>_docs/plans/completed/</code> with
+a dated filename.
+See the example plan's <a href="plan-example.md#phase-5-review-documentation-and-release-readiness-status-accepted">release-readiness phase</a>,
+<a href="plan-example.md#risks">risks</a>, and
+<a href="plan-example.md#promotion-to-design">promotion notes</a>.
+</td>
+</tr>
+</table>
+
+Completion only happens after the plan, verification, risks, and design docs
+are in order.
+
+> [!NOTE]
+> **Completed plans are history.** During plan completion, the design intent
+> that is now true in the codebase is promoted into `_docs/design/`. That
+> directory holds the current design state of the application as a whole. The
+> design intent inside completed plan files is not kept current and may become
+> stale as later plans change the system. Treat `_docs/plans/completed/` as the
+> dated execution history: the incremental state changes each plan made at the
+> time it was completed.
+
+### Other Prompts
+
+These prompts are useful, but they are not required for every plan. Use them
+when the project needs that specific action.
+
+<table>
+<tr>
+<th align="left" width="45%">Typical prompts</th>
+<th align="left">What happens next</th>
+</tr>
+<tr>
+<td>
+<blockquote>
+<p>Please review <code>_docs/plans/backlog/saved-search-filters.md</code> and tell me if it is ready to activate.</p>
+</blockquote>
+<blockquote>
+<p>Use plan-review to find gaps in the saved search filters plan before we start it.</p>
+</blockquote>
+</td>
+<td>
+The agent checks whether the plan is ready to activate. Review does not
+activate or implement backlog work.
+See the example plan's <a href="plan-example.md#open-questions-decisions">open
+questions</a>, <a href="plan-example.md#risks">risks</a>, and
+<a href="plan-example.md#implementation-phases">accepted phases</a>.
+</td>
+</tr>
+<tr>
+<td>
+<blockquote>
+<p>Update <code>_docs/plans/saved-search-filters.md</code> with a rollout-risk note.</p>
+</blockquote>
+<blockquote>
+<p>Add tasks for keyboard shortcuts to Phase 2 of the saved search filters plan.</p>
+</blockquote>
+<blockquote>
+<p>Insert a new accessibility review phase before release readiness.</p>
+</blockquote>
+</td>
+<td>
+The agent makes a plan-only edit. It may add risks, clarify scope, add tasks to
+an existing phase, or insert a new phase. It keeps task status markers
+consistent and does not write code or move the plan between backlog, active,
+and completed states. Plan updates usually touch sections like
+<a href="plan-example.md#open-questions-decisions">open questions</a>,
+<a href="plan-example.md#risks">risks</a>,
+<a href="plan-example.md#implementation-phases">implementation phases</a>, or
+<a href="plan-example.md#lessons-to-carry-forward">lessons</a>.
+</td>
+</tr>
+<tr>
+<td>
+<blockquote>
+<p>Verify the saved search filter changes before we continue.</p>
+</blockquote>
+<blockquote>
+<p>Use work-verify to check whether the current phase meets its success criteria.</p>
+</blockquote>
+</td>
+<td>
+The agent runs targeted checks first, adds broader repository checks when the
+change needs them, and reports verification results and remaining risks.
+See the verification notes inside the example plan's
+<a href="plan-example.md#implementation-phases">implementation phases</a>.
+</td>
+</tr>
+<tr>
+<td>
+<blockquote>
+<p>Pause <code>_docs/plans/saved-search-filters.md</code> and move it back to the backlog.</p>
+</blockquote>
+<blockquote>
+<p>Use plan-defer to record what is unfinished before we stop this work.</p>
+</blockquote>
+</td>
+<td>
+The agent records unfinished work and moves the active plan back to
+<code>_docs/plans/backlog/</code>.
+See the example plan's <a href="plan-example.md#status">status</a>,
+<a href="plan-example.md#risks">risks</a>, and
+<a href="plan-example.md#open-questions-decisions">open questions</a>.
+</td>
+</tr>
+<tr>
+<td>
+<blockquote>
+<p>Promote the accepted saved search behavior from the completed plan into the design docs.</p>
+</blockquote>
+<blockquote>
+<p>Use design-promote to update the stable design docs with what is now true.</p>
+</blockquote>
+</td>
+<td>
+The agent updates the smallest appropriate design document with behavior that
+is now true in the codebase.
+See the example plan's
+<a href="plan-example.md#promotion-to-design">promotion notes</a>.
+</td>
+</tr>
+<tr>
+<td>
+<blockquote>
+<p>Set up the project docs structure this workflow expects.</p>
+</blockquote>
+<blockquote>
+<p>Use project-init to create any missing <code>_docs</code> directories.</p>
+</blockquote>
+</td>
+<td>
+The agent creates missing <code>_docs</code> directories and documentation
+routers without overwriting existing project-owned content.
+Plans created later will use sections like the example plan's
+<a href="plan-example.md#context">context</a> and
+<a href="plan-example.md#implementation-phases">implementation phases</a>.
+</td>
+</tr>
+<tr>
+<td>
+<blockquote>
+<p>This is a micro-fix: update the empty-state copy on the saved searches page.</p>
+</blockquote>
+<blockquote>
+<p>Make this small UI copy fix without creating a plan.</p>
+</blockquote>
+</td>
+<td>
+The agent may proceed without a broader plan only when existing design intent
+covers the change and the fix is localized.
+If the work is larger than a micro-fix, create a plan with sections like the
+example plan's <a href="plan-example.md#high-level-goal-status-accepted">goal</a>
+and <a href="plan-example.md#design-intent-status-accepted">design intent</a>.
+</td>
+</tr>
+</table>
+
+Use the other prompts as needed. They help when a plan needs review,
+maintenance, verification, deferral, documentation, project setup, or a small
+fix outside the core flow.
+
+## Included Files
 
 Workflow package files:
 
-- `workflow.json`, the install manifest
-- `AGENTS.append.md`, the managed root `AGENTS.md` block content
-- `README.md`, the process router
-- `workflow.md`, the agent lifecycle and planning contract
-- `engineering-best-practices.md`, reusable engineering guidance
-- `skills/*/SKILL.md`, workflow-owned skills
+- `workflow.json`: installation manifest for the workflow package.
+- `AGENTS.append.md`: managed root `AGENTS.md` block content.
+- `README.md`: developer-facing overview of the workflow.
+- `plan-example.md`: complete example of an approved backlog implementation
+  plan.
+- `workflow.md`: reusable workflow lifecycle, work classification, planning,
+  verification, and completion rules.
+- `engineering-best-practices.md`: reusable engineering guidance for
+  agent-assisted development.
+- `skills/*/SKILL.md`: workflow-owned skill instructions.
 
 Installed workflow docs:
 
-- [Workflow](workflow.md): reusable agent lifecycle, work classification,
+- [Workflow](workflow.md): reusable workflow lifecycle, work classification,
   planning, verification, and completion rules.
+- [Plan example](plan-example.md): complete approved backlog plan showing
+  typical structure, section depth, task markers, verification, risks, and
+  promotion notes.
 - [Engineering best practices](engineering-best-practices.md): reusable
-  agent-facing engineering guidance.
+  engineering guidance for agent-assisted development.
 - [Skills](skills/): reusable workflow skills for plan and task lifecycle work.
-  Use `project-init` for documentation scaffolding and the plan/task skills for
-  implementation lifecycle work.
 
 Root integration:
 
-- `AGENTS.md` receives a managed block marked
+- `AGENTS.md` gets a managed block marked
   `aix:workflow design-plan-execute`.
 - Existing `AGENTS.md` content outside the managed block remains
   project-owned.
 
 Project documentation:
 
-- `_docs/design/`
-- `_docs/plans/`
-- `_docs/plans/backlog/`
-- `_docs/plans/completed/`
-
-These directories are project-owned. The workflow may create them when missing,
-but routine workflow updates do not rewrite project documents.
-
-## Skills
-
-This workflow owns these skills:
-
-- `project-init`: initialize or repair the project-owned `_docs` structure.
-- `plan-create`: turn an idea into a backlog plan for review.
-- `plan-review`: review a plan for scope, authorization, design completeness,
-  risks, and verification readiness.
-- `plan-activate`: move a human-authorized backlog plan into active
-  implementation.
-- `plan-execute`: orchestrate execution of an active implementation plan.
-- `phase-execute`: execute one phase of an active plan through bounded tasks.
-- `task-execute`: implement one concrete task or approved micro-fix.
-- `work-verify`: select and run targeted verification for a change.
-- `plan-update`: revise an active or backlog plan without implementing it.
-- `plan-defer`: move active planned work back to the backlog.
-- `plan-complete`: close a plan after tasks, verification, docs, and risks are
-  resolved or recorded.
-- `design-promote`: move accepted durable behavior from completed plans into
-  stable design docs.
-
-Workflow-owned skills are activated under `.agents/skills/`, but they are owned
-by the workflow. Remove or update the workflow to change them; do not deactivate
-them as normal root skills.
-
-## How agents use it
-
-After installation, agents start with the root `AGENTS.md` for repo-specific
-instructions, then use `.agents/README.md` as the reusable process router and
-`_docs/README.md` for project knowledge when that router exists.
+- `_docs/design/`: stable design intent for the current accepted system.
+- `_docs/plans/`: active in-progress implementation plans.
+- `_docs/plans/backlog/`: planned but intentionally not started work.
+- `_docs/plans/completed/`: archived plans after completion and design
+  promotion.
