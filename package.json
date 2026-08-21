@@ -40,7 +40,7 @@
     "release:local-smoke": "node scripts/local-install-smoke.mjs",
     "release:pack-preview": "node scripts/pack-preview.mjs",
     "release:publish-dry-run": "node scripts/publish-dry-run.mjs",
-    "release:verify": "npm run build && npm run typecheck && npm test && npm run release:pack-preview && npm run release:publish-dry-run && npm run release:local-smoke",
+    "release:verify": "npm run build && npm run typecheck && npm test && npm run release:pack-preview && npm run release:local-smoke",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "verify": "npm run build && npm run typecheck && npm test",
     "test": "node scripts/run-tests.mjs"

@@ -37,9 +37,6 @@ jobs:
       - name: Package preview
         run: npm run release:pack-preview
 
-      - name: Publish dry run
-        run: npm run release:publish-dry-run
-
       - name: Local install smoke
         run: npm run release:local-smoke
 

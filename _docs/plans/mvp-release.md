@@ -1374,14 +1374,14 @@ Completion evidence:
   publisher setup, manual publish dispatch, and granular token fallback
   guidance. Verification passed with `npm run release:verify` and
   `git diff --check`.
-- 2026-08-20: Added `release:publish-dry-run`, wired it into
-  `release:verify`, and added it to CI before the local install smoke. The dry
-  run executes `npm publish --dry-run --json` with an isolated temporary npm
-  cache, asserts the package name, version, generated tarball name, public
-  publish path, and included `bin/aix.js` entrypoint, and stops before npm
-  credentials are required. The package `bin` path was normalized to
-  `bin/aix.js` so npm no longer auto-corrects it during publish. Verification
-  passed with `node --test tests/package-smoke.test.mjs`,
+- 2026-08-20: Added `release:publish-dry-run` as a separate manual release
+  check. It executes `npm publish --dry-run --json` with an isolated temporary
+  npm cache and stops before npm credentials are required. The package `bin`
+  path was normalized to `bin/aix.js` so npm no longer auto-corrects it during
+  publish. Because npm emits login-related dry-run warnings and its dry-run JSON
+  shape varies on GitHub runners before npm account setup is complete, the
+  command is intentionally not part of automatic CI or `release:verify` yet.
+  Verification passed with `node --test tests/package-smoke.test.mjs`,
   `npm run release:publish-dry-run`, and `npm run release:local-smoke`.
 - 2026-08-20: Recorded deferred release automation in `RELEASE.md`: moving
   publish from manual dispatch to a GitHub Release or tag trigger after the

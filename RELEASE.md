@@ -26,10 +26,13 @@ AI Extensions uses Release Please to prepare version and changelog changes for
    npm run typecheck
    npm test
    npm run release:pack-preview
-   npm run release:publish-dry-run
    npm run release:local-smoke
    git diff --check
    ```
+
+   Run `npm run release:publish-dry-run` separately after npm account access is
+   restored. Until then, npm may emit login-related dry-run warnings that are
+   not useful in automatic CI.
 
 5. Let Release Please create the release PR. For the first release, review the
    proposed `package.json`, `package-lock.json`, `CHANGELOG.md`, and
