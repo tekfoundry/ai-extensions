@@ -20,7 +20,7 @@
     "extensions"
   ],
   "bin": {
-    "aix": "./bin/aix.js"
+    "aix": "bin/aix.js"
   },
   "publishConfig": {
     "access": "public"
@@ -37,7 +37,12 @@
   "scripts": {
     "aix": "npm run build && node bin/aix.js",
     "build": "tsc -p tsconfig.json",
+    "release:local-smoke": "node scripts/local-install-smoke.mjs",
+    "release:pack-preview": "node scripts/pack-preview.mjs",
+    "release:publish-dry-run": "node scripts/publish-dry-run.mjs",
+    "release:verify": "npm run build && npm run typecheck && npm test && npm run release:pack-preview && npm run release:publish-dry-run && npm run release:local-smoke",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "verify": "npm run build && npm run typecheck && npm test",
     "test": "node --test tests"
   },
   "devDependencies": {

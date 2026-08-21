@@ -35,7 +35,7 @@ test("npm pack artifact contains a working aix binary", async () => {
   });
 
   assert.equal(packageJson.name, "@tekfoundry/aix");
-  assert.deepEqual(packageJson.bin, { aix: "./bin/aix.js" });
+  assert.deepEqual(packageJson.bin, { aix: "bin/aix.js" });
   assert.equal(packageJson.publishConfig.access, "public");
   assert.equal(packageJson.dependencies["@inquirer/prompts"], "^8.6.0");
   assert.equal(packageJson.dependencies.yoctocolors, "^2.2.0");

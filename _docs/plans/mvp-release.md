@@ -1260,24 +1260,58 @@ repeatable.
 
 Tasks:
 
-- ⬜️ Choose the MVP release workflow, such as Changesets, semantic-release, or
-      a small documented `npm version` flow.
-- ⬜️ Add a versioning command or release checklist that updates `package.json`
+- ✅ Choose the MVP release workflow, such as Changesets, semantic-release, or
+      a small documented `npm version` flow. The choice must account for the
+      intended later destination: pushing reviewed changes to GitHub should
+      eventually create the next package version automatically.
+- ✅ Decide the release automation path for post-MVP releases, including
+      whether version bumps are driven by Changesets, Conventional Commits,
+      release-please, or another reviewed-change mechanism.
+- ✅ Add a versioning command or release checklist that updates `package.json`
       and the changelog in a predictable way.
-- ⬜️ Add CI verification for build, typecheck, tests, package contents, and
+- ✅ Keep the MVP versioning flow compatible with future GitHub-driven
+      automated version PRs, tags, or releases so Phase 9 does not need to be
+      replaced when automation is added.
+- ✅ Add CI verification for build, typecheck, tests, package contents, and
       CLI smoke checks.
-- ⬜️ Add an npm publish workflow for `@tekfoundry/aix` with provenance when
+- ✅ Add or document the future CI shape for automatic release creation from
+      pushed changes, including required branch protections, merge requirements,
+      and verification gates before a version is created.
+- ✅ Create or confirm the `tekfoundry` npm organization before first publish
+      so `@tekfoundry/aix` is owned by the organization scope rather than a
+      personal npm scope.
+- 🟨 Confirm the publishing npm account is a member of the `tekfoundry`
+      organization with permission to publish public packages under the
+      `@tekfoundry` scope.
+- 🟨 Create the `@tekfoundry/aix` package record on npmjs.com through the first
+      publish path, or confirm it already exists and is owned by the
+      `tekfoundry` organization before wiring trusted publishing.
+- 🟨 Configure package access on npmjs.com as public and verify the package page
+      shows the expected package name, visibility, repository, README, and
+      maintainers after publish.
+- ✅ Add an npm publish workflow for `@tekfoundry/aix` with provenance when
       supported.
-- ⬜️ Document required npm token setup without committing credentials.
-- ⬜️ Require an explicit release trigger, such as a GitHub release, tag, or
+- ⬜️ Configure npm trusted publishing for the package from the selected GitHub
+      Actions workflow when npm supports it for the chosen trigger. Prefer
+      trusted publishing over a long-lived publish token.
+- ✅ Document required npm token setup without committing credentials.
+- ✅ If trusted publishing cannot be used for the first release, document the
+      fallback granular access token scope, required permissions, 2FA behavior,
+      storage location, rotation expectation, and cleanup path after migration
+      to trusted publishing.
+- ✅ Require an explicit release trigger, such as a GitHub release, tag, or
       manually approved workflow dispatch.
-- ⬜️ Prove the workflow can run a publish dry run or complete every step up to
+- ✅ Separate the first-release trigger from the later automatic-release
+      trigger. The first release may require manual approval, while later
+      releases should be prepared by a release PR and published only after an
+      explicit human action.
+- ✅ Prove the workflow can run a publish dry run or complete every step up to
       the final npm publish gate.
 - ⬜️ Publish the first MVP version once credentials and package ownership are
       confirmed.
 - ⬜️ Verify the package can be installed by another project and that the
       installed `aix` binary runs.
-- ⬜️ Record any deferred behavior that should become a later plan.
+- ✅ Record any deferred behavior that should become a later plan.
 - ⬜️ Review & Refactor
 
 Verification:
@@ -1285,9 +1319,75 @@ Verification:
 - CI build, typecheck, and test workflow passes
 - release dry run or equivalent publish preview passes
 - package contents check confirms only intended files are included
+- npmjs.com organization, package ownership, public access, maintainers, and
+  trusted publisher or token fallback configuration are confirmed before the
+  publish step
 - `npm install -g @tekfoundry/aix` or an equivalent clean-environment install
   succeeds after publish
 - installed `aix --help` and at least one read-only command run successfully
+
+Completion evidence:
+
+- 2026-08-20: User confirmed the `tekfoundry` npm organization has been
+  created. Package publish permissions, package record ownership, trusted
+  publishing, and first publish verification remain open Phase 9 tasks.
+- 2026-08-20: User accepted `release-please` as the MVP release workflow.
+  Release Please should own version and changelog automation through reviewed
+  release PRs. The first MVP release should keep a human review gate, while
+  later releases can move toward automatic version creation from reviewed
+  GitHub changes.
+- 2026-08-20: User accepted the post-MVP automation path: `release-please`
+  creates or updates release PRs from reviewed changes on the protected GitHub
+  branch. Publishing must not happen on every push. A package release requires
+  an explicit human action, such as merging the release PR and approving the
+  publish environment, or manually running an approved publish workflow for the
+  selected tag or GitHub Release.
+- 2026-08-20: Added Release Please versioning configuration in
+  `release-please-config.json`, bootstrapped `.release-please-manifest.json`
+  at version `0.0.0`, added `CHANGELOG.md`, and documented the first MVP
+  release checklist plus ongoing release rules in `RELEASE.md`. Verification
+  passed with JSON parsing for the release config and package metadata,
+  `npm_config_cache=/private/tmp/aix-npm-cache node --test
+  tests/package-smoke.test.mjs`, and `git diff --check`.
+- 2026-08-20: npmjs.com account-dependent tasks were marked in progress while
+  the user waits for npm support to resolve account access. Package publish
+  permissions, package record ownership, public access, and package page
+  verification remain blocked on account recovery.
+- 2026-08-20: Added GitHub Actions CI in `.github/workflows/ci.yml` for build,
+  typecheck, tests, package preview, local install smoke, and whitespace
+  checks. Added `release:pack-preview`, `release:local-smoke`, `release:verify`,
+  and `verify` npm scripts. `release:local-smoke` packs the tarball, unpacks it
+  into a clean temp install layout, wires local runtime dependencies, and runs
+  the installed `aix --help` plus `aix status` commands without publishing to
+  npm. Verification passed with `npm run release:pack-preview`,
+  `npm run release:local-smoke`, `npm run release:verify`, and
+  `git diff --check`.
+- 2026-08-20: Added `.github/workflows/release-please.yml` so Release Please
+  can maintain release PRs using the committed manifest config. It is currently
+  manual-only so release automation does not run before GitHub branch
+  protection, CI, and the first release path are ready. Added
+  `.github/workflows/publish.yml` as a manual
+  `workflow_dispatch` npm publish workflow that checks out a selected tag,
+  runs `npm run release:verify`, references the `npm-publish` environment, and
+  grants `id-token: write` for npm trusted publishing. Updated `RELEASE.md`
+  with branch protection, required CI, `npm-publish` environment, npm trusted
+  publisher setup, manual publish dispatch, and granular token fallback
+  guidance. Verification passed with `npm run release:verify` and
+  `git diff --check`.
+- 2026-08-20: Added `release:publish-dry-run`, wired it into
+  `release:verify`, and added it to CI before the local install smoke. The dry
+  run executes `npm publish --dry-run --json` with an isolated temporary npm
+  cache, asserts the package name, version, generated tarball name, public
+  publish path, and included `bin/aix.js` entrypoint, and stops before npm
+  credentials are required. The package `bin` path was normalized to
+  `bin/aix.js` so npm no longer auto-corrects it during publish. Verification
+  passed with `node --test tests/package-smoke.test.mjs`,
+  `npm run release:publish-dry-run`, and `npm run release:local-smoke`.
+- 2026-08-20: Recorded deferred release automation in `RELEASE.md`: moving
+  publish from manual dispatch to a GitHub Release or tag trigger after the
+  first release proves out, adding post-publish npm install verification, and
+  considering provenance or artifact attestation checks when the trusted
+  publishing path exposes a stable verification command.
 
 ## Open Questions / Decisions
 
@@ -1338,12 +1438,26 @@ Verification:
 - Root agent instructions: decided on 2026-08-20. Workflow install updates root
   `AGENTS.md` through a marker-delimited managed block. Content outside that
   block remains project-owned.
-- Release workflow: choose before Phase 9 whether to use Changesets,
-  semantic-release, or a simpler npm-version workflow.
+- Release workflow: decided on 2026-08-20. Use `release-please` for version
+  and changelog automation. The first release should review the generated
+  release PR before publishing, and later releases should move toward automatic
+  version creation from reviewed GitHub changes.
+- Post-MVP release automation: decided on 2026-08-20. Release Please should
+  create or update release PRs from the protected GitHub branch. It should not
+  publish on every push. Merging the release PR creates the versioned release
+  point, and npm publishing should run from the resulting tag or GitHub Release
+  only after CI passes and an explicit human approval or manual dispatch occurs.
+- npm ownership model: create or confirm an npm organization named
+  `tekfoundry` and publish `@tekfoundry/aix` under that organization scope
+  unless the organization name is unavailable. A personal `@tekfoundry` scope
+  should be used only as an explicit fallback because it ties package ownership
+  to one npm user.
 - Publish trigger: choose before Phase 9 whether releases are triggered by
-  tags, GitHub releases, or a manually approved workflow.
+  tags, GitHub releases, merged release PRs, protected-branch pushes, or a
+  manually approved workflow.
 - First release scope: confirm before Phase 9 that `@tekfoundry/aix` is the npm
-  package target and that the package owner has permission to publish it.
+  package target, that the `tekfoundry` npm organization owns the scope, and
+  that the publishing account or trusted publisher has permission to publish it.
 
 ## Risks
 
@@ -1371,8 +1485,21 @@ Verification:
   rely on local fixture repositories so verification stays deterministic.
 - Publishing can leak credentials or publish the wrong package if CI secrets,
   package name, or access settings are wrong.
+- Publishing can fail late if the `tekfoundry` npm organization does not exist,
+  the package scope belongs to a personal account, or the publishing account is
+  not an organization member with package publish rights.
+- Trusted publishing setup can fail if the package record, repository URL,
+  workflow filename, GitHub environment, or OIDC permissions do not match the
+  npmjs.com trusted publisher configuration.
 - Automated versioning can produce confusing releases if changelog entries and
   version bumps are not tied to reviewed changes.
+- Fully automatic releases can publish accidental or low-quality versions if
+  branch protections, test gates, changelog generation, and human review rules
+  are weak. Prefer automation that creates a reviewed release PR before
+  publishing until the release process has proved itself.
+- Publishing on every push to the protected branch would make ordinary merges
+  too risky. Release automation should prepare release PRs automatically, but
+  publish only after an explicit human action.
 - npm package contents can accidentally include local-only files if the package
   files allowlist is too broad.
 - Workflow installation can break the agent process if workflow docs and
@@ -1433,5 +1560,5 @@ especially:
   workflow-owned skill safeguards
 - pragmatic CLI grammar, status behavior, and the final advertised command list
 - CLI output and exit-code conventions
-- release workflow, versioning rules, publish trigger, and npm package access
-  requirements
+- release workflow, versioning rules, publish trigger, npm organization setup,
+  trusted publishing or token fallback, and npm package access requirements

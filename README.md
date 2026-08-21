@@ -1,5 +1,12 @@
 # AI Extensions
 
+<div style="border: 2px solid #b42318; background: #fff1f0; color: #7a271a; padding: 12px 16px; border-radius: 6px; margin: 16px 0;">
+  <strong>Pre-release notice:</strong>
+  <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 700; color: #7a271a;">@tekfoundry/aix</span>
+  has not been published to npm yet. The first public npm release is being
+  prepared.
+</div>
+
 AI Extensions (`aix`) is a package-manager-style CLI for AI-agent assets in a
 software project.
 
@@ -42,18 +49,28 @@ Common cases:
 
 ## Install
 
-The package is prepared for scoped npm distribution:
+The package is prepared for scoped npm distribution, but it has not been
+published yet:
 
 ```bash
 npm install -g @tekfoundry/aix
 ```
 
-During local development, run it from this repository:
+For now, run it from this repository:
 
 ```bash
 npm install
 npm run build
 node bin/aix.js --help
+```
+
+Or install a local packed build:
+
+```bash
+npm run build
+npm pack --pack-destination /tmp/aix-pack
+npm install -g /tmp/aix-pack/tekfoundry-aix-0.0.0.tgz
+aix --help
 ```
 
 ## Quick start
