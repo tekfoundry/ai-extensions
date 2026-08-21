@@ -21,18 +21,24 @@ const jsonStart = output.indexOf("{");
 assert.notEqual(jsonStart, -1, "npm publish dry run did not return JSON output");
 
 const publishResult = JSON.parse(output.slice(jsonStart));
+const publishId = publishResult.id ?? "";
+const expectedId = `${packageJson.name}@${packageJson.version}`;
+const packageName = publishResult.name ?? publishId.slice(0, -`@${packageJson.version}`.length);
+const packageVersion = publishResult.version ?? publishId.slice(`${packageJson.name}@`.length);
+const packageFiles = publishResult.files ?? publishResult.contents ?? [];
 
-assert.equal(publishResult.name, packageJson.name);
-assert.equal(publishResult.version, packageJson.version);
+assert.equal(publishId || expectedId, expectedId);
+assert.equal(packageName, packageJson.name);
+assert.equal(packageVersion, packageJson.version);
 assert.equal(
   publishResult.filename,
   `${packageJson.name.replace("@", "").replace("/", "-")}-${packageJson.version}.tgz`
 );
 assert.ok(
-  publishResult.files.some((file) => file.path === "bin/aix.js"),
+  packageFiles.some((file) => file.path === "bin/aix.js"),
   "publish dry run did not include bin/aix.js"
 );
 
 console.log(
-  `Publish dry run passed for ${publishResult.name}@${publishResult.version} (${publishResult.filename}).`
+  `Publish dry run passed for ${packageName}@${packageVersion} (${publishResult.filename}).`
 );
