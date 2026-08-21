@@ -402,111 +402,20 @@ That split also keeps updates reviewable. `aix skills diff` and
 the lockfile to decide what is still managed by `aix` and to stop before
 overwriting local edits.
 
-## Managed files
+## Familiar command patterns
 
-`aix` separates package-managed files from project-owned files.
+![Familiar command patterns summary](assets/familiar-command-patterns-summary.png)
 
-When `aix` installs a workflow or activates a skill, it keeps a local
-package-managed copy under `.agents/packages`. That copy is the stable content
-`aix` hashes, locks, diffs, updates, and checks for local drift.
+The UX is intentionally close to package managers developers already know, like
+`npm`, Composer, Bundler, or Cargo. You add sources, activate packages, review
+diffs, update locked versions, verify the installed state, and uninstall managed
+assets with explicit commands.
 
-Workflow package copies live here:
-
-```text
-.agents/packages/workflows/<source>/<workflow>/
-```
-
-Skill package copies live here:
-
-```text
-.agents/packages/skills/<source>/<skill-path>/
-```
-
-For example, when you install `design-plan-execute`:
-
-```bash
-aix workflow install https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute aix
-```
-
-`aix` creates a workflow package copy and installs the workflow-owned files:
-
-```text
-.agents/packages/workflows/aix/design-plan-execute/
-.agents/packages/workflows/aix/design-plan-execute/skills/  # workflow skill package copies
-.agents/README.md
-.agents/workflow.md
-.agents/engineering-best-practices.md
-.agents/skills/project-init  # symlink into the workflow skills directory
-.agents/skills/plan-create   # symlink into the workflow skills directory
-.agents/skills/task-execute  # symlink into the workflow skills directory
-```
-
-The `.agents/skills/*` entries above are workflow-owned skills. The full
-workflow skill list lives in the
-[design-plan-execute details](aix/workflows/design-plan-execute/README.md).
-
-For a user-activated skill, the flow is source, list, activate. For example,
-to activate `unslop` from Cursor's pstack skills:
-
-```bash
-aix skills add https://github.com/cursor/plugins/tree/main/pstack/skills cursor-pstack
-aix skills list cursor-pstack
-aix skill activate cursor-pstack/unslop
-```
-
-That creates a package copy and exposes one active skill:
-
-```text
-.agents/packages/skills/cursor-pstack/unslop/
-.agents/skills/unslop  # symlink to the package copy
-```
-
-The shared `.agents/skills` directory is the active skill set agents scan:
-
-```text
-.agents/skills/<workflow-owned-skill>
-.agents/skills/<active-name>
-```
-
-Workflow-owned skills and user-activated skills both appear there. The
-difference is ownership: workflow-owned skills are managed by the active
-workflow, while user-activated root skills are managed by `aix skill activate`
-and `aix skill deactivate`.
-
-Project-owned content:
-
-```text
-AGENTS.md outside the aix managed block
-source code, tests, and application docs
-```
-
-Workflows may also create project-owned directories. For example,
-`design-plan-execute` creates `_docs/` so the repo has a standard place for
-design docs and active, backlog, and completed plans.
-
-Here is the basic skill layout:
-
-```text
-.agents/packages/skills/team-skills/review/  # package-managed source copy
-.agents/skills/review                        # active skill link
-```
-
-When a skill is activated without an alias, `.agents/skills/<active-name>` is a
-directory symlink to the package copy under `.agents/packages/skills`. The
-active symlink gives agents one predictable directory to scan without duplicating
-the upstream package files.
-
-When a skill is activated with an alias, `aix` creates a managed active-skill
-wrapper instead of a direct symlink. That wrapper copies the package files and
-rewrites the `SKILL.md` front matter `name` to the alias, while leaving the
-upstream package copy unchanged. This is how `aix` avoids active-name collisions
-without mutating downloaded skill content.
-
-If package-managed files change locally, `aix verify` and `aix status` report
-drift. Commands that would overwrite or delete drifted files stop instead of
-guessing what to keep.
-
-## Commands
+That keeps the tool approachable even though the files it manages are new.
+Teams do not need to learn a new mental model for sharing agent behavior. The
+same habits they already use for project dependencies apply here: declare what
+the project wants, lock what was installed, review changes before accepting
+them, and stop when local edits would be overwritten.
 
 ```bash
 aix init
