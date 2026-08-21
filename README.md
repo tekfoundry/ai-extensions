@@ -1,5 +1,7 @@
 # AI Extensions
 
+![AI Extensions social preview](assets/aix_about_github.jpg)
+
 > [!WARNING]
 > **Temporary install path:** I am still working through npm account setup for
 > the `@tekfoundry` scope. Until `@tekfoundry/aix` is published to npm, install
@@ -117,6 +119,8 @@ aix skills update
 ```
 
 ## Workflows
+
+![Design, Plan, Execute workflow summary](assets/design-plan-execute-summary.png)
 
 A workflow is installed as one package because it defines how a project wants
 agents to work. You can [create your own custom workflows](#custom-workflow),

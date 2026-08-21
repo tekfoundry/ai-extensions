@@ -1,3 +1,5 @@
+![Design, Plan, Execute workflow overview](../../../assets/design_plan_execute_about.png)
+
 # Design, Plan, Execute
 
 `design-plan-execute` is the default `aix` workflow for coding agents. It gives
