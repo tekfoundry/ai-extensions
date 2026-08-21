@@ -120,7 +120,7 @@ aix skills update
 
 ## Workflows
 
-![Design, Plan, Execute workflow summary](assets/design-plan-execute-summary.png)
+[![Design, Plan, Execute workflow summary](assets/design-plan-execute-summary.png)](aix/workflows/design-plan-execute/README.md)
 
 A workflow is installed as one package because it defines how a project wants
 agents to work. You can [create your own custom workflows](#custom-workflow),
