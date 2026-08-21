@@ -108,7 +108,7 @@ test("initProject initializes an empty project with default sources and skills",
     const lockfile = JSON.parse(readFileSync(join(projectPath, "aix.lock.json"), "utf8"));
 
     assert.equal(result.declaredCount, 1);
-    assert.equal(result.materializedCount, 15);
+    assert.equal(result.materializedCount, 16);
     assert.equal(result.activatedCount, 12);
     assert.deepEqual(Object.keys(manifest.sources.workflows), ["aix"]);
     assert.equal(manifest.sources.workflows.aix.type, "git");
@@ -119,7 +119,7 @@ test("initProject initializes an empty project with default sources and skills",
     assert.equal(lockfile.lockfileVersion, 1);
     assert.equal(lockfile.workflows.length, 1);
     assert.equal(lockfile.workflows[0].name, "design-plan-execute");
-    assert.equal(lockfile.workflows[0].docs.length, 3);
+    assert.equal(lockfile.workflows[0].docs.length, 4);
     assert.equal(lockfile.workflows[0].skills.length, 12);
     assert.equal(lockfile.skills.length, 12);
     assert.ok(lockfile.skills.every((skill) => skill.kind === "skill"));
@@ -131,8 +131,10 @@ test("initProject initializes an empty project with default sources and skills",
     assert.ok(lockfile.skills.every((skill) => skill.packageFiles.length > 0));
     assert.ok(lockfile.skills.every((skill) => skill.activeFiles.length > 0));
     assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/design-plan-execute/workflow.json")));
+    assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/design-plan-execute/plan-example.md")));
     assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/design-plan-execute/skills/task-execute/SKILL.md")));
     assert.ok(existsSync(join(projectPath, ".agents/README.md")));
+    assert.ok(existsSync(join(projectPath, ".agents/plan-example.md")));
     assert.ok(readFileSync(join(projectPath, "AGENTS.md"), "utf8").includes("<!-- aix:workflow design-plan-execute start -->"));
     assert.ok(existsSync(join(projectPath, ".agents/skills/task-execute/SKILL.md")));
     assert.equal(lstatSync(join(projectPath, ".agents/skills/task-execute")).isSymbolicLink(), true);
@@ -172,7 +174,7 @@ test("run init initializes a project through the CLI command path", async () => 
       assert.equal(result.exitCode, 0);
       assert.match(result.stdout, /Initialized AI Extensions/);
       assert.match(result.stdout, /Declared 1 workflow/);
-      assert.match(result.stdout, /Materialized 15 workflow assets/);
+      assert.match(result.stdout, /Materialized 16 workflow assets/);
       assert.match(result.stdout, /Activated 12 workflow-owned skills/);
     } finally {
       for (const [key, value] of Object.entries(previousEnv)) {
