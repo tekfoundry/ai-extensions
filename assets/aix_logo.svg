@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 273 108" role="img" aria-labelledby="title desc">
+  <title id="title">aix logo</title>
+  <desc id="desc">A cyan terminal prompt and underscore followed by the white and cyan aix wordmark.</desc>
+  <g fill="none" stroke="#12ded6" stroke-linecap="round" stroke-linejoin="round" stroke-width="12">
+    <path d="M6 30 L36 60 L6 90" />
+    <path d="M46 91 H81" />
+  </g>
+  <g font-family="Inter, Arial, Helvetica, sans-serif" font-size="94" font-weight="800" letter-spacing="0">
+    <text x="108" y="91" fill="#ffffff">ai</text>
+    <text x="198" y="91" fill="#12ded6">x</text>
+  </g>
+</svg>

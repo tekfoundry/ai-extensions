@@ -238,6 +238,8 @@ managed block alone.
 
 ## Skills
 
+![AIX skills management summary](assets/skills-summary.png)
+
 Skills are already showing up as shared Git repositories. A few useful examples
 to browse:
 
@@ -345,6 +347,61 @@ aix skill activate team-skills/review
 Skill folders can be flat or nested. `aix skills list <source>` reports folders
 that contain `SKILL.md` by their source-relative path.
 
+## Shared configuration
+
+![Shared configuration summary](assets/shared-configuration-summary.png)
+
+`aix` makes agent configuration shareable in the same way application
+dependencies are shareable: commit the manifest and lockfile, and every project
+checkout knows which workflow, skill sources, and active skills the team uses.
+
+`aix.json` is the shared intent. It declares the sources a project trusts, the
+workflow it runs, and the root skills the team wants active:
+
+```json
+{
+  "sources": {
+    "workflows": {
+      "aix": "https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute"
+    },
+    "skills": {
+      "mattpocock": "https://github.com/mattpocock/skills/tree/main/skills",
+      "private-skills": {
+        "type": "git",
+        "url": "git@github.com:example/private-skills.git",
+        "path": "skills",
+        "ref": "main"
+      }
+    }
+  },
+  "workflow": "aix:aix/workflows/design-plan-execute",
+  "skills": [
+    "mattpocock:engineering/typescript",
+    {
+      "source": "private-skills",
+      "path": "review",
+      "alias": "team-review"
+    }
+  ]
+}
+```
+
+`aix.lock.json` is the exact installed state. It records resolved Git commits,
+package paths, activation paths, active names, aliases, workflow docs, managed
+`AGENTS.md` block hashes, and file hashes.
+
+Together, those files let an organization publish reusable agent assets once
+and activate them consistently across many repos. One team can keep review,
+testing, migration, or release skills in a central Git source; each project can
+opt into the subset it needs; and every teammate gets the same locked agent
+behavior after syncing the repo.
+
+That split also keeps updates reviewable. `aix skills diff` and
+`aix workflow diff` show what would change before the lockfile moves forward.
+`aix verify`, `aix status`, update, diff, deactivate, and uninstall commands use
+the lockfile to decide what is still managed by `aix` and to stop before
+overwriting local edits.
+
 ## Managed files
 
 `aix` separates package-managed files from project-owned files.
@@ -448,45 +505,6 @@ without mutating downloaded skill content.
 If package-managed files change locally, `aix verify` and `aix status` report
 drift. Commands that would overwrite or delete drifted files stop instead of
 guessing what to keep.
-
-## Manifest and lockfile
-
-`aix.json` stores root user intent. It declares source collections, one active
-workflow, and user-requested root skills:
-
-```json
-{
-  "sources": {
-    "workflows": {
-      "aix": "https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute"
-    },
-    "skills": {
-      "mattpocock": "https://github.com/mattpocock/skills/tree/main/skills",
-      "private-skills": {
-        "type": "git",
-        "url": "git@github.com:example/private-skills.git",
-        "path": "skills",
-        "ref": "main"
-      }
-    }
-  },
-  "workflow": "aix:aix/workflows/design-plan-execute",
-  "skills": [
-    "mattpocock:engineering/typescript",
-    {
-      "source": "private-skills",
-      "path": "review",
-      "alias": "team-review"
-    }
-  ]
-}
-```
-
-`aix.lock.json` stores the resolved state: Git commits, package paths,
-activation paths, active names, aliases, workflow docs, managed `AGENTS.md`
-block hashes, and file hashes. `aix verify`, `aix status`, update, diff,
-deactivate, and uninstall commands use the lockfile to decide what is still
-managed by `aix`.
 
 ## Commands
 
