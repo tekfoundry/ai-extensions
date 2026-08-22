@@ -45,8 +45,8 @@ Reviewed context:
 
 ## High-Level Goal (status: accepted)
 
-Create a new default bundled skill for AI Extensions that helps users discover
-installable skills from a natural language request.
+Create a new default bundled skill named `discover-skill` for AI Extensions
+that helps users discover installable skills from a natural language request.
 
 The user experience should support prompts like:
 
@@ -71,11 +71,12 @@ After an explicit user selection, the agent should run the needed existing
 
 ## Design Intent (status: accepted)
 
-Add a project-agnostic default bundled skill to the `aix` skill source. The
-skill should live under `aix/skills` and be installed by default. It should not
-be owned by the active workflow, and it should remain available even if the
-user later uninstalls the workflow. Its output should guide an agent through
-discovery and installation using existing `aix` commands and safety checks.
+Add a project-agnostic default bundled skill named `discover-skill` to the
+`aix` skill source. The skill should live under `aix/skills/discover-skill` and
+be installed by default. It should not be owned by the active workflow, and it
+should remain available even if the user later uninstalls the workflow. Its
+output should guide an agent through discovery and installation using existing
+`aix` commands and safety checks.
 
 The repository currently contains duplicated skills under both `aix/skills` and
 `aix/workflows/design-plan-execute/skills`. This appears to be legacy cleanup
@@ -239,7 +240,7 @@ skill before adding it to the default bundled `aix` skill source.
 
 Tasks:
 
-- ⬜️ Decide the bundled skill name and active name.
+- ⬜️ Use `discover-skill` as the bundled skill name and active name.
 - ⬜️ Define the expected user input shape for natural language skill requests.
 - ⬜️ Define the clarification questions and stopping point before discovery
       begins.
@@ -367,8 +368,6 @@ Verification:
 
 ## Open Questions / Decisions
 
-- Should the skill be named `skill-search`, `skill-discover`,
-  `github-skill-search`, or something else?
 - Should the first version offer aliases during activation, or let the normal
   `aix skill activate` flow handle aliases separately?
 - Where should the known-source index live in the repository and installed
