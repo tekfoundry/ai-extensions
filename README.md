@@ -1,4 +1,4 @@
-# AI Extensions (AIX): A package manager style CLI for AI-agent workflows and skills
+# AI Extensions (AIX): A package-manager-style CLI for AI-agent workflows and skills
 
 ![AI Extensions social preview](assets/aix_about_github.jpg)
 
@@ -24,6 +24,15 @@ The command is `aix`. The npm package is `@tekfoundry/aix`.
 
 See the project promotion page at [tekfoundry.com/aix](https://tekfoundry.com/aix).
 
+## Try it in 60 seconds
+
+```bash
+npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.0.0/tekfoundry-aix-0.0.0.tgz
+aix init
+aix status
+aix verify
+```
+
 ## Why use it
 
 Use `aix` when you want AI-agent behavior to be shared, reviewable, and tied to
@@ -48,7 +57,7 @@ Common cases:
 
 - Solo developers using coding agents across multiple repos
 - Teams standardizing AI-agent behavior
-- Organizations that want reviewable, pinned, auditable agent instructions
+- Organizations that want AI-agent behavior to be reviewable, pinned, auditable, and repo-local
 - Maintainers publishing reusable workflows or skills
 
 ## Install
@@ -61,9 +70,8 @@ npm install -g @tekfoundry/aix
 ```
 
 > [!WARNING]
-> **Temporary install path:** I am still working through npm account setup for
-> the `@tekfoundry` scope. Until `@tekfoundry/aix` is published to npm, install
-> the packed build from the GitHub Release artifact:
+> **Temporary install path:** The `@tekfoundry/aix` npm package is not published yet. 
+> Until scoped npm publishing is complete, install the packed build from the GitHub Release artifact:
 >
 > ```bash
 > npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.0.0/tekfoundry-aix-0.0.0.tgz
