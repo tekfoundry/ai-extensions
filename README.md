@@ -1,18 +1,9 @@
-# AI Extensions
+# AI Extensions (AIX): A package manager style CLI for AI-agent workflows and skills
 
 ![AI Extensions social preview](assets/aix_about_github.jpg)
 
-> [!WARNING]
-> **Temporary install path:** I am still working through npm account setup for
-> the `@tekfoundry` scope. Until `@tekfoundry/aix` is published to npm, install
-> the packed build from the GitHub Release artifact:
->
-> ```bash
-> npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.0.0/tekfoundry-aix-0.0.0.tgz
-> ```
-
-AI Extensions (`aix`) is a package-manager-style CLI for AI-agent assets in a
-software project.
+AIX helps developers install, lock, diff, update, and share project-local AI-agent 
+workflows with the same discipline they already use for code dependencies.
 
 It exists because agent instructions are starting to matter as much as scripts,
 tests, and config. A useful review skill, planning workflow, or repo bootstrap
@@ -53,6 +44,13 @@ Common cases:
 - Start with Git. No registry, service account, or global agent install is
   required for the MVP.
 
+## Who should use this?
+
+- Solo developers using coding agents across multiple repos
+- Teams standardizing AI-agent behavior
+- Organizations that want reviewable, pinned, auditable agent instructions
+- Maintainers publishing reusable workflows or skills
+
 ## Install
 
 The package is prepared for scoped npm distribution. Once it is published, the
@@ -62,14 +60,22 @@ install path will be:
 npm install -g @tekfoundry/aix
 ```
 
-For now, install the packed artifact attached to the GitHub Release:
+> [!WARNING]
+> **Temporary install path:** I am still working through npm account setup for
+> the `@tekfoundry` scope. Until `@tekfoundry/aix` is published to npm, install
+> the packed build from the GitHub Release artifact:
+>
+> ```bash
+> npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.0.0/tekfoundry-aix-0.0.0.tgz
+> ```
+
+A quick verification test after installation:
 
 ```bash
-npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.0.0/tekfoundry-aix-0.0.0.tgz
 aix --help
 ```
 
-To build and test from this repository:
+Advanced users who want to build and test directly from this repository:
 
 ```bash
 npm install
