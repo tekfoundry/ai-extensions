@@ -12,8 +12,7 @@ AI Extensions should start with three default sources:
    - URL: `https://github.com/tekfoundry/ai-extensions.git`
    - Path: `aix/skills`
    - Ref: `master`
-   - Behavior: indexed, materialized, and activated by default when AI
-     Extensions initializes a project
+   - Behavior: default bundled skills that are not workflow-owned
 2. `mattpocock`
    - Type: Git source
    - URL: `https://github.com/mattpocock/skills.git`
@@ -25,8 +24,9 @@ AI Extensions should start with three default sources:
    - Path: `pstack/skills`
    - Behavior: discoverable and activatable on demand
 
-The `aix` source is the default workflow pack. All default sources use the same
-Git resolution path.
+The `aix` workflow source is the default workflow pack. The `aix` skill source
+is reserved for default bundled skills that are not owned by the workflow. All
+default sources use the same Git resolution path.
 
 The default workflow should live under:
 
@@ -42,9 +42,11 @@ aix/workflows/design-plan-execute/
 into `.agents/`, and the workflow-local skills under `skills/` are exposed
 through `.agents/skills`.
 
-`aix/skills` is the current transitional skill source path inside the `aix` Git
-source. It should be folded into `aix/workflows/design-plan-execute/skills` so the
-workflow and its owned skills can ship together.
+Workflow-owned lifecycle skills live under
+`aix/workflows/design-plan-execute/skills` so the workflow and its owned skills
+ship together. `aix/skills` should not duplicate those workflow-owned skills;
+it is reserved for default bundled skills that should remain installed outside
+the workflow lifecycle.
 `.agents/packages/skills` is the local source-organized package store for
 active skills. The extra `skills` segment leaves `.agents/packages` available
 for future extension kinds without changing the active-skill layout.

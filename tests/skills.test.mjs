@@ -40,8 +40,12 @@ function assertNoManagedProjectWrites(projectPath) {
 async function createAixGitSource() {
   const directory = await mkdtemp(join(tmpdir(), "aix-list-aix-"));
 
-  mkdirSync(join(directory, "aix"), { recursive: true });
-  cpSync(resolve(repoRoot, "aix/skills"), join(directory, "aix/skills"), { recursive: true });
+  mkdirSync(join(directory, "aix/workflows/design-plan-execute"), { recursive: true });
+  cpSync(
+    resolve(repoRoot, "aix/workflows/design-plan-execute/skills"),
+    join(directory, "aix/workflows/design-plan-execute/skills"),
+    { recursive: true }
+  );
   git(["init", "-b", "master"], directory);
   git(["add", "."], directory);
   git(["commit", "-m", "aix skills"], directory);
@@ -109,7 +113,7 @@ test("run skills list reports aix git source skills without mutating project fil
             aix: {
               type: "git",
               url: gitSource,
-              path: "aix/skills",
+              path: "aix/workflows/design-plan-execute/skills",
               ref: "master"
             }
           },

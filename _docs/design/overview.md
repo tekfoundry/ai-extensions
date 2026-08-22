@@ -18,16 +18,16 @@ files, and project-owned documentation:
 - `aix/workflows/` is the bundled workflow package source shipped by this
   repository. The default workflow owns reusable `.agents` process docs and
   workflow-local skills.
-- `aix/skills/` is the current bundled workflow skill source. It should be
-  folded into `aix/workflows/<workflow>/skills` during workflow packaging.
+- `aix/skills/` is reserved for default bundled skills that are not owned by a
+  workflow.
 - `.agents/` is managed by the skills package manager in consuming projects.
 - `.agents/packages/` contains project-local package copies, organized first by
   extension kind. The MVP uses `.agents/packages/skills/<source>/...` for
   active skill packages and should use `.agents/packages/workflows/...` for
   workflow-owned docs and skills.
 - `.agents/skills/` contains the active skill set exposed to agents.
-- In this repository, `.agents/skills/` remains the local working skill set so
-  AI Extensions can later activate skills into it from `aix/skills`.
+- In this repository, `.agents/skills/` remains the local working skill set
+  exposed to agents.
 - Tool-specific directories such as `.codex/skills` and `.claude/skills` should
   be compatibility symlinks to `.agents/skills` when the tool needs that path.
 - `_docs/` is owned by the consuming project.
