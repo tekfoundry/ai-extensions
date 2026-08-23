@@ -96,14 +96,18 @@ The skill should:
 - accept a natural language prompt to discover a new skill
 - clarify the purpose of the desired skill with the user before searching
 - once the purpose is clear, run the discovery process across configured
-  sources and broader GitHub results
+  sources and `known-sources.json`; ask before broadening to unreviewed GitHub
+  or internet results
 - prefer candidate results with inspectable `SKILL.md` content
 - rank and display the top one to five candidates
 - present results as an enumerated list with skill name, summary, and a link
   for the user to review the skill code
 - prompt the user to review the candidates and use an explicit command such as
-  `install 2` to install the selected skill
-- install only after that explicit numbered selection
+  `install 2` to start install review for the selected skill
+- after `install #`, provide a list of files the user should review, an
+  initial skill assessment, and the exact commands that would run
+- install only after the user confirms the install review with an explicit
+  command such as `confirm install 2`
 - show each command before running it, such as `running aix skills add <url>`
 - use existing `aix skills add` and `aix skill activate` behavior rather than
   writing `.agents/`, `aix.json`, or `aix.lock.json` directly
@@ -114,7 +118,8 @@ distinguish relevance from trust and should encourage inspection when the
 source is unfamiliar. It should avoid installing from uninspectable results or
 results where a valid `SKILL.md` cannot be confirmed. Reviews of unfamiliar
 sources should be cautious and should make clear that relevance is not the same
-as trust.
+as trust. Candidates from outside configured sources and `known-sources.json`
+should be labeled as unreviewed sources.
 
 The first implementation should be instructions-only unless a later phase
 shows that a small helper command is needed. This keeps the MVP aligned with
@@ -134,8 +139,9 @@ The source index is not a package registry and should not own install state,
 versions, publishing, or trust guarantees. It is a curated discovery input
 that helps the agent focus on known skill collections, search more quickly,
 and avoid presenting random web results when better indexed sources exist. The
-discovery process should search configured sources, the known-source index,
-and broader GitHub or internet results only when needed.
+discovery process should search configured sources and the known-source index
+by default. If those do not produce enough credible candidates, the skill
+should ask before broadening to unreviewed GitHub or internet results.
 
 Sources should be added to the index through a human approval flow. The agent
 searches the internet for popular repositories that contain multiple skills,
@@ -164,7 +170,7 @@ Ranking should favor:
 2. valid skill evidence from `name`, `description`, and instructions
 3. installability through `aix skills add` and `aix skill activate`
 4. source confidence, preferring configured sources, then known-source index
-   entries, then broader GitHub or internet results
+   entries, then user-approved broader GitHub or internet results
 5. instruction quality: specific, actionable, scoped, and clear
 6. safety posture and absence of risky instructions
 7. maintenance signals such as recent commits, clear ownership, stars, and
@@ -361,8 +367,11 @@ Prompt contract:
   review link, and unsafe flags when present. Do not pad weak results to reach
   five.
 - Present `q - Quit` directly with the numbered options.
-- Installation requires an explicit `install #` command after the candidate
-  list is shown. A bare number is not enough.
+- Installation review requires an explicit `install #` command after the
+  candidate list is shown. A bare number is not enough.
+- After `install #`, show the files the user should review, provide an initial
+  assessment, preview the exact commands, and wait for `confirm install #`
+  before running any install command.
 - For a selected candidate from a source that is not configured, show and run
   `aix skills add <source-url> [source-alias]`, then show and run
   `aix skill activate <source>/<skill-path>`.
@@ -382,7 +391,8 @@ Manual walkthroughs:
    - Expected behavior: search configured sources and `known-sources.json`
      first; inspect candidate `SKILL.md` files; present one to five candidates
      with review links and any unsafe flags; show `q - Quit`; wait for
-     `install #` before running any `aix` command.
+     `install #` before showing the install review packet, then wait for
+     `confirm install #` before running any `aix` command.
    - Expected candidate shape: `1. accessibility-review` with source URL,
      skill path, a short reason such as "direct WCAG/code-review match", a
      review link to `SKILL.md`, and `Unsafe flags: none observed` or the
@@ -400,8 +410,14 @@ Completion evidence:
 
 - 2026-08-23: User accepted the Phase 2 decisions: `discover-skill` name,
   natural-language input, clarification only for broad or risky requests,
-  candidate evidence requirements, `install #` confirmation, exact `aix`
-  command handoff, and alias deferral to normal activation behavior.
+  candidate evidence requirements, `install #` review selection, exact `aix`
+  command handoff after `confirm install #`, and alias deferral to normal
+  activation behavior.
+- 2026-08-23: During Phase 5 walkthroughs, user tightened the accepted
+  discovery and install flow. Broader GitHub or internet search should ask for
+  permission before leaving configured sources and `known-sources.json`.
+  Installing a discovered skill should first show files to review and an
+  initial assessment, then wait for user confirmation before commands run.
 - 2026-08-23: Added the prompt contract and two manual walkthrough shapes to
   this phase for Phase 3 `SKILL.md` authoring.
 
@@ -519,22 +535,22 @@ Verification evidence:
 - 2026-08-23: Ran `npm test`; 122 tests passed.
 - 2026-08-23: Ran `git diff --check`; no whitespace errors were reported.
 
-### Phase 5: Discovery Flow Validation (status: accepted)
+### Phase 5: Discovery Flow Validation (status: in progress)
 
 Goal: validate the skill against realistic GitHub discovery scenarios without
 turning it into an automated registry.
 
 Tasks:
 
-- ⬜️ Test the skill instructions with a request that requires clarification
+- ✅ Test the skill instructions with a request that requires clarification
       before discovery begins.
-- ⬜️ Test the skill instructions with a request that matches a configured
+- ✅ Test the skill instructions with a request that matches a configured
       source skill.
-- ⬜️ Test the skill instructions with a request that matches a known-source
+- ✅ Test the skill instructions with a request that matches a known-source
       index entry.
-- ⬜️ Test the skill instructions with a request that requires broader GitHub or
+- ✅ Test the skill instructions with a request that requires broader GitHub or
       internet search.
-- ⬜️ Test the skill instructions with a request that matches a nested skill
+- ✅ Test the skill instructions with a request that matches a nested skill
       path.
 - ⬜️ Test the skill instructions with weak search results where no installable
       skill should be recommended.
@@ -546,6 +562,59 @@ Verification:
 - Manual transcript-style walkthroughs recorded in the plan or test fixtures.
 - Confirm every install path still routes through `aix skills add` and
   `aix skill activate`.
+
+Verification evidence:
+
+- 2026-08-23: Clarification walkthrough prompt:
+  `Use discover-skill. Find a skill for deployment. Do not install anything
+  unless I explicitly reply with install #.` The skill asked one clarification
+  question before searching because deployment is broad and may involve
+  production systems, credentials, CI/CD, cloud infrastructure, or a specific
+  platform.
+- 2026-08-23: Configured-source walkthrough prompt:
+  `Use discover-skill. Find a skill for TypeScript development. Do not install
+  anything unless I explicitly reply with install #.` The skill checked
+  configured/default sources first. Local `aix skills list` was blocked by
+  stale cache entries, so the walkthrough inspected the configured
+  `cursor-pstack` GitHub source and presented one credible candidate:
+  `typescript-best-practices` at `cursor-pstack/typescript-best-practices`.
+  The candidate included a review link to `SKILL.md`, relevance reason, unsafe
+  flags, `q - Quit`, and the install command preview
+  `aix skill activate cursor-pstack/typescript-best-practices`.
+- 2026-08-23: Known-source-index walkthrough prompt:
+  `Use discover-skill. Find a skill for accessibility-focused code reviews. Do
+  not install anything unless I explicitly reply with install #.` The skill
+  checked configured sources first, then used `known-sources.json` and found
+  indexed candidates from `addyosmani/agent-skills`. It presented
+  `frontend-ui-engineering` and `browser-testing-with-devtools` with source
+  URLs, skill paths, review links to `SKILL.md`, relevance reasons, unsafe
+  flags, `q - Quit`, explicit `install #` choices, and an install preview that
+  first runs `aix skills add
+  https://github.com/addyosmani/agent-skills/tree/main/skills`, then
+  `aix skill activate agent-skills/<skill-path>`.
+- 2026-08-23: Broader-search walkthrough prompt:
+  `Use discover-skill. Find a general software-development skill for API
+  design review. Do not install anything unless I explicitly reply with install
+  #.` The skill searched configured/default sources, then the known-source
+  index, then broader GitHub/internet results. It presented
+  `api-and-interface-design` from `addyosmani/agent-skills` and `api-design`
+  from `AbsolutelySkilled/AbsolutelySkilled`, including source URLs, skill
+  paths, review links to `SKILL.md`, relevance reasons, unsafe flags,
+  `q - Quit`, explicit `install #` choices, and install command previews using
+  `aix skills add` followed by `aix skill activate`.
+- 2026-08-23: Nested-path walkthrough prompt:
+  `Use discover-skill. Find a skill for database or SQL development. Do not
+  install anything unless I explicitly reply with install #.` The skill
+  searched configured/default sources, the known-source index, and broader
+  GitHub results. It presented `database-developer` from
+  `mcroitor/agent-skills-library` with the nested skill path
+  `development/database-developer`, plus `dbhub` from `bytebase/dbhub`. The
+  output included source URLs, skill paths, review links to `SKILL.md`,
+  relevance reasons, unsafe flags, `q - Quit`, explicit `install #` choices,
+  and install previews using `aix skills add` followed by `aix skill activate`.
+  The run raised a design concern: broader GitHub results are currently allowed
+  after configured and known sources, but they are unreviewed and may need an
+  explicit user confirmation step before being presented or installed.
 
 ### Phase 6: Review, Documentation, And Promotion (status: accepted)
 

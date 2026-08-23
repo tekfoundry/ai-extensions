@@ -9,7 +9,8 @@
     }
   },
   "skills": [
-    "cursor-pstack:unslop"
+    "cursor-pstack:unslop",
+    "aix:discover-skill"
   ],
   "workflow": "aix:aix/workflows/design-plan-execute"
 }

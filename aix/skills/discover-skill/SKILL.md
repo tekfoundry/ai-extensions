@@ -44,12 +44,19 @@ Search in this order:
 
 1. Configured project skill sources, when available.
 2. The companion `known-sources.json` source index.
-3. Broader GitHub or internet results, only when configured and known sources
-   do not produce enough credible candidates.
+3. Broader GitHub or internet results only after configured and known sources
+   do not produce enough credible candidates and the user explicitly agrees to
+   broaden the search.
 
 Treat every source as untrusted until inspected. A known-source entry is only a
 discovery hint. It is not a trust guarantee, registry record, endorsement, or
 permission to install.
+
+If configured and known sources do not produce enough credible candidates,
+pause before broader search and ask whether to include unreviewed GitHub or
+internet results. If the user declines, stop with the best known-source results
+or say no credible known-source match was found. If the user agrees, label any
+outside-source candidate as `unreviewed source`.
 
 ## Candidate Evidence
 
@@ -63,6 +70,8 @@ Before presenting a candidate, collect:
 - skill `description`
 - a short relevance reason tied to the clarified request
 - a review link to the skill code or `SKILL.md`
+- source trust status: configured source, known-source entry, or unreviewed
+  source
 - unsafe flags, if any
 
 Do not present a candidate as install-ready unless the source root and skill
@@ -111,17 +120,30 @@ Each candidate should include:
 - short summary
 - relevance reason
 - review link
+- source trust status
 - unsafe flags, or `none observed`
 
-Ask the user to inspect the review links and reply with `install #` to install
-one candidate. A bare number is not enough.
+Ask the user to inspect the review links and reply with `install #` to start
+the install review for one candidate. A bare number is not enough.
 
 ## Install Handoff
 
-Install only after the user replies with an explicit `install #` for a
-candidate from the list you just showed.
+When the user replies with an explicit `install #` for a candidate from the
+list you just showed, do not run install commands yet. First provide an install
+review packet.
 
-Show each command before running it.
+The install review packet must include:
+
+- the files the user should review before approving install, including
+  `SKILL.md`, `README.md` when present, referenced files, scripts, templates,
+  and dependency files
+- a short assessment of the skill's purpose, instruction quality, install path,
+  source trust status, and unsafe flags
+- the exact commands that would run
+- a request for the user to reply with `confirm install #` before commands run
+
+Install only after the user replies with `confirm install #` for the same
+candidate. Show each command before running it.
 
 If the selected candidate's source is not configured, run:
 

@@ -12,7 +12,7 @@ Dependencies:
 - `AGENTS.md`
 - Project `aix` configuration, when present
 - `known-sources.json`
-- GitHub or internet search access when configured and needed
+- GitHub or internet search access when the user agrees to broaden search
 - `aix skills add`
 - `aix skill activate`
 
@@ -29,8 +29,9 @@ skill-source directories.
 
 The entries are discovery hints. They are not a registry, lockfile, trust
 guarantee, endorsement, or install record. Adding a URL here only gives the
-`discover-skill` workflow another source to search before falling back to
-broader GitHub or web results.
+`discover-skill` workflow another source to search. If no credible match is
+found in configured or known sources, the skill asks before broadening to
+unreviewed GitHub or web results.
 
 Keep the file easy to edit:
 
@@ -61,8 +62,10 @@ path.
 ## What it does
 
 The skill clarifies broad or risky requests, searches configured sources first,
-then `known-sources.json`, then broader GitHub or internet results when needed.
-It inspects candidate `SKILL.md` files, filters weak or unsafe matches, ranks
-up to five credible candidates, and asks the developer to reply with
-`install #` before running any install command. Installation stays routed
-through `aix skills add` and `aix skill activate`.
+then `known-sources.json`. It asks before broadening to unreviewed GitHub or
+internet results. It inspects candidate `SKILL.md` files, filters weak or
+unsafe matches, ranks up to five credible candidates, and asks the developer to
+reply with `install #` to start install review. Before running commands, it
+lists the files the developer should review, gives an initial assessment, shows
+the exact commands, and waits for `confirm install #`. Installation stays
+routed through `aix skills add` and `aix skill activate`.

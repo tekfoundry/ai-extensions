@@ -34,8 +34,13 @@ test("discover-skill declares conservative discovery and install routing", () =>
   assert.match(skill, /software-development-relevant skills/);
   assert.match(skill, /The companion `known-sources\.json` source index/);
   assert.match(skill, /Treat every source as untrusted until inspected/);
+  assert.match(skill, /the user explicitly agrees to\s+broaden the search/);
+  assert.match(skill, /label any\s+outside-source candidate as `unreviewed source`/);
   assert.match(skill, /unsafe flags/);
-  assert.match(skill, /reply with `install #`/);
+  assert.match(skill, /reply with `install #` to start\s+the install review/);
+  assert.match(skill, /The install review packet must include:/);
+  assert.match(skill, /the files the user should review before approving install/);
+  assert.match(skill, /reply with `confirm install #` before commands run/);
   assert.match(skill, /aix skills add <source-url> \[source-alias\]/);
   assert.match(skill, /aix skill activate <source>\/<skill-path>/);
   assert.match(skill, /Do not write `aix\.json`, `aix\.lock\.json`, `.agents\/`, `.agents\/packages`, or\s+`.agents\/skills` directly/);
