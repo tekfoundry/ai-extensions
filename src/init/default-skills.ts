@@ -39,3 +39,17 @@ export function buildSkillSources(resolvedSources: Record<string, ResolvedSource
     }
   ];
 }
+
+export function defaultStandaloneSkillTargets(sources: Record<string, SourceDefinition>, cacheRoot: string): string[] {
+  const aixSource = sources.aix;
+
+  if (!aixSource) {
+    throw new AixError("Missing default source: aix");
+  }
+
+  const resolvedSource = resolveSourceFromDefinitions("aix", sources, cacheRoot);
+
+  return discoverSkills(resolvedSource.rootPath)
+    .map((skill) => `aix/${skill.path}`)
+    .sort();
+}

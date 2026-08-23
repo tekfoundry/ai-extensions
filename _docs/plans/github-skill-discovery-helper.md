@@ -2,10 +2,10 @@
 
 ## Status
 
-💤 Backlog
+🟨 Active
 
-This backlog plan is fully approved for later activation. It does not authorize
-implementation until a later explicit `plan-activate` request.
+This plan was activated by user request on 2026-08-23. It is now authorized
+for implementation as an active plan.
 
 ## Context
 
@@ -122,14 +122,27 @@ the current product boundary: Git-backed sources are managed by `aix`, while
 agent skills can orchestrate web search, review, and user confirmation.
 
 To make discovery practical and reduce exposure to arbitrary internet results,
-AI Extensions should maintain a registry-style source index: a growing file of
-known skill source URLs that discovery can search before or instead of broad
-web search. This file is not a package registry and should not own install
-state, versions, publishing, or trust guarantees. It is a curated discovery
-input that helps the agent focus on known skill collections, search more
-quickly, and avoid presenting random web results when better indexed sources
-exist. The discovery process should search configured sources, the known-source
-index, and broader GitHub or internet results only when needed.
+AI Extensions should maintain a small source index: a user-editable
+`known-sources.json` file stored beside the bundled discovery skill at
+`aix/skills/discover-skill/known-sources.json`. The file should be a simple
+list of source URLs so users can add their own sources without learning a
+dense schema. Review summaries and unsafe-skill notes belong in the curation
+process and plan history, not in the shipped index unless a later need proves
+that metadata belongs in the package.
+
+The source index is not a package registry and should not own install state,
+versions, publishing, or trust guarantees. It is a curated discovery input
+that helps the agent focus on known skill collections, search more quickly,
+and avoid presenting random web results when better indexed sources exist. The
+discovery process should search configured sources, the known-source index,
+and broader GitHub or internet results only when needed.
+
+Sources should be added to the index through a human approval flow. The agent
+searches the internet for popular repositories that contain multiple skills,
+reviews each source, summarizes what it found, flags any skills that appear
+unsafe, and presents an enumerated list of source candidates with URLs for
+inspection. The user then approves sources by number, such as `approve 1` or
+`approve 3,6,9`. Only approved sources are added to the known-source index.
 
 "Top matching skills" means the best available installable, inspectable, and
 relevant skills after filtering out weak or unsafe candidates. The discovery
@@ -192,8 +205,13 @@ Ranking should favor:
   handling, aliasing, dependency inference, and local drift protection stay
   authoritative.
 - The agent must show each command before running it.
+- The known-source index is a simple user-editable URL list stored at
+  `aix/skills/discover-skill/known-sources.json`.
 - The known-source index is discovery input only. It does not install, lock,
   version, certify, or trust a source.
+- Source reviews, summaries, and unsafe-skill flags are used for human
+  approval before adding URLs. They are not required metadata in the shipped
+  index.
 - Candidate output must include review links and a quit path directly alongside
   numbered options.
 - Candidate output must not overwhelm the user; show up to five credible
@@ -205,25 +223,66 @@ Ranking should favor:
 
 ## Implementation Phases
 
-### Phase 1: Known Skill Source Index (status: accepted)
+### Phase 1: Known Skill Source Index (status: completed)
 
 Goal: create the initial repository of known skill source URLs that discovery
 can use before falling back to broader GitHub or internet search.
 
 Tasks:
 
-- ⬜️ Decide where the known-source index lives in the repository and installed
-      package.
-- ⬜️ Define the known-source index file shape, including source URL, optional
-      label, optional source path, optional notes, and any metadata needed for
-      discovery.
-- ⬜️ Define the review bar for adding source URLs to the index.
-- ⬜️ Add the known-source index file in the accepted location.
-- ⬜️ Seed the known-source index with the configured/default skill source URLs.
-- ⬜️ Document that source-index entries are discovery hints, not trust
+- ✅ Decide where the known-source index lives in the repository and installed
+      package: `aix/skills/discover-skill/known-sources.json`.
+- ✅ Define the known-source index file shape as a simple JSON list of source
+      URLs.
+- ✅ Define the review bar for adding source URLs to the index: internet
+      search, source review, summary, unsafe-skill flagging, enumerated
+      candidate list, and explicit user approval by number before adding URLs.
+- ✅ Add the known-source index file in the accepted location.
+- ✅ Seed the known-source index with the configured/default skill source URLs.
+- ✅ Document that source-index entries are discovery hints, not trust
       guarantees.
-- ⬜️ Ensure the known-source index can grow without changing install or
+- ✅ Ensure the known-source index can grow without changing install or
       lockfile behavior.
+
+Completion evidence:
+
+- 2026-08-23: User accepted placing the index beside the bundled discovery
+  skill at `aix/skills/discover-skill/known-sources.json`. The index should be
+  a simple JSON list of source URLs. The curation process should search for
+  popular multi-skill sources, review each source, summarize findings, flag
+  unsafe skills, present an enumerated list with URLs, and add only sources
+  explicitly approved by number.
+- 2026-08-23: User approved the first two known source entries after prior
+  review: `https://github.com/mattpocock/skills/tree/main/skills` and
+  `https://github.com/cursor/plugins/tree/main/pstack/skills`. Added those
+  URLs to `aix/skills/discover-skill/known-sources.json`.
+- 2026-08-23: User approved source candidate 4,
+  `https://github.com/shawn-sandy/skills/tree/main/skills`, after review.
+  Added the URL to `aix/skills/discover-skill/known-sources.json`.
+- 2026-08-23: User approved source candidate 5,
+  `https://github.com/Far-200/think-before-code/tree/main/skills`, after
+  review. Added the URL to
+  `aix/skills/discover-skill/known-sources.json`.
+- 2026-08-23: User approved the filtered software-development source
+  candidates `https://github.com/addyosmani/agent-skills/tree/main/skills`,
+  `https://github.com/obra/superpowers/tree/main/skills`, and
+  `https://github.com/getsentry/skills/tree/main/skills`. User also refined
+  the curation filter to exclude sources focused on one technology or vendor,
+  such as AWS, Azure, or Claude-specific collections.
+- 2026-08-23: User approved five additional broad software-development
+  sources after filtering out already-approved, single-vendor, and
+  single-technology sources:
+  `https://github.com/arjunprabhulal/agent-skills/tree/main/skills`,
+  `https://github.com/owainlewis/blueprint/tree/main/skills`,
+  `https://github.com/danielcherubini/skills/tree/main/skills`,
+  `https://github.com/ykeezy/skills/tree/main/.claude/skills`, and
+  `https://github.com/sbrudz/agent-skills/tree/main/skills`.
+- 2026-08-23: Added
+  `aix/skills/discover-skill/README.md` to document that source-index entries
+  are discovery hints, not trust guarantees or install records. The README
+  keeps the index growth rule simple: add only GitHub tree URL strings after
+  source review and human approval, and keep review metadata out of
+  `known-sources.json`.
 
 Verification:
 
@@ -233,26 +292,118 @@ Verification:
 - Plan review against `_docs/design/package-management.md` and
   `_docs/design/bundled-skills.md`.
 
-### Phase 2: Skill Contract And Prompt Design (status: accepted)
+Verification evidence:
+
+- 2026-08-23: Parsed
+  `aix/skills/discover-skill/known-sources.json` with Node and confirmed it is
+  a JSON array of two strings.
+- 2026-08-23: Ran `npm run build`.
+- 2026-08-23: Parsed both approved GitHub tree URLs through
+  `parseSourceDefinition`; they normalized to Git URLs, `main` refs, and
+  source paths `skills` and `pstack/skills`.
+- 2026-08-23: Ran `git diff --check` for the touched plan and index file.
+- 2026-08-23: Confirmed the index remains a JSON array of URL strings and all
+  12 entries normalize through the existing `parseSourceDefinition` path
+  without adding install or lockfile behavior.
+- 2026-08-23: Ran `npm run build`.
+- 2026-08-23: Ran `git diff --check` for the touched plan, index, and README
+  files.
+
+### Phase 2: Skill Contract And Prompt Design (status: completed)
 
 Goal: define the user-facing workflow and acceptance criteria for the discovery
 skill before adding it to the default bundled `aix` skill source.
 
 Tasks:
 
-- ⬜️ Use `discover-skill` as the bundled skill name and active name.
-- ⬜️ Define the expected user input shape for natural language skill requests.
-- ⬜️ Define the clarification questions and stopping point before discovery
+- ✅ Use `discover-skill` as the bundled skill name and active name.
+- ✅ Define the expected user input shape for natural language skill requests.
+- ✅ Define the clarification questions and stopping point before discovery
       begins.
-- ⬜️ Define the candidate evidence the skill must collect before presenting a
+- ✅ Define the candidate evidence the skill must collect before presenting a
       result.
-- ⬜️ Encode the accepted candidate hard filters, ranking criteria, and tie
+- ✅ Encode the accepted candidate hard filters, ranking criteria, and tie
       breakers.
-- ⬜️ Define the candidate review, `install #`, and quit behavior.
-- ⬜️ Define the exact handoff from selected candidate to existing `aix`
+- ✅ Define the candidate review, `install #`, and quit behavior.
+- ✅ Define the exact handoff from selected candidate to existing `aix`
       commands.
-- ⬜️ Decide whether aliases are offered during the first version or deferred to
+- ✅ Decide whether aliases are offered during the first version or deferred to
       normal `aix skill activate` behavior.
+
+Prompt contract:
+
+- The bundled skill name and default active name are both `discover-skill`.
+- User input may be a natural-language request such as "find a skill for
+  accessibility review", "add a skill for TDD", "I need help reviewing
+  security issues", or "find a skill that helps write better React code".
+- The skill should ask a clarification question only when the request is too
+  broad, risky, or ambiguous to search usefully. If the request names a clear
+  software-development capability, discovery can begin without extra
+  questioning.
+- Discovery should stay focused on software-development-relevant skills. The
+  first version should avoid sources or candidates that are primarily office
+  productivity, personal automation, marketing, therapy-adjacent, or focused on
+  one vendor or technology unless the user's clarified request asks for that
+  technology.
+- Before presenting a candidate, collect the source URL, normalized source
+  path, skill path, confirmed `SKILL.md` presence, skill `name`, skill
+  `description`, a short relevance reason, a review link, and any unsafe flags.
+- Hard filters remain: inspectable skill instructions, determinable source
+  root and skill path, relevance to the clarified request, and no obvious
+  unsafe instructions such as secret handling, destructive actions, broad
+  system access, credential handling, or unclear external actions without
+  safeguards.
+- Ranking should follow the accepted order in Design Intent: direct purpose
+  match, valid skill evidence, installability through `aix`, source confidence,
+  instruction quality, safety posture, then maintenance signals.
+- Candidate output should show up to five credible results as a numbered list.
+  Each result should include skill name, source, summary, relevance reason,
+  review link, and unsafe flags when present. Do not pad weak results to reach
+  five.
+- Present `q - Quit` directly with the numbered options.
+- Installation requires an explicit `install #` command after the candidate
+  list is shown. A bare number is not enough.
+- For a selected candidate from a source that is not configured, show and run
+  `aix skills add <source-url> [source-alias]`, then show and run
+  `aix skill activate <source>/<skill-path>`.
+- For a selected candidate from an already configured source, show and run only
+  `aix skill activate <source>/<skill-path>`.
+- The first version should not offer aliases during the guided install flow.
+  It may mention that users can later use normal `aix skill activate` behavior
+  with an alias when needed.
+- Use the bundled skill README convention: `README.md` is the human-facing
+  quick reference and maintenance guide, while `SKILL.md` is the agent-facing
+  runtime procedure.
+
+Manual walkthroughs:
+
+1. Clear request:
+   - User: "Find a skill for accessibility-focused code reviews."
+   - Expected behavior: search configured sources and `known-sources.json`
+     first; inspect candidate `SKILL.md` files; present one to five candidates
+     with review links and any unsafe flags; show `q - Quit`; wait for
+     `install #` before running any `aix` command.
+   - Expected candidate shape: `1. accessibility-review` with source URL,
+     skill path, a short reason such as "direct WCAG/code-review match", a
+     review link to `SKILL.md`, and `Unsafe flags: none observed` or the
+     specific flags found.
+2. Ambiguous request:
+   - User: "Find a skill for deployment."
+   - Expected behavior: ask one clarification question before searching,
+     because deployment can mean CI checks, release planning, cloud
+     provisioning, container deployment, rollback practice, or production
+     operations.
+   - Expected stopping point: do not search or install until the user clarifies
+     the intended development context and risk level.
+
+Completion evidence:
+
+- 2026-08-23: User accepted the Phase 2 decisions: `discover-skill` name,
+  natural-language input, clarification only for broad or risky requests,
+  candidate evidence requirements, `install #` confirmation, exact `aix`
+  command handoff, and alias deferral to normal activation behavior.
+- 2026-08-23: Added the prompt contract and two manual walkthrough shapes to
+  this phase for Phase 3 `SKILL.md` authoring.
 
 Verification:
 
@@ -261,28 +412,44 @@ Verification:
 - Manual walkthrough with at least two example user requests and expected
   candidate output shape.
 
-### Phase 3: Bundled Skill Authoring (status: accepted)
+Verification evidence:
+
+- 2026-08-23: Reviewed the prompt contract against
+  `_docs/design/package-management.md` and `_docs/design/cli.md`; it routes
+  all installation through `aix skills add` and `aix skill activate` and does
+  not add a second install path.
+- 2026-08-23: Added one clear-request walkthrough and one ambiguous-request
+  walkthrough with expected candidate or clarification behavior.
+
+### Phase 3: Bundled Skill Authoring (status: completed)
 
 Goal: add the new default bundled skill instructions to the `aix` skill source.
 
 Tasks:
 
-- ⬜️ Add the new skill under `aix/skills` with a valid
+- ✅ Add the new skill under `aix/skills` with a valid
       `SKILL.md`.
-- ⬜️ Include instructions for clarifying user intent before searching.
-- ⬜️ Include instructions for searching configured sources, the known-source
+- ✅ Include instructions for clarifying user intent before searching.
+- ✅ Include instructions for searching configured sources, the known-source
       index, and broader GitHub or internet results when needed.
-- ⬜️ Include instructions for validating `SKILL.md` evidence before ranking a
+- ✅ Include instructions for validating `SKILL.md` evidence before ranking a
       candidate.
-- ⬜️ Include instructions for presenting up to five numbered candidates with
+- ✅ Include instructions for presenting up to five numbered candidates with
       skill name, summary, and review link.
-- ⬜️ Include instructions for accepting `install #` only after the candidate
+- ✅ Include instructions for accepting `install #` only after the candidate
       list is shown.
-- ⬜️ Include instructions for installing a selected candidate through `aix`
+- ✅ Include instructions for installing a selected candidate through `aix`
       commands only, showing each command before running it.
-- ⬜️ Include trust, inspection, and uncertainty language for unfamiliar
+- ✅ Include trust, inspection, and uncertainty language for unfamiliar
       sources.
-- ⬜️ Keep the skill project-agnostic and free of application-specific policy.
+- ✅ Keep the skill project-agnostic and free of application-specific policy.
+
+Completion evidence:
+
+- 2026-08-23: Added `aix/skills/discover-skill/SKILL.md` with front matter for
+  `discover-skill`, clarification rules, search order, candidate evidence,
+  hard filters, ranking, candidate presentation, `install #` confirmation,
+  `aix` command handoff, alias deferral, and no-results behavior.
 
 Verification:
 
@@ -290,21 +457,35 @@ Verification:
 - Confirm the skill does not instruct agents to bypass `aix` safety checks.
 - Confirm the skill can be followed without relying on repo-specific commands.
 
-### Phase 4: Default Install And Packaging Exposure (status: accepted)
+Verification evidence:
+
+- 2026-08-23: Static review confirmed `SKILL.md` declares
+  `name: discover-skill` and a description for natural-language skill
+  discovery.
+- 2026-08-23: Static review confirmed install instructions route through
+  `aix skills add` and `aix skill activate` and explicitly forbid direct edits
+  to `aix.json`, `aix.lock.json`, `.agents/`, `.agents/packages`, or
+  `.agents/skills`.
+- 2026-08-23: Ran `node -e` static validation for required front matter and
+  sections, including clarification, search order, candidate evidence, ranking,
+  candidate presentation, install handoff, and `aix` command routing.
+- 2026-08-23: Ran `git diff --check`; no whitespace errors were reported.
+
+### Phase 4: Default Install And Packaging Exposure (status: completed)
 
 Goal: make the new skill part of the default `aix` skill installation without
 tying it to workflow ownership.
 
 Tasks:
 
-- ⬜️ Ensure `aix init` installs and activates the new default bundled skill.
-- ⬜️ Ensure the known-source index is packaged or otherwise available wherever
+- ✅ Ensure `aix init` installs and activates the new default bundled skill.
+- ✅ Ensure the known-source index is packaged or otherwise available wherever
       the discovery helper expects to read it.
-- ⬜️ Update bundled skill documentation so the new discovery helper appears
+- ✅ Update bundled skill documentation so the new discovery helper appears
       with the other default bundled `aix` skills.
-- ⬜️ Update packaging tests or fixtures that enumerate default bundled `aix`
+- ✅ Update packaging tests or fixtures that enumerate default bundled `aix`
       skills.
-- ⬜️ Verify `aix init` exposes the new skill through the normal active skill
+- ✅ Verify `aix init` exposes the new skill through the normal active skill
       path and that workflow uninstall does not remove it.
 
 Verification:
@@ -314,6 +495,29 @@ Verification:
 - Workflow uninstall test or fixture review confirming the helper is not
   workflow-owned.
 - `npm run build`.
+
+Completion evidence:
+
+- 2026-08-23: Wired `aix init` to discover valid standalone bundled skills from
+  the default `aix/skills` source and activate them through the existing skill
+  activation path after workflow installation.
+- 2026-08-23: Confirmed `discover-skill` is recorded as
+  `aix:discover-skill` in `manifest.skills`, copied to
+  `.agents/packages/skills/aix/discover-skill`, and exposed through
+  `.agents/skills/discover-skill`.
+- 2026-08-23: Confirmed `known-sources.json` is copied with the
+  `discover-skill` package and is present in the npm package artifact.
+- 2026-08-23: Updated bundled skill documentation in
+  `_docs/design/bundled-skills.md` and `aix/skills/README.md`.
+
+Verification evidence:
+
+- 2026-08-23: Ran `npm run build`; TypeScript compilation passed.
+- 2026-08-23: Ran
+  `node --test tests/init.test.mjs tests/skills.test.mjs tests/package-smoke.test.mjs tests/skill-instructions.test.mjs`;
+  16 tests passed.
+- 2026-08-23: Ran `npm test`; 122 tests passed.
+- 2026-08-23: Ran `git diff --check`; no whitespace errors were reported.
 
 ### Phase 5: Discovery Flow Validation (status: accepted)
 
@@ -370,10 +574,6 @@ Verification:
 
 - Should the first version offer aliases during activation, or let the normal
   `aix skill activate` flow handle aliases separately?
-- Where should the known-source index live in the repository and installed
-  package?
-- What review bar should a source URL meet before it is added to the
-  known-source index?
 - Should the install step add the whole discovered source under a user-visible
   alias derived from the repository, or ask the user to choose a source alias
   before running `aix skills add`?

@@ -1,4 +1,4 @@
-export { activateSkill } from "./activate.js";
+export { activateSkill, activateSkillFromDefinitions } from "./activate.js";
 export { deactivateSkill } from "./deactivate.js";
 export { diffSkills } from "./diff.js";
 export { updateSkills } from "./update.js";
