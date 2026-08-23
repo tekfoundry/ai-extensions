@@ -1,5 +1,10 @@
 # Workflow External Skill Dependencies
 
+This static example shows the expected structure and level of detail for an
+approved backlog plan. It is copied from a real `design-plan-execute` planning
+document so developers can inspect concrete plan sections before creating,
+reviewing, activating, or executing their own plans.
+
 ## Status
 
 💤 Backlog
@@ -9,9 +14,10 @@ implementation until a later explicit `plan-activate` request.
 
 ## Context
 
-The `design-plan-execute` workflow is the default `aix` workflow. It installs
-process docs under `.agents/`, manages a root `AGENTS.md` block, and exposes
-workflow-owned skills under `.agents/skills/`.
+The `design-plan-execute` workflow helps developers and agents create
+high-quality, maintainable code. It installs process docs under `.agents/`,
+manages a root `AGENTS.md` block, and exposes workflow-owned skills under
+`.agents/skills/`.
 
 Current design docs intentionally deferred external workflow skill dependencies
 in `_docs/design/workflows.md`, noting that workflow-local skills should be
@@ -149,7 +155,7 @@ collides.
 
 ### Phase 1: Manifest And Design Contract (status: accepted)
 
-Goal: define the external-skill declaration shape and align durable design docs
+Goal: define the external-skill declaration shape and align stable design docs
 before implementation begins.
 
 Tasks:
@@ -315,17 +321,6 @@ Verification:
   files themselves.
 - `unslop` is the first concrete test case: it should be native to
   `design-plan-execute` without being vendored into that workflow package.
-
-## Completion Checklist
-
-- ⬜️ Confirm every task and success goal is complete or explicitly deferred.
-- ⬜️ Run or review required targeted and repository verification.
-- ⬜️ Review the codebase to ensure the code is maintainable and clean; refactor if needed.
-- ⬜️ Promote accepted durable behavior into design docs using `$design-promote`.
-- ⬜️ Review documentation structure, formatting, and links using `$documentation-review`; fix issues or record follow-up work.
-- ⬜️ Record final risks, follow-on work, and documentation impact.
-- ⬜️ Harvest reusable lessons and update workflow guidance when appropriate.
-- ⬜️ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
 
 ## Promotion To Design
 

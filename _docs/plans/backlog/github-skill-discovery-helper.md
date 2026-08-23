@@ -407,6 +407,17 @@ Verification:
   user-facing output.
 - Treat source-index membership as a discovery signal, not a trust guarantee.
 
+## Completion Checklist
+
+- ⬜️ Confirm every task and success goal is complete or explicitly deferred.
+- ⬜️ Run or review required targeted and repository verification.
+- ⬜️ Review the codebase to ensure the code is maintainable and clean; refactor if needed.
+- ⬜️ Promote accepted durable behavior into design docs using `$design-promote`.
+- ⬜️ Review documentation structure, formatting, and links using `$documentation-review`; fix issues or record follow-up work.
+- ⬜️ Record final risks, follow-on work, and documentation impact.
+- ⬜️ Harvest reusable lessons and update workflow guidance when appropriate.
+- ⬜️ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
+
 ## Promotion To Design
 
 If accepted and implemented, promote the stable behavior into:
