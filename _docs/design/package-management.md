@@ -85,11 +85,11 @@ such as an alias or skill-level ref:
 ```json
 {
   "skills": [
-    "aix:project-init",
+    "source-name:path/to/skill",
     {
-      "source": "cursor-pstack",
-      "path": "tdd",
-      "alias": "cursor-tdd"
+      "source": "private-source",
+      "path": "path/to/private-skill",
+      "alias": "team-skill"
     }
   ]
 }

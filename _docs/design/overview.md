@@ -17,14 +17,14 @@ files, and project-owned documentation:
 
 - `aix/workflows/` is the bundled workflow package source shipped by this
   repository. The default workflow owns reusable `.agents` process docs and
-  workflow-local skills.
+  workflow-local templates and skills.
 - `aix/skills/` is reserved for default bundled skills that are not owned by a
   workflow.
 - `.agents/` is managed by the skills package manager in consuming projects.
 - `.agents/packages/` contains project-local package copies, organized first by
   extension kind. The MVP uses `.agents/packages/skills/<source>/...` for
   active skill packages and should use `.agents/packages/workflows/...` for
-  workflow-owned docs and skills.
+  workflow-owned docs, templates, and skills.
 - `.agents/skills/` contains the active skill set exposed to agents.
 - In this repository, `.agents/skills/` remains the local working skill set
   exposed to agents.
