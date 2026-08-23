@@ -9,7 +9,8 @@
     }
   },
   "skills": [
-    "cursor-pstack:unslop"
+    "cursor-pstack:unslop",
+    "aix:code-review-refactor"
   ],
   "workflow": "aix:aix/workflows/design-plan-execute"
 }
