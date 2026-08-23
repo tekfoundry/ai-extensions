@@ -5,6 +5,20 @@
 Creates a new stable design document in the right `_docs/design` location, or
 updates an existing design document when that is clearer.
 
+Installation:
+
+```bash
+aix init
+```
+
+This skill is workflow-owned. `aix init` installs the default
+`design-plan-execute` workflow and activates this skill with it. To install the
+workflow explicitly, run:
+
+```bash
+aix workflow install https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute aix
+```
+
 Dependencies:
 
 - `_docs/README.md`

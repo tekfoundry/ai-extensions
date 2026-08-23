@@ -2,10 +2,10 @@
 
 ## Status
 
-🟨 Active
+✅ Completed
 
-This plan was activated by user request on 2026-08-23. It is now authorized
-for implementation as an active plan.
+This plan was activated by user request on 2026-08-23 and completed on
+2026-08-23.
 
 ## Context
 
@@ -535,7 +535,7 @@ Verification evidence:
 - 2026-08-23: Ran `npm test`; 122 tests passed.
 - 2026-08-23: Ran `git diff --check`; no whitespace errors were reported.
 
-### Phase 5: Discovery Flow Validation (status: in progress)
+### Phase 5: Discovery Flow Validation (status: completed)
 
 Goal: validate the skill against realistic GitHub discovery scenarios without
 turning it into an automated registry.
@@ -552,9 +552,12 @@ Tasks:
       internet search.
 - ✅ Test the skill instructions with a request that matches a nested skill
       path.
-- ⬜️ Test the skill instructions with weak search results where no installable
+- ✅ Test the skill instructions with weak search results where no installable
       skill should be recommended.
-- ⬜️ Record examples of good candidate summaries, review links, `install #`,
+- ✅ Test the selected-candidate install review flow: `install #` shows files
+      to review, initial assessment, command preview, and waits for
+      `confirm install #` before running `aix` commands.
+- ✅ Record examples of good candidate summaries, review links, `install #`,
       command preview, and quit behavior.
 
 Verification:
@@ -615,20 +618,44 @@ Verification evidence:
   The run raised a design concern: broader GitHub results are currently allowed
   after configured and known sources, but they are unreviewed and may need an
   explicit user confirmation step before being presented or installed.
+- 2026-08-23: Weak-results walkthrough prompt:
+  `Use discover-skill. Find a software-development skill for migrating legacy
+  COBOL payroll batch jobs into a quantum-resistant blockchain deployment
+  pipeline. Do not install anything unless I explicitly reply with install #.`
+  The skill checked configured sources and the known-source index without
+  broadening to unreviewed GitHub or internet results. It found one adjacent
+  general migration skill but rejected it as too weak for COBOL payroll,
+  quantum-resistant cryptography, blockchain deployment, and production
+  compliance concerns. The walkthrough did not present any install-ready
+  candidate and offered `q - Quit`, `broaden search`, or a narrower capability.
+- 2026-08-23: Selected-candidate install review walkthrough used the
+  accessibility-focused candidate list and user reply `install 1`. The skill
+  did not run install commands. It showed a review packet for
+  `frontend-ui-engineering` including files to inspect, an initial assessment,
+  unsafe flags, the source trust note, and command previews for
+  `npm run aix -- skills add
+  https://github.com/addyosmani/agent-skills/tree/main/skills` followed by
+  `npm run aix -- skill activate agent-skills/frontend-ui-engineering`. It
+  waited for `confirm install 1` before any command execution.
+- 2026-08-23: Phase 5 transcript examples now cover the expected output
+  shapes: concise candidate summaries tied to the request, direct `SKILL.md`
+  review links, unsafe-flag notes, `q - Quit`, explicit `install #` selections,
+  command previews through `aix skills add` and `aix skill activate`, and the
+  requirement to wait for `confirm install #` before running commands.
 
-### Phase 6: Review, Documentation, And Promotion (status: accepted)
+### Phase 6: Review, Documentation, And Promotion (status: completed)
 
 Goal: close the implementation with maintainability review and durable docs.
 
 Tasks:
 
-- ⬜️ Run the maintainability review gate for changed production files if any
+- ✅ Run the maintainability review gate for changed production files if any
       production code changes were needed.
-- ⬜️ Update design docs if the accepted behavior changes the stable workflow
+- ✅ Update design docs if the accepted behavior changes the stable workflow
       skill set or discovery model.
-- ⬜️ Update user-facing docs or examples if the README lists bundled skills or
+- ✅ Update user-facing docs or examples if the README lists bundled skills or
       common discovery workflows.
-- ⬜️ Record any deferred follow-up, such as a future CLI-level `aix skills
+- ✅ Record any deferred follow-up, such as a future CLI-level `aix skills
       search` command, external skill workflow promotion, richer source-index
       governance, or richer trust metadata.
 
@@ -639,13 +666,58 @@ Verification:
 - `npm test` when production code or workflow packaging behavior changes.
 - `git diff --check`.
 
-## Open Questions / Decisions
+Verification evidence:
 
-- Should the first version offer aliases during activation, or let the normal
-  `aix skill activate` flow handle aliases separately?
-- Should the install step add the whole discovered source under a user-visible
-  alias derived from the repository, or ask the user to choose a source alias
-  before running `aix skills add`?
+- 2026-08-23: Ran the maintainability file-size scan with
+  `find src tests -type f | xargs wc -l | sort -nr | head -25`. The changed
+  production files were below the 250-line audit threshold:
+  `src/sources/resolver.ts` was 148 lines and
+  `src/cli/cmds/workspace/status.ts` was 248 lines. No mixed-responsibility
+  production refactor was needed.
+- 2026-08-23: Promoted durable discovery behavior into
+  `_docs/design/bundled-skills.md`, `_docs/design/package-management.md`, and
+  `_docs/design/workflows.md`: `discover-skill` is standalone bundled skill
+  behavior, `known-sources.json` is discovery input rather than a registry or
+  trust guarantee, broader unreviewed search requires user consent, `install #`
+  starts an install review packet, and `confirm install #` is required before
+  running `aix skills add` or `aix skill activate`.
+- 2026-08-23: Promoted the malformed Git source-cache recovery behavior into
+  `_docs/design/package-management.md`: if a derived cache entry has `.git`
+  but lacks the expected `origin`, source resolution may remove only that cache
+  entry and reclone it without rewriting project-owned files.
+- 2026-08-23: Updated user-facing docs in `README.md` and
+  `aix/skills/README.md` with the bundled discovery helper workflow, including
+  natural-language discovery, review links, unsafe-flag notes, `install #`,
+  and `confirm install #`.
+- 2026-08-23: Documentation review checked touched docs for structure,
+  current-state accuracy, formatting, and local Markdown links. No new design
+  document or index link was needed.
+- 2026-08-23: Ran `node -e` local-link validation for `README.md`,
+  `aix/skills/README.md`, `_docs/design/bundled-skills.md`,
+  `_docs/design/package-management.md`, and `_docs/design/workflows.md`; no
+  missing local links were reported.
+- 2026-08-23: Ran `npm test`; 123 tests passed.
+- 2026-08-23: Ran `git diff --check`; no whitespace errors were reported.
+
+## Resolved Questions / Decisions
+
+- The first guided install flow should not offer aliases. It should use the
+  skill's natural name and leave aliasing to normal
+  `aix skill activate <source>/<path> <alias>` behavior when the user needs it.
+- A discovered source should be added through normal `aix skills add`
+  behavior. The first guided flow should preview the command and source name
+  it expects, but should not introduce a separate source-alias selection flow.
+
+## Deferred Follow-Up
+
+- Consider a future CLI-level `aix skills search` command only if skill-based
+  discovery proves insufficient after more usage.
+- Consider workflow promotion of discovered external skills only after the
+  ordinary user-requested skill lifecycle is stable.
+- Consider richer known-source governance or trust metadata if the simple URL
+  list becomes too hard to curate or review.
+- Consider richer candidate safety metadata if user review packets need more
+  structure than source trust status and unsafe-flag notes.
 
 ## Risks
 
@@ -678,14 +750,29 @@ Verification:
 
 ## Completion Checklist
 
-- ⬜️ Confirm every task and success goal is complete or explicitly deferred.
-- ⬜️ Run or review required targeted and repository verification.
-- ⬜️ Review the codebase to ensure the code is maintainable and clean; refactor if needed.
-- ⬜️ Promote accepted durable behavior into design docs using `$design-promote`.
-- ⬜️ Review documentation structure, formatting, and links using `$documentation-review`; fix issues or record follow-up work.
-- ⬜️ Record final risks, follow-on work, and documentation impact.
-- ⬜️ Harvest reusable lessons and update workflow guidance when appropriate.
-- ⬜️ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
+- ✅ Confirm every task and success goal is complete or explicitly deferred.
+- ✅ Run or review required targeted and repository verification.
+- ✅ Review the codebase to ensure the code is maintainable and clean; refactor if needed.
+- ✅ Promote accepted durable behavior into design docs using `$design-promote`.
+- ✅ Review documentation structure, formatting, and links using `$documentation-review`; fix issues or record follow-up work.
+- ✅ Record final risks, follow-on work, and documentation impact.
+- ✅ Harvest reusable lessons and update workflow guidance when appropriate.
+- ✅ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
+
+Completion evidence:
+
+- All six implementation phases are marked completed.
+- Required verification was reviewed and recorded: `npm test` passed with 123
+  tests, local Markdown link validation passed for touched docs, and
+  `git diff --check` passed.
+- Durable behavior was promoted into `_docs/design/bundled-skills.md`,
+  `_docs/design/package-management.md`, and `_docs/design/workflows.md`.
+- User-facing docs were updated in `README.md` and `aix/skills/README.md`.
+- Final risks and deferred follow-up are recorded above.
+- Reusable lessons are recorded above; no workflow guidance update was needed
+  because the lessons are product-specific to discovery and installation.
+- The completed plan was archived to
+  `_docs/plans/completed/2026-08-23-github-skill-discovery-helper.md`.
 
 ## Promotion To Design
 

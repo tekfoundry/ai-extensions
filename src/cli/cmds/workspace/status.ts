@@ -161,6 +161,18 @@ function renderHealth(status: WorkspaceStatus, options: RenderStatusOptions): st
   ].join("\n");
 }
 
+function updateUnavailableReason(reason: string | undefined): string {
+  if (!reason || reason.trim() === "") {
+    return "could not resolve sources";
+  }
+
+  if (reason.includes("Git command failed:")) {
+    return "could not resolve source updates";
+  }
+
+  return reason.split(/\r?\n/)[0] || "could not resolve sources";
+}
+
 function renderUpdates(status: WorkspaceStatus, options: RenderStatusOptions): string {
   const useColor = options.color === true;
   const workflowCount = status.update.workflowUpdates.length;
@@ -169,7 +181,7 @@ function renderUpdates(status: WorkspaceStatus, options: RenderStatusOptions): s
   if (!status.update.checked) {
     return [
       statusHeading("Updates", useColor),
-      `  ${warn(`unavailable: ${status.update.unavailableReason || "could not resolve sources"}`, useColor)}`
+      `  ${warn(`unavailable: ${updateUnavailableReason(status.update.unavailableReason)}`, useColor)}`
     ].join("\n");
   }
 

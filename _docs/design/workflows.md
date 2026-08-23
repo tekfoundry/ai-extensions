@@ -218,6 +218,12 @@ workflow updates should refuse to overwrite it. The healthy team path is to
 improve the workflow source repository, review the change there, then run
 `aix workflow diff` and `aix workflow update` in consuming projects.
 
+Standalone default skills from the `aix` skill source are separate from
+workflow-owned skills. For example, `discover-skill` is activated during
+`aix init` as a normal default skill so users can discover additional
+software-development skills, but it is not owned by the active workflow and
+should remain active if the workflow is later uninstalled.
+
 ## Commands
 
 The MVP workflow command set should be small:

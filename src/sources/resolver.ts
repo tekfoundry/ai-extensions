@@ -69,7 +69,21 @@ function cloneOrFetchGitSource(name: string, definition: SourceDefinition, cache
   if (!existsSync(join(sourceCachePath, ".git"))) {
     runGit(["clone", "--no-checkout", definition.url, sourceCachePath]);
   } else {
-    const currentUrl = runGit(["remote", "get-url", "origin"], sourceCachePath);
+    let currentUrl: string;
+
+    try {
+      currentUrl = runGit(["remote", "get-url", "origin"], sourceCachePath);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+
+      if (!message.includes("No such remote")) {
+        throw error;
+      }
+
+      rmSync(sourceCachePath, { recursive: true, force: true });
+      runGit(["clone", "--no-checkout", definition.url, sourceCachePath]);
+      currentUrl = definition.url;
+    }
 
     if (currentUrl !== definition.url) {
       runGit(["remote", "set-url", "origin", definition.url], sourceCachePath);

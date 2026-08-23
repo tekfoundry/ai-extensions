@@ -217,6 +217,28 @@ commands should refuse to overwrite or delete them.
 
 Default external sources should be discoverable without automatic activation.
 
+The bundled `discover-skill` helper provides a conversational discovery layer
+on top of the existing source model. It does not add a registry or a second
+installation path. It should search configured skill sources first, then the
+user-editable known-source index stored at
+`aix/skills/discover-skill/known-sources.json`. That index is a simple JSON
+list of source URLs. It is discovery input only: it does not install, lock,
+version, certify, or trust a source.
+
+If configured sources and the known-source index do not produce enough
+credible, inspectable candidates, the helper should ask the user before
+broadening to unreviewed GitHub or internet results. Any outside-source
+candidate should be labeled as unreviewed. Candidate ranking should keep
+relevance, installability, and trust separate, and should reject weak matches
+instead of padding the result list.
+
+Installing a discovered skill remains safety-sensitive and must route through
+normal package-management commands. A user reply such as `install 2` starts an
+install review packet only. The helper should list files to inspect, provide
+an initial assessment and unsafe-flag notes, preview the exact commands, and
+wait for `confirm install 2` before running `aix skills add` and
+`aix skill activate`.
+
 `aix skills add <git-or-github-tree-url> [alias]` should add a skill source
 definition, resolve the Git ref, and discover valid skill folders. The optional
 alias sets the local source name. The command should accept normal Git URLs
@@ -336,6 +358,13 @@ before discovery reads source files. When a source omits an explicit ref, AI
 Extensions resolves `origin/HEAD` after fetching so update and diff commands
 track the source repository's default branch instead of the cache worktree's
 detached `HEAD`.
+
+The source cache is derived data. If a cache entry has a `.git` directory but
+is missing the expected `origin` remote, source resolution should treat that
+entry as malformed cache data, remove only that source cache directory, and
+reclone it from the configured source URL. User-owned project files,
+manifest entries, lockfile entries, package copies, and active skills must not
+be repaired or rewritten by this cache recovery path.
 
 Default verification should use local fixture Git repositories so normal test
 runs stay deterministic and offline-friendly. Tests that reach public remote

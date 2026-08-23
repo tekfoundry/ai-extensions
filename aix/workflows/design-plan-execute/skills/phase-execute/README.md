@@ -5,6 +5,20 @@
 Executes one phase of an active implementation plan by sequencing focused
 `task-execute` work.
 
+Installation:
+
+```bash
+aix init
+```
+
+This skill is workflow-owned. `aix init` installs the default
+`design-plan-execute` workflow and activates this skill with it. To install the
+workflow explicitly, run:
+
+```bash
+aix workflow install https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute aix
+```
+
 Dependencies:
 
 - `AGENTS.md`

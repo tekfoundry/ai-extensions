@@ -670,7 +670,7 @@
       "sourceType": "git",
       "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
       "requestedRef": "master",
-      "resolvedCommit": "19de0be40553a2258ed79a9442d03e289682bd2e",
+      "resolvedCommit": "b16070637fbe04ecd3d7201555ec836486ae185f",
       "sourcePath": "discover-skill",
       "packagePath": ".agents/packages/skills/aix/discover-skill",
       "activationPath": ".agents/skills/discover-skill",
@@ -684,11 +684,11 @@
         },
         {
           "path": "README.md",
-          "sha256": "04ccffc037c9c0f96f54dc1df35e694d8411a7723dd237b618a40a0a7d1c3231"
+          "sha256": "f1b555ef289457a733458cc7c551f395850cc0ded7af1a2042b5f26c0c1bb8df"
         },
         {
           "path": "SKILL.md",
-          "sha256": "c83af5b34f61afe88a7b2ec7e7401401274c4630292b9976638de118a07e60e2"
+          "sha256": "942377aed594797204dc3a0a679419650f2af3bc5effc1023141e64ca4a11104"
         }
       ],
       "activeFiles": [
@@ -698,11 +698,11 @@
         },
         {
           "path": "README.md",
-          "sha256": "04ccffc037c9c0f96f54dc1df35e694d8411a7723dd237b618a40a0a7d1c3231"
+          "sha256": "f1b555ef289457a733458cc7c551f395850cc0ded7af1a2042b5f26c0c1bb8df"
         },
         {
           "path": "SKILL.md",
-          "sha256": "c83af5b34f61afe88a7b2ec7e7401401274c4630292b9976638de118a07e60e2"
+          "sha256": "942377aed594797204dc3a0a679419650f2af3bc5effc1023141e64ca4a11104"
         }
       ]
     }

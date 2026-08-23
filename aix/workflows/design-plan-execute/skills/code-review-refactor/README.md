@@ -6,6 +6,20 @@ Reviews project code for maintainability risks and helps turn selected findings
 into safe refactor work. It uses the repository's engineering guidance as the
 review standard.
 
+Installation:
+
+```bash
+aix init
+```
+
+This skill is workflow-owned. `aix init` installs the default
+`design-plan-execute` workflow and activates this skill with it. To install the
+workflow explicitly, run:
+
+```bash
+aix workflow install https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute aix
+```
+
 Dependencies:
 
 - `AGENTS.md`

@@ -5,6 +5,20 @@
 Reviews project documentation for structure, formatting, links, maintainability,
 and current-state accuracy.
 
+Installation:
+
+```bash
+aix init
+```
+
+This skill is workflow-owned. `aix init` installs the default
+`design-plan-execute` workflow and activates this skill with it. To install the
+workflow explicitly, run:
+
+```bash
+aix workflow install https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute aix
+```
+
 Dependencies:
 
 - `_docs/README.md`

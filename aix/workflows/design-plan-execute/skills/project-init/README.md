@@ -5,6 +5,20 @@
 Initializes or repairs the project-owned `_docs` documentation structure for a
 repository that uses the workflow.
 
+Installation:
+
+```bash
+aix init
+```
+
+This skill is workflow-owned. `aix init` installs the default
+`design-plan-execute` workflow and activates this skill with it. To install the
+workflow explicitly, run:
+
+```bash
+aix workflow install https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute aix
+```
+
 Dependencies:
 
 - `AGENTS.md`, when present

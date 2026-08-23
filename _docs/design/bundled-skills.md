@@ -30,6 +30,19 @@ contains `discover-skill`, a project-agnostic helper for finding installable
 software-development skills from natural-language requests. All default
 sources use the same Git resolution path.
 
+`discover-skill` should guide an agent through advisory discovery only. It
+searches configured skill sources and its bundled `known-sources.json` source
+index before asking the user whether to broaden to unreviewed GitHub or
+internet results. Candidate output should include concise summaries, source
+URLs, source-relative skill paths, direct review links to `SKILL.md`, source
+trust status, unsafe-flag notes, and `q - Quit`. The helper should not present
+weak or uninspectable matches as install-ready.
+
+When the user replies with `install #`, `discover-skill` should show an
+install review packet before any command runs. That packet should list files
+to review, summarize the skill assessment, preview the exact `aix skills add`
+and `aix skill activate` commands, and wait for `confirm install #`.
+
 The default workflow should live under:
 
 ```text

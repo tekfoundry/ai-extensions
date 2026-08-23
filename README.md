@@ -125,6 +125,19 @@ aix skills list mattpocock
 aix skill activate mattpocock/engineering/typescript
 ```
 
+Or ask the bundled `discover-skill` helper to find options from a natural
+language request:
+
+```text
+Use discover-skill. Find a skill for accessibility-focused code reviews.
+Do not install anything unless I explicitly reply with install #.
+```
+
+The helper searches configured sources and its known-source index first. If
+you reply with `install 1`, it should show files to review, an initial
+assessment, and the exact `aix` commands it would run. It waits for
+`confirm install 1` before installing anything.
+
 Review and accept updates:
 
 ```bash
@@ -328,6 +341,16 @@ aix skills remove team-skills
 
 `aix skills remove` only removes a source after all active skills from that
 source have been deactivated.
+
+### Bundled skills
+
+`aix init` activates standalone bundled skills from the `aix` skill source.
+These skills are independent of the default workflow, so they remain available
+even if the active workflow is later uninstalled.
+
+| Skill name | Example prompts | What it does |
+| --- | --- | --- |
+| [`discover-skill`](aix/skills/discover-skill/README.md) | "Use discover-skill. Find a skill for accessibility-focused code reviews."<br>"Find an installable skill for TDD."<br>"I need a skill that helps with secure code review." | Finds installable software-development skills from natural-language requests. It searches configured sources and `known-sources.json` first, asks before broadening to unreviewed GitHub or internet results, presents review links and unsafe-flag notes, and uses a two-step `install #` / `confirm install #` flow before running `aix skills add` or `aix skill activate`. |
 
 ### Custom skill
 

@@ -335,7 +335,8 @@ test("run status reports unavailable update checks without failing", async () =>
     const result = run(["status"]);
 
     assert.equal(result.exitCode, 0);
-    assert.match(result.stdout, /Updates\n  unavailable:/);
+    assert.match(result.stdout, /Updates\n  unavailable: could not resolve source updates/);
+    assert.doesNotMatch(result.stdout, /Git command failed/);
   });
 });
 

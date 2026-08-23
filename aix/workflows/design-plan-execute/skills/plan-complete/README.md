@@ -5,6 +5,20 @@
 Closes an implementation plan after tasks, verification, design promotion,
 risks, and documentation impact have been resolved or recorded.
 
+Installation:
+
+```bash
+aix init
+```
+
+This skill is workflow-owned. `aix init` installs the default
+`design-plan-execute` workflow and activates this skill with it. To install the
+workflow explicitly, run:
+
+```bash
+aix workflow install https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute aix
+```
+
 Dependencies:
 
 - The active implementation plan under `_docs/plans/`

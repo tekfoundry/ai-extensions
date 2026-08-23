@@ -5,6 +5,20 @@
 Selects and runs verification for changed behavior, then reports results,
 gaps, and whether success criteria are satisfied.
 
+Installation:
+
+```bash
+aix init
+```
+
+This skill is workflow-owned. `aix init` installs the default
+`design-plan-execute` workflow and activates this skill with it. To install the
+workflow explicitly, run:
+
+```bash
+aix workflow install https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute aix
+```
+
 Dependencies:
 
 - Relevant design and quality guidance for the changed subsystem

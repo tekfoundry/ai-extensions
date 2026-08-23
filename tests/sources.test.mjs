@@ -160,6 +160,51 @@ test("resolveSource updates a cached remote when a source URL changes", async ()
   }
 });
 
+test("resolveSource reclones a cached repo with no origin remote", async () => {
+  const gitSource = await createGitSource();
+  const cacheRoot = await mkdtemp(join(tmpdir(), "aix-cache-test-"));
+  const projectRoot = await mkdtemp(join(tmpdir(), "aix-source-project-"));
+  const cachedSource = join(cacheRoot, "fixture");
+  const previousCwd = process.cwd();
+
+  mkdirSync(cachedSource, { recursive: true });
+  git(["init", "-b", "main"], cachedSource);
+  writeFileSync(join(cachedSource, "stale.txt"), "stale cache\n", "utf8");
+  process.chdir(projectRoot);
+
+  try {
+    writeFileSync(
+      "aix.json",
+      JSON.stringify(
+        {
+          sources: {
+            fixture: {
+              type: "git",
+              url: gitSource.directory,
+              path: "skills",
+              ref: "main"
+            }
+          },
+          skills: []
+        },
+        null,
+        2
+      ) + "\n",
+      "utf8"
+    );
+
+    const resolved = resolveSource("fixture", cacheRoot);
+
+    assert.equal(resolved.name, "fixture");
+    assert.equal(resolved.rootPath, join(cacheRoot, "fixture", "skills"));
+    assert.equal(resolved.resolvedCommit, gitSource.commit);
+    assert.equal(existsSync(join(cachedSource, "stale.txt")), false);
+    assert.equal(git(["remote", "get-url", "origin"], cachedSource), gitSource.directory);
+  } finally {
+    process.chdir(previousCwd);
+  }
+});
+
 test("run skills add adds a git source and writes cache metadata without activating skills", async () => {
   const gitSource = await createGitSource();
   const cacheRoot = await mkdtemp(join(tmpdir(), "aix-cache-test-"));
