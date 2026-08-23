@@ -22,6 +22,7 @@ import { readWorkflowManifest } from "./manifest.js";
 import { assertWorkflowActiveSkillsUnmodified, assertWorkflowSkillsSafe, installWorkflowSkills } from "./skills.js";
 import { deriveWorkflowSourceName, parseSourceInput, sourceManifestEntry, workflowSourcesJson } from "./source.js";
 import { assertWorkflowPackageUnmodified, removeStagedWorkflowPackage, replaceWorkflowSkillEntries, stageWorkflowPackage } from "./shared.js";
+import { discoverWorkflowTemplates, validateWorkflowTemplates, workflowTemplateHashes } from "./templates.js";
 import type { InstallWorkflowResult } from "./types.js";
 
 function preflightWorkflowInstall(
@@ -48,6 +49,7 @@ function preflightWorkflowInstall(
   assertWorkflowDocsSafe(workflow, stagedPackagePath, existingWorkflow);
   assertAgentsMdBlockSafe(workflow.agentsMd, stagedPackagePath, existingWorkflow?.agentsMd?.sha256);
   assertWorkflowSkillsSafe(workflow, source, stagedPackagePath, finalPackagePath, lockfile);
+  validateWorkflowTemplates(discoverWorkflowTemplates(workflow, stagedPackagePath));
 
   return existingWorkflow;
 }
@@ -86,6 +88,7 @@ export function installResolvedWorkflow(
     const docs = installWorkflowDocs(workflow, packagePath);
     const agentsMd = installAgentsMdBlock(workflow.agentsMd, packagePath);
     const skillEntries = installWorkflowSkills(workflow, source, packagePath, existingWorkflow);
+    const templates = workflowTemplateHashes(discoverWorkflowTemplates(workflow, packagePath));
 
     scaffoldProjectDocs();
     replaceWorkflowSkillEntries(lockfile, workflow.name, skillEntries);
@@ -108,6 +111,7 @@ export function installResolvedWorkflow(
           sourcePath: skill.sourcePath,
           activeName: skill.activeName
         })),
+        ...(templates.length > 0 ? { templates } : {}),
         packageFiles
       }
     ];
@@ -120,6 +124,7 @@ export function installResolvedWorkflow(
       lockfilePath: LOCKFILE_FILE_NAME,
       packagePath,
       installedDocs: docs.map((doc) => doc.targetPath),
+      installedTemplates: templates.length,
       activatedSkills: skillEntries.map((skill) => skill.activeName)
     };
   } finally {

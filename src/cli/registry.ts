@@ -1,5 +1,6 @@
 import { skillCommand } from "./cmds/skill/index.js";
 import { skillsCommand } from "./cmds/skills/index.js";
+import { templatesCommand } from "./cmds/templates/index.js";
 import { workflowCommand } from "./cmds/workflow/index.js";
 import { initCommand, statusCommand, verifyCommand } from "./cmds/workspace/index.js";
 import type { Command } from "./types.js";
@@ -9,6 +10,7 @@ export const commands: Command[] = [
   verifyCommand,
   statusCommand,
   workflowCommand,
+  templatesCommand,
   skillsCommand,
   skillCommand
 ];

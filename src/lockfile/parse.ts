@@ -99,6 +99,10 @@ function parseSkillEntry(value: unknown, path: string): LockfileSkillEntry {
     throw new LockfileError(`${path}.packageFiles must be an array.`);
   }
 
+  if (value.templates !== undefined && !Array.isArray(value.templates)) {
+    throw new LockfileError(`${path}.templates must be an array when provided.`);
+  }
+
   if (!Array.isArray(value.activeFiles)) {
     throw new LockfileError(`${path}.activeFiles must be an array.`);
   }
@@ -216,6 +220,7 @@ function parseWorkflowEntry(value: unknown, path: string): LockfileWorkflowEntry
   const resolvedCommit = optionalString(value.resolvedCommit, `${path}.resolvedCommit`);
   const title = optionalString(value.title, `${path}.title`);
   const agentsMd = parseAgentsMdBlock(value.agentsMd, `${path}.agentsMd`);
+  const templates = Array.isArray(value.templates) ? value.templates : undefined;
 
   return {
     kind,
@@ -231,6 +236,7 @@ function parseWorkflowEntry(value: unknown, path: string): LockfileWorkflowEntry
     docs: value.docs.map((doc, index) => parseWorkflowDoc(doc, `${path}.docs[${index}]`)),
     ...(agentsMd ? { agentsMd } : {}),
     skills: value.skills.map((skill, index) => parseWorkflowSkill(skill, `${path}.skills[${index}]`)),
+    ...(templates ? { templates: templates.map((file, index) => parseFileHash(file, `${path}.templates[${index}]`)) } : {}),
     packageFiles: value.packageFiles.map((file, index) => parseFileHash(file, `${path}.packageFiles[${index}]`))
   };
 }

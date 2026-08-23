@@ -17,7 +17,7 @@ if (testFiles.length === 0) {
   throw new Error("No test files found in tests/*.test.mjs");
 }
 
-execFileSync(process.execPath, ["--test", ...testFiles], {
+execFileSync(process.execPath, ["--test", "--test-concurrency=1", ...testFiles], {
   cwd: process.cwd(),
   stdio: "inherit"
 });

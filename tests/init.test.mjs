@@ -108,8 +108,8 @@ test("initProject initializes an empty project with default sources and skills",
     const lockfile = JSON.parse(readFileSync(join(projectPath, "aix.lock.json"), "utf8"));
 
     assert.equal(result.declaredCount, 1);
-    assert.equal(result.materializedCount, 16);
-    assert.equal(result.activatedCount, 12);
+    assert.equal(result.materializedCount, 32);
+    assert.equal(result.activatedCount, 14);
     assert.deepEqual(Object.keys(manifest.sources.workflows), ["aix"]);
     assert.equal(manifest.sources.workflows.aix.type, "git");
     assert.equal(manifest.sources.workflows.aix.url, defaults.workflowSources.aix.url);
@@ -120,8 +120,9 @@ test("initProject initializes an empty project with default sources and skills",
     assert.equal(lockfile.workflows.length, 1);
     assert.equal(lockfile.workflows[0].name, "design-plan-execute");
     assert.equal(lockfile.workflows[0].docs.length, 4);
-    assert.equal(lockfile.workflows[0].skills.length, 12);
-    assert.equal(lockfile.skills.length, 12);
+    assert.equal(lockfile.workflows[0].templates.length, 14);
+    assert.equal(lockfile.workflows[0].skills.length, 14);
+    assert.equal(lockfile.skills.length, 14);
     assert.ok(lockfile.skills.every((skill) => skill.kind === "skill"));
     assert.ok(lockfile.skills.every((skill) => skill.owner?.kind === "workflow"));
     assert.ok(lockfile.skills.every((skill) => skill.sourceType === "git"));
@@ -132,6 +133,8 @@ test("initProject initializes an empty project with default sources and skills",
     assert.ok(lockfile.skills.every((skill) => skill.activeFiles.length > 0));
     assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/design-plan-execute/workflow.json")));
     assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/design-plan-execute/plan-example.md")));
+    assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/design-plan-execute/templates/plan.md")));
+    assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/design-plan-execute/templates/sections/phase.md")));
     assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/design-plan-execute/skills/task-execute/SKILL.md")));
     assert.ok(existsSync(join(projectPath, ".agents/README.md")));
     assert.ok(existsSync(join(projectPath, ".agents/plan-example.md")));
@@ -174,8 +177,8 @@ test("run init initializes a project through the CLI command path", async () => 
       assert.equal(result.exitCode, 0);
       assert.match(result.stdout, /Initialized AI Extensions/);
       assert.match(result.stdout, /Declared 1 workflow/);
-      assert.match(result.stdout, /Materialized 16 workflow assets/);
-      assert.match(result.stdout, /Activated 12 workflow-owned skills/);
+      assert.match(result.stdout, /Materialized 32 workflow assets/);
+      assert.match(result.stdout, /Activated 14 workflow-owned skills/);
     } finally {
       for (const [key, value] of Object.entries(previousEnv)) {
         if (value === undefined) {

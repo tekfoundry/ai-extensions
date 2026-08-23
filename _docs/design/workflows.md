@@ -39,6 +39,10 @@ aix/
       README.md
       workflow.md
       engineering-best-practices.md
+      templates/
+        plan.md
+        sections/
+          phase.md
       skills/
         project-init/
           SKILL.md
@@ -69,13 +73,15 @@ Recommended manifest shape:
     "workflow.md",
     "engineering-best-practices.md"
   ],
+  "templatesDir": "templates",
   "skillsDir": "skills"
 }
 ```
 
 The workflow name must match the folder name. Recognized workflow docs are
-copied into `.agents/`, and valid workflow-local skills under `skills/` are
-activated through `.agents/skills`.
+copied into `.agents/`, workflow templates under `templates/` are installed as
+package-managed workflow content, and valid workflow-local skills under
+`skills/` are activated through `.agents/skills`.
 
 Workflow-local skills should be self-contained in the workflow package for the
 MVP. External skill dependencies can be revisited later, but they would make
@@ -111,8 +117,8 @@ Installing a workflow should:
 10. Expose workflow-owned skills through `.agents/skills`.
 11. Create missing project-owned `_docs` directories when needed.
 12. Write root workflow intent to `aix.json`.
-13. Write exact workflow doc, `AGENTS.md` managed block, and workflow-owned
-    skill hashes to `aix.lock.json`.
+13. Write exact workflow doc, workflow template, `AGENTS.md` managed block, and
+    workflow-owned skill hashes to `aix.lock.json`.
 
 Workflow install should be transactional. If any workflow doc or workflow-owned
 skill would overwrite local drift, or if the existing managed `AGENTS.md` block
@@ -156,6 +162,42 @@ directories such as `_docs/design`, `_docs/plans`, `_docs/plans/backlog`, and
 `_docs/plans/completed`, but routine workflow updates should not rewrite
 project-authored design or plan documents.
 
+Workflow origin templates are package-managed workflow files. They live under
+the workflow source at `templates/`, are installed into
+`.agents/packages/workflows/<source>/<workflow>/templates/`, and are hashed in
+`aix.lock.json`. `aix verify` reports missing or drifted origin templates, and
+workflow update, diff, and uninstall treat them as part of the workflow
+package.
+
+Published templates are explicit local overrides. `aix templates publish`
+copies the active workflow template set into `.agents/templates/`, with
+document templates flat at the top level and reusable section templates under
+`.agents/templates/sections/`. Published templates are project-editable. A
+later publish refuses to overwrite a published template that differs from its
+origin. `aix templates reset <template-name>` deletes one published override so
+template resolution falls back to the workflow origin.
+
+The bundled `plan.md` template includes a `sections/completion-checklist`
+fragment so closeout expectations are visible from the start. The
+`plan-complete` skill remains authoritative for completion gates if a project
+edits or removes that section.
+
+Plan closeout promotes accepted current-state behavior through
+`design-promote`. When promotion needs a new stable design document,
+`design-promote` uses `design-create` guidance for placement, template use, and
+index links. Closeout also runs `documentation-review` so `_docs` structure,
+formatting conventions, links, and current-state accuracy are checked after
+promotion.
+
+Template resolution is published-first:
+
+1. Use `.agents/templates/<template-name>.md` when it exists.
+2. Otherwise use
+   `.agents/packages/workflows/<source>/<workflow>/templates/<template-name>.md`.
+
+Section templates follow the same rule under `sections/`, for example
+`sections/verification`.
+
 Root `AGENTS.md` is mixed ownership. The workflow-owned managed block is
 package-managed. Everything outside that block belongs to the project.
 
@@ -182,6 +224,10 @@ aix workflow install [git-or-github-tree-url] [alias]
 aix workflow uninstall
 aix workflow diff
 aix workflow update
+aix templates list
+aix templates publish
+aix templates diff [template-name]
+aix templates reset <template-name>
 ```
 
 `aix verify` should include workflow checks alongside existing manifest,

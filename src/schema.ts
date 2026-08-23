@@ -110,6 +110,7 @@ export interface LockfileWorkflowEntry {
     sourcePath: string;
     activeName: string;
   }>;
+  templates?: FileHash[];
   packageFiles: FileHash[];
 }
 

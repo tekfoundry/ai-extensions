@@ -36,6 +36,9 @@ and does not bypass `task-execute`.
 3. Read `AGENTS.md`, `.agents/workflow.md`, and `_docs/README.md`.
 4. Use the documentation router to select and read only the relevant `_docs/design` files.
 5. Read the full referenced plan section, including context, design intent, risks, verification, and promotion-to-design requirements.
+   Use the active workflow `plan.md` template as a consistency reference for
+   phase, task, execution-note, verification, risk, and promotion sections when
+   it is available.
 6. Inspect related active or backlog plans, implementation files, tests, and current worktree status. Do not overwrite unrelated user changes.
 
 Load only context relevant to the phase. Read completed plans only for relevant historical decisions or regressions.

@@ -6,6 +6,7 @@ import { addAgentsMdVerifyIssues } from "./agents-md.js";
 import { diffPackageAgainstSourceSnapshot } from "./diff.js";
 import { addWorkflowDocVerifyIssues } from "./docs.js";
 import { addWorkflowSkillVerifyIssues } from "./skills.js";
+import { addWorkflowTemplateVerifyIssues } from "./templates.js";
 import type { DiffWorkflowResult, VerifyWorkflowResult } from "./types.js";
 
 export function diffWorkflow(cacheRoot = defaultCacheRoot()): DiffWorkflowResult {
@@ -46,6 +47,7 @@ export function verifyWorkflow(): VerifyWorkflowResult {
     }
 
     addWorkflowDocVerifyIssues(issues, workflow);
+    addWorkflowTemplateVerifyIssues(issues, workflow);
     addAgentsMdVerifyIssues(issues, workflow.agentsMd);
     addWorkflowSkillVerifyIssues(issues, workflow, lockfile);
   }

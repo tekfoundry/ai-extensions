@@ -19,7 +19,9 @@ backlog work, or archive completed work from this skill.
    classification before editing.
 4. Apply the smallest plan-only edit that matches the user request: clarify
    scope, refine tasks, update status, record risks, add verification, capture
-   lessons, or update promotion-to-design notes.
+   lessons, or update promotion-to-design notes. Use the active workflow
+   `plan.md` template as the shared artifact reference when restructuring a
+   plan.
 5. When editing task lists, preserve or repair the task status markers required
    by `.agents/workflow.md`: `⬜️` not started, `🟨` in progress, `✅`
    completed, and `⚠️` implemented or substantially complete with a known
@@ -50,4 +52,7 @@ backlog work, or archive completed work from this skill.
   is clear.
 - Keep execution history in plans and stable current-state truth in
   `_docs/design`.
+- Resolve `plan.md` from `.agents/templates/plan.md` first, then from the
+  active workflow origin. If neither exists, follow the existing plan shape and
+  report the missing template.
 - Preserve unrelated worktree changes.

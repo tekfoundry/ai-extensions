@@ -15,7 +15,9 @@ execution history.
 2. Inspect the design index and ownership rules in `_docs/README.md` and
    `_docs/design/README.md`.
 3. Update the smallest appropriate design, quality, operations, product, or
-   workflow document and its index links when needed.
+   workflow document and its index links when needed. When a new design
+   document is needed, use `$design-create` so placement, template use, and
+   index links stay consistent.
 4. Remove ambiguity about what is current behavior versus future follow-on
    work.
 5. Report promoted documents, retained historical details, and any gaps that
@@ -27,3 +29,6 @@ execution history.
 - Do not duplicate an entire plan in the design directory.
 - Keep execution status, migration history, and lessons in the plan or
   workflow guidance where they belong.
+- Resolve `design-doc.md` from `.agents/templates/design-doc.md` first, then
+  from the active workflow origin. If neither exists, keep the new design doc
+  small and report the missing template.

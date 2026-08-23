@@ -139,6 +139,7 @@ function renderWorkflow(status: WorkspaceStatus, options: RenderStatusOptions): 
       { header: "Ref", value: () => valueOrDash(workflow.requestedRef) },
       { header: "Commit", value: () => shortCommit(workflow.resolvedCommit) },
       { header: "Docs", value: () => String(workflow.docCount) },
+      { header: "Templates", value: () => String(workflow.templateCount) },
       { header: "Skills", value: () => String(workflow.skillCount) },
       { header: "Status", value: () => workflowStatus(status, useColor) }
     ],

@@ -20,7 +20,9 @@ impact, risk tracking, and closeout. It does not bypass `phase-execute` or
    migrations.
 3. Classify the work as active-plan execution and state that classification.
 4. Review phase order, dependencies, success goals, verification, risks, and
-   promotion-to-design requirements.
+   promotion-to-design requirements. Use the active workflow `plan.md`
+   template as a consistency reference for plan sections and status vocabulary
+   when it is available.
 5. For each open phase, invoke or follow `phase-execute` on that bounded phase.
    After each phase, review plan status, verification evidence, documentation
    impact, risks, and worktree state before continuing.

@@ -26,6 +26,36 @@ Use this document as the default process contract for the repo.
   backlog plans for review, and active implementation requires a later explicit
   `plan-activate` request.
 
+## Workflow Artifact Templates
+
+Shared workflow artifacts can be shaped by workflow-owned templates. Resolve a
+template by name before creating or substantially restructuring one of these
+artifacts:
+
+- `plan.md`
+- `docs-readme.md`
+- `design-readme.md`
+- `product-summary.md`
+- `competitive-analysis.md`
+- `design-doc.md`
+
+Resolution is published-first:
+
+1. Use `.agents/templates/<template-name>.md` when it exists.
+2. Otherwise use the active workflow origin at
+   `.agents/packages/workflows/<source>/<workflow>/templates/<template-name>.md`.
+
+Section templates follow the same rule under `sections/`, for example
+`.agents/templates/sections/verification.md` before the matching workflow
+origin.
+
+If a template is missing from both locations, do not block routine work solely
+because of the missing file. Follow the skill's local instructions and the
+repository's existing document style, then record the missing template in the
+plan, review notes, or final report so the workflow installation can be
+repaired. A missing template is a workflow health issue, not permission to
+skip lifecycle gates.
+
 ## Work Classification
 
 Classify the work before editing. The repository supports three work modes.
@@ -258,6 +288,8 @@ Expected output:
 - `_docs/design/product/product-summary.md`
 - a short product summary, typically 1-2 pages
 
+Use the `product-summary.md` workflow template when it is available.
+
 The product summary should cover:
 
 - the problem being solved
@@ -311,6 +343,8 @@ Before investing deeply in implementation, understand the product landscape and 
 Expected output:
 
 - `_docs/competitive-analysis.md` or an equivalent market-analysis document
+
+Use the `competitive-analysis.md` workflow template when it is available.
 
 The analysis should help answer:
 

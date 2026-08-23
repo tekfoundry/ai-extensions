@@ -12,5 +12,6 @@
     "workflow.md",
     "engineering-best-practices.md"
   ],
+  "templatesDir": "templates",
   "skillsDir": "skills"
 }

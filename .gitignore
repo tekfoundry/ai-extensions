@@ -35,6 +35,7 @@ coverage/
 .eslintcache
 junit.xml
 test-results/
+tests/artifacts/
 
 # Logs
 logs/

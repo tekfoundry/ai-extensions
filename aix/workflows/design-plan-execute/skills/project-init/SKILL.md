@@ -23,9 +23,11 @@ separately.
    - `_docs/plans/backlog/`
    - `_docs/plans/completed/`
 4. Create `_docs/README.md` only when missing. Keep it as a project
-   documentation router, not a product design document.
+   documentation router, not a product design document. Use the
+   `docs-readme.md` workflow template when available.
 5. Create `_docs/design/README.md` only when missing. Keep it focused on
-   stable current design intent and links to deeper design documents.
+   stable current design intent and links to deeper design documents. Use the
+   `design-readme.md` workflow template when available.
 6. Never overwrite or replace existing project-owned documentation. If a file
    exists but appears stale or incomplete, report the issue and ask before
    rewriting substantial content.
@@ -39,3 +41,7 @@ separately.
 - Do not invent product goals, architecture, risks, or plans without user input.
 - Keep project initialization separate from backlog plan creation. Use
   `plan-create` when the user wants to turn an idea into an implementation plan.
+- Resolve templates from `.agents/templates/` before the active workflow origin
+  under `.agents/packages/workflows/<source>/<workflow>/templates/`. If neither
+  copy exists, follow the structure in this skill and report the missing
+  template.

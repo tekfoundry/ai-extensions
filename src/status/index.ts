@@ -36,6 +36,7 @@ export interface WorkspaceStatus {
     resolvedCommit?: string;
     packagePath: string;
     docCount: number;
+    templateCount: number;
     skillCount: number;
   };
   skillSources: Array<{
@@ -181,6 +182,7 @@ export function collectWorkspaceStatus(): WorkspaceStatus {
             ...(activeWorkflow.resolvedCommit ? { resolvedCommit: activeWorkflow.resolvedCommit } : {}),
             packagePath: activeWorkflow.packagePath,
             docCount: activeWorkflow.docs.length,
+            templateCount: activeWorkflow.templates?.length || 0,
             skillCount: activeWorkflow.skills.length
           }
         }

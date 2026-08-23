@@ -24,7 +24,8 @@ including:
   dependency
 - package and active file hashes
 - active workflow name, source, resolved commit, installed docs, workflow-owned
-  skills, and workflow file hashes when a workflow is installed
+  skills, workflow template hashes, and workflow file hashes when a workflow is
+  installed
 
 The manifest represents root user intent. The lockfile represents the exact
 fetched and active state, including dependency-only active skills and the
@@ -166,6 +167,10 @@ aix/workflows/design-plan-execute/
   README.md
   workflow.md
   engineering-best-practices.md
+  templates/
+    plan.md
+    sections/
+      phase.md
   skills/
     project-init/
       SKILL.md
@@ -175,6 +180,20 @@ Workflow-owned skills should be materialized under
 `.agents/packages/workflows/<source>/<workflow>/skills/...` and exposed through
 `.agents/skills/<active-name>`. They should not be added to the manifest
 `skills` list, because the root user intent is the active workflow.
+
+Workflow origin templates should be materialized under
+`.agents/packages/workflows/<source>/<workflow>/templates/...`. Their hashes are
+recorded in the active workflow lockfile entry under `templates`, and the full
+package hash list still records them as package files. `aix verify` should
+report missing or drifted origin templates. Workflow update, diff, and
+uninstall should include origin templates with the rest of the package-managed
+workflow content.
+
+Published templates under `.agents/templates/` are not package-managed origin
+files. They are user-editable project overrides created only by
+`aix templates publish`. Publishing should refuse to overwrite a published
+template that differs from its origin. Resetting a template deletes the
+published override and lets resolution fall back to the package-managed origin.
 
 Root `AGENTS.md` is mixed ownership. `aix workflow install` should insert or
 update the workflow text from `AGENTS.append.md` inside a marker-delimited
@@ -187,7 +206,8 @@ workflow should fail until a later explicit replace flow is designed.
 `aix skill deactivate <active-name>` should refuse direct removal of
 workflow-owned skills. Removing or replacing the workflow owns that lifecycle.
 Local edits to workflow docs, the managed `AGENTS.md` block, or workflow-owned
-skills are drift. `aix verify` and `aix status` should report them, and workflow update/uninstall
+skills are drift. Local edits to workflow origin templates are also drift.
+`aix verify` and `aix status` should report them, and workflow update/uninstall
 commands should refuse to overwrite or delete them.
 
 ## Source Discovery

@@ -89,6 +89,8 @@ async function createGitSource() {
     "---\nname: workflow-owned\n---\n\n# Workflow Owned\n",
     "utf8"
   );
+  mkdirSync(join(directory, "workflows/basic/templates"), { recursive: true });
+  writeFileSync(join(directory, "workflows/basic/templates/plan.md"), "{{ section:status }}\n", "utf8");
   git(["init", "-b", "main"], directory);
   git(["add", "."], directory);
   git(["commit", "-m", "initial"], directory);
@@ -128,6 +130,7 @@ function writeInstalledState(source) {
   const helperPackageSkill = ".agents/packages/skills/fixture/skills/helper";
   const helperActiveSkill = ".agents/skills/helper";
   const packageWorkflow = ".agents/packages/workflows/fixture/basic";
+  const workflowTemplatePath = join(packageWorkflow, "templates/plan.md");
   const workflowOwnedPackageSkill = ".agents/packages/workflows/fixture/basic/skills/workflow-owned";
   const workflowOwnedActiveSkill = ".agents/skills/workflow-owned";
 
@@ -136,6 +139,7 @@ function writeInstalledState(source) {
   mkdirSync(helperPackageSkill, { recursive: true });
   mkdirSync(helperActiveSkill, { recursive: true });
   mkdirSync(packageWorkflow, { recursive: true });
+  mkdirSync(join(packageWorkflow, "templates"), { recursive: true });
   mkdirSync(workflowOwnedPackageSkill, { recursive: true });
   mkdirSync(workflowOwnedActiveSkill, { recursive: true });
   writeFileSync(join(packageSkill, "SKILL.md"), "---\nname: demo\n---\n\n# Demo\n", "utf8");
@@ -143,6 +147,7 @@ function writeInstalledState(source) {
   writeFileSync(join(activeSkill, "SKILL.md"), "---\nname: demo\n---\n\n# Demo\n", "utf8");
   writeFileSync(join(activeSkill, "notes.md"), "notes\n", "utf8");
   writeFileSync(join(packageWorkflow, "workflow.json"), '{"name":"basic"}\n', "utf8");
+  writeFileSync(workflowTemplatePath, "{{ section:status }}\n", "utf8");
   writeFileSync(join(helperPackageSkill, "SKILL.md"), "---\nname: helper\n---\n\n# Helper\n", "utf8");
   writeFileSync(join(helperActiveSkill, "SKILL.md"), "---\nname: helper\n---\n\n# Helper\n", "utf8");
   writeFileSync(join(workflowOwnedPackageSkill, "SKILL.md"), "---\nname: workflow-owned\n---\n\n# Workflow Owned\n", "utf8");
@@ -195,6 +200,12 @@ function writeInstalledState(source) {
             name: "basic",
             title: "Basic workflow",
             docs: [],
+            templates: [
+              {
+                path: "templates/plan.md",
+                sha256: hashFile(workflowTemplatePath)
+              }
+            ],
             skills: [],
             packageFiles: fileHashes(packageWorkflow)
           }
@@ -287,6 +298,7 @@ test("run status reports workflow, sources, and active skill groups", async () =
     assert.equal(result.exitCode, 0);
     assert.match(result.stdout, /Initialized\s+yes/);
     assert.match(result.stdout, /Workflow[\s\S]*Name\s+Source[\s\S]*basic\s+fixture\/workflows\/basic[\s\S]*current/);
+    assert.match(result.stdout, /Workflow[\s\S]*Templates[\s\S]*1/);
     assert.match(result.stdout, /Workflow sources/);
     assert.match(result.stdout, /Skill sources/);
     assert.match(result.stdout, /Active skills[\s\S]*demo[\s\S]*fixture\/skills\/demo/);

@@ -74,6 +74,8 @@ not rewrite project documents.
 This workflow installs these skills:
 
 - `project-init`: create or repair the project-owned `_docs` structure.
+- `design-create`: create a focused stable design document with the right
+  template and index links.
 - `plan-create`: turn an idea into a backlog plan for review.
 - `plan-review`: review a plan for scope, authorization, design completeness,
   risks, and verification readiness.
@@ -90,9 +92,27 @@ This workflow installs these skills:
   risks are resolved or recorded.
 - `design-promote`: move accepted behavior from completed plans into stable
   design docs.
+- `documentation-review`: review documentation structure, formatting, links,
+  and current-state accuracy.
 
 The workflow activates these skills under `.agents/skills/`. Remove or update
 the workflow to change them. Do not deactivate them like normal root skills.
+
+## Workflow Templates
+
+This workflow owns default templates for shared lifecycle artifacts under
+`templates/`. Document templates live at the top level, and reusable section
+templates live under `templates/sections/`.
+
+The default plan template includes a reusable completion checklist section.
+That checklist makes closeout work visible in the plan, while the
+`plan-complete` skill still enforces completion requirements if the local plan
+template was edited.
+
+Projects can publish editable copies with `aix templates publish` after the
+workflow is installed. Published copies belong under `.agents/templates/` and
+are local project overrides; workflow updates continue to manage the origin
+templates inside the workflow package.
 
 ## Developer Workflow
 
@@ -272,9 +292,10 @@ record properly.
 <td>
 The agent confirms tasks, success goals, verification, documentation impact,
 and risks. It promotes accepted behavior into <code>_docs/design/</code>
-through <code>design-promote</code>, records final evidence and follow-up work,
-then archives the completed plan under <code>_docs/plans/completed/</code> with
-a dated filename.
+through <code>design-promote</code>, reviews documentation structure,
+formatting, and links through <code>documentation-review</code>, records final
+evidence and follow-up work, then archives the completed plan under
+<code>_docs/plans/completed/</code> with a dated filename.
 See the example plan's <a href="plan-example.md#phase-5-review-documentation-and-release-readiness-status-accepted">release-readiness phase</a>,
 <a href="plan-example.md#risks">risks</a>, and
 <a href="plan-example.md#promotion-to-design">promotion notes</a>.
@@ -388,7 +409,9 @@ See the example plan's <a href="plan-example.md#status">status</a>,
 </td>
 <td>
 The agent updates the smallest appropriate design document with behavior that
-is now true in the codebase.
+is now true in the codebase. When a new stable design document is needed, it
+uses <code>design-create</code> to choose the right location, apply the
+workflow design-doc template, and update index links.
 See the example plan's
 <a href="plan-example.md#promotion-to-design">promotion notes</a>.
 </td>

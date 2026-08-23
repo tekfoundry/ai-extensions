@@ -12,6 +12,9 @@ activating backlog work.
 
 1. Resolve the plan and read its context, design intent, phases, risks,
    verification, and promotion requirements.
+   Compare the plan against the active workflow `plan.md` template when that
+   template is available, but do not treat local template customization as a
+   defect by itself.
 2. Read the repository instructions, documentation router, relevant design
    docs, related active or backlog plans, and current worktree state. Read
    completed plans only when specific historical decisions, regressions, or

@@ -38,7 +38,7 @@ test("run renders help with a zero exit code", () => {
 test("command registry owns splash command metadata", () => {
   assert.deepEqual(
     commands.map((command) => command.name),
-    ["init", "verify", "status", "workflow", "skills", "skill"]
+    ["init", "verify", "status", "workflow", "templates", "skills", "skill"]
   );
 
   const result = run([]);
@@ -101,6 +101,8 @@ test("command modules are grouped by object", () => {
   for (const objectName of ["workspace", "workflow", "skills", "skill"]) {
     assert.equal(existsSync(join("src/cli/cmds", objectName, "index.ts")), true);
   }
+
+  assert.equal(existsSync(join("src/cli/cmds/templates/index.ts")), true);
 
   for (const workspaceCommand of ["init", "verify", "status"]) {
     assert.equal(existsSync(join("src/cli/cmds/workspace", `${workspaceCommand}.ts`)), true);

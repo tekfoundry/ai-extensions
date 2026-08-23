@@ -2,10 +2,10 @@
 
 ## Status
 
-💤 Backlog
+🟨 Active
 
-This backlog plan is fully approved for later activation. It does not authorize
-implementation until a later explicit `plan-activate` request.
+This plan was activated by user request on 2026-08-23. It is now an active
+implementation record for workflow template publishing.
 
 ## Context
 
@@ -97,16 +97,15 @@ section templates grouped:
     risks.md
     reviewed-context.md
     promotion-to-design.md
-    status.md
 ```
 
 Flat document publishing is acceptable because the MVP supports only one active
 workflow. Section templates get a `sections/` namespace because they are
 reusable fragments, not standalone documents, and names such as
-`verification.md` or `status.md` would otherwise become ambiguous. Template
-name collisions should be treated as workflow activation or update concerns,
-not as routine template lookup concerns. If a future version supports multiple
-active workflows, template namespacing can be revisited then.
+`verification.md` would otherwise become ambiguous. Template name collisions
+should be treated as workflow activation or update concerns, not as routine
+template lookup concerns. If a future version supports multiple active
+workflows, template namespacing can be revisited then.
 
 Template resolution should be:
 
@@ -192,9 +191,9 @@ The plan repetition model should be explicit. `plan.md` owns the whole plan
 artifact; `sections/phase.md` owns the repeated phase shape;
 `sections/task.md` owns repeated task lines; and `sections/execution-note.md`
 owns repeated phase execution evidence or notes. Verification, risks,
-reviewed context, promotion-to-design, and status should also be available as
-section templates because they recur across plan, design, and completion
-contexts.
+reviewed context, promotion-to-design, and completion checklist content should
+also be available as section templates because they recur across plan, design,
+and completion contexts.
 
 The first implementation should keep the syntax small and predictable. It
 should support section includes and constrained repeat blocks, but it should
@@ -243,52 +242,59 @@ headers or footers, filters, computed values, or a full template language.
 
 ## Implementation Phases
 
-### Phase 1: Origin Documents And Sections In The Bundled Workflow (status: accepted)
+### Phase 1: Origin Documents And Sections In The Bundled Workflow (status: completed)
 
 Goal: define the initial workflow-owned document and section templates inside
 the bundled `aix` workflow source without changing install behavior yet.
 
 Tasks:
 
-- ⬜️ Add `aix/workflows/design-plan-execute/templates/`.
-- ⬜️ Create the initial `plan.md` origin template for the shared plan
+- ✅ Add `aix/workflows/design-plan-execute/templates/`.
+- ✅ Create the initial `plan.md` origin template for the shared plan
       lifecycle.
-- ⬜️ Create `docs-readme.md` for the project documentation router generated at
+- ✅ Create `docs-readme.md` for the project documentation router generated at
       `_docs/README.md`.
-- ⬜️ Create `design-readme.md` for the design documentation router generated
+- ✅ Create `design-readme.md` for the design documentation router generated
       at `_docs/design/README.md`.
-- ⬜️ Create `product-summary.md` for the product framing artifact generated at
+- ✅ Create `product-summary.md` for the product framing artifact generated at
       `_docs/design/product/product-summary.md`.
-- ⬜️ Create `competitive-analysis.md` for the market and landscape analysis
+- ✅ Create `competitive-analysis.md` for the market and landscape analysis
       artifact generated at `_docs/competitive-analysis.md`.
-- ⬜️ Create `design-doc.md` as a flexible current-state design document
+- ✅ Create `design-doc.md` as a flexible current-state design document
       template for files created under `_docs/design/`.
-- ⬜️ Add `aix/workflows/design-plan-execute/templates/sections/`.
-- ⬜️ Create `sections/phase.md` for repeated plan phase blocks.
-- ⬜️ Create `sections/task.md` for repeated phase task entries.
-- ⬜️ Create `sections/execution-note.md` for repeated phase or task execution
+- ✅ Add `aix/workflows/design-plan-execute/templates/sections/`.
+- ✅ Create `sections/phase.md` for repeated plan phase blocks.
+- ✅ Create `sections/task.md` for repeated phase task entries.
+- ✅ Create `sections/execution-note.md` for repeated phase or task execution
       notes.
-- ⬜️ Create `sections/verification.md` for repeated verification evidence and
+- ✅ Create `sections/verification.md` for repeated verification evidence and
       expectations.
-- ⬜️ Create `sections/risks.md` for recurring risk sections.
-- ⬜️ Create `sections/reviewed-context.md` for reviewed context lists.
-- ⬜️ Create `sections/promotion-to-design.md` for design promotion guidance.
-- ⬜️ Create `sections/status.md` for lifecycle status guidance.
-- ⬜️ Make `plan.md` cover planning draft, backlog, active, and completed
+- ✅ Create `sections/risks.md` for recurring risk sections.
+- ✅ Create `sections/reviewed-context.md` for reviewed context lists.
+- ✅ Create `sections/promotion-to-design.md` for design promotion guidance.
+- ✅ Create `sections/completion-checklist.md` for plan closeout tasks,
+      including the maintainability and cleanup review before archival.
+- ✅ Inline lifecycle status guidance in `plan.md` with `{{ plan:status }}`
+      instead of keeping a separate `sections/status.md` fragment.
+- ✅ Make `plan.md` cover planning draft, backlog, active, and completed
       states through plain Markdown guidance and status vocabulary.
-- ⬜️ Make `plan.md` use or reserve the composable section syntax for repeated
+- ✅ Make `plan.md` use or reserve the composable section syntax for repeated
       phases, tasks, execution notes, verification, risks, reviewed context,
-      promotion-to-design, and status.
-- ⬜️ Keep `design-doc.md` structured as a flexible sandwich: stable opening
+      completion checklist, and status.
+- ✅ Keep `design-doc.md` structured as a flexible sandwich: stable opening
       and closing guidance around a document body that can adapt to overview,
       feature, product, quality, or operations topics.
-- ⬜️ Update bundled workflow docs or skill guidance to identify the initial
+- ✅ Update bundled workflow docs or skill guidance to identify the initial
       workflow-owned artifact templates.
-- ⬜️ Avoid conditionals, filters, computed values, shared headers/footers, or
+- ✅ Avoid conditionals, filters, computed values, shared headers/footers, or
       arbitrary `for/endfor` pseudo-code in this phase.
 
 Verification:
 
+- Completed 2026-08-23: added origin document and section templates under
+  `aix/workflows/design-plan-execute/templates/`, kept `plan.md` composition
+  to `section` and constrained `repeat` references, and documented template
+  ownership in the bundled workflow README.
 - Inspect the templates for clear artifact ownership and no
   implementation-only assumptions.
 - Confirm repeated plan structures are represented by section templates rather
@@ -298,7 +304,7 @@ Verification:
 - Run targeted tests only if repository fixtures or packaged file discovery
   are touched.
 
-### Phase 2: Composable Template Infrastructure (status: accepted)
+### Phase 2: Composable Template Infrastructure (status: completed)
 
 Goal: add the domain model and parser needed to understand workflow templates,
 section includes, and constrained repeat syntax without publishing or applying
@@ -306,30 +312,35 @@ templates in skills yet.
 
 Tasks:
 
-- ⬜️ Model workflow templates as document templates and section templates.
-- ⬜️ Discover origin templates from
+- ✅ Model workflow templates as document templates and section templates.
+- ✅ Discover origin templates from
       `aix/workflows/design-plan-execute/templates/` and origin section
       templates from `templates/sections/`.
-- ⬜️ Parse and validate `{{ section:<name> }}` references.
-- ⬜️ Parse and validate constrained repeat references in the form
+- ✅ Parse and validate `{{ section:<name> }}` references.
+- ✅ Parse and validate constrained repeat references in the form
       `{{ repeat:<collection> section:<name> }}`.
-- ⬜️ Reject or report unsupported pseudo-code such as `{{ for ... }}`,
+- ✅ Reject or report unsupported pseudo-code such as `{{ for ... }}`,
       `{{ endfor }}`, arbitrary expressions, filters, or conditionals.
-- ⬜️ Validate that referenced section templates exist in the active workflow
+- ✅ Validate that referenced section templates exist in the active workflow
       template set.
-- ⬜️ Keep variable placeholders such as `{{ phase:title }}` inert unless they
+- ✅ Keep variable placeholders such as `{{ phase:title }}` inert unless they
       are needed for validation or later rendering.
-- ⬜️ Add tests for valid section includes, valid repeat references, missing
+- ✅ Add tests for valid section includes, valid repeat references, missing
       sections, and unsupported syntax.
 
 Verification:
 
+- Completed 2026-08-23: added `src/workflows/templates.ts`, optional
+  `templatesDir` manifest parsing, lockfile parsing for template hashes, and
+  `tests/templates.test.mjs`.
+- `npm run build` passed.
+- `node --test tests/templates.test.mjs` passed.
 - Targeted template parser and discovery tests.
 - Tests confirm document and section templates can be represented without
   installing or publishing them.
 - `npm run build` or the repository's targeted type check command.
 
-### Phase 3: Install Workflow Templates (status: accepted)
+### Phase 3: Install Workflow Templates (status: completed)
 
 Goal: include workflow origin templates in workflow install, init, update,
 verify, status, diff, and uninstall behavior as package-managed workflow
@@ -337,25 +348,30 @@ content.
 
 Tasks:
 
-- ⬜️ Extend workflow manifest or convention handling so document and section
+- ✅ Extend workflow manifest or convention handling so document and section
       templates are discoverable from
       `aix/workflows/design-plan-execute/templates/`.
-- ⬜️ Install origin document and section templates into
+- ✅ Install origin document and section templates into
       `.agents/packages/workflows/aix/design-plan-execute/templates/`.
-- ⬜️ Record origin document and section template hashes in `aix.lock.json`.
-- ⬜️ Make `aix init` include bundled workflow templates as part of the default
+- ✅ Record origin document and section template hashes in `aix.lock.json`.
+- ✅ Make `aix init` include bundled workflow templates as part of the default
       workflow install.
-- ⬜️ Make `aix verify` detect missing or drifted package-managed origin
+- ✅ Make `aix verify` detect missing or drifted package-managed origin
       templates.
-- ⬜️ Make `aix status` report workflow template health at a useful summary
+- ✅ Make `aix status` report workflow template health at a useful summary
       level.
-- ⬜️ Make `aix workflow diff` and `aix workflow update` include origin
+- ✅ Make `aix workflow diff` and `aix workflow update` include origin
       template changes.
-- ⬜️ Make `aix workflow uninstall` remove package-managed origin templates
+- ✅ Make `aix workflow uninstall` remove package-managed origin templates
       only after drift checks pass.
 
 Verification:
 
+- Completed 2026-08-23: workflow install validates template syntax, copies
+  origin templates as package-managed workflow files, records template hashes,
+  and reports template counts through install/init/status.
+- `npm run build` passed.
+- `node --test tests/templates.test.mjs tests/workflow.test.mjs tests/init.test.mjs tests/status.test.mjs` passed.
 - Workflow install/init tests assert origin templates are installed and locked.
 - Verify/status tests cover missing and drifted document and section
   templates.
@@ -363,97 +379,139 @@ Verification:
 - Workflow uninstall tests cover template cleanup and drift refusal.
 - `npm run build` and targeted workflow tests.
 
-### Phase 4: Template Publishing Commands (status: accepted)
+### Phase 4: Template Publishing Commands (status: completed)
 
 Goal: add the user-facing `aix templates` command family for exposing editable
 template copies under `.agents/templates/`.
 
 Tasks:
 
-- ⬜️ Add CLI routing for `aix templates list`.
-- ⬜️ Add `aix templates publish` to publish all document templates and section
+- ✅ Add CLI routing for `aix templates list`.
+- ✅ Add `aix templates publish` to publish all document templates and section
       templates from the active workflow into `.agents/templates/`.
-- ⬜️ Support section template names such as `sections/verification` for
+- ✅ Support section template names such as `sections/verification` for
       targeted diff and reset.
-- ⬜️ Add `aix templates diff` and `aix templates diff <template-name>` to
+- ✅ Add `aix templates diff` and `aix templates diff <template-name>` to
       compare published templates with their active workflow origins.
-- ⬜️ Add `aix templates reset <template-name>` to delete one published local
+- ✅ Add `aix templates reset <template-name>` to delete one published local
       override after explicit safety checks, allowing fallback to the active
       workflow origin.
-- ⬜️ Refuse to overwrite locally edited published templates during publish.
-- ⬜️ Refuse `aix templates publish <template-name>` with a clear message that
+- ✅ Refuse to overwrite locally edited published templates during publish.
+- ✅ Refuse `aix templates publish <template-name>` with a clear message that
       publish exposes the complete active workflow template set.
-- ⬜️ Ensure command output distinguishes origin templates from published local
+- ✅ Ensure command output distinguishes origin templates from published local
       overrides.
 
 Verification:
 
+- Completed 2026-08-23: added the `aix templates` command family, published
+  overrides under `.agents/templates/`, section addressing with
+  `sections/<name>`, and overwrite protection for locally edited published
+  templates.
+- `npm run build` passed.
+- `node --test tests/templates.test.mjs tests/cli.test.mjs` passed.
 - CLI tests for list, publish-all, targeted publish refusal, diff-all,
   diff-one, reset, and section-template addressing.
 - Safety tests for existing local templates, local edits, missing active
   workflow, and unknown template names.
 - `npm run build` and targeted command tests.
 
-### Phase 5: Template Resolution In Workflow Skills (status: accepted)
+### Phase 5: Template Resolution In Workflow Skills (status: completed)
 
 Goal: update workflow skill instructions so agents use published templates
 when available and fall back to workflow origins when not.
 
 Tasks:
 
-- ⬜️ Define a concise template resolution rule in reusable workflow docs.
-- ⬜️ Update `plan-create` to use the active workflow `plan.md` template when
+- ✅ Define a concise template resolution rule in reusable workflow docs.
+- ✅ Update `plan-create` to use the active workflow `plan.md` template when
       drafting a plan.
-- ⬜️ Update `project-init` to use `docs-readme.md` and `design-readme.md` when
+- ✅ Update `project-init` to use `docs-readme.md` and `design-readme.md` when
       creating missing documentation routers.
-- ⬜️ Update product-framing workflow guidance to use `product-summary.md` when
+- ✅ Update product-framing workflow guidance to use `product-summary.md` when
       creating `_docs/design/product/product-summary.md`.
-- ⬜️ Update competitive-analysis workflow guidance to use
+- ✅ Update competitive-analysis workflow guidance to use
       `competitive-analysis.md` when creating `_docs/competitive-analysis.md`.
-- ⬜️ Update `design-promote` to consider `design-doc.md` when creating a new
+- ✅ Update `design-promote` to consider `design-doc.md` when creating a new
       stable design document.
-- ⬜️ Update `plan-review`, `plan-activate`, `plan-update`, `plan-execute`,
+- ✅ Update `plan-review`, `plan-activate`, `plan-update`, `plan-execute`,
       `phase-execute`, `task-execute`, and `plan-complete` so their plan
       expectations refer to the shared plan template where appropriate.
-- ⬜️ Keep skill behavior instructions in `SKILL.md`; move only shared artifact
+- ✅ Keep skill behavior instructions in `SKILL.md`; move only shared artifact
       and section shape into templates.
-- ⬜️ Preserve the existing lifecycle gates, status markers, drift caution, and
+- ✅ Preserve the existing lifecycle gates, status markers, drift caution, and
       verification expectations.
-- ⬜️ Document what an agent should do if the template is missing from both the
+- ✅ Document what an agent should do if the template is missing from both the
       published and origin locations.
 
 Verification:
 
+- Completed 2026-08-23: added published-first template resolution guidance to
+  bundled workflow docs and updated workflow skill instructions for shared
+  artifact creation, review, execution, promotion, and closeout.
+- `npm run build` passed.
+- `node --test tests/templates.test.mjs tests/cli.test.mjs tests/workflow.test.mjs` passed.
 - Manual review of workflow skills against `plan.md` for consistency.
 - Run any skill packaging or workflow install tests affected by changed
   bundled workflow files.
 - Confirm a fresh project can still follow the workflow without publishing
   templates.
 
-### Phase 6: Review, Documentation, And Release Readiness (status: accepted)
+### Phase 6: Review, Documentation, And Release Readiness (status: completed)
 
 Goal: complete the feature with maintainability review, durable design docs,
 and clear user-facing behavior.
 
 Tasks:
 
-- ⬜️ Update `_docs/design/workflows.md` with the accepted template ownership,
+- ✅ Update `_docs/design/workflows.md` with the accepted template ownership,
       install, publish, and resolution model.
-- ⬜️ Update `_docs/design/cli.md` with the accepted `aix templates` command
+- ✅ Update `_docs/design/cli.md` with the accepted `aix templates` command
       surface.
-- ⬜️ Update `_docs/design/package-management.md` with lockfile, drift, and
+- ✅ Update `_docs/design/package-management.md` with lockfile, drift, and
       ownership behavior for workflow templates.
-- ⬜️ Run the maintainability review gate for changed production files.
-- ⬜️ Confirm the implementation supports only the accepted composable syntax
+- ✅ Run the maintainability review gate for changed production files.
+- ✅ Confirm the implementation supports only the accepted composable syntax
       and rejects unsupported template-language features.
-- ⬜️ Record verification evidence and any deferred markup or section
+- ✅ Record verification evidence and any deferred markup or section
       composition decisions before completing the plan.
 
 Verification:
 
-- File-size scan and responsibility audit for changed production files.
-- `npm test`.
-- `git diff --check`.
+- Completed 2026-08-23: promoted template ownership, CLI command behavior, and
+  package-management rules into stable design docs.
+- File-size scan passed after splitting template discovery/validation and
+  publish/diff/reset behavior into separate production files:
+  `src/workflows/templates.ts` is 159 lines and
+  `src/workflows/template-commands.ts` is 195 lines.
+- `npm run build` passed.
+- `npm test` passed: 115 tests.
+- Added automated template output coverage that renders the bundled `plan.md`
+  through the real section templates, compares it with a checked-in golden
+  fixture, writes a project-local human-inspectable artifact at
+  `tests/artifacts/templates/plan.md`, and asserts agent guardrail comments do
+  not leak into rendered output.
+- The rendered output fixture covers multiple phases, requires `Phase N:`
+  headings, and locks task lists to adjacent bullet rows without blank lines
+  between tasks.
+- Added `sections/completion-checklist.md` to formalize plan closeout tasks,
+  including codebase maintainability review and refactoring when needed.
+- Removed the `promotion-to-design` section from the default rendered
+  `plan.md` template so new plans do not guess final `_docs/design` targets
+  before implementation is complete. The completion checklist now calls out
+  `$design-promote` explicitly.
+- Added `design-create` and `documentation-review` as workflow-owned skills.
+  `plan-complete` now routes promotion through `$design-promote`, uses
+  `$documentation-review` for documentation structure, formatting, links, and
+  accuracy, and `design-promote` uses `$design-create` guidance when a new
+  design document is needed.
+- Added bundled publish coverage that installs the real bundled workflow from
+  a local git source, publishes all 14 templates, and verifies the published
+  templates preserve hidden guardrail comments.
+- `npm test` emitted a local `lerd` warning about syncing
+  `/Users/rcravens/.local/share/lerd/bin/aix`; the test command still exited
+  successfully.
+- `git diff --check` passed.
 - Documentation review confirms design docs, workflow templates, and command
   behavior agree.
 

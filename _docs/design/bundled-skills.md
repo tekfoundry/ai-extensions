@@ -73,7 +73,9 @@ These repository-local skills should be available as workflow-owned skills in
 the default `aix` workflow:
 
 - `project-init`
+- `design-create`
 - `design-promote`
+- `documentation-review`
 - `phase-execute`
 - `plan-activate`
 - `plan-complete`

@@ -12,6 +12,8 @@ aix verify
 aix status
 aix workflow install
 aix workflow update
+aix templates list
+aix templates publish
 aix skills add
 aix skills list
 aix skills diff
@@ -69,6 +71,11 @@ aix workflow update
 aix skills diff
 aix skills diff <source>/<path>
 aix workflow diff
+aix templates list
+aix templates publish
+aix templates diff
+aix templates diff <template-name>
+aix templates reset <template-name>
 ```
 
 Later commands can include:
@@ -110,6 +117,25 @@ changing files.
 `aix workflow update` should refresh the locked workflow docs and workflow-owned
 skills, including the managed `AGENTS.md` block, only after local drift checks
 pass.
+
+`aix templates list` should list templates from the active workflow and show
+whether each one is using the workflow origin or a published local override.
+
+`aix templates publish` should publish the complete active workflow template
+set into `.agents/templates/`. It should copy document templates to the top
+level, copy section templates under `.agents/templates/sections/`, and refuse a
+targeted `publish <template-name>` form. Publishing must refuse to overwrite a
+published template that has local edits.
+
+`aix templates diff` should compare all published local templates with their
+active workflow origins. `aix templates diff <template-name>` should compare
+one published template, including section names such as `sections/verification`.
+Templates without a published override have no local diff.
+
+`aix templates reset <template-name>` should delete one published local
+override after validating that the name belongs to the active workflow template
+set. Reset should not copy origin content over the published file. After reset,
+normal template resolution falls back to the workflow origin.
 
 `aix skills add <git-or-github-tree-url> [alias]` should add a Git-backed skill
 source to `aix.json` under `sources.skills`, resolve the requested ref,

@@ -9,6 +9,7 @@ import { assertAgentsMdBlockUnmodified, removeAgentsMdBlock } from "./agents-md.
 import { assertWorkflowDocsUnmodified, removeWorkflowDocs } from "./docs.js";
 import { removeWorkflowActiveSkills } from "./skills.js";
 import { assertWorkflowPackageUnmodified, replaceWorkflowSkillEntries, workflowSkills } from "./shared.js";
+import { assertWorkflowTemplatesUnmodified } from "./templates.js";
 import type { RemoveWorkflowResult } from "./types.js";
 
 export function removeWorkflow(): RemoveWorkflowResult {
@@ -31,6 +32,7 @@ export function removeWorkflow(): RemoveWorkflowResult {
   }
 
   assertWorkflowDocsUnmodified(workflow);
+  assertWorkflowTemplatesUnmodified(workflow);
   assertAgentsMdBlockUnmodified(workflow.agentsMd);
 
   removeWorkflowActiveSkills(ownedSkills);

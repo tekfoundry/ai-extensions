@@ -19,7 +19,9 @@ explicitly asks to activate, promote, or start a backlog plan.
    migrations.
 3. Check readiness: the plan must have clear design intent, phases, tasks,
    success goals, verification expectations, risks, and promotion-to-design
-   guidance.
+   guidance. Compare it with the active workflow `plan.md` template when that
+   template is available, but do not rewrite a ready plan solely for cosmetic
+   template differences.
 4. Move the plan into `_docs/plans/` without changing its filename unless the
    user requested a rename. Preserve all execution history.
 5. Update the plan only as needed to state that human activation occurred and

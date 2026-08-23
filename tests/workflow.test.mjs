@@ -37,6 +37,7 @@ async function createWorkflowRepo(prefix, workflowName = "fixture-workflow", wor
 
 function writeWorkflow(directory, title, skillBody, workflowName = "fixture-workflow") {
   mkdirSync(join(directory, "skills/alpha"), { recursive: true });
+  mkdirSync(join(directory, "templates/sections"), { recursive: true });
   writeFileSync(
     join(directory, "workflow.json"),
     JSON.stringify(
@@ -49,6 +50,7 @@ function writeWorkflow(directory, title, skillBody, workflowName = "fixture-work
           marker: `aix:workflow ${workflowName}`
         },
         docs: ["README.md", "workflow.md", "engineering-best-practices.md"],
+        templatesDir: "templates",
         skillsDir: "skills"
       },
       null,
@@ -60,6 +62,9 @@ function writeWorkflow(directory, title, skillBody, workflowName = "fixture-work
   writeFileSync(join(directory, "README.md"), `# ${title}\n`, "utf8");
   writeFileSync(join(directory, "workflow.md"), "# Workflow\n", "utf8");
   writeFileSync(join(directory, "engineering-best-practices.md"), "# Engineering\n", "utf8");
+  writeFileSync(join(directory, "templates/plan.md"), "{{ section:status }}\n{{ repeat:phases section:phase }}\n", "utf8");
+  writeFileSync(join(directory, "templates/sections/status.md"), "Backlog\n", "utf8");
+  writeFileSync(join(directory, "templates/sections/phase.md"), "{{ phase:title }}\n", "utf8");
   writeFileSync(join(directory, "skills/alpha/SKILL.md"), `---\nname: alpha\n---\n\n# Alpha\n\n${skillBody}\n`, "utf8");
 }
 
@@ -89,14 +94,17 @@ test("run workflow install installs docs, managed AGENTS block, and workflow-own
 
     assert.equal(result.exitCode, 0);
     assert.match(result.stdout, /Installed workflow fixture-workflow/);
+    assert.match(result.stdout, /Installed 3 workflow templates/);
     assert.equal(manifest.workflow, "fixture:.");
     assert.equal(manifest.sources.workflows.fixture.url, source);
     assert.equal(lockfile.workflows.length, 1);
     assert.equal(lockfile.workflows[0].docs.length, 3);
+    assert.equal(lockfile.workflows[0].templates.length, 3);
     assert.equal(lockfile.skills[0].owner.kind, "workflow");
     assert.equal(lockfile.skills[0].owner.name, "fixture-workflow");
     assert.ok(existsSync(join(projectPath, ".agents/README.md")));
     assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/fixture/fixture-workflow/skills/alpha/SKILL.md")));
+    assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/fixture/fixture-workflow/templates/plan.md")));
     assert.ok(existsSync(join(projectPath, ".agents/skills/alpha/SKILL.md")));
     assert.ok(existsSync(join(projectPath, "_docs/design")));
     assert.ok(existsSync(join(projectPath, "_docs/plans/backlog")));
@@ -229,17 +237,20 @@ test("run workflow diff reports source changes and workflow update applies them"
     );
 
     writeWorkflow(source, "Updated Workflow", "Updated body.");
+    writeFileSync(join(source, "templates/plan.md"), "{{ section:status }}\nUpdated template.\n", "utf8");
     git(["add", "."], source);
     git(["commit", "-m", "update workflow"], source);
 
     const diff = run(["workflow", "diff"]);
     assert.equal(diff.exitCode, 0);
     assert.match(diff.stdout, /Updated body/);
+    assert.match(diff.stdout, /Updated template/);
 
     const update = run(["workflow", "update"]);
     assert.equal(update.exitCode, 0);
     assert.match(update.stdout, /Updated workflow/);
     assert.match(readFileSync(".agents/skills/alpha/SKILL.md", "utf8"), /Updated body/);
+    assert.match(readFileSync(".agents/packages/workflows/fixture/fixture-workflow/templates/plan.md", "utf8"), /Updated template/);
     } finally {
       if (previousCache === undefined) {
         delete process.env.AIX_CACHE_DIR;
@@ -263,6 +274,18 @@ test("run verify reports workflow doc drift and workflow uninstall preserves pro
     assert.match(verify.stdout, /Workflow doc hash changed: .agents\/workflow.md/);
 
     writeFileSync(".agents/workflow.md", "# Workflow\n", "utf8");
+    writeFileSync(".agents/packages/workflows/fixture/fixture-workflow/templates/plan.md", "local template edit\n", "utf8");
+
+    const templateDrift = run(["verify"]);
+    assert.equal(templateDrift.exitCode, 2);
+    assert.match(templateDrift.stdout, /Workflow package has drift: .agents\/packages\/workflows\/fixture\/fixture-workflow/);
+    assert.match(templateDrift.stdout, /Workflow template hash changed: .agents\/packages\/workflows\/fixture\/fixture-workflow\/templates\/plan.md/);
+
+    const blockedRemove = run(["workflow", "uninstall"]);
+    assert.equal(blockedRemove.exitCode, 2);
+    assert.match(blockedRemove.stderr, /Refusing to remove modified workflow package/);
+
+    writeFileSync(".agents/packages/workflows/fixture/fixture-workflow/templates/plan.md", "{{ section:status }}\n{{ repeat:phases section:phase }}\n", "utf8");
     const remove = run(["workflow", "uninstall"]);
 
     assert.equal(remove.exitCode, 0);

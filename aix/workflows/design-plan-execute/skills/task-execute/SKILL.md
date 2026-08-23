@@ -34,7 +34,9 @@ default, or broaden the task into adjacent refactors.
 3. Read `AGENTS.md`, `.agents/workflow.md`, `_docs/README.md`, the relevant
    design docs, and the containing plan section.
 4. Read nearby task status, dependencies, success goals, verification
-   requirements, risks, and promotion-to-design guidance from the plan.
+   requirements, risks, and promotion-to-design guidance from the plan. Use the
+   active workflow `plan.md` template as a consistency reference for task and
+   execution-note shape when it is available.
 5. Inspect the relevant implementation files, tests, and current worktree
    status. Preserve unrelated user changes.
 
@@ -117,6 +119,8 @@ After verification:
   agents.
 - Record remaining risks, skipped checks, or follow-on tasks instead of hiding
   them.
+- Keep plan task and evidence updates aligned with the active workflow
+  `plan.md` template when it is available.
 - Report files changed, verification performed, documentation impact, and
   whether escalation was needed.
 

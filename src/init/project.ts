@@ -17,7 +17,7 @@ export function initProject(options: InitOptions = {}): InitResult {
 
   return {
     declaredCount: 1,
-    materializedCount: workflow.installedDocs.length + workflow.activatedSkills.length,
+    materializedCount: workflow.installedDocs.length + workflow.installedTemplates + workflow.activatedSkills.length,
     activatedCount: workflow.activatedSkills.length,
     manifestPath: workflow.manifestPath,
     lockfilePath: workflow.lockfilePath

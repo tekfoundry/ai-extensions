@@ -20,6 +20,8 @@ activation.
 3. Confirm deferral is safe: record incomplete tasks, verification gaps,
    unresolved decisions, risks, and any partially implemented work.
 4. Update the plan with a deferral note and any reactivation prerequisites.
+   Keep the plan aligned with the active workflow `plan.md` template where it
+   applies.
 5. Move the plan into `_docs/plans/backlog/` without changing its filename
    unless the user requested a rename.
 6. Run targeted verification: `git status --short`, `git diff --check` for the

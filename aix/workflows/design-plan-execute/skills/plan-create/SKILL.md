@@ -27,8 +27,9 @@ conversation grounded in explicit user agreement at each major step.
    require them to know the implementation approach yet.
 4. Create the backlog plan document early, after the first goal summary is
    available, so planning work is retained as it evolves. The initial document
-   should use a status that clearly means plan creation, review, and approval
-   are not complete yet, such as `📝 Planning Draft`.
+   should use the active workflow `plan.md` template when available and a
+   status that clearly means plan creation, review, and approval are not
+   complete yet, such as `📝 Planning Draft`.
 5. Use the plan document as the living planning record. Keep it current as the
    goal, design intent, questions, phases, tasks, risks, verification, lessons,
    and promotion notes evolve.
@@ -74,8 +75,9 @@ later sections affected by that change.
 
 ## Living Plan Shape
 
-Use the repository's existing plan style, and include sections that preserve
-unfinished planning work without pretending it is final:
+Use the active workflow `plan.md` template when available. Otherwise use the
+repository's existing plan style, and include sections that preserve unfinished
+planning work without pretending it is final:
 
 - `Status`: use `📝 Planning Draft` until final plan acceptance, then `💤 Backlog`.
 - `Context`: current understanding, relevant docs reviewed, and why the work
@@ -94,6 +96,11 @@ unfinished planning work without pretending it is final:
 - `Risks`: especially data-safety, credentials, file operations,
   external-system, publishing, persistence, runtime-contract, and rollout risks.
 - `Lessons To Carry Forward` and `Promotion To Design` when relevant.
+
+Resolve `plan.md` from `.agents/templates/plan.md` first, then from the active
+workflow origin under `.agents/packages/workflows/<source>/<workflow>/templates/`.
+If neither exists, continue with the structure above and report the missing
+template.
 
 For accepted backlog plans, place acceptance state in the section and phase
 headings, for example:
