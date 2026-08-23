@@ -130,6 +130,7 @@ aix templates publish
 aix templates diff
 aix templates diff <template-name>
 aix templates reset <template-name>
+aix templates reset --all
 ```
 
 `aix templates publish` should copy origin templates from the active workflow
@@ -151,6 +152,13 @@ published file. After reset, the normal published-first resolution naturally
 falls back to the installed package-managed workflow origin. Reset is therefore
 a delete-the-override operation with explicit safety checks, not an overwrite
 operation.
+
+`aix templates reset --all` should remove every published local override that
+belongs to the active workflow template set. It should leave package-managed
+workflow origin templates untouched, ignore unrelated files under
+`.agents/templates/`, and remove empty template directories after deleting the
+known overrides. This gives users a clear way to publish templates for
+inspection or testing and then return the project to package-managed defaults.
 
 The first template set should focus on durable workflow-created documents:
 `plan.md`, `docs-readme.md`, `design-readme.md`, `product-summary.md`,
@@ -396,6 +404,8 @@ Tasks:
 - ✅ Add `aix templates reset <template-name>` to delete one published local
       override after explicit safety checks, allowing fallback to the active
       workflow origin.
+- ✅ Add `aix templates reset --all` to delete every published local override
+      that belongs to the active workflow template set.
 - ✅ Refuse to overwrite locally edited published templates during publish.
 - ✅ Refuse `aix templates publish <template-name>` with a clear message that
       publish exposes the complete active workflow template set.
@@ -408,12 +418,21 @@ Verification:
   overrides under `.agents/templates/`, section addressing with
   `sections/<name>`, and overwrite protection for locally edited published
   templates.
+- Completed 2026-08-23: added `aix templates reset --all` to delete every
+  published override that belongs to the active workflow template set while
+  preserving unrelated files under `.agents/templates/`.
 - `npm run build` passed.
 - `node --test tests/templates.test.mjs tests/cli.test.mjs` passed.
+- `npm test` passed: 116 tests.
+- `git diff --check` passed for the changed implementation, tests, design
+  docs, and plan.
+- File-size scan passed for changed production files:
+  `src/workflows/template-commands.ts` is 221 lines.
 - CLI tests for list, publish-all, targeted publish refusal, diff-all,
-  diff-one, reset, and section-template addressing.
+  diff-one, reset, reset-all, and section-template addressing.
 - Safety tests for existing local templates, local edits, missing active
-  workflow, and unknown template names.
+  workflow, unknown template names, and preservation of unrelated
+  `.agents/templates/` files during reset-all.
 - `npm run build` and targeted command tests.
 
 ### Phase 5: Template Resolution In Workflow Skills (status: completed)

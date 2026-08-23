@@ -407,6 +407,31 @@ test("templates diff and reset work for document and section names", async () =>
   });
 });
 
+test("templates reset --all removes published overrides and preserves unrelated files", async () => {
+  const source = await createWorkflowRepo();
+
+  await withProject(async (projectPath) => {
+    assert.equal(runCli(projectPath, ["workflow", "install", source, "fixture"]).exitCode, 0);
+    assert.equal(runCli(projectPath, ["templates", "publish"]).exitCode, 0);
+    writeFileSync(join(projectPath, ".agents/templates/plan.md"), "Local plan edit.\n", "utf8");
+    writeFileSync(join(projectPath, ".agents/templates/sections/phase.md"), "Local phase edit.\n", "utf8");
+    writeFileSync(join(projectPath, ".agents/templates/local-note.md"), "Project-owned note.\n", "utf8");
+
+    const reset = runCli(projectPath, ["templates", "reset", "--all"]);
+    assert.equal(reset.exitCode, 0);
+    assert.match(reset.stdout, /Reset published workflow templates for fixture-workflow/);
+    assert.match(reset.stdout, /Reset 3 templates/);
+    assert.equal(existsSync(join(projectPath, ".agents/templates/plan.md")), false);
+    assert.equal(existsSync(join(projectPath, ".agents/templates/sections/status.md")), false);
+    assert.equal(existsSync(join(projectPath, ".agents/templates/sections/phase.md")), false);
+    assert.equal(readFileSync(join(projectPath, ".agents/templates/local-note.md"), "utf8"), "Project-owned note.\n");
+
+    const diff = runCli(projectPath, ["templates", "diff"]);
+    assert.equal(diff.exitCode, 0);
+    assert.match(diff.stdout, /No published template changes/);
+  });
+});
+
 test("templates commands report missing workflow and unknown names", async () => {
   await withProject(async (projectPath) => {
     const missing = runCli(projectPath, ["templates", "list"]);

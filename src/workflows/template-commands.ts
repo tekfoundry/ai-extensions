@@ -40,6 +40,11 @@ export interface ResetWorkflowTemplateResult {
   template: PublishedWorkflowTemplate;
 }
 
+export interface ResetAllWorkflowTemplatesResult {
+  workflowName: string;
+  reset: PublishedWorkflowTemplate[];
+}
+
 function activeWorkflow(): LockfileWorkflowEntry {
   const workflow = readLockfileJson().workflows?.[0];
 
@@ -191,5 +196,26 @@ export function resetWorkflowTemplate(name: string): ResetWorkflowTemplateResult
   return {
     workflowName: workflow.name,
     template: { ...template, published: false }
+  };
+}
+
+export function resetAllWorkflowTemplates(): ResetAllWorkflowTemplatesResult {
+  const workflow = activeWorkflow();
+  const reset: PublishedWorkflowTemplate[] = [];
+  const templatesDir = join(AGENTS_DIR, "templates");
+
+  for (const template of workflowTemplateRows(workflow)) {
+    if (!existsSync(template.publishedPath)) {
+      continue;
+    }
+
+    removePublishedTemplate(template.publishedPath);
+    removeEmptyTemplateParents(template.publishedPath, templatesDir);
+    reset.push({ ...template, published: false });
+  }
+
+  return {
+    workflowName: workflow.name,
+    reset
   };
 }

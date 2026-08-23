@@ -76,6 +76,7 @@ aix templates publish
 aix templates diff
 aix templates diff <template-name>
 aix templates reset <template-name>
+aix templates reset --all
 ```
 
 Later commands can include:
@@ -136,6 +137,12 @@ Templates without a published override have no local diff.
 override after validating that the name belongs to the active workflow template
 set. Reset should not copy origin content over the published file. After reset,
 normal template resolution falls back to the workflow origin.
+
+`aix templates reset --all` should delete every published local override that
+belongs to the active workflow template set. It should leave package-managed
+workflow origin templates untouched, preserve unrelated files under
+`.agents/templates/`, remove empty template directories when possible, and
+return the project to workflow-origin template resolution.
 
 `aix skills add <git-or-github-tree-url> [alias]` should add a Git-backed skill
 source to `aix.json` under `sources.skills`, resolve the requested ref,

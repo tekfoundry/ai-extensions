@@ -175,7 +175,10 @@ document templates flat at the top level and reusable section templates under
 `.agents/templates/sections/`. Published templates are project-editable. A
 later publish refuses to overwrite a published template that differs from its
 origin. `aix templates reset <template-name>` deletes one published override so
-template resolution falls back to the workflow origin.
+template resolution falls back to the workflow origin. `aix templates reset
+--all` deletes every published local override that belongs to the active
+workflow template set, while preserving unrelated files under
+`.agents/templates/`.
 
 The bundled `plan.md` template includes a `sections/completion-checklist`
 fragment so closeout expectations are visible from the start. The
@@ -228,6 +231,7 @@ aix templates list
 aix templates publish
 aix templates diff [template-name]
 aix templates reset <template-name>
+aix templates reset --all
 ```
 
 `aix verify` should include workflow checks alongside existing manifest,

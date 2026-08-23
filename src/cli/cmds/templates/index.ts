@@ -2,10 +2,12 @@ import {
   diffWorkflowTemplates,
   listWorkflowTemplates,
   publishWorkflowTemplates,
+  resetAllWorkflowTemplates,
   resetWorkflowTemplate,
   type DiffWorkflowTemplatesResult,
   type ListWorkflowTemplatesResult,
   type PublishWorkflowTemplatesResult,
+  type ResetAllWorkflowTemplatesResult,
   type ResetWorkflowTemplateResult
 } from "../../../workflows/index.js";
 import { renderTable } from "../../../ui/table.js";
@@ -54,6 +56,13 @@ function renderResetResult(result: ResetWorkflowTemplateResult): string {
   return `Reset workflow template ${result.template.name} for ${result.workflowName}.`;
 }
 
+function renderResetAllResult(result: ResetAllWorkflowTemplatesResult): string {
+  return [
+    `Reset published workflow templates for ${result.workflowName}.`,
+    `Reset ${result.reset.length} templates.`
+  ].join("\n");
+}
+
 function runTemplatesList(argv: string[]): CliResult {
   if (argv.length > 2) {
     throw new CliError("Usage: aix templates list", EXIT_USAGE);
@@ -84,7 +93,11 @@ function runTemplatesDiff(argv: string[]): CliResult {
 
 function runTemplatesReset(argv: string[]): CliResult {
   if (argv.length !== 3) {
-    throw new CliError("Usage: aix templates reset <template-name>", EXIT_USAGE);
+    throw new CliError("Usage: aix templates reset <template-name|--all>", EXIT_USAGE);
+  }
+
+  if (argv[2] === "--all") {
+    return { exitCode: 0, stdout: renderResetAllResult(resetAllWorkflowTemplates()) };
   }
 
   return { exitCode: 0, stdout: renderResetResult(resetWorkflowTemplate(argv[2])) };
@@ -113,7 +126,7 @@ export const templatesCommand: Command = {
     { usage: "templates list", summary: "List workflow templates" },
     { usage: "templates publish", summary: "Publish editable workflow templates" },
     { usage: "templates diff [name]", summary: "Compare published templates with origins" },
-    { usage: "templates reset <name>", summary: "Remove a published template override" }
+    { usage: "templates reset <name|--all>", summary: "Remove published template overrides" }
   ],
   run: runTemplatesCommand
 };

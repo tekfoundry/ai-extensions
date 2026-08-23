@@ -194,6 +194,9 @@ files. They are user-editable project overrides created only by
 `aix templates publish`. Publishing should refuse to overwrite a published
 template that differs from its origin. Resetting a template deletes the
 published override and lets resolution fall back to the package-managed origin.
+`aix templates reset --all` deletes every published override that belongs to
+the active workflow template set while preserving unrelated project files under
+`.agents/templates/`.
 
 Root `AGENTS.md` is mixed ownership. `aix workflow install` should insert or
 update the workflow text from `AGENTS.append.md` inside a marker-delimited

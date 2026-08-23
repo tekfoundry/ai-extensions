@@ -6,6 +6,7 @@ export {
   diffWorkflowTemplates,
   listWorkflowTemplates,
   publishWorkflowTemplates,
+  resetAllWorkflowTemplates,
   resetWorkflowTemplate
 } from "./template-commands.js";
 export {
@@ -20,6 +21,7 @@ export type {
   DiffWorkflowTemplatesResult,
   ListWorkflowTemplatesResult,
   PublishWorkflowTemplatesResult,
+  ResetAllWorkflowTemplatesResult,
   ResetWorkflowTemplateResult,
   PublishedWorkflowTemplate
 } from "./template-commands.js";

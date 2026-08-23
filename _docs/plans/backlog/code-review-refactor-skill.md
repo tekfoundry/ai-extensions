@@ -2,11 +2,10 @@
 
 ## Status
 
-📝 Planning Draft
+💤 Backlog
 
-This backlog plan is a draft created from the initial request. It does not
-authorize implementation until the goal, design intent, phases, and final
-backlog plan are accepted and later activated.
+This backlog plan is fully approved for later activation. It does not authorize
+implementation until a later explicit `plan-activate` request.
 
 ## Context
 
@@ -37,7 +36,7 @@ Reviewed context:
 - `_docs/design/bundled-skills.md`
 - `_docs/plans/backlog/github-skill-discovery-helper.md`
 
-## High-Level Goal (status: draft)
+## High-Level Goal (status: accepted)
 
 Create a reusable standalone skill for code review and refactoring that is not
 owned by the `design-plan-execute` workflow.
@@ -48,11 +47,13 @@ the primary standard. It should identify unclear ownership, overly large or
 mixed-responsibility files, duplicated logic, weak boundaries, missing tests,
 and other issues that make future changes harder.
 
-The skill should support both review-only use and careful refactoring use. It
-should not make broad rewrites by default. When refactoring is requested or
-authorized, it should work in small, verifiable changes and preserve behavior.
+The skill should support broad review and developer-approved refactoring. It
+should not make rewrites directly from the recommendation list. When the
+developer selects substantial refactoring work, the skill should organize the
+work through the normal plan approval and execution lifecycle before code
+changes begin.
 
-## Design Intent (status: draft)
+## Design Intent (status: accepted)
 
 Add a standalone skill, tentatively named `code-review-refactor`, under the
 default `aix` skill source rather than under
@@ -66,48 +67,59 @@ aix/skills/code-review-refactor/
 ```
 
 It should be discoverable and activatable as an ordinary user-requested skill
-from the `aix` source. It should not be workflow-owned, should not be installed
-automatically as part of the active workflow, and should remain useful in
+from the `aix` source. It should also be installed as part of the default
+`aix init` payload. It should not be workflow-owned and should remain useful in
 projects that do not use the `design-plan-execute` workflow.
 
-The skill should use `.agents/engineering-best-practices.md` when it exists in
-the consuming project. If that file is missing, it should fall back to the
-repository's available engineering guidance, established local patterns, and
-the skill's own review checklist while reporting that the canonical best
-practices document was unavailable.
+The skill must run a pre-flight check for
+`.agents/engineering-best-practices.md` before reviewing code. That file is
+project-editable and is the authoritative review and refactor standard for the
+current repository. The skill should read it fresh each time, follow its
+guidance as written, and avoid hard-coding assumptions about what guidance it
+contains.
 
-The review workflow should separate diagnosis from edits:
+If `.agents/engineering-best-practices.md` is missing, the skill should stop
+before reviewing code. It should tell the developer that the required
+engineering best-practices document is missing and explain that the file is
+expected to describe the project's review and refactor standards, including
+the code-quality, ownership, testing, safety, and verification guidance the
+developer wants agents to follow.
 
-1. Read repository instructions, design docs, package manifests, test
-   structure, and source layout.
-2. Run or request a file-size and ownership scan using repository-appropriate
-   commands.
-3. Review high-risk areas for mixed responsibilities, blurred boundaries,
-   duplicated rules, brittle tests, hidden side effects, and missing
-   verification.
-4. Report findings with severity, file references, evidence, and suggested
-   refactor direction.
-5. Ask for explicit approval before broad refactors, multi-file restructuring,
-   or changes that could affect behavior.
-6. For authorized refactors, make the smallest behavior-preserving change,
-   run targeted verification first, and report residual risk.
+The review and refactor scope is limited to project code files. The skill
+should exclude documentation, workflow/process files, generated artifacts,
+package-manager state, and other non-code areas unless the developer explicitly
+asks for a different scope. Excluded paths include `_docs/`, `.agents/`, and
+similar non-code directories.
 
-The skill should support these modes:
+The default workflow is iterative and developer-directed:
 
-- review-only: produce findings and recommendations without editing files
-- focused refactor: apply one approved refactor or cleanup
-- review-and-refactor: perform review, select safe low-risk improvements, and
-  stop before broader changes that need user approval
+1. Review the in-scope project code.
+2. Provide an enumerated list of refactor recommendations.
+3. Let the developer choose which refactor to complete.
+4. Create a new plan to capture the selected refactoring work when the work is
+   outside the scope of an active plan.
+5. Review the plan with the developer and get full approval before
+   implementation.
+6. After approval, move the plan into the in-progress plans directory.
+7. Execute the review and refactor plan through its approved phases and tasks.
+8. Let the developer cancel the process at any time.
 
-The skill should avoid duplicating the existing `task-execute` lifecycle. When
-used inside an active plan, it should respect the active plan and update only
-the plan task it was asked to handle. When used outside a plan, it should stay
-within micro-fix boundaries unless the user explicitly asks for a new plan.
+Each recommendation should include severity, file references, evidence, the
+recommended refactor direction, and the expected verification impact. The skill
+should not choose broad refactors on the developer's behalf. When the developer
+selects substantial refactoring work, the skill should organize that work into
+a plan with phases, tasks, risks, and verification steps before implementation
+begins.
+
+If the review runs inside an active plan, the skill should record
+recommendations and selected work in that plan instead of creating a separate
+plan. If the review runs outside an active plan, the selected refactor should
+move through backlog planning, developer approval, activation into the
+in-progress plans directory, and plan execution before code changes begin.
 
 ## Non-Goals
 
-- No workflow-owned lifecycle skill in the first version.
-- No automatic activation during `aix init` unless separately approved.
+- No workflow ownership for the default-init skill.
 - No large automated rewrites without explicit user approval.
 - No changes to runtime behavior merely to satisfy style preferences.
 - No new static-analysis engine or custom parser unless later evidence shows
@@ -133,16 +145,18 @@ within micro-fix boundaries unless the user explicitly asks for a new plan.
 
 ## Implementation Phases
 
-### Phase 1: Skill Contract And Review Modes (status: draft)
+### Phase 1: Skill Contract And Review Flow (status: accepted)
 
 Goal: define the standalone skill's user-facing contract, scope, and operating
-modes before authoring the skill file.
+review-to-plan flow before authoring the skill file.
 
 Tasks:
 
 - ⬜️ Confirm the skill name, active name, and source location.
-- ⬜️ Define review-only, focused-refactor, and review-and-refactor modes.
-- ⬜️ Define when the skill may edit files and when it must stop for approval.
+- ⬜️ Define the review, recommendation, developer selection, plan approval,
+      activation, and execution flow.
+- ⬜️ Define when the skill may edit files and when it must create or update a
+      plan before implementation.
 - ⬜️ Define the expected finding format, including severity, file reference,
   evidence, recommendation, and verification impact.
 - ⬜️ Define how the skill behaves inside an active plan versus outside a plan.
@@ -157,7 +171,7 @@ Execution notes:
 
 - None yet.
 
-### Phase 2: Skill Authoring (status: draft)
+### Phase 2: Skill Authoring (status: accepted)
 
 Goal: add the standalone skill instructions and any agent metadata needed for
 discovery and activation.
@@ -168,8 +182,10 @@ Tasks:
 - ⬜️ Add front matter with a clear name and description.
 - ⬜️ Encode the review workflow around
   `.agents/engineering-best-practices.md`.
-- ⬜️ Include guardrails for preserving unrelated changes and avoiding broad
-  rewrites without approval.
+- ⬜️ Include a pre-flight check that stops before code review when
+  `.agents/engineering-best-practices.md` is missing.
+- ⬜️ Include guardrails for preserving unrelated changes, scoping review to
+  project code files, and routing substantial refactors through plan approval.
 - ⬜️ Include concrete review checks for file size, responsibility boundaries,
   duplicated rules, tests, error handling, safety-sensitive behavior, and
   documentation impact.
@@ -185,45 +201,48 @@ Execution notes:
 
 - None yet.
 
-### Phase 3: Packaging And Discovery Exposure (status: draft)
+### Phase 3: Packaging And Default Init Exposure (status: accepted)
 
-Goal: ensure the standalone skill is discoverable and installable through the
-normal `aix` skill-source path.
+Goal: ensure the standalone skill is discoverable through the normal `aix`
+skill-source path and installed as part of the default `aix init` payload.
 
 Tasks:
 
 - ⬜️ Confirm `aix skills list aix` discovers the new skill.
-- ⬜️ Confirm `aix skill activate aix:code-review-refactor` installs it as a
+- ⬜️ Confirm `aix skill activate aix/code-review-refactor` installs it as a
   user-requested skill.
-- ⬜️ Confirm activation writes normal skill package and lockfile entries, not
-  workflow-owned entries.
-- ⬜️ Update bundled-skill documentation if the default `aix` source now
-  contains this standalone skill.
+- ⬜️ Confirm `aix init` installs the skill as part of the default init payload.
+- ⬜️ Confirm activation and init write normal standalone skill package and
+  lockfile entries, not workflow-owned entries.
+- ⬜️ Update bundled-skill documentation for the default `aix` source and init
+  payload.
 - ⬜️ Confirm workflow install, update, and uninstall do not own or remove the
   standalone skill.
 
 Verification:
 
-- Targeted CLI tests for listing and activating the standalone skill.
+- Targeted CLI tests for listing, activating, and default-init installing the
+  standalone skill.
 - Existing activation, status, verify, and workflow tests continue to pass.
 
 Execution notes:
 
 - None yet.
 
-### Phase 4: Review Behavior Validation (status: draft)
+### Phase 4: Review Behavior Validation (status: accepted)
 
 Goal: validate that the skill produces useful maintainability findings without
 overstepping into unsafe or noisy refactors.
 
 Tasks:
 
-- ⬜️ Add fixture or transcript-style tests for review-only output.
+- ⬜️ Add fixture, static instruction, or transcript-style tests for review
+  output.
 - ⬜️ Test that findings prioritize correctness and maintainability before
   style.
-- ⬜️ Test that broad refactors require explicit approval.
-- ⬜️ Test fallback behavior when `.agents/engineering-best-practices.md` is
-  missing.
+- ⬜️ Test that substantial refactors require plan creation or active-plan
+  updates before implementation.
+- ⬜️ Test missing `.agents/engineering-best-practices.md` pre-flight behavior.
 - ⬜️ Test usage inside an active plan and outside a plan.
 
 Verification:
@@ -236,7 +255,7 @@ Execution notes:
 
 - None yet.
 
-### Phase 5: Review, Documentation, And Release Readiness (status: draft)
+### Phase 5: Review, Documentation, And Release Readiness (status: accepted)
 
 Goal: close the implementation with maintainability review, docs updates, and
 release confidence.
@@ -265,15 +284,14 @@ Execution notes:
 
 ## Open Questions / Decisions
 
-- Should the final skill name be `code-review-refactor`,
-  `review-refactor`, or something shorter?
-- Should the skill be installed automatically by `aix init`, or should it only
-  be discoverable and activatable from the default `aix` skill source?
-- Should the first version allow automatic low-risk refactors, or should all
-  edits require explicit user approval after the findings list?
-- What exact severity vocabulary should findings use?
-- Should the skill create a separate review report artifact, update an active
-  plan, or only report in chat by default?
+None. Accepted decisions:
+
+- The skill name is `code-review-refactor`.
+- The skill is installed as part of the default `aix init` payload.
+- The skill is standalone and not workflow-owned.
+- Refactors require developer selection from the recommendation list.
+- Substantial refactors run through plan approval and execution before code
+  changes begin.
 
 ## Risks
 
@@ -287,8 +305,8 @@ Execution notes:
   the code away from established repository patterns.
 - Review output can become stale quickly if it is written as a persistent
   artifact without a clear owner.
-- Activating a standalone skill by default may surprise users who expect only
-  workflow lifecycle skills to appear after `aix init`.
+- Installing a standalone skill by default changes the init payload, so
+  documentation and tests must make the ownership model clear.
 
 ## Lessons To Carry Forward
 
