@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { readLockfileJson } from "../activation/lockfile.js";
 import { AixError } from "../errors.js";
@@ -108,12 +108,20 @@ function removeEmptyTemplateParents(path: string, stopAt: string): void {
 
   while (current.startsWith(stopAt) && current !== stopAt) {
     try {
-      rmSync(current);
+      rmdirSync(current);
     } catch {
       return;
     }
 
     current = dirname(current);
+  }
+}
+
+function removeEmptyDirectory(path: string): void {
+  try {
+    rmdirSync(path);
+  } catch {
+    return;
   }
 }
 
@@ -213,6 +221,9 @@ export function resetAllWorkflowTemplates(): ResetAllWorkflowTemplatesResult {
     removeEmptyTemplateParents(template.publishedPath, templatesDir);
     reset.push({ ...template, published: false });
   }
+
+  removeEmptyDirectory(join(templatesDir, "sections"));
+  removeEmptyDirectory(templatesDir);
 
   return {
     workflowName: workflow.name,

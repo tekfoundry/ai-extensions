@@ -2,10 +2,11 @@
 
 ## Status
 
-🟨 Active
+✅ Completed
 
-This plan was activated by user request on 2026-08-23. It is now an active
-implementation record for workflow template publishing.
+This plan was activated by user request on 2026-08-23 and completed on
+2026-08-23. It is archived as the implementation record for workflow template
+publishing.
 
 ## Context
 
@@ -420,7 +421,8 @@ Verification:
   templates.
 - Completed 2026-08-23: added `aix templates reset --all` to delete every
   published override that belongs to the active workflow template set while
-  preserving unrelated files under `.agents/templates/`.
+  preserving unrelated files under `.agents/templates/`, and remove empty
+  `.agents/templates/sections` and `.agents/templates` directories afterward.
 - `npm run build` passed.
 - `node --test tests/templates.test.mjs tests/cli.test.mjs` passed.
 - `npm test` passed: 116 tests.
@@ -433,6 +435,8 @@ Verification:
 - Safety tests for existing local templates, local edits, missing active
   workflow, unknown template names, and preservation of unrelated
   `.agents/templates/` files during reset-all.
+- Reset-all tests confirm empty template directories are removed when no
+  unrelated files remain.
 - `npm run build` and targeted command tests.
 
 ### Phase 5: Template Resolution In Workflow Skills (status: completed)
@@ -504,7 +508,7 @@ Verification:
   `src/workflows/templates.ts` is 159 lines and
   `src/workflows/template-commands.ts` is 195 lines.
 - `npm run build` passed.
-- `npm test` passed: 115 tests.
+- `npm test` passed: 117 tests.
 - Added automated template output coverage that renders the bundled `plan.md`
   through the real section templates, compares it with a checked-in golden
   fixture, writes a project-local human-inspectable artifact at
@@ -527,29 +531,31 @@ Verification:
 - Added bundled publish coverage that installs the real bundled workflow from
   a local git source, publishes all 14 templates, and verifies the published
   templates preserve hidden guardrail comments.
-- `npm test` emitted a local `lerd` warning about syncing
-  `/Users/rcravens/.local/share/lerd/bin/aix`; the test command still exited
-  successfully.
 - `git diff --check` passed.
 - Documentation review confirms design docs, workflow templates, and command
   behavior agree.
+- Final closeout verification passed on 2026-08-23:
+  `npm run build`, `node --test tests/templates.test.mjs tests/cli.test.mjs`,
+  `npm test`, `node bin/aix.js verify`, `_docs` local Markdown link scan, and
+  `git diff --check`.
+- Manual verification confirmed `templates publish`, edited published
+  `plan.md` resolution through `$plan-create`, template use through
+  `$plan-review`, and `templates reset --all` cleanup.
 
 ## Open Questions / Decisions
 
-- Should `workflow.json` explicitly declare `templatesDir`, or should
-  `templates/` be discovered by convention for the first version?
-- Should `aix templates publish` be part of `aix init`, or should publishing
-  always be explicit? The current design leans explicit to keep fresh projects
-  quieter.
-- What exact text should skills use when referencing a template so agents
-  reliably resolve the published-first fallback path?
-- Should repeat syntax render automatically in the first command
-  implementation, or should v1 only validate and expose templates while agents
-  perform expansion from the visible pattern?
-- What exact collection names should `plan.md` standardize for phases, tasks,
-  and execution notes?
-- Should a future version support common headers and footers, or should
-  section templates stay limited to named reusable content blocks?
+- Resolved: `workflow.json` declares `templatesDir` and installed workflow
+  templates are hash-checked as package-managed content.
+- Resolved: `aix templates publish` remains explicit and is not part of
+  `aix init`.
+- Resolved: workflow skills use published-first template resolution and fall
+  back to the active workflow origin.
+- Resolved: v1 validates and exposes section and repeat syntax; agents expand
+  templates from the visible pattern rather than a general renderer.
+- Resolved: `plan.md` standardizes `phases`, `phase.tasks`, and
+  `phase.execution_notes` as the initial repeat collection names.
+- Deferred: future support for common headers, footers, conditionals, filters,
+  computed values, or broader template-language features remains out of scope.
 
 ## Risks
 
@@ -585,14 +591,14 @@ Verification:
 
 ## Completion Checklist
 
-- ⬜️ Confirm every task and success goal is complete or explicitly deferred.
-- ⬜️ Run or review required targeted and repository verification.
-- ⬜️ Review the codebase to ensure the code is maintainable and clean; refactor if needed.
-- ⬜️ Promote accepted durable behavior into design docs using `$design-promote`.
-- ⬜️ Review documentation structure, formatting, and links using `$documentation-review`; fix issues or record follow-up work.
-- ⬜️ Record final risks, follow-on work, and documentation impact.
-- ⬜️ Harvest reusable lessons and update workflow guidance when appropriate.
-- ⬜️ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
+- ✅ Confirm every task and success goal is complete or explicitly deferred.
+- ✅ Run or review required targeted and repository verification.
+- ✅ Review the codebase to ensure the code is maintainable and clean; refactor if needed.
+- ✅ Promote accepted durable behavior into design docs using `$design-promote`.
+- ✅ Review documentation structure, formatting, and links using `$documentation-review`; fix issues or record follow-up work.
+- ✅ Record final risks, follow-on work, and documentation impact.
+- ✅ Harvest reusable lessons and update workflow guidance when appropriate.
+- ✅ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
 
 ## Promotion To Design
 

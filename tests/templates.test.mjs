@@ -432,6 +432,21 @@ test("templates reset --all removes published overrides and preserves unrelated 
   });
 });
 
+test("templates reset --all removes empty template directories", async () => {
+  const source = await createWorkflowRepo();
+
+  await withProject(async (projectPath) => {
+    assert.equal(runCli(projectPath, ["workflow", "install", source, "fixture"]).exitCode, 0);
+    assert.equal(runCli(projectPath, ["templates", "publish"]).exitCode, 0);
+
+    const reset = runCli(projectPath, ["templates", "reset", "--all"]);
+    assert.equal(reset.exitCode, 0);
+    assert.match(reset.stdout, /Reset 3 templates/);
+    assert.equal(existsSync(join(projectPath, ".agents/templates/sections")), false);
+    assert.equal(existsSync(join(projectPath, ".agents/templates")), false);
+  });
+});
+
 test("templates commands report missing workflow and unknown names", async () => {
   await withProject(async (projectPath) => {
     const missing = runCli(projectPath, ["templates", "list"]);
