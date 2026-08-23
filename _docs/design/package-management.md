@@ -359,9 +359,7 @@ An init should:
    `cursor-pstack/unslop`.
 7. Declare the active workflow in `aix.json`.
 8. Activate workflow-owned skills into `.agents/skills`.
-9. Activate default standalone bundled skills from `aix/skills` through the
-   normal skill activation lifecycle.
-10. Write `aix.lock.json` with workflow doc, package, and activation file
+9. Write `aix.lock.json` with workflow doc, package, and activation file
    hashes.
 
 Init must not overwrite local edits silently. If `.agents/skills`, `aix.json`,

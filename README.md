@@ -2,7 +2,7 @@
 
 ![AI Extensions social preview](assets/aix_about_github.jpg)
 
-AIX helps developers install, lock, diff, update, and share project-local AI-agent 
+AIX helps developers install, lock, diff, update, and share project-local AI-agent
 workflows with the same discipline they already use for code dependencies.
 
 It exists because agent instructions are starting to matter as much as scripts,
@@ -70,7 +70,7 @@ npm install -g @tekfoundry/aix
 ```
 
 > [!WARNING]
-> **Temporary install path:** The `@tekfoundry/aix` npm package is not published yet. 
+> **Temporary install path:** The `@tekfoundry/aix` npm package is not published yet.
 > Until scoped npm publishing is complete, install the packed build from the GitHub Release artifact:
 >
 > ```bash
@@ -108,8 +108,7 @@ aix init
 `aix init` installs the bundled `design-plan-execute` workflow, writes
 `aix.json` and `aix.lock.json`, installs workflow docs into `.agents/`, inserts
 the managed workflow block into `AGENTS.md`, and activates workflow-owned skills
-under `.agents/skills`. It also activates the standalone
-`code-review-refactor` skill from the default `aix` skill source.
+under `.agents/skills`.
 
 Check the installed state:
 
@@ -148,7 +147,9 @@ Default `aix` workflows:
 `design-plan-execute` is the default planning and execution workflow for coding
 agents. It gives agents a repeatable loop for reading design intent, creating
 or activating plans, implementing small tasks, verifying changes, and promoting
-durable decisions back into docs.
+durable decisions back into docs. The workflow also uses user-editable
+templates to format the plans, design docs, and other artifacts agents create
+along the way.
 
 Install it directly:
 
@@ -162,12 +163,9 @@ It includes:
 - `.agents/workflow.md`, the agent lifecycle and planning contract
 - `.agents/engineering-best-practices.md`, reusable engineering guidance
 - workflow-owned skills for project setup, plan lifecycle work, implementation,
-  verification, and design promotion
+  verification, maintainability review, and design promotion
 - a managed block in root `AGENTS.md` that tells agents where to start
 - expected project documentation directories under `_docs/`
-
-The default init profile also activates `code-review-refactor` as a normal
-standalone skill from `aix/skills`. It is not owned by the workflow lifecycle.
 
 See [the workflow details](aix/workflows/design-plan-execute/README.md) for the
 full file list, skill list, and installed layout.

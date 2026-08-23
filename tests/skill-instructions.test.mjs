@@ -3,9 +3,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 
-const skillPath = join(process.cwd(), "aix/skills/code-review-refactor/SKILL.md");
+const skillPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/code-review-refactor/SKILL.md");
 
-test("code-review-refactor skill declares standalone review contract", () => {
+test("code-review-refactor skill declares workflow review contract", () => {
   const skill = readFileSync(skillPath, "utf8");
 
   assert.match(skill, /^name: code-review-refactor$/m);

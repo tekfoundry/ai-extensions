@@ -124,9 +124,7 @@ test("run skills list reports aix git source skills without mutating project fil
     const result = run(["skills", "list", "aix"]);
 
     assert.equal(result.exitCode, 0);
-    assert.match(result.stdout, /Skills in aix:/);
-    assert.match(result.stdout, /Path\s+Name/);
-    assert.match(result.stdout, /code-review-refactor\s+code-review-refactor/);
+    assert.equal(result.stdout, "No skills found in source: aix");
     assert.equal(readFileSync("aix.json", "utf8"), beforeManifest);
     assertNoManagedProjectWrites(projectPath);
   } finally {

@@ -31,15 +31,16 @@
       "kind": "skill",
       "source": "aix",
       "sourceType": "git",
-      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
-      "requestedRef": "master",
-      "resolvedCommit": "e5b1f5ad8179816859ebbdaa89590514227936c3",
-      "sourcePath": "code-review-refactor",
-      "packagePath": ".agents/packages/skills/aix/code-review-refactor",
+      "sourcePath": "skills/code-review-refactor",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/skills/code-review-refactor",
       "activationPath": ".agents/skills/code-review-refactor",
       "originalName": "code-review-refactor",
       "activeName": "code-review-refactor",
-      "requested": true,
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
       "packageFiles": [
         {
           "path": "SKILL.md",
@@ -585,6 +586,10 @@
       },
       "skills": [
         {
+          "sourcePath": "skills/code-review-refactor",
+          "activeName": "code-review-refactor"
+        },
+        {
           "sourcePath": "skills/design-create",
           "activeName": "design-create"
         },
@@ -715,6 +720,10 @@
         {
           "path": "README.md",
           "sha256": "6ecca85b3521408d18f24e6385010f3e46ce9c99cb8f8ddd01d45bd8d6395954"
+        },
+        {
+          "path": "skills/code-review-refactor/SKILL.md",
+          "sha256": "656f1ac64ad73e5d714a602896d449d4d2445d477f1a76925d705fda231f52b3"
         },
         {
           "path": "skills/design-create/agents/openai.yaml",

@@ -221,9 +221,7 @@ such as `aix workflow install`, `aix skills add`, and `aix skill activate`.
 creates the expected local files, installs the default `aix` workflow, adds the
 default external skill sources, fetches source metadata, materializes default
 workflow content, and activates the default workflow-owned skills so the
-project can start using AI Extensions immediately. It also activates default
-standalone bundled skills, starting with `aix/code-review-refactor`, through
-the normal skill activation lifecycle rather than workflow ownership.
+project can start using AI Extensions immediately.
 
 `aix verify` should check whether the manifest, lockfile, package files, active
 files, workflow docs, managed `AGENTS.md` block, hashes, skill front matter,

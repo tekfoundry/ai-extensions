@@ -107,34 +107,34 @@ test("initProject initializes an empty project with default sources and skills",
     const result = initProject({ workflowSources: defaults.workflowSources, sources: defaults.sources, cacheRoot });
     const manifest = JSON.parse(readFileSync(join(projectPath, "aix.json"), "utf8"));
     const lockfile = JSON.parse(readFileSync(join(projectPath, "aix.lock.json"), "utf8"));
-    const standaloneSkill = lockfile.skills.find((skill) => skill.activeName === "code-review-refactor");
+    const reviewSkill = lockfile.skills.find((skill) => skill.activeName === "code-review-refactor");
 
     assert.equal(result.declaredCount, 1);
-    assert.equal(result.materializedCount, 32);
-    assert.equal(result.activatedCount, 14);
-    assert.equal(result.standaloneActivatedCount, 1);
+    assert.equal(result.materializedCount, 33);
+    assert.equal(result.activatedCount, 15);
+    assert.equal(result.standaloneActivatedCount, 0);
     assert.deepEqual(Object.keys(manifest.sources.workflows), ["aix"]);
     assert.equal(manifest.sources.workflows.aix.type, "git");
     assert.equal(manifest.sources.workflows.aix.url, defaults.workflowSources.aix.url);
     assert.equal(manifest.sources.workflows.aix.path, "aix/workflows/design-plan-execute");
     assert.equal(manifest.workflow, "aix:aix/workflows/design-plan-execute");
-    assert.deepEqual(manifest.skills, ["aix:code-review-refactor"]);
+    assert.deepEqual(manifest.skills, []);
     assert.equal(lockfile.lockfileVersion, 1);
     assert.equal(lockfile.workflows.length, 1);
     assert.equal(lockfile.workflows[0].name, "design-plan-execute");
     assert.equal(lockfile.workflows[0].docs.length, 4);
     assert.equal(lockfile.workflows[0].templates.length, 14);
-    assert.equal(lockfile.workflows[0].skills.length, 14);
+    assert.equal(lockfile.workflows[0].skills.length, 15);
     assert.equal(lockfile.skills.length, 15);
     assert.ok(lockfile.skills.every((skill) => skill.kind === "skill"));
-    assert.equal(lockfile.skills.filter((skill) => skill.owner?.kind === "workflow").length, 14);
-    assert.ok(standaloneSkill);
-    assert.equal(standaloneSkill.source, "aix");
-    assert.equal(standaloneSkill.sourcePath, "code-review-refactor");
-    assert.equal(standaloneSkill.requested, true);
-    assert.equal(standaloneSkill.owner, undefined);
-    assert.equal(standaloneSkill.packagePath, ".agents/packages/skills/aix/code-review-refactor");
-    assert.equal(standaloneSkill.activationPath, ".agents/skills/code-review-refactor");
+    assert.equal(lockfile.skills.filter((skill) => skill.owner?.kind === "workflow").length, 15);
+    assert.ok(reviewSkill);
+    assert.equal(reviewSkill.source, "aix");
+    assert.equal(reviewSkill.sourcePath, "skills/code-review-refactor");
+    assert.equal(reviewSkill.requested, false);
+    assert.deepEqual(reviewSkill.owner, { kind: "workflow", name: "design-plan-execute" });
+    assert.equal(reviewSkill.packagePath, ".agents/packages/workflows/aix/design-plan-execute/skills/code-review-refactor");
+    assert.equal(reviewSkill.activationPath, ".agents/skills/code-review-refactor");
     assert.ok(lockfile.skills.every((skill) => skill.sourceType === "git"));
     assert.ok(lockfile.workflows.some((workflow) => workflow.source === "aix" && workflow.resolvedCommit === defaults.aixCommit));
     assert.ok(lockfile.skills.filter((skill) => skill.owner?.kind === "workflow").every((skill) => skill.packagePath.startsWith(".agents/packages/workflows/aix/design-plan-execute/skills/")));
@@ -150,12 +150,12 @@ test("initProject initializes an empty project with default sources and skills",
     assert.ok(existsSync(join(projectPath, ".agents/plan-example.md")));
     assert.ok(readFileSync(join(projectPath, "AGENTS.md"), "utf8").includes("<!-- aix:workflow design-plan-execute start -->"));
     assert.ok(existsSync(join(projectPath, ".agents/skills/task-execute/SKILL.md")));
-    assert.ok(existsSync(join(projectPath, ".agents/packages/skills/aix/code-review-refactor/SKILL.md")));
+    assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/design-plan-execute/skills/code-review-refactor/SKILL.md")));
     assert.ok(existsSync(join(projectPath, ".agents/skills/code-review-refactor/SKILL.md")));
     assert.equal(lstatSync(join(projectPath, ".agents/skills/task-execute")).isSymbolicLink(), true);
     assert.equal(readlinkSync(join(projectPath, ".agents/skills/task-execute")), "../packages/workflows/aix/design-plan-execute/skills/task-execute");
     assert.equal(lstatSync(join(projectPath, ".agents/skills/code-review-refactor")).isSymbolicLink(), true);
-    assert.equal(readlinkSync(join(projectPath, ".agents/skills/code-review-refactor")), "../packages/skills/aix/code-review-refactor");
+    assert.equal(readlinkSync(join(projectPath, ".agents/skills/code-review-refactor")), "../packages/workflows/aix/design-plan-execute/skills/code-review-refactor");
   });
 });
 
@@ -193,9 +193,9 @@ test("run init initializes a project through the CLI command path", async () => 
       assert.equal(result.exitCode, 0);
       assert.match(result.stdout, /Initialized AI Extensions/);
       assert.match(result.stdout, /Declared 1 workflow/);
-      assert.match(result.stdout, /Materialized 32 workflow assets/);
-      assert.match(result.stdout, /Activated 14 workflow-owned skills/);
-      assert.match(result.stdout, /Activated 1 standalone skill/);
+      assert.match(result.stdout, /Materialized 33 workflow assets/);
+      assert.match(result.stdout, /Activated 15 workflow-owned skills/);
+      assert.match(result.stdout, /Activated 0 standalone skills/);
     } finally {
       for (const [key, value] of Object.entries(previousEnv)) {
         if (value === undefined) {
@@ -208,22 +208,22 @@ test("run init initializes a project through the CLI command path", async () => 
   });
 });
 
-test("initProject leaves project files unchanged when default standalone skill preflight fails", async () => {
+test("initProject leaves project files unchanged when default workflow preflight fails", async () => {
   await withProject(async (projectPath, defaults, cacheRoot) => {
     const existingAgents = "# Existing agents file\n";
-    const brokenSources = {
-      ...defaults.sources,
+    const brokenWorkflowSources = {
+      ...defaults.workflowSources,
       aix: {
-        ...defaults.sources.aix,
-        path: "aix/missing-skills"
+        ...defaults.workflowSources.aix,
+        path: "aix/missing-workflow"
       }
     };
 
     writeFileSync(join(projectPath, "AGENTS.md"), existingAgents, "utf8");
 
     assert.throws(
-      () => initProject({ workflowSources: defaults.workflowSources, sources: brokenSources, cacheRoot }),
-      /Missing source path/
+      () => initProject({ workflowSources: brokenWorkflowSources, sources: defaults.sources, cacheRoot }),
+      /no such file or directory/
     );
 
     assert.equal(readFileSync(join(projectPath, "AGENTS.md"), "utf8"), existingAgents);
@@ -241,7 +241,7 @@ test("initProject is idempotent when files match", async () => {
   });
 });
 
-test("workflow uninstall leaves init-installed standalone skills active", async () => {
+test("workflow uninstall removes workflow-owned code review skill", async () => {
   await withProject(async (projectPath, defaults, cacheRoot) => {
     initProject({ workflowSources: defaults.workflowSources, sources: defaults.sources, cacheRoot });
 
@@ -251,12 +251,10 @@ test("workflow uninstall leaves init-installed standalone skills active", async 
 
     assert.equal(result.exitCode, 0);
     assert.equal(existsSync(join(projectPath, ".agents/skills/task-execute")), false);
-    assert.equal(existsSync(join(projectPath, ".agents/skills/code-review-refactor/SKILL.md")), true);
-    assert.deepEqual(manifest.skills, ["aix:code-review-refactor"]);
+    assert.equal(existsSync(join(projectPath, ".agents/skills/code-review-refactor")), false);
+    assert.deepEqual(manifest.skills, []);
     assert.equal(lockfile.workflows.length, 0);
-    assert.equal(lockfile.skills.length, 1);
-    assert.equal(lockfile.skills[0].activeName, "code-review-refactor");
-    assert.equal(lockfile.skills[0].owner, undefined);
+    assert.equal(lockfile.skills.length, 0);
   });
 });
 

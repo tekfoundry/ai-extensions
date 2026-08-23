@@ -12,7 +12,8 @@ AI Extensions should start with three default sources:
    - URL: `https://github.com/tekfoundry/ai-extensions.git`
    - Path: `aix/skills`
    - Ref: `master`
-   - Behavior: default bundled skills that are not workflow-owned
+   - Behavior: default bundled skills that are not workflow-owned. The source
+     may be empty when all bundled skills belong to the default workflow.
 2. `mattpocock`
    - Type: Git source
    - URL: `https://github.com/mattpocock/skills.git`
@@ -25,17 +26,9 @@ AI Extensions should start with three default sources:
    - Behavior: discoverable and activatable on demand
 
 The `aix` workflow source is the default workflow pack. The `aix` skill source
-is reserved for default bundled skills that are not owned by the workflow. All
-default sources use the same Git resolution path.
-
-The default `aix` skill source includes `code-review-refactor`, a standalone
-maintainability review skill. It is activated by default during `aix init` as
-a normal requested skill from `aix/skills`, not as a workflow-owned skill.
-The skill package lives under `.agents/packages/skills/aix/code-review-refactor`
-and the active skill lives under `.agents/skills/code-review-refactor`.
-`aix init` preflights this standalone activation before writing workflow
-packages, workflow docs, managed `AGENTS.md`, manifest, lockfile, or active
-skill files.
+is reserved for default bundled skills that are not owned by the workflow. It
+can remain empty until AI Extensions ships a default skill that is useful
+without the workflow. All default sources use the same Git resolution path.
 
 The default workflow should live under:
 
@@ -95,6 +88,7 @@ the default `aix` workflow:
 - `plan-update`
 - `task-execute`
 - `work-verify`
+- `code-review-refactor`
 
 The `unslop` skill is intentionally not included in `aix/skills`. `aix init`
 should declare and activate `cursor-pstack/unslop` from the `cursor-pstack`
@@ -102,11 +96,8 @@ source rather than from a local AI Extensions-only skill directory.
 
 These workflow-owned skills should be loaded by default when AI Extensions
 initializes a project unless the user explicitly chooses a smaller profile
-later.
-
-The standalone `code-review-refactor` skill should also be loaded by default.
-It remains owned by the normal skill activation lifecycle, so workflow update
-and uninstall commands do not own or remove it.
+later. `code-review-refactor` is workflow-owned because it depends on the
+workflow engineering guidance and plan lifecycle skills.
 
 Default skills should remain project-agnostic. Skills that depend heavily on a
 specific application's build scripts, release flow, runtime stack, deployment

@@ -87,6 +87,8 @@ This workflow installs these skills:
 - `task-execute`: implement one concrete task from an active plan, or one
   approved micro-fix.
 - `work-verify`: choose and run targeted checks for changed behavior.
+- `code-review-refactor`: review project code for maintainability risks and
+  route selected refactors through the right workflow path.
 - `plan-defer`: move active planned work back to the backlog.
 - `plan-complete`: close a plan after tasks, verification, documentation, and
   risks are resolved or recorded.
@@ -98,11 +100,43 @@ This workflow installs these skills:
 The workflow activates these skills under `.agents/skills/`. Remove or update
 the workflow to change them. Do not deactivate them like normal root skills.
 
-## Workflow Templates
+## Installed Templates
 
 This workflow owns default templates for shared lifecycle artifacts under
-`templates/`. Document templates live at the top level, and reusable section
-templates live under `templates/sections/`.
+`templates/`. They define the shape of the Markdown artifacts agents create
+while following the workflow.
+
+Templates have two layers:
+
+- Document templates are top-level Markdown files such as `plan.md` and
+  `design-doc.md`. They define complete workflow artifacts.
+- Section templates are reusable Markdown fragments under `templates/sections/`.
+  Document templates can include them directly, or repeat them for lists such as
+  implementation phases and tasks.
+
+For example, the plan document template includes shared sections for reviewed
+context, risks, and the completion checklist. It repeats the phase section
+template for each implementation phase.
+
+The current document templates are:
+
+- `competitive-analysis`
+- `design-doc`
+- `design-readme`
+- `docs-readme`
+- `plan`
+- `product-summary`
+
+The current section templates are:
+
+- `sections/completion-checklist`
+- `sections/execution-note`
+- `sections/phase`
+- `sections/promotion-to-design`
+- `sections/reviewed-context`
+- `sections/risks`
+- `sections/task`
+- `sections/verification`
 
 The default plan template includes a reusable completion checklist section.
 That checklist makes closeout work visible in the plan, while the
@@ -113,6 +147,43 @@ Projects can publish editable copies with `aix templates publish` after the
 workflow is installed. Published copies belong under `.agents/templates/` and
 are local project overrides; workflow updates continue to manage the origin
 templates inside the workflow package.
+
+```bash
+aix templates list
+aix templates publish
+aix templates diff
+aix templates diff sections/verification
+aix templates reset plan
+aix templates reset --all
+```
+
+`aix templates list` shows each template, whether it is a document or section,
+and whether the active version is the workflow origin or a published override.
+`aix templates publish` publishes the complete active workflow template set.
+It refuses targeted publish arguments because partial publishing can make a
+workflow harder to reason about.
+
+Template resolution is published-first:
+
+1. Use `.agents/templates/<template-name>.md` when it exists.
+2. Otherwise use the active workflow origin under
+   `.agents/packages/workflows/<source>/<workflow>/templates/<template-name>.md`.
+
+Section templates follow the same rule under `sections/`. For example, an
+agent looks for `.agents/templates/sections/verification.md` before falling
+back to the workflow origin.
+
+Use `aix templates diff` to review local template changes against the workflow
+origin. Use `aix templates reset <template-name>` to remove one published
+override, or `aix templates reset --all` to remove every published override
+owned by this workflow. Reset deletes the local override and lets normal
+resolution fall back to the origin; it does not rewrite local files with origin
+contents.
+
+This gives teams full control over workflow artifact output without forking
+the workflow. Keep the skill instructions in the workflow package, and use
+published templates for the shape, headings, required sections, and boilerplate
+inside generated docs.
 
 ## Developer Workflow
 
@@ -368,6 +439,30 @@ and completed states. Plan updates usually touch sections like
 <tr>
 <td>
 <blockquote>
+<p>Let's start a code review.</p>
+</blockquote>
+<blockquote>
+<p>Use code-review-refactor to review the workflow install code for maintainability risks.</p>
+</blockquote>
+<blockquote>
+<p>Review the CLI command layer and recommend safe refactors.</p>
+</blockquote>
+</td>
+<td>
+The agent reads repository instructions, <code>.agents/engineering-best-practices.md</code>,
+relevant design docs, and the current worktree. It inspects the requested code
+against the workflow's engineering guidance, reports findings first, then asks
+which findings you want to refactor.
+
+Small behavior-preserving fixes can proceed inline after confirmation. Larger
+or cross-cutting refactors are routed into a backlog plan with
+<code>plan-create</code> so the work can move through normal review,
+activation, execution, and completion.
+</td>
+</tr>
+<tr>
+<td>
+<blockquote>
 <p>Verify the saved search filter changes before we continue.</p>
 </blockquote>
 <blockquote>
@@ -469,6 +564,9 @@ Workflow package files:
   verification, and completion rules.
 - `engineering-best-practices.md`: reusable engineering guidance for
   agent-assisted development.
+- `templates/*.md`: default document templates for workflow artifacts.
+- `templates/sections/*.md`: reusable section templates used inside document
+  templates and lifecycle records.
 - `skills/*/SKILL.md`: workflow-owned skill instructions.
 
 Installed workflow docs:
