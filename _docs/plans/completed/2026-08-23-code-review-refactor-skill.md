@@ -2,10 +2,11 @@
 
 ## Status
 
-💤 Backlog
+✅ Completed
 
-This backlog plan is fully approved for later activation. It does not authorize
-implementation until a later explicit `plan-activate` request.
+Activated for implementation on 2026-08-23 by explicit user request.
+Completed and archived on 2026-08-23 after implementation, verification,
+design promotion, and documentation review.
 
 ## Context
 
@@ -145,21 +146,21 @@ in-progress plans directory, and plan execution before code changes begin.
 
 ## Implementation Phases
 
-### Phase 1: Skill Contract And Review Flow (status: accepted)
+### Phase 1: Skill Contract And Review Flow (status: completed)
 
 Goal: define the standalone skill's user-facing contract, scope, and operating
 review-to-plan flow before authoring the skill file.
 
 Tasks:
 
-- ⬜️ Confirm the skill name, active name, and source location.
-- ⬜️ Define the review, recommendation, developer selection, plan approval,
+- ✅ Confirm the skill name, active name, and source location.
+- ✅ Define the review, recommendation, developer selection, plan approval,
       activation, and execution flow.
-- ⬜️ Define when the skill may edit files and when it must create or update a
+- ✅ Define when the skill may edit files and when it must create or update a
       plan before implementation.
-- ⬜️ Define the expected finding format, including severity, file reference,
+- ✅ Define the expected finding format, including severity, file reference,
   evidence, recommendation, and verification impact.
-- ⬜️ Define how the skill behaves inside an active plan versus outside a plan.
+- ✅ Define how the skill behaves inside an active plan versus outside a plan.
 
 Verification:
 
@@ -169,27 +170,33 @@ Verification:
 
 Execution notes:
 
-- None yet.
+- 2026-08-23: Plan activated from `_docs/plans/backlog/` to
+  `_docs/plans/` by explicit user request.
+- 2026-08-23: Contract confirmed from accepted design intent. Skill name and
+  active name are `code-review-refactor`; source location is
+  `aix/skills/code-review-refactor/`; review output, plan routing, edit
+  boundaries, and active-plan versus outside-plan behavior are encoded in the
+  authored skill.
 
-### Phase 2: Skill Authoring (status: accepted)
+### Phase 2: Skill Authoring (status: completed)
 
 Goal: add the standalone skill instructions and any agent metadata needed for
 discovery and activation.
 
 Tasks:
 
-- ⬜️ Create `aix/skills/code-review-refactor/SKILL.md`.
-- ⬜️ Add front matter with a clear name and description.
-- ⬜️ Encode the review workflow around
+- ✅ Create `aix/skills/code-review-refactor/SKILL.md`.
+- ✅ Add front matter with a clear name and description.
+- ✅ Encode the review workflow around
   `.agents/engineering-best-practices.md`.
-- ⬜️ Include a pre-flight check that stops before code review when
+- ✅ Include a pre-flight check that stops before code review when
   `.agents/engineering-best-practices.md` is missing.
-- ⬜️ Include guardrails for preserving unrelated changes, scoping review to
+- ✅ Include guardrails for preserving unrelated changes, scoping review to
   project code files, and routing substantial refactors through plan approval.
-- ⬜️ Include concrete review checks for file size, responsibility boundaries,
+- ✅ Include concrete review checks for file size, responsibility boundaries,
   duplicated rules, tests, error handling, safety-sensitive behavior, and
   documentation impact.
-- ⬜️ Add agent metadata if the default `aix` skill source uses it by then.
+- ✅ Add agent metadata if the default `aix` skill source uses it by then.
 
 Verification:
 
@@ -199,24 +206,28 @@ Verification:
 
 Execution notes:
 
-- None yet.
+- 2026-08-23: Added `aix/skills/code-review-refactor/SKILL.md` with YAML
+  front matter, pre-flight checks, default scope rules, finding format,
+  active-plan behavior, outside-plan behavior, and refactor guardrails.
+- 2026-08-23: No extra metadata file was needed; the default `aix` skill source
+  discovers skills from `SKILL.md` front matter.
 
-### Phase 3: Packaging And Default Init Exposure (status: accepted)
+### Phase 3: Packaging And Default Init Exposure (status: completed)
 
 Goal: ensure the standalone skill is discoverable through the normal `aix`
 skill-source path and installed as part of the default `aix init` payload.
 
 Tasks:
 
-- ⬜️ Confirm `aix skills list aix` discovers the new skill.
-- ⬜️ Confirm `aix skill activate aix/code-review-refactor` installs it as a
+- ✅ Confirm `aix skills list aix` discovers the new skill.
+- ✅ Confirm `aix skill activate aix/code-review-refactor` installs it as a
   user-requested skill.
-- ⬜️ Confirm `aix init` installs the skill as part of the default init payload.
-- ⬜️ Confirm activation and init write normal standalone skill package and
+- ✅ Confirm `aix init` installs the skill as part of the default init payload.
+- ✅ Confirm activation and init write normal standalone skill package and
   lockfile entries, not workflow-owned entries.
-- ⬜️ Update bundled-skill documentation for the default `aix` source and init
+- ✅ Update bundled-skill documentation for the default `aix` source and init
   payload.
-- ⬜️ Confirm workflow install, update, and uninstall do not own or remove the
+- ✅ Confirm workflow install, update, and uninstall do not own or remove the
   standalone skill.
 
 Verification:
@@ -227,23 +238,30 @@ Verification:
 
 Execution notes:
 
-- None yet.
+- 2026-08-23: `aix init` now activates `aix/code-review-refactor` through the
+  normal skill activation path. The lockfile entry has no workflow owner and
+  uses `.agents/packages/skills/aix/code-review-refactor`.
+- 2026-08-23: Fixed manifest skill matching so repeated activation or repeated
+  init refreshes `aix:code-review-refactor` instead of duplicating it.
+- 2026-08-23: Added regression coverage for skill listing, default init
+  activation, standalone lockfile ownership, idempotent init, and workflow
+  uninstall preserving the standalone skill.
 
-### Phase 4: Review Behavior Validation (status: accepted)
+### Phase 4: Review Behavior Validation (status: completed)
 
 Goal: validate that the skill produces useful maintainability findings without
 overstepping into unsafe or noisy refactors.
 
 Tasks:
 
-- ⬜️ Add fixture, static instruction, or transcript-style tests for review
+- ✅ Add fixture, static instruction, or transcript-style tests for review
   output.
-- ⬜️ Test that findings prioritize correctness and maintainability before
+- ✅ Test that findings prioritize correctness and maintainability before
   style.
-- ⬜️ Test that substantial refactors require plan creation or active-plan
+- ✅ Test that substantial refactors require plan creation or active-plan
   updates before implementation.
-- ⬜️ Test missing `.agents/engineering-best-practices.md` pre-flight behavior.
-- ⬜️ Test usage inside an active plan and outside a plan.
+- ✅ Test missing `.agents/engineering-best-practices.md` pre-flight behavior.
+- ✅ Test usage inside an active plan and outside a plan.
 
 Verification:
 
@@ -253,23 +271,26 @@ Verification:
 
 Execution notes:
 
-- None yet.
+- 2026-08-23: Added `tests/skill-instructions.test.mjs` to pin the static
+  skill contract, including missing best-practices pre-flight behavior,
+  finding shape, developer selection, substantial-refactor planning, and
+  active-plan versus outside-plan routing.
 
-### Phase 5: Review, Documentation, And Release Readiness (status: accepted)
+### Phase 5: Review, Documentation, And Release Readiness (status: completed)
 
 Goal: close the implementation with maintainability review, docs updates, and
 release confidence.
 
 Tasks:
 
-- ⬜️ Run the maintainability review gate for changed production files if any
+- ✅ Run the maintainability review gate for changed production files if any
   production code changes were needed.
-- ⬜️ Update `_docs/design/bundled-skills.md` with the accepted standalone
+- ✅ Update `_docs/design/bundled-skills.md` with the accepted standalone
   skill ownership and installation behavior.
-- ⬜️ Update README or command examples if the new skill changes the advertised
+- ✅ Update README or command examples if the new skill changes the advertised
   bundled skill set.
-- ⬜️ Run targeted and repository verification.
-- ⬜️ Record residual risks, deferred follow-up, and documentation impact.
+- ✅ Run targeted and repository verification.
+- ✅ Record residual risks, deferred follow-up, and documentation impact.
 
 Verification:
 
@@ -280,7 +301,24 @@ Verification:
 
 Execution notes:
 
-- None yet.
+- 2026-08-23: Documentation updated in `README.md`,
+  `_docs/design/bundled-skills.md`, `_docs/design/cli.md`, and
+  `_docs/design/package-management.md`.
+- 2026-08-23: Maintainability gate ran with `find src tests -type f | xargs
+  wc -l | sort -nr | head -25`. No new or heavily changed production file is
+  over 250 lines; `src/activation/activate.ts` is 234 lines after the helper
+  extraction. Large test files are pre-existing or test-only.
+- 2026-08-23: Verification passed: `npm run build`; `node --test
+  --test-concurrency=1 tests/skills.test.mjs tests/init.test.mjs
+  tests/activation.test.mjs tests/skill-instructions.test.mjs
+  tests/workflow.test.mjs`; `npm test`; `git diff --check`.
+- 2026-08-23: Residual risks: transcript-level behavior is covered by static
+  instruction tests rather than a live agent transcript fixture. No deferred
+  implementation work remains.
+- 2026-08-23: Documentation review checked `_docs/README.md`,
+  `_docs/design/README.md`, touched design docs, README links, and current
+  init/skill ownership wording. No structural reorganization or link repair
+  was needed.
 
 ## Open Questions / Decisions
 
@@ -316,11 +354,11 @@ None. Accepted decisions:
 
 ## Completion Checklist
 
-- ⬜️ Confirm every task and success goal is complete or explicitly deferred.
-- ⬜️ Run or review required targeted and repository verification.
-- ⬜️ Review the codebase to ensure the code is maintainable and clean; refactor if needed.
-- ⬜️ Promote accepted durable behavior into design docs using `$design-promote`.
-- ⬜️ Review documentation structure, formatting, and links using `$documentation-review`; fix issues or record follow-up work.
-- ⬜️ Record final risks, follow-on work, and documentation impact.
-- ⬜️ Harvest reusable lessons and update workflow guidance when appropriate.
-- ⬜️ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
+- ✅ Confirm every task and success goal is complete or explicitly deferred.
+- ✅ Run or review required targeted and repository verification.
+- ✅ Review the codebase to ensure the code is maintainable and clean; refactor if needed.
+- ✅ Promote accepted durable behavior into design docs using `$design-promote`.
+- ✅ Review documentation structure, formatting, and links using `$documentation-review`; fix issues or record follow-up work.
+- ✅ Record final risks, follow-on work, and documentation impact.
+- ✅ Harvest reusable lessons and update workflow guidance when appropriate.
+- ✅ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.

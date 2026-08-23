@@ -28,6 +28,12 @@ The `aix` workflow source is the default workflow pack. The `aix` skill source
 is reserved for default bundled skills that are not owned by the workflow. All
 default sources use the same Git resolution path.
 
+The default `aix` skill source includes `code-review-refactor`, a standalone
+maintainability review skill. It is activated by default during `aix init` as
+a normal requested skill from `aix/skills`, not as a workflow-owned skill.
+The skill package lives under `.agents/packages/skills/aix/code-review-refactor`
+and the active skill lives under `.agents/skills/code-review-refactor`.
+
 The default workflow should live under:
 
 ```text
@@ -94,6 +100,10 @@ source rather than from a local AI Extensions-only skill directory.
 These workflow-owned skills should be loaded by default when AI Extensions
 initializes a project unless the user explicitly chooses a smaller profile
 later.
+
+The standalone `code-review-refactor` skill should also be loaded by default.
+It remains owned by the normal skill activation lifecycle, so workflow update
+and uninstall commands do not own or remove it.
 
 Default skills should remain project-agnostic. Skills that depend heavily on a
 specific application's build scripts, release flow, runtime stack, deployment

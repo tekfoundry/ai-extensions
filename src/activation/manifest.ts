@@ -15,7 +15,11 @@ function skillManifestEntry(source: string, sourcePath: string, alias?: string):
 }
 
 function sameSkillRequest(skill: SkillManifestEntry, source: string, sourcePath: string): boolean {
-  return typeof skill !== "string" && skill.source === source && skill.path === sourcePath;
+  if (typeof skill === "string") {
+    return skill === `${source}:${sourcePath}`;
+  }
+
+  return skill.source === source && skill.path === sourcePath;
 }
 
 export function updateManifestSkills(

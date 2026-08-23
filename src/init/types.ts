@@ -11,6 +11,7 @@ export interface InitResult {
   declaredCount: number;
   materializedCount: number;
   activatedCount: number;
+  standaloneActivatedCount: number;
   manifestPath: string;
   lockfilePath: string;
 }

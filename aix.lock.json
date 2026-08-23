@@ -525,7 +525,7 @@
       "sourceType": "git",
       "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
       "requestedRef": "master",
-      "resolvedCommit": "712a6606c3a63873500d848cf04be0c17c4c6bd3",
+      "resolvedCommit": "82494c44d613b4cc2614a0c09d6c2b30f98dffea",
       "sourcePath": "aix/workflows/design-plan-execute",
       "packagePath": ".agents/packages/workflows/aix/design-plan-execute",
       "name": "design-plan-execute",

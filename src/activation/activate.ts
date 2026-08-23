@@ -156,7 +156,12 @@ function activatePlannedSkill(
   });
 }
 
-export function activateSkill(target: string, alias?: string, cacheRoot = defaultCacheRoot()): ActivateSkillResult {
+export function activateSkillFromDefinitions(
+  target: string,
+  alias: string | undefined,
+  defaultSourceDefinitions: Record<string, SourceDefinition>,
+  cacheRoot = defaultCacheRoot()
+): ActivateSkillResult {
   const { source, sourcePath } = activationTargetFromInput(target);
 
   if (alias) {
@@ -168,7 +173,7 @@ export function activateSkill(target: string, alias?: string, cacheRoot = defaul
 
   const manifestSources = manifestSourceDefinitions(manifestJson);
   const sourceDefinitions = {
-    ...loadSourceDefinitions(),
+    ...defaultSourceDefinitions,
     ...manifestSources
   };
   const definition = sourceDefinitions[source];
@@ -222,4 +227,8 @@ export function activateSkill(target: string, alias?: string, cacheRoot = defaul
     packagePath: packageSkillPath(source, sourcePath),
     activationPath: activeSkillPath(requestedPlan.activeName)
   };
+}
+
+export function activateSkill(target: string, alias?: string, cacheRoot = defaultCacheRoot()): ActivateSkillResult {
+  return activateSkillFromDefinitions(target, alias, loadSourceDefinitions(), cacheRoot);
 }

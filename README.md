@@ -108,7 +108,8 @@ aix init
 `aix init` installs the bundled `design-plan-execute` workflow, writes
 `aix.json` and `aix.lock.json`, installs workflow docs into `.agents/`, inserts
 the managed workflow block into `AGENTS.md`, and activates workflow-owned skills
-under `.agents/skills`.
+under `.agents/skills`. It also activates the standalone
+`code-review-refactor` skill from the default `aix` skill source.
 
 Check the installed state:
 
@@ -164,6 +165,9 @@ It includes:
   verification, and design promotion
 - a managed block in root `AGENTS.md` that tells agents where to start
 - expected project documentation directories under `_docs/`
+
+The default init profile also activates `code-review-refactor` as a normal
+standalone skill from `aix/skills`. It is not owned by the workflow lifecycle.
 
 See [the workflow details](aix/workflows/design-plan-execute/README.md) for the
 full file list, skill list, and installed layout.
