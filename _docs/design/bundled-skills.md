@@ -33,6 +33,9 @@ maintainability review skill. It is activated by default during `aix init` as
 a normal requested skill from `aix/skills`, not as a workflow-owned skill.
 The skill package lives under `.agents/packages/skills/aix/code-review-refactor`
 and the active skill lives under `.agents/skills/code-review-refactor`.
+`aix init` preflights this standalone activation before writing workflow
+packages, workflow docs, managed `AGENTS.md`, manifest, lockfile, or active
+skill files.
 
 The default workflow should live under:
 

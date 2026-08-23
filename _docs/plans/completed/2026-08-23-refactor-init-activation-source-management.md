@@ -2,11 +2,9 @@
 
 ## Status
 
-🟨 Active
+✅ Completed
 
-Approved and activated on 2026-08-23 by explicit user request. Execute the
-plan, but do not complete or archive it until the user manually verifies the
-result.
+Approved, activated, manually verified, and completed on 2026-08-23.
 
 ## Context
 
@@ -218,7 +216,7 @@ Verification:
 - `node --test tests/sources.test.mjs tests/skills.test.mjs`.
 - `npm run build`.
 
-### Phase 5: Review, Documentation, And Release Readiness (status: awaiting manual verification)
+### Phase 5: Review, Documentation, And Release Readiness (status: completed)
 
 Goal: close the refactor with maintainability evidence and broad confidence.
 
@@ -241,9 +239,10 @@ Verification:
 
 Notes:
 
-- No design documentation update was needed; this refactor changes internal
-  ownership boundaries without changing durable CLI behavior or file formats.
-- The plan remains active until user manual verification is complete.
+- Promoted the durable `aix init` standalone-skill preflight behavior into
+  `_docs/design/bundled-skills.md`.
+- Documentation review checked `_docs/README.md`, `_docs/design/README.md`,
+  and the relevant design docs. No structure or link repairs were needed.
 
 ## Decisions
 
@@ -280,6 +279,9 @@ Notes:
 - `npm test` passed: 121 tests.
 - `node bin/aix.js verify` passed.
 - `git diff --check` passed.
+- Manual scratch-project `aix init` and `aix verify` passed.
+- Repo-local `npm run aix init` passed after the updated default skill source
+  was available from the configured source.
 - File-size scan completed. `src/sources/management.ts` is now 175 lines;
   `src/activation/activate.ts` is 298 lines.
 
@@ -289,16 +291,14 @@ Notes:
   install writes. Unexpected filesystem failures during the later apply step
   are still handled by existing safe-copy and atomic-write behavior rather
   than a broad project rollback.
-- Manual verification is still pending by request, so this plan must not be
-  completed or archived yet.
 
 ## Completion Checklist
 
-- ⬜️ Confirm every task and success goal is complete or explicitly deferred.
-- ⬜️ Run or review required targeted and repository verification.
-- ⬜️ Review the codebase to ensure the code is maintainable and clean; refactor if needed.
-- ⬜️ Promote accepted durable behavior into design docs using `$design-promote`.
-- ⬜️ Review documentation structure, formatting, and links using `$documentation-review`; fix issues or record follow-up work.
-- ⬜️ Record final risks, follow-on work, and documentation impact.
-- ⬜️ Harvest reusable lessons and update workflow guidance when appropriate.
-- ⬜️ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
+- ✅ Confirm every task and success goal is complete or explicitly deferred.
+- ✅ Run or review required targeted and repository verification.
+- ✅ Review the codebase to ensure the code is maintainable and clean; refactor if needed.
+- ✅ Promote accepted durable behavior into design docs using `$design-promote`.
+- ✅ Review documentation structure, formatting, and links using `$documentation-review`; fix issues or record follow-up work.
+- ✅ Record final risks, follow-on work, and documentation impact.
+- ✅ Harvest reusable lessons and update workflow guidance when appropriate.
+- ✅ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
