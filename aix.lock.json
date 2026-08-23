@@ -7,7 +7,7 @@
       "sourceType": "git",
       "sourceUrl": "https://github.com/cursor/plugins.git",
       "requestedRef": "main",
-      "resolvedCommit": "fd6dd6f7276956a532bb78a748a8d2818b6eb5f4",
+      "resolvedCommit": "46125561306434d8a1d7745d540d8932ab0cd2a2",
       "sourcePath": "unslop",
       "packagePath": ".agents/packages/skills/cursor-pstack/unslop",
       "activationPath": ".agents/skills/unslop",
@@ -31,6 +31,48 @@
       "kind": "skill",
       "source": "aix",
       "sourceType": "git",
+      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
+      "requestedRef": "master",
+      "resolvedCommit": "32fa5aa09e03b65412fb25b8bb583f5643f95165",
+      "sourcePath": "discover-skill",
+      "packagePath": ".agents/packages/skills/aix/discover-skill",
+      "activationPath": ".agents/skills/discover-skill",
+      "originalName": "discover-skill",
+      "activeName": "discover-skill",
+      "requested": true,
+      "packageFiles": [
+        {
+          "path": "known-sources.json",
+          "sha256": "526e87ca945f5e7d91b4589bfd38d46ebe35b66a2c75b00d20ab14a58a1fee5c"
+        },
+        {
+          "path": "README.md",
+          "sha256": "dbcb43fdd8ba8c0e26fadc100fe5a7d4d109bf05783b6d08eb3968a6f94b8d49"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "942377aed594797204dc3a0a679419650f2af3bc5effc1023141e64ca4a11104"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "known-sources.json",
+          "sha256": "526e87ca945f5e7d91b4589bfd38d46ebe35b66a2c75b00d20ab14a58a1fee5c"
+        },
+        {
+          "path": "README.md",
+          "sha256": "dbcb43fdd8ba8c0e26fadc100fe5a7d4d109bf05783b6d08eb3968a6f94b8d49"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "942377aed594797204dc3a0a679419650f2af3bc5effc1023141e64ca4a11104"
+        }
+      ]
+    },
+    {
+      "kind": "skill",
+      "source": "aix",
+      "sourceType": "git",
       "sourcePath": "skills/code-review-refactor",
       "packagePath": ".agents/packages/workflows/aix/design-plan-execute/skills/code-review-refactor",
       "activationPath": ".agents/skills/code-review-refactor",
@@ -44,7 +86,7 @@
       "packageFiles": [
         {
           "path": "README.md",
-          "sha256": "e25694d4e8c4c02893b24b9a2692158e06992cf671e9c146abf4a7bdc7e5b171"
+          "sha256": "5227a1697333d7ca843ec06d48f2951049ef2d6fc0da7a3e9e2a811409c2c60c"
         },
         {
           "path": "SKILL.md",
@@ -54,7 +96,7 @@
       "activeFiles": [
         {
           "path": "README.md",
-          "sha256": "e25694d4e8c4c02893b24b9a2692158e06992cf671e9c146abf4a7bdc7e5b171"
+          "sha256": "5227a1697333d7ca843ec06d48f2951049ef2d6fc0da7a3e9e2a811409c2c60c"
         },
         {
           "path": "SKILL.md",
@@ -83,7 +125,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "c5b813861861a4b0bd183cecc215219e27a8d621ca3d2edf47de05c7d3b720f7"
+          "sha256": "1be78d7222e58334191546bb683d22f4791ec94f3eee1892c4ae56e7fa4a82c1"
         },
         {
           "path": "SKILL.md",
@@ -97,7 +139,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "c5b813861861a4b0bd183cecc215219e27a8d621ca3d2edf47de05c7d3b720f7"
+          "sha256": "1be78d7222e58334191546bb683d22f4791ec94f3eee1892c4ae56e7fa4a82c1"
         },
         {
           "path": "SKILL.md",
@@ -126,7 +168,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "7739c925ff615cddbc16d9d542a5f24df41d8cc25ad3627f6fa07ccf0ccd5a3e"
+          "sha256": "45bd559647ccc67a1d6a0f35b1a5ffaddc107927f7e3e5620a2d45ec208ac009"
         },
         {
           "path": "SKILL.md",
@@ -140,7 +182,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "7739c925ff615cddbc16d9d542a5f24df41d8cc25ad3627f6fa07ccf0ccd5a3e"
+          "sha256": "45bd559647ccc67a1d6a0f35b1a5ffaddc107927f7e3e5620a2d45ec208ac009"
         },
         {
           "path": "SKILL.md",
@@ -169,7 +211,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "d77be1555dcfa4700ad59d6288571d40e976edacf222ddcb756745c6c09e129a"
+          "sha256": "26002be8a33426021926b39049c73ac8da403060856e3ff72ceb27da8d8773d6"
         },
         {
           "path": "SKILL.md",
@@ -183,7 +225,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "d77be1555dcfa4700ad59d6288571d40e976edacf222ddcb756745c6c09e129a"
+          "sha256": "26002be8a33426021926b39049c73ac8da403060856e3ff72ceb27da8d8773d6"
         },
         {
           "path": "SKILL.md",
@@ -212,7 +254,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "6ff3d4b47db1c468ca9d155ed7309a2e0909bd75514f1a23bba8b5d6f70dbf8e"
+          "sha256": "d29d76f21c497ec6ba94c7bafbd66e6e467ea661348a1ee7598befa2ea727d12"
         },
         {
           "path": "SKILL.md",
@@ -226,7 +268,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "6ff3d4b47db1c468ca9d155ed7309a2e0909bd75514f1a23bba8b5d6f70dbf8e"
+          "sha256": "d29d76f21c497ec6ba94c7bafbd66e6e467ea661348a1ee7598befa2ea727d12"
         },
         {
           "path": "SKILL.md",
@@ -255,7 +297,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "f64aadc085da114ce375ef239e2032662c0e232e163f814223e9ed422d26f4aa"
+          "sha256": "0f8c0e83685183b1fae484e409e1bd361ffc0e7805828ab651b37084691d1b95"
         },
         {
           "path": "SKILL.md",
@@ -269,7 +311,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "f64aadc085da114ce375ef239e2032662c0e232e163f814223e9ed422d26f4aa"
+          "sha256": "0f8c0e83685183b1fae484e409e1bd361ffc0e7805828ab651b37084691d1b95"
         },
         {
           "path": "SKILL.md",
@@ -298,7 +340,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "757b93e2f15a955886464266c7054a221e671761c4dc214caabdb93567e06107"
+          "sha256": "9efab1125819d4f63710d75a4587e6c6b24574851115da7502d71676b980c40c"
         },
         {
           "path": "SKILL.md",
@@ -312,7 +354,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "757b93e2f15a955886464266c7054a221e671761c4dc214caabdb93567e06107"
+          "sha256": "9efab1125819d4f63710d75a4587e6c6b24574851115da7502d71676b980c40c"
         },
         {
           "path": "SKILL.md",
@@ -341,7 +383,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "14bed42f1c7c8eb6d8af59f21570818648e38c52619452ad401cf1b45163ffd9"
+          "sha256": "7364d5b84a718773c1270ce5e58f580f6424581c5e2ee01c63c4bc5c93f7e2aa"
         },
         {
           "path": "SKILL.md",
@@ -355,7 +397,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "14bed42f1c7c8eb6d8af59f21570818648e38c52619452ad401cf1b45163ffd9"
+          "sha256": "7364d5b84a718773c1270ce5e58f580f6424581c5e2ee01c63c4bc5c93f7e2aa"
         },
         {
           "path": "SKILL.md",
@@ -384,7 +426,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "7cf0a467e91a209bd69fc3a6877f9398c47efdccc780c471d0f2097c2e898f09"
+          "sha256": "458d0dd4d069f7d9d79ee387aee790cf74ce3f734a4e6ee71fd90d96cc698da8"
         },
         {
           "path": "SKILL.md",
@@ -398,7 +440,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "7cf0a467e91a209bd69fc3a6877f9398c47efdccc780c471d0f2097c2e898f09"
+          "sha256": "458d0dd4d069f7d9d79ee387aee790cf74ce3f734a4e6ee71fd90d96cc698da8"
         },
         {
           "path": "SKILL.md",
@@ -427,7 +469,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "ebe39f420b124429972b36f0005c1d18f473357c0885285031e1cdfa9893b507"
+          "sha256": "03e8e464fea5d77825d7d18392983cfdf00bc8b8779bc6d9ff86a5680d3ef957"
         },
         {
           "path": "SKILL.md",
@@ -441,7 +483,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "ebe39f420b124429972b36f0005c1d18f473357c0885285031e1cdfa9893b507"
+          "sha256": "03e8e464fea5d77825d7d18392983cfdf00bc8b8779bc6d9ff86a5680d3ef957"
         },
         {
           "path": "SKILL.md",
@@ -470,7 +512,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "4d1f16eaf653c0cf0a70281204f8268d8f704b5b4fb7733faab1aa8da660606c"
+          "sha256": "d92df873053a0595f6df24c7ba5609b2355a5b9ce555f8330a24789e90846143"
         },
         {
           "path": "SKILL.md",
@@ -484,7 +526,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "4d1f16eaf653c0cf0a70281204f8268d8f704b5b4fb7733faab1aa8da660606c"
+          "sha256": "d92df873053a0595f6df24c7ba5609b2355a5b9ce555f8330a24789e90846143"
         },
         {
           "path": "SKILL.md",
@@ -513,7 +555,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "daf23292e2b504a852467073d4f1f474fef97f8d2e837bc8a5572dac5c3fc140"
+          "sha256": "5259916c42ec8c79c2448a701db1b284639e2f3ae38d7cbff8efd22f5e07743a"
         },
         {
           "path": "SKILL.md",
@@ -527,7 +569,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "daf23292e2b504a852467073d4f1f474fef97f8d2e837bc8a5572dac5c3fc140"
+          "sha256": "5259916c42ec8c79c2448a701db1b284639e2f3ae38d7cbff8efd22f5e07743a"
         },
         {
           "path": "SKILL.md",
@@ -556,7 +598,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "d7b10d079e0870dd655dfded4246c56ea24952377f293bcb6b9f41529f0b5c20"
+          "sha256": "a86c24850ff5fc76a120848b04def0527403e0dd278a36ed0834e5ac9ea724eb"
         },
         {
           "path": "SKILL.md",
@@ -570,7 +612,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "d7b10d079e0870dd655dfded4246c56ea24952377f293bcb6b9f41529f0b5c20"
+          "sha256": "a86c24850ff5fc76a120848b04def0527403e0dd278a36ed0834e5ac9ea724eb"
         },
         {
           "path": "SKILL.md",
@@ -599,7 +641,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "642fc2029920fed7af7b5ab94288e10e27a1e9bd9df3bf7cc4e599d7b1df4eb7"
+          "sha256": "9e365ba7faaac54115f5e083a1ef03a759f8cc29e508a9f979792f3f177bc4f5"
         },
         {
           "path": "SKILL.md",
@@ -613,7 +655,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "642fc2029920fed7af7b5ab94288e10e27a1e9bd9df3bf7cc4e599d7b1df4eb7"
+          "sha256": "9e365ba7faaac54115f5e083a1ef03a759f8cc29e508a9f979792f3f177bc4f5"
         },
         {
           "path": "SKILL.md",
@@ -642,7 +684,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "921054f479dbee6b7c937da6de37e9f27ca2cc1ec909a5bc5c67044699c281fa"
+          "sha256": "4dd3df8ee2712719ab52babb5890e53dd4132e34c7244521de6be994accd1cd0"
         },
         {
           "path": "SKILL.md",
@@ -656,53 +698,11 @@
         },
         {
           "path": "README.md",
-          "sha256": "921054f479dbee6b7c937da6de37e9f27ca2cc1ec909a5bc5c67044699c281fa"
+          "sha256": "4dd3df8ee2712719ab52babb5890e53dd4132e34c7244521de6be994accd1cd0"
         },
         {
           "path": "SKILL.md",
           "sha256": "f139071a27618911c7b266c8b8d4ea2e2a5031e37534a170175ec4f808953d7e"
-        }
-      ]
-    },
-    {
-      "kind": "skill",
-      "source": "aix",
-      "sourceType": "git",
-      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
-      "requestedRef": "master",
-      "resolvedCommit": "b16070637fbe04ecd3d7201555ec836486ae185f",
-      "sourcePath": "discover-skill",
-      "packagePath": ".agents/packages/skills/aix/discover-skill",
-      "activationPath": ".agents/skills/discover-skill",
-      "originalName": "discover-skill",
-      "activeName": "discover-skill",
-      "requested": true,
-      "packageFiles": [
-        {
-          "path": "known-sources.json",
-          "sha256": "526e87ca945f5e7d91b4589bfd38d46ebe35b66a2c75b00d20ab14a58a1fee5c"
-        },
-        {
-          "path": "README.md",
-          "sha256": "f1b555ef289457a733458cc7c551f395850cc0ded7af1a2042b5f26c0c1bb8df"
-        },
-        {
-          "path": "SKILL.md",
-          "sha256": "942377aed594797204dc3a0a679419650f2af3bc5effc1023141e64ca4a11104"
-        }
-      ],
-      "activeFiles": [
-        {
-          "path": "known-sources.json",
-          "sha256": "526e87ca945f5e7d91b4589bfd38d46ebe35b66a2c75b00d20ab14a58a1fee5c"
-        },
-        {
-          "path": "README.md",
-          "sha256": "f1b555ef289457a733458cc7c551f395850cc0ded7af1a2042b5f26c0c1bb8df"
-        },
-        {
-          "path": "SKILL.md",
-          "sha256": "942377aed594797204dc3a0a679419650f2af3bc5effc1023141e64ca4a11104"
         }
       ]
     }
@@ -714,7 +714,7 @@
       "sourceType": "git",
       "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
       "requestedRef": "master",
-      "resolvedCommit": "19de0be40553a2258ed79a9442d03e289682bd2e",
+      "resolvedCommit": "32fa5aa09e03b65412fb25b8bb583f5643f95165",
       "sourcePath": "aix/workflows/design-plan-execute",
       "packagePath": ".agents/packages/workflows/aix/design-plan-execute",
       "name": "design-plan-execute",
@@ -885,7 +885,7 @@
         },
         {
           "path": "skills/code-review-refactor/README.md",
-          "sha256": "e25694d4e8c4c02893b24b9a2692158e06992cf671e9c146abf4a7bdc7e5b171"
+          "sha256": "5227a1697333d7ca843ec06d48f2951049ef2d6fc0da7a3e9e2a811409c2c60c"
         },
         {
           "path": "skills/code-review-refactor/SKILL.md",
@@ -897,7 +897,7 @@
         },
         {
           "path": "skills/design-create/README.md",
-          "sha256": "c5b813861861a4b0bd183cecc215219e27a8d621ca3d2edf47de05c7d3b720f7"
+          "sha256": "1be78d7222e58334191546bb683d22f4791ec94f3eee1892c4ae56e7fa4a82c1"
         },
         {
           "path": "skills/design-create/SKILL.md",
@@ -909,7 +909,7 @@
         },
         {
           "path": "skills/design-promote/README.md",
-          "sha256": "7739c925ff615cddbc16d9d542a5f24df41d8cc25ad3627f6fa07ccf0ccd5a3e"
+          "sha256": "45bd559647ccc67a1d6a0f35b1a5ffaddc107927f7e3e5620a2d45ec208ac009"
         },
         {
           "path": "skills/design-promote/SKILL.md",
@@ -921,7 +921,7 @@
         },
         {
           "path": "skills/documentation-review/README.md",
-          "sha256": "d77be1555dcfa4700ad59d6288571d40e976edacf222ddcb756745c6c09e129a"
+          "sha256": "26002be8a33426021926b39049c73ac8da403060856e3ff72ceb27da8d8773d6"
         },
         {
           "path": "skills/documentation-review/SKILL.md",
@@ -933,7 +933,7 @@
         },
         {
           "path": "skills/phase-execute/README.md",
-          "sha256": "6ff3d4b47db1c468ca9d155ed7309a2e0909bd75514f1a23bba8b5d6f70dbf8e"
+          "sha256": "d29d76f21c497ec6ba94c7bafbd66e6e467ea661348a1ee7598befa2ea727d12"
         },
         {
           "path": "skills/phase-execute/SKILL.md",
@@ -945,7 +945,7 @@
         },
         {
           "path": "skills/plan-activate/README.md",
-          "sha256": "f64aadc085da114ce375ef239e2032662c0e232e163f814223e9ed422d26f4aa"
+          "sha256": "0f8c0e83685183b1fae484e409e1bd361ffc0e7805828ab651b37084691d1b95"
         },
         {
           "path": "skills/plan-activate/SKILL.md",
@@ -957,7 +957,7 @@
         },
         {
           "path": "skills/plan-complete/README.md",
-          "sha256": "757b93e2f15a955886464266c7054a221e671761c4dc214caabdb93567e06107"
+          "sha256": "9efab1125819d4f63710d75a4587e6c6b24574851115da7502d71676b980c40c"
         },
         {
           "path": "skills/plan-complete/SKILL.md",
@@ -969,7 +969,7 @@
         },
         {
           "path": "skills/plan-create/README.md",
-          "sha256": "14bed42f1c7c8eb6d8af59f21570818648e38c52619452ad401cf1b45163ffd9"
+          "sha256": "7364d5b84a718773c1270ce5e58f580f6424581c5e2ee01c63c4bc5c93f7e2aa"
         },
         {
           "path": "skills/plan-create/SKILL.md",
@@ -981,7 +981,7 @@
         },
         {
           "path": "skills/plan-defer/README.md",
-          "sha256": "7cf0a467e91a209bd69fc3a6877f9398c47efdccc780c471d0f2097c2e898f09"
+          "sha256": "458d0dd4d069f7d9d79ee387aee790cf74ce3f734a4e6ee71fd90d96cc698da8"
         },
         {
           "path": "skills/plan-defer/SKILL.md",
@@ -993,7 +993,7 @@
         },
         {
           "path": "skills/plan-execute/README.md",
-          "sha256": "ebe39f420b124429972b36f0005c1d18f473357c0885285031e1cdfa9893b507"
+          "sha256": "03e8e464fea5d77825d7d18392983cfdf00bc8b8779bc6d9ff86a5680d3ef957"
         },
         {
           "path": "skills/plan-execute/SKILL.md",
@@ -1005,7 +1005,7 @@
         },
         {
           "path": "skills/plan-review/README.md",
-          "sha256": "4d1f16eaf653c0cf0a70281204f8268d8f704b5b4fb7733faab1aa8da660606c"
+          "sha256": "d92df873053a0595f6df24c7ba5609b2355a5b9ce555f8330a24789e90846143"
         },
         {
           "path": "skills/plan-review/SKILL.md",
@@ -1017,7 +1017,7 @@
         },
         {
           "path": "skills/plan-update/README.md",
-          "sha256": "daf23292e2b504a852467073d4f1f474fef97f8d2e837bc8a5572dac5c3fc140"
+          "sha256": "5259916c42ec8c79c2448a701db1b284639e2f3ae38d7cbff8efd22f5e07743a"
         },
         {
           "path": "skills/plan-update/SKILL.md",
@@ -1029,7 +1029,7 @@
         },
         {
           "path": "skills/project-init/README.md",
-          "sha256": "d7b10d079e0870dd655dfded4246c56ea24952377f293bcb6b9f41529f0b5c20"
+          "sha256": "a86c24850ff5fc76a120848b04def0527403e0dd278a36ed0834e5ac9ea724eb"
         },
         {
           "path": "skills/project-init/SKILL.md",
@@ -1041,7 +1041,7 @@
         },
         {
           "path": "skills/task-execute/README.md",
-          "sha256": "642fc2029920fed7af7b5ab94288e10e27a1e9bd9df3bf7cc4e599d7b1df4eb7"
+          "sha256": "9e365ba7faaac54115f5e083a1ef03a759f8cc29e508a9f979792f3f177bc4f5"
         },
         {
           "path": "skills/task-execute/SKILL.md",
@@ -1053,7 +1053,7 @@
         },
         {
           "path": "skills/work-verify/README.md",
-          "sha256": "921054f479dbee6b7c937da6de37e9f27ca2cc1ec909a5bc5c67044699c281fa"
+          "sha256": "4dd3df8ee2712719ab52babb5890e53dd4132e34c7244521de6be994accd1cd0"
         },
         {
           "path": "skills/work-verify/SKILL.md",
