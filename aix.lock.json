@@ -673,7 +673,7 @@
         },
         {
           "path": "templates/sections/completion-checklist.md",
-          "sha256": "99bfbe9b30ae5ec70a8c1684a5a7b9a7f73dc67c843b3573c155a2fe7562dee1"
+          "sha256": "9c0957755b02fb3984f0b9abb6350e7e2f955079e020d8786f303e5998eaff1a"
         },
         {
           "path": "templates/sections/execution-note.md",
@@ -863,7 +863,7 @@
         },
         {
           "path": "templates/sections/completion-checklist.md",
-          "sha256": "99bfbe9b30ae5ec70a8c1684a5a7b9a7f73dc67c843b3573c155a2fe7562dee1"
+          "sha256": "9c0957755b02fb3984f0b9abb6350e7e2f955079e020d8786f303e5998eaff1a"
         },
         {
           "path": "templates/sections/execution-note.md",

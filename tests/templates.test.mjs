@@ -253,7 +253,7 @@ test("bundled plan template renders expected Markdown without agent notes", () =
   assert.match(rendered, /- ✅ Add CLI routing/);
   assert.match(rendered, /- ⬜️ Review published template docs/);
   assert.match(rendered, /## Completion Checklist/);
-  assert.match(rendered, /- ⬜️ Review the codebase to ensure the code is maintainable and clean; refactor if needed\./);
+  assert.match(rendered, /- ⬜️ Review the codebase using `\$code-review-refactor`; refactor or record follow-up work if needed\./);
   assert.match(rendered, /- ⬜️ Promote accepted durable behavior into design docs using `\$design-promote`\./);
   assert.match(rendered, /- ⬜️ Review documentation structure, formatting, and links using `\$documentation-review`; fix issues or record follow-up work\./);
   assert.doesNotMatch(rendered, /## Promotion To Design/);
