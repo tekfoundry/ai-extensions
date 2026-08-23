@@ -1,5 +1,10 @@
 # AI Extensions (AIX): A package-manager-style CLI for AI-agent workflows and skills
 
+[![CI](https://github.com/tekfoundry/ai-extensions/actions/workflows/ci.yml/badge.svg)](https://github.com/tekfoundry/ai-extensions/actions/workflows/ci.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/tekfoundry/ai-extensions)](https://github.com/tekfoundry/ai-extensions/releases)
+![Node.js >=20.17](https://img.shields.io/badge/node-%3E%3D20.17-339933)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+
 ![AI Extensions social preview](assets/aix_about_github.jpg)
 
 AIX helps developers install, lock, diff, update, and share project-local AI-agent
@@ -27,7 +32,7 @@ See the project promotion page at [tekfoundry.com/aix](https://tekfoundry.com/ai
 ## Try it in 60 seconds
 
 ```bash
-npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.0.1/tekfoundry-aix-0.0.1.tgz
+npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.1.0/tekfoundry-aix-0.1.0.tgz
 aix init
 aix status
 aix verify
@@ -74,7 +79,7 @@ npm install -g @tekfoundry/aix
 > Until scoped npm publishing is complete, install the packed build from the GitHub Release artifact:
 >
 > ```bash
-> npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.0.1/tekfoundry-aix-0.0.1.tgz
+> npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.1.0/tekfoundry-aix-0.1.0.tgz
 > ```
 
 A quick verification test after installation:
