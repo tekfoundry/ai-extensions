@@ -8,12 +8,14 @@ import { test } from "node:test";
 import { commands } from "../dist/cli/registry.js";
 import { run, runInteractive } from "../dist/cli.js";
 
+const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
+
 test("run renders a splash screen with a zero exit code", () => {
   const result = run([]);
 
   assert.equal(result.exitCode, 0);
   assert.match(result.stdout, /AI Extensions/);
-  assert.match(result.stdout, /aix v0\.0\.0/);
+  assert.match(result.stdout, new RegExp(`aix v${packageJson.version.replaceAll(".", "\\.")}`));
   assert.match(result.stdout, /^  init\s+Initialize AI Extensions/m);
   assert.match(result.stdout, /^  verify\s+Check installed AI Extension state/m);
   assert.match(result.stdout, /^  status\s+Show workspace, workflow, and skill status/m);

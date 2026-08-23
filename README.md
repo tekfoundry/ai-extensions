@@ -27,7 +27,7 @@ See the project promotion page at [tekfoundry.com/aix](https://tekfoundry.com/ai
 ## Try it in 60 seconds
 
 ```bash
-npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.0.0/tekfoundry-aix-0.0.0.tgz
+npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.0.1/tekfoundry-aix-0.0.1.tgz
 aix init
 aix status
 aix verify
@@ -74,7 +74,7 @@ npm install -g @tekfoundry/aix
 > Until scoped npm publishing is complete, install the packed build from the GitHub Release artifact:
 >
 > ```bash
-> npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.0.0/tekfoundry-aix-0.0.0.tgz
+> npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.0.1/tekfoundry-aix-0.0.1.tgz
 > ```
 
 A quick verification test after installation:

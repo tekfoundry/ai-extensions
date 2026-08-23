@@ -43,5 +43,5 @@ test("npm pack artifact contains a working aix binary", async () => {
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/skills/task-execute/SKILL.md")), true);
   assert.equal(readdirSync(packDirectory).some((entry) => entry.endsWith(".tgz")), true);
   assert.match(helpOutput, /AI Extensions/);
-  assert.match(helpOutput, /aix v0\.0\.0/);
+  assert.match(helpOutput, new RegExp(`aix v${packageJson.version.replaceAll(".", "\\.")}`));
 });

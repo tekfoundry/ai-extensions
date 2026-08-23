@@ -43,8 +43,8 @@ GitHub Release so users can install `aix` without cloning the repository:
 npm run release:github-artifact
 ```
 
-Create or update a temporary `v0.0.0` GitHub Release, attach the generated
-`release-artifacts/tekfoundry-aix-0.0.0.tgz` file, and paste the printed
+Create or update a temporary `v0.0.1` GitHub Release, attach the generated
+`release-artifacts/tekfoundry-aix-0.0.1.tgz` file, and paste the printed
 checksum block into the release notes. The helper also writes a
 `.tgz.sha256` sidecar file for local reference. The README temporary install
 command depends on that exact release tag and artifact name.
