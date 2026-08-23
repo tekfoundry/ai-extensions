@@ -13,8 +13,15 @@ test("code-review-refactor skill declares standalone review contract", () => {
   assert.match(skill, /If `.agents\/engineering-best-practices\.md` is missing, stop before reviewing/);
   assert.match(skill, /Review project code files by default\./);
   assert.match(skill, /Each finding should include:/);
-  assert.match(skill, /severity, such as `P1`, `P2`, or `P3`/);
-  assert.match(skill, /Ask the developer which recommendation they want to pursue\./);
+  assert.match(skill, /Use one visible marker per finding\./);
+  assert.match(skill, /Do not combine numbered list markers with visible priority badges/);
+  assert.match(skill, /which finding numbers they want\s+to refactor/);
+  assert.match(skill, /They may choose one, several, or all\./);
+  assert.match(skill, /repeat the selected set back\s+to the developer and ask for confirmation/);
+  assert.match(skill, /## Process modes/);
+  assert.match(skill, /### Inline mode/);
+  assert.match(skill, /### Plan mode/);
+  assert.match(skill, /use the `plan-create` skill to create a backlog\s+review-and-refactor plan/);
   assert.match(skill, /When the review runs inside an active plan/);
   assert.match(skill, /When the review runs outside an active plan/);
 });

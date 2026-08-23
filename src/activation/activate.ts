@@ -26,6 +26,21 @@ interface SkillActivationPlan {
   dependencies: LockfileSkillDependency[];
 }
 
+export interface PreparedSkillActivation {
+  source: string;
+  sourcePath: string;
+  definition: SourceDefinition;
+  resolvedCommit: string | undefined;
+  plans: SkillActivationPlan[];
+  requestedPlan: SkillActivationPlan;
+  manifestJson: Record<string, unknown>;
+  lockfile: { skills: LockfileSkillEntry[] };
+}
+
+export interface PrepareSkillActivationOptions {
+  allowMissingManifest?: boolean;
+}
+
 function assertKnownSkill(sourceRoot: string, sourceName: string, sourcePath: string): void {
   const skills = discoverSkills(sourceRoot);
 
@@ -113,6 +128,24 @@ function assertActivationPlanSafe(lockfile: { skills: LockfileSkillEntry[] }, pl
   }
 }
 
+function emptyManifestJson(): Record<string, unknown> {
+  return {
+    sources: {
+      skills: {},
+      workflows: {}
+    },
+    skills: []
+  };
+}
+
+function readActivationManifestJson(options: PrepareSkillActivationOptions): Record<string, unknown> {
+  if (options.allowMissingManifest && !existsSync(MANIFEST_FILE_NAME)) {
+    return emptyManifestJson();
+  }
+
+  return readJsonObject(MANIFEST_FILE_NAME);
+}
+
 function activatePlannedSkill(
   plan: SkillActivationPlan,
   definition: SourceDefinition,
@@ -156,19 +189,20 @@ function activatePlannedSkill(
   });
 }
 
-export function activateSkillFromDefinitions(
+export function prepareSkillActivationFromDefinitions(
   target: string,
   alias: string | undefined,
   defaultSourceDefinitions: Record<string, SourceDefinition>,
-  cacheRoot = defaultCacheRoot()
-): ActivateSkillResult {
+  cacheRoot = defaultCacheRoot(),
+  options: PrepareSkillActivationOptions = {}
+): PreparedSkillActivation {
   const { source, sourcePath } = activationTargetFromInput(target);
 
   if (alias) {
     assertFolderNameSafe(alias, "alias");
   }
 
-  const manifestJson = readJsonObject(MANIFEST_FILE_NAME);
+  const manifestJson = readActivationManifestJson(options);
   parseManifest(manifestJson);
 
   const manifestSources = manifestSourceDefinitions(manifestJson);
@@ -190,22 +224,6 @@ export function activateSkillFromDefinitions(
     assertActivationPlanSafe(lockfile, plan);
   }
 
-  mkdirSync(SKILL_PACKAGES_DIR, { recursive: true });
-
-  for (const plan of plans) {
-    activatePlannedSkill(
-      plan,
-      definition,
-      resolvedSource.resolvedCommit,
-      manifestJson,
-      lockfile,
-      plan.source === source && plan.sourcePath === sourcePath
-    );
-  }
-
-  writeJsonObjectAtomic(MANIFEST_FILE_NAME, manifestJson);
-  writeJsonObjectAtomic(LOCKFILE_FILE_NAME, lockfile);
-
   const requestedPlan = plans.find((plan) => plan.source === source && plan.sourcePath === sourcePath);
 
   if (!requestedPlan) {
@@ -215,17 +233,63 @@ export function activateSkillFromDefinitions(
   return {
     source,
     sourcePath,
-    originalName: requestedPlan.originalName,
-    activeName: requestedPlan.activeName,
-    dependencies: requestedPlan.dependencies.map((dependency) => ({
+    definition,
+    resolvedCommit: resolvedSource.resolvedCommit,
+    plans,
+    requestedPlan,
+    manifestJson,
+    lockfile
+  };
+}
+
+export function preflightSkillActivationFromDefinitions(
+  target: string,
+  alias: string | undefined,
+  defaultSourceDefinitions: Record<string, SourceDefinition>,
+  cacheRoot = defaultCacheRoot(),
+  options: PrepareSkillActivationOptions = {}
+): void {
+  prepareSkillActivationFromDefinitions(target, alias, defaultSourceDefinitions, cacheRoot, options);
+}
+
+export function activateSkillFromDefinitions(
+  target: string,
+  alias: string | undefined,
+  defaultSourceDefinitions: Record<string, SourceDefinition>,
+  cacheRoot = defaultCacheRoot()
+): ActivateSkillResult {
+  const prepared = prepareSkillActivationFromDefinitions(target, alias, defaultSourceDefinitions, cacheRoot);
+
+  mkdirSync(SKILL_PACKAGES_DIR, { recursive: true });
+
+  for (const plan of prepared.plans) {
+    activatePlannedSkill(
+      plan,
+      prepared.definition,
+      prepared.resolvedCommit,
+      prepared.manifestJson,
+      prepared.lockfile,
+      plan === prepared.requestedPlan
+    );
+  }
+
+  writeJsonObjectAtomic(MANIFEST_FILE_NAME, prepared.manifestJson);
+  writeJsonObjectAtomic(LOCKFILE_FILE_NAME, prepared.lockfile);
+
+  return {
+    source: prepared.source,
+    sourcePath: prepared.sourcePath,
+    originalName: prepared.requestedPlan.originalName,
+    activeName: prepared.requestedPlan.activeName,
+    dependencies: prepared.requestedPlan.dependencies.map((dependency) => ({
       source: dependency.source,
       sourcePath: dependency.sourcePath,
       activeName: dependency.activeName
     })),
     manifestPath: MANIFEST_FILE_NAME,
     lockfilePath: LOCKFILE_FILE_NAME,
-    packagePath: packageSkillPath(source, sourcePath),
-    activationPath: activeSkillPath(requestedPlan.activeName)
+    packagePath: packageSkillPath(prepared.source, prepared.sourcePath),
+    activationPath: activeSkillPath(prepared.requestedPlan.activeName)
   };
 }
 

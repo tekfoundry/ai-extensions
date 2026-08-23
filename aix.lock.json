@@ -31,6 +31,32 @@
       "kind": "skill",
       "source": "aix",
       "sourceType": "git",
+      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
+      "requestedRef": "master",
+      "resolvedCommit": "62774b814edfa29fbc9858c595c9bf2a1d4759fe",
+      "sourcePath": "code-review-refactor",
+      "packagePath": ".agents/packages/skills/aix/code-review-refactor",
+      "activationPath": ".agents/skills/code-review-refactor",
+      "originalName": "code-review-refactor",
+      "activeName": "code-review-refactor",
+      "requested": true,
+      "packageFiles": [
+        {
+          "path": "SKILL.md",
+          "sha256": "656f1ac64ad73e5d714a602896d449d4d2445d477f1a76925d705fda231f52b3"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "SKILL.md",
+          "sha256": "656f1ac64ad73e5d714a602896d449d4d2445d477f1a76925d705fda231f52b3"
+        }
+      ]
+    },
+    {
+      "kind": "skill",
+      "source": "aix",
+      "sourceType": "git",
       "sourcePath": "skills/design-create",
       "packagePath": ".agents/packages/workflows/aix/design-plan-execute/skills/design-create",
       "activationPath": ".agents/skills/design-create",
@@ -516,32 +542,6 @@
           "sha256": "f139071a27618911c7b266c8b8d4ea2e2a5031e37534a170175ec4f808953d7e"
         }
       ]
-    },
-    {
-      "kind": "skill",
-      "source": "aix",
-      "sourceType": "git",
-      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
-      "requestedRef": "master",
-      "resolvedCommit": "62774b814edfa29fbc9858c595c9bf2a1d4759fe",
-      "sourcePath": "code-review-refactor",
-      "packagePath": ".agents/packages/skills/aix/code-review-refactor",
-      "activationPath": ".agents/skills/code-review-refactor",
-      "originalName": "code-review-refactor",
-      "activeName": "code-review-refactor",
-      "requested": true,
-      "packageFiles": [
-        {
-          "path": "SKILL.md",
-          "sha256": "f2cb95e5e7e31f49181001d269a7228203fdfd8fa9e480d3ca53a7d1d2b53baa"
-        }
-      ],
-      "activeFiles": [
-        {
-          "path": "SKILL.md",
-          "sha256": "f2cb95e5e7e31f49181001d269a7228203fdfd8fa9e480d3ca53a7d1d2b53baa"
-        }
-      ]
     }
   ],
   "workflows": [
@@ -551,7 +551,7 @@
       "sourceType": "git",
       "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
       "requestedRef": "master",
-      "resolvedCommit": "62774b814edfa29fbc9858c595c9bf2a1d4759fe",
+      "resolvedCommit": "cf27956570f171003959906ffce7bb7820ca3158",
       "sourcePath": "aix/workflows/design-plan-execute",
       "packagePath": ".agents/packages/workflows/aix/design-plan-execute",
       "name": "design-plan-execute",

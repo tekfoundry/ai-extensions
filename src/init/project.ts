@@ -1,6 +1,6 @@
 import { existsSync, statSync } from "node:fs";
 import { AixError } from "../errors.js";
-import { activateSkillFromDefinitions } from "../activation/activate.js";
+import { activateSkillFromDefinitions, preflightSkillActivationFromDefinitions } from "../activation/activate.js";
 import { AGENTS_DIR } from "../paths/agents.js";
 import { defaultCacheRoot, getDefaultSources, getDefaultWorkflowSources } from "../sources/index.js";
 import { installWorkflowFromDefinitions } from "../workflows/index.js";
@@ -14,11 +14,19 @@ export function initProject(options: InitOptions = {}): InitResult {
   }
 
   const cacheRoot = options.cacheRoot || defaultCacheRoot();
+  const standaloneSkillSources = options.sources || getDefaultSources();
+
+  for (const skill of DEFAULT_STANDALONE_SKILLS) {
+    preflightSkillActivationFromDefinitions(skill, undefined, standaloneSkillSources, cacheRoot, {
+      allowMissingManifest: true
+    });
+  }
+
   const workflow = installWorkflowFromDefinitions(options.workflowSources || getDefaultWorkflowSources(), cacheRoot, {
     allowExistingWorkflow: true
   });
   const standaloneSkills = DEFAULT_STANDALONE_SKILLS.map((skill) =>
-    activateSkillFromDefinitions(skill, undefined, options.sources || getDefaultSources(), cacheRoot)
+    activateSkillFromDefinitions(skill, undefined, standaloneSkillSources, cacheRoot)
   );
 
   return {

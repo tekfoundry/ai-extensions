@@ -208,6 +208,32 @@ test("run init initializes a project through the CLI command path", async () => 
   });
 });
 
+test("initProject leaves project files unchanged when default standalone skill preflight fails", async () => {
+  await withProject(async (projectPath, defaults, cacheRoot) => {
+    const existingAgents = "# Existing agents file\n";
+    const brokenSources = {
+      ...defaults.sources,
+      aix: {
+        ...defaults.sources.aix,
+        path: "aix/missing-skills"
+      }
+    };
+
+    writeFileSync(join(projectPath, "AGENTS.md"), existingAgents, "utf8");
+
+    assert.throws(
+      () => initProject({ workflowSources: defaults.workflowSources, sources: brokenSources, cacheRoot }),
+      /Missing source path/
+    );
+
+    assert.equal(readFileSync(join(projectPath, "AGENTS.md"), "utf8"), existingAgents);
+    assert.equal(existsSync(join(projectPath, "aix.json")), false);
+    assert.equal(existsSync(join(projectPath, "aix.lock.json")), false);
+    assert.equal(existsSync(join(projectPath, ".agents")), false);
+    assert.equal(existsSync(join(projectPath, "_docs")), false);
+  });
+});
+
 test("initProject is idempotent when files match", async () => {
   await withProject(async (_projectPath, defaults, cacheRoot) => {
     assert.doesNotThrow(() => initProject({ workflowSources: defaults.workflowSources, sources: defaults.sources, cacheRoot }));

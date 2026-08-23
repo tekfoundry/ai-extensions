@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { PassThrough } from "node:stream";
 import { test } from "node:test";
+import { preflightSkillActivationFromDefinitions } from "../dist/activation/activate.js";
 import { run, runInteractive } from "../dist/cli.js";
 
 function git(args, cwd) {
@@ -142,6 +143,20 @@ test("run skill activate detects active-name collisions before materializing a p
     assert.equal(result.exitCode, 2);
     assert.match(result.stderr, /Active skill name collision: \.agents\/skills\/demo/);
     assert.equal(existsSync(join(projectRoot, ".agents/packages")), false);
+    assert.equal(existsSync(join(projectRoot, "aix.lock.json")), false);
+  });
+});
+
+test("preflightSkillActivationFromDefinitions validates activation without writes", async () => {
+  await withProject(async (projectRoot, _gitSource, cacheRoot) => {
+    const manifestPath = join(projectRoot, "aix.json");
+    const manifestBefore = readFileSync(manifestPath, "utf8");
+
+    preflightSkillActivationFromDefinitions("fixture/skills/demo", undefined, {}, cacheRoot);
+
+    assert.equal(readFileSync(manifestPath, "utf8"), manifestBefore);
+    assert.equal(existsSync(join(projectRoot, ".agents/packages")), false);
+    assert.equal(existsSync(join(projectRoot, ".agents/skills")), false);
     assert.equal(existsSync(join(projectRoot, "aix.lock.json")), false);
   });
 });

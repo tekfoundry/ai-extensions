@@ -1,13 +1,18 @@
-import { randomUUID } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { existsSync, unlinkSync } from "node:fs";
 import { AixError } from "../errors.js";
-import { parseLockfile } from "../lockfile.js";
-import { parseManifest, parseSourceDefinition } from "../manifest.js";
-import { LOCKFILE_FILE_NAME, MANIFEST_FILE_NAME, type SourceDefinition, type SourceManifestEntry } from "../schema.js";
+import { parseSourceDefinition } from "../manifest.js";
+import { MANIFEST_FILE_NAME, type SourceDefinition } from "../schema.js";
 import { discoverSkills } from "../skills.js";
-import { isRecord } from "../validation/types.js";
+import { assertSourceNameSafe, deriveSourceName, parseSourceInput, sameSourceDefinition, sourceManifestEntry } from "./input.js";
+import { readSourceManifestJson, skillSourceEntries, writeSourceManifestJson } from "./manifest.js";
 import { sourceMetadataPath, writeSourceMetadata } from "./metadata.js";
+import {
+  lockfileDependsOnSource,
+  manifestDependsOnSource,
+  packageSourcePath as sourcePackagePath,
+  removalBlockReason,
+  removeEmptyPackageSourceDirectory
+} from "./removal.js";
 import { defaultCacheRoot, resolveSourceFromDefinitions } from "./resolver.js";
 
 export interface AddSourceResult {
@@ -43,107 +48,6 @@ export interface RemoveSourceChoices {
   blocked: BlockedSkillSource[];
 }
 
-function sourceManifestEntry(definition: SourceDefinition): SourceManifestEntry {
-  const match = definition.url.match(/^https:\/\/github\.com\/([^/]+)\/(.+?)(?:\.git)?$/);
-
-  if (!match || !definition.ref || !definition.path) {
-    return definition;
-  }
-
-  const [, owner, repo] = match;
-
-  return `https://github.com/${owner}/${repo}/tree/${definition.ref}/${definition.path}`;
-}
-
-function parseSourceInput(input: string): SourceDefinition {
-  try {
-    return parseSourceDefinition(input, "source");
-  } catch {
-    return {
-      type: "git",
-      url: input
-    };
-  }
-}
-
-function deriveSourceName(input: string, definition: SourceDefinition): string {
-  const sourcePath = definition.path?.split("/").filter(Boolean) || [];
-  const pathName = sourcePath.at(-2) || sourcePath.at(-1);
-
-  if (pathName && pathName !== "skills") {
-    return pathName;
-  }
-
-  const urlName = definition.url.split("/").filter(Boolean).at(-1)?.replace(/\.git$/, "");
-
-  return urlName || input.replace(/[^a-zA-Z0-9._-]/g, "_");
-}
-
-function assertSourceNameSafe(name: string): void {
-  if (!/^[a-zA-Z0-9._-]+$/.test(name)) {
-    throw new AixError(`Invalid source name: ${name}`);
-  }
-}
-
-function readManifestJson(): Record<string, unknown> {
-  if (!existsSync(MANIFEST_FILE_NAME)) {
-    return {
-      sources: {
-        skills: {}
-      },
-      skills: []
-    };
-  }
-
-  const raw = JSON.parse(readFileSync(MANIFEST_FILE_NAME, "utf8")) as unknown;
-
-  if (!isRecord(raw)) {
-    throw new AixError(`${MANIFEST_FILE_NAME} must contain a JSON object.`);
-  }
-
-  parseManifest(raw);
-
-  return raw;
-}
-
-function skillSourceEntries(manifest: Record<string, unknown>): Record<string, unknown> {
-  if (!isRecord(manifest.sources)) {
-    manifest.sources = {
-      skills: {}
-    };
-
-    return (manifest.sources as Record<string, unknown>).skills as Record<string, unknown>;
-  }
-
-  if (isRecord(manifest.sources.skills)) {
-    return manifest.sources.skills;
-  }
-
-  const legacySources = manifest.sources;
-  manifest.sources = {
-    skills: legacySources
-  };
-
-  return legacySources;
-}
-
-function writeManifestJson(manifest: Record<string, unknown>): void {
-  const tempPath = `${MANIFEST_FILE_NAME}.${process.pid}.${randomUUID()}.tmp`;
-
-  mkdirSync(dirname(MANIFEST_FILE_NAME), { recursive: true });
-  writeFileSync(tempPath, `${JSON.stringify(manifest, null, 2)}\n`, { encoding: "utf8", mode: 0o644 });
-  renameSync(tempPath, MANIFEST_FILE_NAME);
-}
-
-function sameSourceDefinition(left: SourceDefinition, right: SourceDefinition): boolean {
-  return (
-    left.type === right.type &&
-    left.url === right.url &&
-    left.path === right.path &&
-    left.ref === right.ref
-  );
-}
-
 export function addSource(input: string | undefined, requestedName?: string, cacheRoot = defaultCacheRoot()): AddSourceResult {
   if (!input) {
     throw new AixError("Missing source URL.");
@@ -153,7 +57,7 @@ export function addSource(input: string | undefined, requestedName?: string, cac
   const name = requestedName || deriveSourceName(input, definition);
   assertSourceNameSafe(name);
 
-  const manifest = readManifestJson();
+  const manifest = readSourceManifestJson();
   const sources = skillSourceEntries(manifest);
   const existingSource = sources[name];
   let added = false;
@@ -191,7 +95,7 @@ export function addSource(input: string | undefined, requestedName?: string, cac
   );
 
   if (added) {
-    writeManifestJson(manifest);
+    writeSourceManifestJson(manifest);
   }
 
   return {
@@ -203,72 +107,6 @@ export function addSource(input: string | undefined, requestedName?: string, cac
   };
 }
 
-function skillDependsOnSource(skill: unknown, sourceName: string): boolean {
-  if (typeof skill === "string") {
-    const separatorIndex = skill.indexOf(":");
-
-    return separatorIndex > 0 && skill.slice(0, separatorIndex) === sourceName;
-  }
-
-  return isRecord(skill) && skill.source === sourceName;
-}
-
-function manifestDependsOnSource(manifest: Record<string, unknown>, sourceName: string): boolean {
-  const skills = Array.isArray(manifest.skills) ? manifest.skills : [];
-
-  return skills.some((skill) => skillDependsOnSource(skill, sourceName));
-}
-
-function lockfileDependsOnSource(sourceName: string): boolean {
-  if (!existsSync(LOCKFILE_FILE_NAME)) {
-    return false;
-  }
-
-  const lockfile = parseLockfile(JSON.parse(readFileSync(LOCKFILE_FILE_NAME, "utf8")));
-
-  return lockfile.skills.some((skill) => skill.source === sourceName);
-}
-
-function removeEmptyPackageSourceDirectory(sourceName: string): boolean {
-  const packageSourcePath = join(".agents", "packages", "skills", sourceName);
-
-  if (!existsSync(packageSourcePath)) {
-    return false;
-  }
-
-  try {
-    rmdirSync(packageSourcePath);
-  } catch (error) {
-    if (error && typeof error === "object" && "code" in error && error.code === "ENOTEMPTY") {
-      throw new AixError(
-        `Cannot remove skills source ${sourceName}: ${packageSourcePath} is not empty. Deactivate skills first.`
-      );
-    }
-
-    throw error;
-  }
-
-  return true;
-}
-
-function packageSourceDirectoryHasContents(sourceName: string): boolean {
-  const packageSourcePath = join(".agents", "packages", "skills", sourceName);
-
-  return existsSync(packageSourcePath) && readdirSync(packageSourcePath).length > 0;
-}
-
-function removalBlockReason(manifest: Record<string, unknown>, sourceName: string): string | undefined {
-  if (manifestDependsOnSource(manifest, sourceName) || lockfileDependsOnSource(sourceName)) {
-    return "active skills still depend on it; deactivate skills first";
-  }
-
-  if (packageSourceDirectoryHasContents(sourceName)) {
-    return `.agents/packages/skills/${sourceName} is not empty; deactivate skills first`;
-  }
-
-  return undefined;
-}
-
 export function removeSource(name: string | undefined, cacheRoot = defaultCacheRoot()): RemoveSourceResult {
   if (!name) {
     throw new AixError("Missing source name.");
@@ -276,7 +114,7 @@ export function removeSource(name: string | undefined, cacheRoot = defaultCacheR
 
   assertSourceNameSafe(name);
 
-  const manifest = readManifestJson();
+  const manifest = readSourceManifestJson();
   const sources = skillSourceEntries(manifest);
 
   if (sources[name] === undefined) {
@@ -295,10 +133,10 @@ export function removeSource(name: string | undefined, cacheRoot = defaultCacheR
 
   const metadataPath = sourceMetadataPath(name, cacheRoot);
   const metadataRemoved = existsSync(metadataPath);
-  const packageSourcePath = join(".agents", "packages", "skills", name);
+  const packageSourcePath = sourcePackagePath(name);
   const packageSourceRemoved = removeEmptyPackageSourceDirectory(name);
 
-  writeManifestJson(manifest);
+  writeSourceManifestJson(manifest);
 
   if (metadataRemoved) {
     unlinkSync(metadataPath);
@@ -315,7 +153,7 @@ export function removeSource(name: string | undefined, cacheRoot = defaultCacheR
 }
 
 export function listRemoveSourceChoices(): RemoveSourceChoices {
-  const manifest = readManifestJson();
+  const manifest = readSourceManifestJson();
   const sources = skillSourceEntries(manifest);
   const choices: RemoveSourceChoices = {
     removable: [],

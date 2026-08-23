@@ -79,9 +79,19 @@ parsers, and narrow lookup tables may be large for valid reasons.
 
 Lead with findings. Order them by severity and practical risk.
 
+Use one visible marker per finding. Prefer a numbered list:
+
+```text
+1. Init is not transactionally composed
+```
+
+Do not combine numbered list markers with visible priority badges such as
+`1. P1 ...`. If severity matters, put it inside the finding body as plain
+text, for example `Severity: high`.
+
 Each finding should include:
 
-- severity, such as `P1`, `P2`, or `P3`
+- severity as plain text when it helps the developer decide
 - concrete file reference with line number when possible
 - evidence from the code
 - why it makes future changes riskier
@@ -90,24 +100,66 @@ Each finding should include:
 
 Keep recommendations focused. Avoid listing every minor style preference.
 
-## Refactor flow
+## Refactor selection
 
 The review produces recommendations first. Do not choose broad refactors for
 the developer.
 
-After presenting findings:
+After presenting findings, ask the developer which finding numbers they want
+to refactor. They may choose one, several, or all. Accept natural replies such
+as `1`, `1 and 3`, `1, 2, 4`, or `all`.
 
-1. Ask the developer which recommendation they want to pursue.
-2. If the selected work is small, local, and already authorized by an active
-   plan or qualifies as a micro-fix under the repository workflow, implement it
-   in the smallest safe slice.
-3. If the selected work is substantial, crosses ownership boundaries, changes
-   public behavior, alters runtime contracts, touches persistence or security,
-   reorganizes modules broadly, or is outside the current active plan, create
-   or update an implementation plan before editing code.
-4. Review the plan with the developer and get approval.
-5. Activate the plan when the repository workflow requires activation.
-6. Execute the approved plan through its phases and tasks.
+Before selecting a process mode or editing files, repeat the selected set back
+to the developer and ask for confirmation. The confirmation should include:
+
+- the selected finding numbers
+- a one-line title for each selected finding
+- the recommended process mode
+- the reason for that mode
+
+Do not proceed until the developer confirms the selected findings and mode.
+
+## Process modes
+
+Recommend one process mode after the developer selects findings.
+
+### Inline mode
+
+Use inline mode for small, isolated, behavior-preserving fixes that do not
+change design intent and do not touch many files. Inline work should have a
+small blast radius, clear verification, and no unresolved product,
+architecture, security, persistence, external-system, or runtime-contract
+decision.
+
+When inline mode is confirmed, perform the selected refactors in the confirmed
+finding order unless the developer gives a different order. Keep each change
+small, preserve unrelated worktree changes, and verify the result before
+moving to the next selected finding.
+
+### Plan mode
+
+Use plan mode for larger, cross-cutting, or intricate refactors. Prefer plan
+mode when selected findings interact with each other, touch several ownership
+areas, require sequencing, change design intent, alter public behavior, affect
+runtime contracts, touch persistence or security, or need broader tests.
+
+When plan mode is confirmed, use the `plan-create` skill to create a backlog
+review-and-refactor plan. The plan should capture the selected findings as
+scope, organize phases and tasks, and define risks and verification. Stop
+after the plan is created so the developer can follow the standard lifecycle:
+approve, activate, execute, and complete.
+
+## Refactor flow
+
+After confirmation:
+
+1. For inline mode, implement the selected findings in the confirmed order.
+2. For plan mode, create a backlog plan with `plan-create` and stop for normal
+   review and approval.
+3. If the review is running inside an active plan, record selected findings,
+   mode, evidence, verification, and residual risks in that plan.
+4. If the selected work expands beyond the confirmed mode, stop and ask the
+   developer whether to switch modes or narrow the scope.
 
 The developer may cancel at any point.
 
