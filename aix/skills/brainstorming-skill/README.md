@@ -5,7 +5,7 @@
 Runs a project-grounded brainstorming session before implementation planning.
 It helps an agent review the repository, inspect existing ideas, research
 similar products or projects when useful, find gaps, and maintain a durable
-idea list in `_docs/ideas.md`.
+idea list in `_docs/ideas.md` throughout the session.
 
 Installation:
 
@@ -47,6 +47,12 @@ session.
 The skill may research comparable products, projects, tools, or workflows. It
 keeps useful links with the ideas they informed so a developer can revisit the
 source later.
+
+As soon as the first useful in-flight list exists, the skill writes or updates
+`_docs/ideas.md`. It keeps checkpointing meaningful changes so the developer
+can walk away and resume in another session. Explicit approval is still
+required before moving ideas into `Approved prioritized ideas` or deleting
+existing ideas.
 
 ## Ideas document
 
@@ -95,6 +101,9 @@ This format is embedded in the skill because it is small and directly tied to
 the brainstorming process. It is not a strict parser contract. If a project
 adds fields such as owner, status, dates, or notes, the skill should preserve
 them unless the developer asks to change the format.
+
+The file is a live checkpoint, not just a final export. In-flight ideas should
+be saved before review starts and updated after meaningful accepted changes.
 
 ## Prioritization
 

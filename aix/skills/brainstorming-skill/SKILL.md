@@ -58,14 +58,25 @@ implementation plan.
    - Include useful existing in-flight ideas.
    - Preserve approved ideas unless the developer asks to revisit them.
    - Add new candidates grounded in the project review and research.
-5. Collaborate with the developer.
+5. Checkpoint the session before review.
+   - Create or update `_docs/ideas.md` as soon as the first useful in-flight
+     list exists.
+   - Store new candidates in `In-flight ideas` unless the developer has
+     explicitly accepted them as approved.
+   - Preserve all existing approved and in-flight ideas unless the developer
+     accepts a removal, merge, split, rename, or move.
+   - Tell the developer that the in-flight list has been checkpointed.
+6. Collaborate with the developer.
    - Review, remove, merge, split, rename, and reprioritize ideas.
    - Move ideas between in-flight and approved sections only when the developer
      accepts that change.
    - Do not silently discard existing ideas.
-6. Save only on explicit request.
-   - Write `_docs/ideas.md` only after the developer asks to save, commit, or
-     persist the list.
+   - Update `_docs/ideas.md` after meaningful list changes so the session can
+     be resumed from another conversation.
+7. Approval rules.
+   - Do not promote an idea into `Approved prioritized ideas` without explicit
+     developer acceptance.
+   - Do not delete or collapse ideas without explicit developer acceptance.
    - Preserve extra user-added fields or notes when they do not conflict with
      the requested update.
 
@@ -102,6 +113,8 @@ unless the developer asks to simplify the file.
 
 Approved ideas go at the top so the durable priority list is easy to scan.
 In-flight ideas go at the bottom so unfinished sessions can be resumed later.
+The file is the session checkpoint, not a final export. Keep it current during
+brainstorming so the developer can walk away at any point.
 
 ## Idea Fields
 
@@ -158,9 +171,10 @@ When showing the working list in chat, group ideas under:
 For each idea, include name, summary, difficulty, dependencies, and source
 links. Keep the list concise enough for the developer to review and edit.
 
-When a session is not ready to save, say what changed in the in-flight list and
-ask what the developer wants to adjust next. Do not write `_docs/ideas.md`
-until explicitly asked.
+After generating the first useful in-flight list, write or update
+`_docs/ideas.md` before asking the developer to review the list. After that,
+update the file whenever the developer accepts meaningful changes. The durable
+file should always be good enough for another agent to resume the session.
 
 ## Handoff to Planning
 

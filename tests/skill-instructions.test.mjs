@@ -57,7 +57,10 @@ test("brainstorming-skill declares durable idea discovery workflow", () => {
   assert.match(skill, /Marketing-related artifacts are valid brainstorming inputs and outputs/);
   assert.match(skill, /Read `_docs\/ideas\.md` when it exists/);
   assert.match(skill, /Research comparable products, projects, tools, or workflows/);
-  assert.match(skill, /Write `_docs\/ideas\.md` only after the developer asks/);
+  assert.match(skill, /Checkpoint the session before review/);
+  assert.match(skill, /Create or update `_docs\/ideas\.md` as soon as the first useful in-flight\s+list exists/);
+  assert.match(skill, /Update `_docs\/ideas\.md` after meaningful list changes so the session can\s+be resumed from another conversation/);
+  assert.match(skill, /Do not promote an idea into `Approved prioritized ideas` without explicit\s+developer acceptance/);
   assert.match(skill, /## Approved prioritized ideas/);
   assert.match(skill, /## In-flight ideas/);
   assert.match(skill, /Source links:/);
