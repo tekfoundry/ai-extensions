@@ -223,7 +223,8 @@ as their install command. Missing workflow-owned skills use
 `aix update` is the canonical whole-workspace update command. It composes the
 existing update commands in order by running the same behavior as
 `aix workflow update` and then `aix skills update`; it should not duplicate the
-workflow or skill update implementation.
+workflow or skill update implementation. After both update steps succeed, it
+prints the same missing-skills output as `aix skills list aix --missing-only`.
 
 Whole-workspace lifecycle commands are intentionally top-level. `aix init`,
 `aix verify`, and `aix status` are not compatibility aliases for an old syntax;

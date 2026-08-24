@@ -32,7 +32,7 @@ See the project promotion page at [tekfoundry.com/aix](https://tekfoundry.com/ai
 ## Try it in 60 seconds
 
 ```bash
-npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.1.1/tekfoundry-aix-0.1.1.tgz
+npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.1.2/tekfoundry-aix-0.1.2.tgz
 aix init
 aix status
 aix verify
@@ -79,7 +79,7 @@ npm install -g @tekfoundry/aix
 > Until scoped npm publishing is complete, install the packed build from the GitHub Release artifact:
 >
 > ```bash
-> npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.1.1/tekfoundry-aix-0.1.1.tgz
+> npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.1.2/tekfoundry-aix-0.1.2.tgz
 > ```
 
 A quick verification test after installation:
@@ -270,7 +270,8 @@ aix workflow uninstall
 resolved source. `aix workflow update` refreshes the installed docs, managed
 `AGENTS.md` block, workflow-owned skills, and lockfile after drift checks pass.
 Use `aix update` when you want the workspace-level update path that runs the
-workflow update and then updates locked standalone skills.
+workflow update, updates locked standalone skills, and then lists missing
+skills from the built-in `aix` source.
 `aix workflow uninstall` removes only package-managed workflow content. It
 leaves project-owned `_docs` content and any `AGENTS.md` text outside the
 managed block alone.

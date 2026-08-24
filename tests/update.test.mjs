@@ -185,10 +185,94 @@ test("run skills update reports when no skills are locked", async () => {
 });
 
 test("run update composes workflow update and skills update", async () => {
-  await withProject(async () => {
-    const result = run(["update"]);
+  const aixSource = await mkdtemp(join(tmpdir(), "aix-update-empty-aix-source-"));
 
-    assert.equal(result.exitCode, 0);
-    assert.equal(result.stdout, "No active workflow to update.\n\nNo locked skills to update.");
+  mkdirSync(join(aixSource, "aix/skills"), { recursive: true });
+  writeFileSync(join(aixSource, "aix/skills/.keep"), "", "utf8");
+  git(["init", "-b", "master"], aixSource);
+  git(["add", "."], aixSource);
+  git(["commit", "-m", "empty aix skills"], aixSource);
+
+  await withProject(async () => {
+    const previousUrl = process.env.AIX_SOURCE_AIX_URL;
+    const previousPath = process.env.AIX_SOURCE_AIX_PATH;
+    const previousRef = process.env.AIX_SOURCE_AIX_REF;
+
+    process.env.AIX_SOURCE_AIX_URL = aixSource;
+    process.env.AIX_SOURCE_AIX_PATH = "aix/skills";
+    process.env.AIX_SOURCE_AIX_REF = "master";
+
+    try {
+      const result = run(["update"]);
+
+      assert.equal(result.exitCode, 0);
+      assert.equal(result.stdout, "No active workflow to update.\n\nNo locked skills to update.\n\nNo missing skills found in source: aix");
+    } finally {
+      if (previousUrl === undefined) {
+        delete process.env.AIX_SOURCE_AIX_URL;
+      } else {
+        process.env.AIX_SOURCE_AIX_URL = previousUrl;
+      }
+
+      if (previousPath === undefined) {
+        delete process.env.AIX_SOURCE_AIX_PATH;
+      } else {
+        process.env.AIX_SOURCE_AIX_PATH = previousPath;
+      }
+
+      if (previousRef === undefined) {
+        delete process.env.AIX_SOURCE_AIX_REF;
+      } else {
+        process.env.AIX_SOURCE_AIX_REF = previousRef;
+      }
+    }
+  });
+});
+
+test("run update reports missing aix skills after updating", async () => {
+  const aixSource = await mkdtemp(join(tmpdir(), "aix-update-aix-source-"));
+
+  mkdirSync(join(aixSource, "aix/skills/new-skill"), { recursive: true });
+  writeFileSync(join(aixSource, "aix/skills/new-skill/SKILL.md"), "---\nname: new-skill\n---\n", "utf8");
+  git(["init", "-b", "master"], aixSource);
+  git(["add", "."], aixSource);
+  git(["commit", "-m", "aix skills"], aixSource);
+
+  await withProject(async () => {
+    const previousUrl = process.env.AIX_SOURCE_AIX_URL;
+    const previousPath = process.env.AIX_SOURCE_AIX_PATH;
+    const previousRef = process.env.AIX_SOURCE_AIX_REF;
+
+    process.env.AIX_SOURCE_AIX_URL = aixSource;
+    process.env.AIX_SOURCE_AIX_PATH = "aix/skills";
+    process.env.AIX_SOURCE_AIX_REF = "master";
+
+    try {
+      const result = run(["update"]);
+
+      assert.equal(result.exitCode, 0);
+      assert.match(result.stdout, /No active workflow to update/);
+      assert.match(result.stdout, /No locked skills to update/);
+      assert.match(result.stdout, /Missing skills in aix:/);
+      assert.match(result.stdout, /new-skill\s+new-skill\s+aix skill activate aix\/new-skill/);
+    } finally {
+      if (previousUrl === undefined) {
+        delete process.env.AIX_SOURCE_AIX_URL;
+      } else {
+        process.env.AIX_SOURCE_AIX_URL = previousUrl;
+      }
+
+      if (previousPath === undefined) {
+        delete process.env.AIX_SOURCE_AIX_PATH;
+      } else {
+        process.env.AIX_SOURCE_AIX_PATH = previousPath;
+      }
+
+      if (previousRef === undefined) {
+        delete process.env.AIX_SOURCE_AIX_REF;
+      } else {
+        process.env.AIX_SOURCE_AIX_REF = previousRef;
+      }
+    }
   });
 });

@@ -39,7 +39,8 @@ aix workflow update
 ```
 
 To refresh both the active workflow and locked standalone skills, use the
-workspace-level update command:
+workspace-level update command. It also lists any missing skills from the
+built-in `aix` source after the update:
 
 ```bash
 aix update
