@@ -355,6 +355,7 @@ even if the active workflow is later uninstalled.
 
 | Skill name | Example prompts | What it does |
 | --- | --- | --- |
+| [`brainstorming-skill`](aix/skills/brainstorming-skill/README.md) | "Use brainstorming-skill. Let's brainstorm."<br>"Brainstorm new skills."<br>"Review our ideas and help prioritize what should come next." | Runs project-grounded brainstorming before implementation planning. It reviews docs, plans, code shape, existing ideas, and marketing artifacts such as README files; researches comparable products or projects when useful; and maintains approved plus in-flight ideas in `_docs/ideas.md` with dependencies, difficulty, and source links. |
 | [`discover-skill`](aix/skills/discover-skill/README.md) | "Use discover-skill. Find a skill for accessibility-focused code reviews."<br>"Find an installable skill for TDD."<br>"I need a skill that helps with secure code review." | Finds installable software-development skills from natural-language requests. It searches configured sources and `known-sources.json` first, asks before broadening to unreviewed GitHub or internet results, presents review links and unsafe-flag notes, and uses a two-step `install #` / `confirm install #` flow before running `aix skills add` or `aix skill activate`. |
 
 ### Custom skill

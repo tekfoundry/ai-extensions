@@ -40,6 +40,8 @@ test("npm pack artifact contains a working aix binary", async () => {
   assert.equal(packageJson.dependencies["@inquirer/prompts"], "^8.6.0");
   assert.equal(packageJson.dependencies.yoctocolors, "^2.2.0");
   assert.equal(existsSync(join(unpackDirectory, "dist/cli.js")), true);
+  assert.equal(existsSync(join(unpackDirectory, "aix/skills/brainstorming-skill/SKILL.md")), true);
+  assert.equal(existsSync(join(unpackDirectory, "aix/skills/brainstorming-skill/README.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/skills/discover-skill/SKILL.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/skills/discover-skill/known-sources.json")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/skills/task-execute/SKILL.md")), true);

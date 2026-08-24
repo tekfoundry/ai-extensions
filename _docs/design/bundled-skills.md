@@ -26,9 +26,8 @@ AI Extensions should start with three default sources:
 
 The `aix` workflow source is the default workflow pack. The `aix` skill source
 is reserved for default bundled skills that are not owned by the workflow. It
-contains `discover-skill`, a project-agnostic helper for finding installable
-software-development skills from natural-language requests. All default
-sources use the same Git resolution path.
+contains project-agnostic helpers such as `discover-skill` and
+`brainstorming-skill`. All default sources use the same Git resolution path.
 
 `discover-skill` should guide an agent through advisory discovery only. It
 searches configured skill sources and its bundled `known-sources.json` source
@@ -116,7 +115,17 @@ These standalone `aix` skills should also be activated by default during
 `aix init`, but they are not workflow-owned and should remain active after
 workflow uninstall:
 
+- `brainstorming-skill`
 - `discover-skill`
+
+`brainstorming-skill` should run project-grounded idea discovery before
+`plan-create`. It reviews current project docs, plans, code shape, existing
+ideas, and relevant marketing artifacts such as README files. When useful, it
+researches comparable products or projects and keeps source links with the
+ideas they informed. Its durable output is `_docs/ideas.md`, with approved
+prioritized ideas at the top and in-flight ideas at the bottom so sessions can
+resume later. Brainstorming output is not implementation authorization; one
+accepted idea still routes through `plan-create` before implementation.
 
 Default skills should remain project-agnostic. Skills that depend heavily on a
 specific application's build scripts, release flow, runtime stack, deployment
