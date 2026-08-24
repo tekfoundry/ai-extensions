@@ -183,3 +183,12 @@ test("run skills update reports when no skills are locked", async () => {
     assert.equal(result.stdout, "No locked skills to update.");
   });
 });
+
+test("run update composes workflow update and skills update", async () => {
+  await withProject(async () => {
+    const result = run(["update"]);
+
+    assert.equal(result.exitCode, 0);
+    assert.equal(result.stdout, "No active workflow to update.\n\nNo locked skills to update.");
+  });
+});

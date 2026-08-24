@@ -129,13 +129,19 @@ function runSkillsRemove(argv: string[]): CliResult {
 }
 
 function runSkillsList(argv: string[]): CliResult {
-  const sourceName = argv[2];
+  const args = argv.slice(2);
+  const missingOnly = args.includes("--missing-only");
+  const sourceArgs = args.filter((arg) => arg !== "--missing-only");
+  const sourceName = sourceArgs[0];
 
-  if (!sourceName || argv.length > 3) {
-    throw new CliError("Usage: aix skills list <source>", EXIT_USAGE);
+  if (!sourceName || sourceArgs.length > 1) {
+    throw new CliError("Usage: aix skills list <source> [--missing-only]", EXIT_USAGE);
   }
 
-  return { exitCode: 0, stdout: renderSkillList(sourceName, listSourceSkills(sourceName)) };
+  return {
+    exitCode: 0,
+    stdout: renderSkillList(sourceName, listSourceSkills(sourceName, { missingOnly }), { missingOnly })
+  };
 }
 
 function runSkillsUpdate(argv: string[]): CliResult {
@@ -198,7 +204,7 @@ async function promptForRemovedSkillSource(input: Readable, output: Writable): P
   return { exitCode: 0, stdout: renderRemoveSourceResult(removeSource(sourceName)) };
 }
 
-async function promptForSkillSourceList(input: Readable, output: Writable): Promise<CliResult> {
+async function promptForSkillSourceList(input: Readable, output: Writable, options: { missingOnly?: boolean } = {}): Promise<CliResult> {
   const sourceName = await promptForSelection("Select a skills source to list:", skillSourceOptions(), [], input, output, {
     prompt: "Select source number: ",
     emptyMessage: "No skills sources configured.",
@@ -209,7 +215,10 @@ async function promptForSkillSourceList(input: Readable, output: Writable): Prom
     return { exitCode: 0, stdout: "No skills source selected." };
   }
 
-  return { exitCode: 0, stdout: renderSkillList(sourceName, listSourceSkills(sourceName)) };
+  return {
+    exitCode: 0,
+    stdout: renderSkillList(sourceName, listSourceSkills(sourceName, options), options)
+  };
 }
 
 export const skillsCommand: Command = {
@@ -219,7 +228,7 @@ export const skillsCommand: Command = {
   splash: [
     { usage: "skills add <url> [alias]", summary: "Add a Git skill source" },
     { usage: "skills remove <source>", summary: "Remove a skill source" },
-    { usage: "skills list [source]", summary: "List discoverable skills" },
+    { usage: "skills list [source] [--missing-only]", summary: "List discoverable skills" },
     { usage: "skills update [source/path]", summary: "Refresh locked skills" },
     { usage: "skills diff [source/path]", summary: "Show pending skill changes" }
   ],
@@ -229,8 +238,8 @@ export const skillsCommand: Command = {
       return promptForRemovedSkillSource(context.input, context.output);
     }
 
-    if (argv[1] === "list" && argv[2] === undefined) {
-      return promptForSkillSourceList(context.input, context.output);
+    if (argv[1] === "list" && (argv[2] === undefined || (argv[2] === "--missing-only" && argv[3] === undefined))) {
+      return promptForSkillSourceList(context.input, context.output, { missingOnly: argv[2] === "--missing-only" });
     }
 
     return runSkillsCommand(argv);

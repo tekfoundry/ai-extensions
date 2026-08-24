@@ -38,6 +38,13 @@ Update the active workflow after reviewing the diff:
 aix workflow update
 ```
 
+To refresh both the active workflow and locked standalone skills, use the
+workspace-level update command:
+
+```bash
+aix update
+```
+
 Check workspace health and installed workflow state:
 
 ```bash

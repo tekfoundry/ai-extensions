@@ -12,10 +12,12 @@ aix verify
 aix status
 aix workflow install
 aix workflow update
+aix update
 aix templates list
 aix templates publish
 aix skills add
 aix skills list
+aix skills list --missing-only
 aix skills diff
 aix skill activate
 aix skill deactivate
@@ -209,7 +211,19 @@ then list discoverable skills from the selected source. `aix skills list
 <source>` should list discoverable skills from a configured source without
 prompting. This is especially important for default external sources such as
 `mattpocock` and `cursor-pstack`, which should be browseable before the user
-chooses specific skills to activate.
+chooses specific skills to activate. List output includes a copy/pasteable
+install command for each row. `aix skills list <source> --missing-only` filters
+the output to skills that are not already locked locally. When listing the
+default `aix` source, the command includes standalone skills from `aix/skills`
+and, when an `aix` workflow is installed, workflow-owned skills from that
+installed workflow source. Missing standalone skills use `aix skill activate`
+as their install command. Missing workflow-owned skills use
+`aix workflow update`.
+
+`aix update` is the canonical whole-workspace update command. It composes the
+existing update commands in order by running the same behavior as
+`aix workflow update` and then `aix skills update`; it should not duplicate the
+workflow or skill update implementation.
 
 Whole-workspace lifecycle commands are intentionally top-level. `aix init`,
 `aix verify`, and `aix status` are not compatibility aliases for an old syntax;

@@ -287,11 +287,23 @@ resolve the source, inspect its configured path, and report valid skill
 folders without prompting. For flat sources, direct child folders containing
 `SKILL.md` are skills. For nested sources, descendant folders containing
 `SKILL.md` are skills and should be reported by their source-relative path.
-Skill-list output uses one skill per line:
+Skill-list output includes `Path`, `Name`, and `Install Command` columns.
+For normal skill-source rows, the install command is
+`aix skill activate <source>/<path>`.
 
 ```text
-source-relative/path<TAB>skill-name
+Path<TAB>Name<TAB>Install Command
 ```
+
+`aix skills list <source> --missing-only` should filter the table to skills
+whose source/path is not already present in the lockfile. The default list
+output remains the full discoverable catalog.
+
+When listing the `aix` source and the project has an installed `aix` workflow,
+the list should include both standalone skills from `aix/skills` and
+workflow-owned skills from the installed workflow's `skillsDir`. Workflow skill
+rows use `aix workflow update` as the install command, because workflow-owned
+skills are managed by the workflow package rather than direct skill activation.
 
 Discovery through `aix skills list <source>` must not modify `aix.json`,
 `aix.lock.json`, `.agents/packages`, or `.agents/skills`. Status output should

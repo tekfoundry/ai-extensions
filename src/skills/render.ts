@@ -1,19 +1,26 @@
 import type { NamedSourceDefinition } from "../sources/index.js";
 import { renderTable } from "../ui/table.js";
-import type { DiscoveredSkill } from "./types.js";
+import type { ListedSkill } from "./types.js";
 
-export function renderSkillList(sourceName: string, skills: DiscoveredSkill[]): string {
+interface RenderSkillListOptions {
+  missingOnly?: boolean;
+}
+
+export function renderSkillList(sourceName: string, skills: ListedSkill[], options: RenderSkillListOptions = {}): string {
   if (skills.length === 0) {
-    return `No skills found in source: ${sourceName}`;
+    return options.missingOnly
+      ? `No missing skills found in source: ${sourceName}`
+      : `No skills found in source: ${sourceName}`;
   }
 
   return renderTable(
     [
       { header: "Path", value: (skill) => skill.path },
-      { header: "Name", value: (skill) => skill.name }
+      { header: "Name", value: (skill) => skill.name },
+      { header: "Install Command", value: (skill) => skill.installCommand }
     ],
     skills,
-    { title: `Skills in ${sourceName}:` }
+    { title: options.missingOnly ? `Missing skills in ${sourceName}:` : `Skills in ${sourceName}:` }
   );
 }
 

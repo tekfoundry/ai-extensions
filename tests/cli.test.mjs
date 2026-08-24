@@ -19,6 +19,7 @@ test("run renders a splash screen with a zero exit code", () => {
   assert.match(result.stdout, /^  init\s+Initialize AI Extensions/m);
   assert.match(result.stdout, /^  verify\s+Check installed AI Extension state/m);
   assert.match(result.stdout, /^  status\s+Show workspace, workflow, and skill status/m);
+  assert.match(result.stdout, /^  update\s+Refresh the active workflow and locked skills/m);
   assert.match(result.stdout, /workflow install \[url\] \[alias\]\s+Install an AI workflow/);
   assert.match(result.stdout, /workflow uninstall\s+Uninstall an AI workflow/);
   assert.match(result.stdout, /skills add <url> \[alias\]\s+Add a Git skill source/);
@@ -40,7 +41,7 @@ test("run renders help with a zero exit code", () => {
 test("command registry owns splash command metadata", () => {
   assert.deepEqual(
     commands.map((command) => command.name),
-    ["init", "verify", "status", "workflow", "templates", "skills", "skill"]
+    ["init", "verify", "status", "update", "workflow", "templates", "skills", "skill"]
   );
 
   const result = run([]);
@@ -71,7 +72,7 @@ test("run skills list requires an interactive path when no source is provided", 
   const result = run(["skills", "list"]);
 
   assert.equal(result.exitCode, 1);
-  assert.equal(result.stderr, "Usage: aix skills list <source>");
+  assert.equal(result.stderr, "Usage: aix skills list <source> [--missing-only]");
 });
 
 test("old verb-first command forms are unsupported", () => {
@@ -83,8 +84,6 @@ test("old verb-first command forms are unsupported", () => {
     ["list", "skills"],
     ["activate", "skill"],
     ["deactivate", "skill"],
-    ["update"],
-    ["update", "workflow"],
     ["diff"],
     ["diff", "workflow"],
     ["workspace", "init"],
@@ -106,7 +105,7 @@ test("command modules are grouped by object", () => {
 
   assert.equal(existsSync(join("src/cli/cmds/templates/index.ts")), true);
 
-  for (const workspaceCommand of ["init", "verify", "status"]) {
+  for (const workspaceCommand of ["init", "verify", "status", "update"]) {
     assert.equal(existsSync(join("src/cli/cmds/workspace", `${workspaceCommand}.ts`)), true);
     assert.equal(existsSync(join("src/cli/cmds", workspaceCommand, "index.ts")), false);
   }

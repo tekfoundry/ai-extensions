@@ -146,6 +146,7 @@ assessment, and the exact `aix` commands it would run. It waits for
 Review and accept updates:
 
 ```bash
+aix update
 aix workflow diff
 aix workflow update
 aix skills diff
@@ -268,6 +269,8 @@ aix workflow uninstall
 `aix workflow diff` compares the locked workflow package with the currently
 resolved source. `aix workflow update` refreshes the installed docs, managed
 `AGENTS.md` block, workflow-owned skills, and lockfile after drift checks pass.
+Use `aix update` when you want the workspace-level update path that runs the
+workflow update and then updates locked standalone skills.
 `aix workflow uninstall` removes only package-managed workflow content. It
 leaves project-owned `_docs` content and any `AGENTS.md` text outside the
 managed block alone.
@@ -295,7 +298,8 @@ A skill is a folder with a `SKILL.md` file. `aix` keeps source collections,
 project package copies, and active skill names separate:
 
 - `aix skills add` declares and indexes a Git source.
-- `aix skills list` shows discoverable skills from that source.
+- `aix skills list` shows discoverable skills from that source, including the
+  command to activate each skill.
 - `aix skill activate` materializes one selected skill into the project.
 - `aix skill deactivate` removes a user-activated root skill after drift checks.
 
@@ -318,7 +322,13 @@ List skills from that source:
 
 ```bash
 aix skills list team-skills
+aix skills list team-skills --missing-only
 ```
+
+The `--missing-only` option filters the list to skills that are not already
+locked locally. For the built-in `aix` source, list output also includes missing
+workflow-owned skills from the installed `aix` workflow. Those rows use
+`aix workflow update` as their install command because the workflow owns them.
 
 Activate one skill:
 
@@ -392,7 +402,8 @@ aix skill activate team-skills/review
 ```
 
 Skill folders can be flat or nested. `aix skills list <source>` reports folders
-that contain `SKILL.md` by their source-relative path.
+that contain `SKILL.md` by their source-relative path, plus a copy/pasteable
+install command.
 
 ## Shared configuration
 
@@ -468,13 +479,14 @@ them, and stop when local edits would be overwritten.
 aix init
 aix status
 aix verify
+aix update
 aix workflow install [git-or-github-tree-url] [alias]
 aix workflow uninstall
 aix workflow update
 aix workflow diff
 aix skills add <git-or-github-tree-url> [alias]
 aix skills remove <source-name>
-aix skills list [source]
+aix skills list [source] [--missing-only]
 aix skills update [source/path]
 aix skills diff [source/path]
 aix skill activate [source/path] [alias]
