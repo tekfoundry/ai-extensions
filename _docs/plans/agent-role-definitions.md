@@ -1405,7 +1405,7 @@ Execution notes:
   README/help states, and did not edit files or change plan state during the
   scenario.
 
-### Phase 11: Project-dev role: requirements-engineer (status: validation pending)
+### Phase 11: Project-dev role: requirements-engineer (status: complete)
 
 Goal: Add the workflow-owned `requirements-engineer` role while preserving
 direct `plan-create` quality.
@@ -1499,8 +1499,15 @@ Verification:
 - Completed: verified `plan-create` still preserves the Design Intent gate and
   waits for accepted Design Intent before implementation phases or tasks are
   drafted, including when requirements delegation is available.
-- Pending: human approval is not yet recorded. Phase 12 must not start until
-  the developer reviews this phase and explicitly approves continuation.
+- Completed: human validation passed. The generated `plan-create` scenario
+  created a new throwaway backlog plan only, preserved the vision and Design
+  Intent gates, and did not draft phases or tasks before acceptance.
+- Completed: human validation passed. The follow-up `plan-update` scenario
+  updated only the throwaway backlog plan, recorded High-Level Goal
+  acceptance, used requirements-engineer-style Design Intent refinement, kept
+  phases undrafted, and did not activate the plan or touch existing plans.
+- Completed: human approval recorded for Phase 11 completion. Phase 12 remains
+  unstarted until explicitly requested.
 
 Execution notes:
 
@@ -1519,6 +1526,14 @@ Execution notes:
   Verification: `npm run build`; `node --test tests/roles.test.mjs
   tests/skill-instructions.test.mjs`; `AIX_CACHE_DIR=/private/tmp/aix-phase11-plan-update-cache
   npm test` passed with 175 tests; `git diff --check`.
+- 2026-08-25: Human validation completed for Phase 11. Manual review accepted
+  the changed and added files. The representative `plan-create` scenario
+  created a new throwaway backlog plan without touching existing plans,
+  stopped before Design Intent and implementation phases, then the
+  representative `plan-update` scenario updated only that throwaway plan with
+  accepted High-Level Goal status and requirements-engineer-style Design
+  Intent content while keeping phases undrafted. The generated scenario plan
+  was removed after review.
 
 ### Phase 12: Project-dev role: quality-engineer (status: approved)
 
