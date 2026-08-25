@@ -96,6 +96,19 @@ is unavailable or the host cannot delegate, continue the review yourself by
 checking the same copy, terminology, message-state, recovery, and user-action
 concerns.
 
+When `.agents/roles/quality-engineer.md` exists and the plan needs
+verification-readiness review, use `delegate-to-role` or a prompt-overlay
+delegation to request a bounded quality pass. Good triggers include acceptance
+checks, targeted verification, regression risk, failure paths, manual
+validation, skipped-check rationale, evidence expectations, validation gaps,
+and residual risk.
+
+Fold returned evidence into review findings, activation blockers, risks,
+verification gaps, requested plan revisions, human-review notes, or readiness
+notes as appropriate. Do not require `quality-engineer` for direct use. If the
+role is unavailable or the host cannot delegate, continue the review yourself
+by checking the same verification-readiness concerns.
+
 ## Workflow
 
 1. Resolve the plan and read its context, design intent, phases, risks,
@@ -127,3 +140,6 @@ concerns.
 - Do not claim readiness when a plan with security-sensitive scope lacks
   trust-boundary, credential, authorization, destructive-operation, dependency,
   failure-path, or safety-verification decisions.
+- Do not claim readiness when verification expectations, regression-risk
+  coverage, manual validation needs, skipped-check rationale, or acceptance
+  evidence are too vague to guide implementation.

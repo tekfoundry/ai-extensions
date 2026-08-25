@@ -83,6 +83,16 @@ constraints, open questions, and human review notes as appropriate. Do not use
 the role to finalize product claims, support promises, security language,
 legal text, release commitments, or other wording that needs developer review.
 
+When `.agents/roles/quality-engineer.md` exists and Design Intent has been
+accepted, use `delegate-to-role` or a prompt-overlay delegation to request a
+bounded quality pass for acceptance checks, verification strategy, regression
+risk, evidence expectations, skipped-check rationale, manual validation needs,
+and validation gaps. Fold the returned evidence into verification
+expectations, risks, implementation-phase constraints, completion checklist
+notes, open questions, and human review notes as appropriate. Do not use the
+role to run commands, mark phases ready, waive checks, or take over
+`work-verify`.
+
 Do not require `product-strategist` for direct use. If the role is unavailable
 or the host cannot delegate, continue the planning session yourself by asking
 concise product-vision questions and recording the answers in the living plan.
@@ -108,6 +118,11 @@ Do not require `ux-writer` for direct use either. If the role is unavailable or
 the host cannot delegate, continue the planning session yourself by asking
 concise reader, task, terminology, prompt, error, empty-state, onboarding,
 README, and verification questions when copy or docs language concerns apply.
+Do not require `quality-engineer` for direct use either. If the role is
+unavailable or the host cannot delegate, continue the planning session yourself
+by asking concise acceptance-check, targeted-test, regression-risk,
+manual-validation, skipped-check, evidence, and residual-risk questions after
+Design Intent is accepted.
 
 ## Workflow
 
@@ -164,6 +179,10 @@ README, and verification questions when copy or docs language concerns apply.
    prompts, command help, terminal output, errors, empty states, onboarding
    copy, README language, workflow instructions, or other product or
    developer-facing text.
+   Use `quality-engineer` for a bounded quality pass after Design Intent is
+   accepted when acceptance checks, verification strategy, regression risk,
+   manual validation, evidence expectations, or validation gaps need
+   specialist review.
 9. Iterate on design intent until the user explicitly agrees that it captures
    the desired direction. Do not generate implementation phases or task lists
    before Design Intent is accepted.
@@ -173,6 +192,9 @@ README, and verification questions when copy or docs language concerns apply.
    Use `technical-architect` for phase-shaping guidance when architecture
    boundaries, component responsibilities, runtime contracts, or integration
    sequencing materially affect task order.
+   Use `quality-engineer` for phase verification guidance when targeted
+   checks, regression coverage, manual validation, skipped-check rationale, or
+   acceptance evidence materially affect task order or phase success criteria.
 11. Apply the task status markers from `.agents/workflow.md` to every phased
    task list. New backlog tasks should start with `⬜️`; use `🟨`, `✅`, and
    `⚠️` only when the plan is recording actual execution state or a known

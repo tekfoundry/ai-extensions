@@ -29,6 +29,20 @@ require `security-reviewer` for direct use. If the role is unavailable or the
 host cannot delegate, continue verification yourself by checking the same
 security-sensitive behavior and failure paths.
 
+When `.agents/roles/quality-engineer.md` exists and the verification choice or
+evidence has meaningful quality risk, use `delegate-to-role` or a
+prompt-overlay delegation to request a bounded quality pass. Good triggers
+include non-trivial changed behavior, regression risk, failure paths, edge
+cases, targeted-test selection, manual validation, skipped-check rationale,
+acceptance evidence, validation gaps, or residual risk.
+
+Fold returned evidence into selected checks, manual verification notes,
+skipped-check rationale, validation gaps, residual risk, or follow-up work as
+appropriate. Do not require `quality-engineer` for direct use. If the role is
+unavailable or the host cannot delegate, continue verification yourself by
+checking the same targeted coverage, regression, acceptance, and residual-risk
+concerns.
+
 ## Workflow
 
 1. Identify the changed subsystem and read its design and quality guidance.

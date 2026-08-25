@@ -172,6 +172,9 @@ test("plan-create declares gated planning and role collaboration", () => {
   assert.match(skill, /When `.agents\/roles\/ux-writer\.md` exists/);
   assert.match(skill, /labels, prompts,\s+command help, terminal output, errors, empty states, onboarding copy, README\s+language/);
   assert.match(skill, /Do not use\s+the role to finalize product claims, support promises, security language/);
+  assert.match(skill, /When `.agents\/roles\/quality-engineer\.md` exists/);
+  assert.match(skill, /acceptance checks, verification strategy, regression\s+risk, evidence expectations/);
+  assert.match(skill, /Do not use the\s+role to run commands, mark phases ready, waive checks, or take over\s+`work-verify`/);
   assert.match(skill, /Do not require `product-strategist` for direct use/);
   assert.match(skill, /Do not require `product-designer` for direct use either/);
   assert.match(skill, /asking concise flow, interaction, accessibility, and design-system questions/);
@@ -183,6 +186,8 @@ test("plan-create declares gated planning and role collaboration", () => {
   assert.match(skill, /asking concise trust-boundary, credential, authorization, file-operation,\s+dependency, failure-path, and safety-verification questions/);
   assert.match(skill, /Do not require `ux-writer` for direct use either/);
   assert.match(skill, /asking\s+concise reader, task, terminology, prompt, error, empty-state, onboarding,\s+README, and verification questions/);
+  assert.match(skill, /Do not require `quality-engineer` for direct use either/);
+  assert.match(skill, /asking concise acceptance-check, targeted-test, regression-risk/);
   assert.match(skill, /Run the vision gate first/);
   assert.match(skill, /Record acceptance on the `High-Level Goal` heading only after the user\s+agrees/);
   assert.match(skill, /Treat template comments marked\s+`DO NOT INCLUDE IN OUTPUT` as agent-only instructions/);
@@ -192,6 +197,8 @@ test("plan-create declares gated planning and role collaboration", () => {
   assert.match(skill, /Use `technical-architect` for phase-shaping guidance/);
   assert.match(skill, /Use `security-reviewer`\s+for a bounded security pass/);
   assert.match(skill, /Use `ux-writer` for a bounded copy pass/);
+  assert.match(skill, /Use `quality-engineer` for a bounded quality pass/);
+  assert.match(skill, /Use `quality-engineer` for phase verification guidance/);
   assert.match(skill, /Only after Design Intent is accepted, break it into ordered implementation\s+phases/);
   assert.match(skill, /Not drafted until Design Intent is accepted/);
   assert.match(skill, /strip every\s+`DO NOT INCLUDE IN OUTPUT` comment block from the created or updated plan/);
@@ -235,8 +242,13 @@ test("plan-review declares role collaboration", () => {
   assert.match(skill, /labels, prompts, command help, terminal output, errors, empty states/);
   assert.match(skill, /Fold returned evidence into review findings, activation blockers, risks,\s+verification gaps, requested plan revisions, human-review notes/);
   assert.match(skill, /Do not require `ux-writer` for direct use/);
+  assert.match(skill, /When `.agents\/roles\/quality-engineer\.md` exists/);
+  assert.match(skill, /verification-readiness review/);
+  assert.match(skill, /acceptance\s+checks, targeted verification, regression risk, failure paths/);
+  assert.match(skill, /Do not require `quality-engineer` for direct use/);
   assert.match(skill, /lacks required actors, workflows, inputs,\s+outputs, constraints, non-goals, boundaries, acceptance signals/);
   assert.match(skill, /lacks\s+trust-boundary, credential, authorization, destructive-operation, dependency,\s+failure-path, or safety-verification decisions/);
+  assert.match(skill, /verification expectations, regression-risk\s+coverage, manual validation needs/);
 });
 
 test("plan-update declares project-development role collaboration", () => {
@@ -256,11 +268,33 @@ test("plan-update declares project-development role collaboration", () => {
   assert.match(skill, /trust boundaries, secrets, authentication, authorization/);
   assert.match(skill, /When `.agents\/roles\/ux-writer\.md` exists/);
   assert.match(skill, /user-facing or developer-facing text requirements/);
+  assert.match(skill, /When `.agents\/roles\/quality-engineer\.md` exists/);
+  assert.match(skill, /verification expectations, acceptance checks, regression-risk notes/);
   assert.match(skill, /Fold returned evidence into the smallest appropriate plan update/);
   assert.match(skill, /Do not require any role for direct use/);
 });
 
-test("work-verify declares security review collaboration", () => {
+test("task-execute declares quality role collaboration", () => {
+  const skill = readFileSync(join(process.cwd(), "aix/workflows/design-plan-execute/skills/task-execute/SKILL.md"), "utf8");
+
+  assert.match(skill, /^name: task-execute$/m);
+  assert.match(skill, /`task-execute` owns the selected task, implementation slice, targeted\s+verification/);
+  assert.match(skill, /When `.agents\/roles\/quality-engineer\.md` exists/);
+  assert.match(skill, /non-trivial changed behavior, failure paths, regression risk/);
+  assert.match(skill, /Do not require `quality-engineer` for direct use/);
+});
+
+test("phase-execute declares quality role collaboration", () => {
+  const skill = readFileSync(join(process.cwd(), "aix/workflows/design-plan-execute/skills/phase-execute/SKILL.md"), "utf8");
+
+  assert.match(skill, /^name: phase-execute$/m);
+  assert.match(skill, /`phase-execute` owns phase sequencing, integration review, verification\s+evidence review/);
+  assert.match(skill, /When `.agents\/roles\/quality-engineer\.md` exists/);
+  assert.match(skill, /cross-task regression risk, integration checks/);
+  assert.match(skill, /Do not\s+require `quality-engineer` for direct use/);
+});
+
+test("work-verify declares security and quality review collaboration", () => {
   const skill = readFileSync(workVerifyPath, "utf8");
 
   assert.match(skill, /^name: work-verify$/m);
@@ -270,6 +304,10 @@ test("work-verify declares security review collaboration", () => {
   assert.match(skill, /trust\s+boundaries, secrets, authentication, authorization, permissions/);
   assert.match(skill, /Fold returned evidence into selected checks, skipped-check rationale, manual\s+verification notes, residual risk, or follow-up work/);
   assert.match(skill, /Do not\s+require `security-reviewer` for direct use/);
+  assert.match(skill, /When `.agents\/roles\/quality-engineer\.md` exists/);
+  assert.match(skill, /verification choice or\s+evidence has meaningful quality risk/);
+  assert.match(skill, /targeted-test selection, manual validation, skipped-check rationale/);
+  assert.match(skill, /Do not require `quality-engineer` for direct use/);
   assert.match(skill, /Dependency and package-management changes require trust, source-resolution,\s+lockfile-integrity, drift, and no-write failure-path review/);
 });
 
@@ -308,14 +346,20 @@ test("plan-complete requires human validation before closeout", () => {
   assert.match(skill, /Fold returned evidence into the completion checklist, final risks, follow-on\s+work, documentation impact/);
   assert.match(skill, /Do not require `ux-writer` for direct use/);
   assert.match(skill, /Do not use the role to override developer acceptance/);
+  assert.match(skill, /When `.agents\/roles\/quality-engineer\.md` exists/);
+  assert.match(skill, /verification evidence, validation gaps, regression risk/);
+  assert.match(skill, /Do not require\s+`quality-engineer` for direct use/);
+  assert.match(skill, /Do not use the role to override developer acceptance,\s+waive checks, or replace `work-verify`/);
   assert.match(skill, /Confirm the human validation gate before completing the checklist/);
   assert.match(skill, /developer has evaluated the completed phased work and accepted it/);
   assert.match(skill, /explicitly waived manual validation and the plan records the\s+reason/);
   assert.match(skill, /Do not infer acceptance from passing automated tests/);
   assert.match(skill, /Complete the Security Review gate/);
+  assert.match(skill, /Review validation gaps, skipped checks, manual validation evidence/);
   assert.match(skill, /Convert blocking security findings into\s+normal plan tasks before closeout/);
   assert.match(skill, /Refuse closeout when the human validation gate is missing, incomplete, or\s+only implied by automated checks/);
   assert.match(skill, /Refuse closeout when a required Security Review is missing/);
+  assert.match(skill, /Refuse closeout when verification gaps, skipped checks, manual validation\s+gaps/);
 });
 
 test("plan template includes security review before completion checklist", () => {

@@ -53,6 +53,12 @@ workflow instructions, release notes, terminology, or docs copy that tells
 users what to do, use `delegate-to-role` or a prompt-overlay delegation to
 request bounded UX writing input.
 
+When `.agents/roles/quality-engineer.md` exists and the requested update
+changes verification expectations, acceptance checks, regression-risk notes,
+manual validation, skipped-check rationale, evidence expectations, validation
+gaps, residual risk, or phase success criteria, use `delegate-to-role` or a
+prompt-overlay delegation to request bounded quality input.
+
 Fold returned evidence into the smallest appropriate plan update: scope,
 Design Intent, non-goals, boundaries, tasks, risks, verification, Security
 Review expectations, promotion notes, open questions, or human-review notes.

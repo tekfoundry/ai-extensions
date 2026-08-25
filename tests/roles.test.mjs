@@ -296,7 +296,15 @@ test("discoverRoles reports shipped workflow-owned project development roles", (
 
   assert.deepEqual(
     roles.map((role) => role.name),
-    ["product-designer", "product-strategist", "requirements-engineer", "security-reviewer", "technical-architect", "ux-writer"]
+    [
+      "product-designer",
+      "product-strategist",
+      "quality-engineer",
+      "requirements-engineer",
+      "security-reviewer",
+      "technical-architect",
+      "ux-writer"
+    ]
   );
 
   for (const role of roles) {
@@ -392,10 +400,31 @@ test("resolveRoleDelegation delegates to the shipped UX writer role", () => {
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
+test("resolveRoleDelegation delegates to the shipped quality engineer role", () => {
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/quality-engineer.md");
+  const resolution = resolveRoleDelegation("use quality-engineer to plan verification", [role]);
+  const prompt = buildPromptOverlayDelegation(role, "Review targeted checks, regression risk, and validation gaps for this phase.");
+
+  assert.equal(resolution.role.name, "quality-engineer");
+  assert.equal(resolution.mode, "prompt-overlay");
+  assert.match(prompt, /Name: quality-engineer/);
+  assert.match(prompt, /Review plans, active phase work, changed behavior, verification evidence/);
+  assert.match(prompt, /design intent is locked down by automated tests/);
+  assert.match(prompt, /Targeted automated checks and why each check matches the changed behavior/);
+  assert.match(prompt, /Repeatable unit, integration, and smoke tests that avoid developer-state/);
+  assert.match(prompt, /Coverage metrics or missing coverage-tooling notes/);
+  assert.match(prompt, /Skipped checks, reason, residual risk/);
+  assert.match(prompt, /100% line coverage is not automatically useful/);
+  assert.match(prompt, /developer approval before installing packages/);
+  assert.match(prompt, /Do not claim quality readiness unless accepted Design Intent/);
+  assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
+});
+
 test("shipped project development roles can route existing-plan edits through plan-update", () => {
   const roleNames = [
     "product-designer",
     "product-strategist",
+    "quality-engineer",
     "requirements-engineer",
     "security-reviewer",
     "technical-architect",

@@ -1535,29 +1535,56 @@ Execution notes:
   Intent content while keeping phases undrafted. The generated scenario plan
   was removed after review.
 
-### Phase 12: Project-dev role: quality-engineer (status: approved)
+### Phase 12: Project-dev role: quality-engineer (status: pending human approval)
 
 Goal: Add the workflow-owned `quality-engineer` role while preserving direct
 verification-skill quality.
 
 Tasks:
 
-- ⬜️ Create
+- ✅ Create
   `aix/workflows/design-plan-execute/roles/project-dev/quality-engineer.md`.
-- ⬜️ Review `work-verify`, `task-execute`, `phase-execute`, and `plan-complete`
+- ✅ Review `work-verify`, `task-execute`, `phase-execute`, and `plan-complete`
   for verification ownership and direct invocation behavior.
-- ⬜️ Integrate `quality-engineer` with `plan-create` for acceptance checks,
+- ✅ Integrate `quality-engineer` with `plan-create` for acceptance checks,
   verification strategy, regression-risk notes, and evidence expectations in
   implementation phases after design intent is accepted.
-- ⬜️ Review every `quality-engineer` `Skills To Consider` entry and add
+- ✅ Review every `quality-engineer` `Skills To Consider` entry and add
   reciprocal skill-to-role collaboration where quality review materially
   affects the skill outcome, while preserving direct skill invocation.
-- ⬜️ Modify verification-related skills identified by the reciprocal review
+- ✅ Modify verification-related skills identified by the reciprocal review
   while preserving standalone skill behavior.
-- ⬜️ Keep `work-verify` responsible for selecting and reporting checks when
+- ✅ Keep `work-verify` responsible for selecting and reporting checks when
   invoked directly.
-- ⬜️ If any verification-related skill changes, verify it still works without
+- ✅ If any verification-related skill changes, verify it still works without
   role context.
+
+Implementation notes:
+
+- Added the workflow-owned `quality-engineer` role under
+  `aix/workflows/design-plan-execute/roles/project-dev/quality-engineer.md`.
+  The role focuses on verification strategy, targeted checks, regression risk,
+  manual validation, acceptance evidence, skipped-check rationale, validation
+  gaps, coverage metrics, repeatable isolated tests, Design Intent lock-down,
+  and residual risk.
+- Reviewed `work-verify`, `task-execute`, `phase-execute`, and
+  `plan-complete` for verification ownership and direct invocation behavior.
+  Each skill keeps ownership of its lifecycle step and uses
+  `quality-engineer` only for bounded specialist judgment when installed.
+- Updated `plan-create` so it can request a bounded `quality-engineer` pass
+  after Design Intent is accepted, especially for acceptance checks,
+  verification strategy, regression-risk notes, manual validation, evidence
+  expectations, validation gaps, and phase success criteria.
+- Reviewed every `quality-engineer` `Skills To Consider` entry. Added
+  reciprocal quality collaboration to `plan-create`, `plan-review`,
+  `plan-update`, `task-execute`, `phase-execute`, `work-verify`, and
+  `plan-complete` where quality review can materially affect the outcome.
+- Kept `work-verify` responsible for check selection, command execution,
+  verification evidence, and final verification reporting. The new role hook
+  explicitly preserves direct verification when roles are unavailable.
+- Updated workflow README, stable workflow design docs, role tests, init
+  tests, package-smoke tests, and skill-instruction tests for the new
+  workflow-owned role and collaboration path.
 
 Verification:
 
@@ -1576,6 +1603,55 @@ Verification:
   status.
 - Human approval recorded before starting the next project-development role
   phase.
+
+- Completed: ran automated role formatting, front matter, and contract checks
+  through `tests/roles.test.mjs`.
+- Completed: manually reviewed the `quality-engineer` role file against the
+  role verification rubric. It is operating doctrine rather than persona
+  prose, names inspected context, keeps authority bounded, preserves parent
+  ownership, and returns actionable quality evidence.
+- Completed: manually verified changed verification skills still stand alone.
+  `task-execute`, `phase-execute`, `work-verify`, and `plan-complete` each
+  include direct no-role fallback behavior and retain their own lifecycle
+  decisions.
+- Completed: manually verified the `plan-create` change preserves direct
+  planning behavior. The quality hook runs only after Design Intent is
+  accepted and improves verification planning without taking over
+  `work-verify`.
+- Completed: verified `delegate-to-role` delegates to `quality-engineer`
+  through prompt-overlay fallback in `tests/roles.test.mjs`.
+- Completed: manually verified `quality-engineer` produces useful targeted
+  checks, regression coverage, acceptance evidence, validation gaps, and
+  residual risk in a representative scenario. For a workflow role phase like
+  this one, the role recommends role contract tests, delegation tests,
+  skill-instruction tests, init/package activation checks, `npm run build`,
+  `npm test`, manual role-file review, and explicit user review before the
+  next role phase starts.
+- Completed: recorded automated checks, manual role review, skill standalone
+  review, delegation verification, representative scenario result, and commit
+  checkpoint status. Commit checkpoint status: not committed because this task
+  did not request a commit.
+- Pending: human approval for Phase 12 completion and any manual verification
+  the developer chooses to run before Phase 13 starts.
+- 2026-08-25 review update: Expanded the `quality-engineer` role contract so
+  it explicitly checks whether accepted Design Intent is protected by
+  meaningful automated tests, asks for repeatable unit/integration/smoke tests
+  that do not mutate developer state, reviews both immediate-plan gaps and
+  project-wide interface regression gaps, reports coverage metrics when
+  available, recommends coverage tooling only with developer approval, and
+  treats coverage as a design-intent signal rather than a 100% line-coverage
+  target.
+
+Execution notes:
+
+- 2026-08-25: Added `quality-engineer`, wired bounded collaboration into
+  `plan-create`, `plan-review`, `plan-update`, `task-execute`,
+  `phase-execute`, `work-verify`, and `plan-complete`, updated workflow README
+  and stable workflow design docs, and extended role, init, package-smoke, and
+  skill-instruction tests. Verification: `npm run build`; `node --test
+  tests/roles.test.mjs tests/skill-instructions.test.mjs`; `node --test
+  tests/init.test.mjs tests/package-smoke.test.mjs`; `npm test` passed with
+  178 tests; `git diff --check`.
 
 ### Phase 13: Project-dev role: documentation-specialist (status: approved)
 

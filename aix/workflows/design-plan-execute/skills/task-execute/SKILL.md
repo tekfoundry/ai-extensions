@@ -13,6 +13,25 @@ instructions, and current code are authoritative.
 Do not use this skill to activate backlog work, complete an entire phase by
 default, or broaden the task into adjacent refactors.
 
+## Role Collaboration
+
+`task-execute` owns the selected task, implementation slice, targeted
+verification, plan status update, and task closeout evidence. Roles can supply
+bounded specialist judgment, but they do not own task selection, file edits,
+command execution, lifecycle state, or final completion decisions.
+
+When `.agents/roles/quality-engineer.md` exists and the task's success depends
+on choosing or judging targeted checks, use `delegate-to-role` or a
+prompt-overlay delegation to request bounded quality input. Good triggers
+include non-trivial changed behavior, failure paths, regression risk, manual
+validation, skipped-check rationale, acceptance evidence, or residual risk.
+
+Fold returned evidence into targeted verification, manual check notes,
+validation gaps, residual risk, follow-on tasks, or task completion evidence as
+appropriate. Do not require `quality-engineer` for direct use. If the role is
+unavailable or the host cannot delegate, continue the task yourself by checking
+the same verification and regression concerns.
+
 ## 1. Orient
 
 1. Resolve the plan file using `Active Plan Resolution` in

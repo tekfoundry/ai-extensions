@@ -46,6 +46,20 @@ Do not use the role to override developer acceptance or approve final wording
 for product claims, security language, legal text, support promises, or release
 commitments.
 
+When `.agents/roles/quality-engineer.md` exists and closeout depends on
+verification evidence, validation gaps, regression risk, manual validation, or
+residual-risk judgment, use `delegate-to-role` or a prompt-overlay delegation
+to request bounded final quality input before archive.
+
+Fold returned evidence into the completion checklist, final risks, follow-on
+work, verification notes, validation-gap records, manual acceptance notes,
+documentation impact, or closeout report as appropriate. Do not require
+`quality-engineer` for direct use. If the role is unavailable or the host
+cannot delegate, continue closeout yourself by checking the same targeted
+coverage, regression, manual-validation, skipped-check, evidence, and
+residual-risk concerns. Do not use the role to override developer acceptance,
+waive checks, or replace `work-verify`.
+
 ## Workflow
 
 1. Resolve the plan explicitly, or infer it only when exactly one active plan
@@ -56,18 +70,21 @@ commitments.
    developer explicitly waived manual validation and the plan records the
    reason. Do not infer acceptance from passing automated tests.
 4. Run or review required targeted and repository verification.
-5. Complete the Security Review gate. Record post-phase findings in the
+5. Review validation gaps, skipped checks, manual validation evidence,
+   regression risks, and residual risk before treating verification as
+   complete.
+6. Complete the Security Review gate. Record post-phase findings in the
    plan's `Security Review` section. Convert blocking security findings into
    normal plan tasks before closeout instead of archiving with unresolved
    blockers.
-6. Promote durable accepted behavior using `$design-promote`.
-7. Review documentation structure, formatting, links, and current-state
+7. Promote durable accepted behavior using `$design-promote`.
+8. Review documentation structure, formatting, links, and current-state
    accuracy using `$documentation-review`.
-8. Harvest reusable lessons and update workflow guidance when appropriate.
-9. Record final risks, follow-on work, documentation impact, and verification.
+9. Harvest reusable lessons and update workflow guidance when appropriate.
+10. Record final risks, follow-on work, documentation impact, and verification.
    Keep the completed record consistent with the active workflow `plan.md`
    template where it applies.
-10. Archive only completed plans under `_docs/plans/completed/` with the
+11. Archive only completed plans under `_docs/plans/completed/` with the
    required `YYYY-MM-DD-<name>.md` filename.
 
 When the plan contains `## Completion Checklist`, update it during closeout.
@@ -84,6 +101,8 @@ edited locally.
 - Refuse closeout when a required Security Review is missing, blocking
   security findings remain unresolved, or residual security risk is not
   recorded.
+- Refuse closeout when verification gaps, skipped checks, manual validation
+  gaps, or residual quality risk are material and not recorded.
 - Preserve unrelated worktree changes.
 - Keep the archived plan as historical execution evidence, not the sole source
   of current design truth.
