@@ -206,7 +206,7 @@ completion, while the section preserves the review evidence and residual risk.
 
 The default `design-plan-execute` workflow installs project-development roles
 for product strategy, product design, requirements, technical architecture,
-security review, UX writing, and quality engineering. The
+security review, UX writing, quality engineering, and documentation. The
 `requirements-engineer` role contributes bounded review of accepted product
 vision, requirements, non-goals, boundaries, acceptance signals, open
 decisions, and Design Intent readiness before implementation phases are
@@ -222,8 +222,8 @@ evidence expectations, and residual risk. The `documentation-specialist` role
 contributes bounded review of documentation impact, `_docs` placement, design
 promotion needs, current-state accuracy, implementation behavior that is
 missing from or contrary to `_docs/design` and in-progress plans, index and
-link coverage, README or workflow-doc impact, and documentation closeout risk. Planning, plan
-maintenance, review, design creation, design promotion, documentation review,
+link coverage, README or workflow-doc impact, and documentation closeout risk.
+Planning, plan maintenance, review, design creation, design promotion, documentation review,
 verification, task execution, phase execution, and completion skills remain
 directly runnable without role context, but use the matching role when
 installed and when the role's specialty materially affects the outcome.

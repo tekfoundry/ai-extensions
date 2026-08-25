@@ -252,8 +252,10 @@ project-development roles should live under
   intent and returns changed files, verification evidence, and remaining risks.
 - `quality-engineer`: designs targeted verification, regression coverage, and
   acceptance checks that lock down design intent.
-- `documentation-specialist`: maintains `_docs`, design promotion, current-state
-  accuracy, and developer-facing documentation.
+- `documentation-specialist`: maintains `_docs`, design promotion,
+  current-state accuracy, developer-facing documentation, and
+  implementation-to-intent comparison against stable design docs and
+  in-progress plans.
 - `security-reviewer`: reviews trust boundaries, secrets, authorization,
   destructive operations, dependency risk, and safety-sensitive behavior.
 - `ux-writer`: reviews labels, prompts, empty states, error messages, onboarding
@@ -1655,7 +1657,7 @@ Execution notes:
   tests/init.test.mjs tests/package-smoke.test.mjs`; `npm test` passed with
   178 tests; `git diff --check`.
 
-### Phase 13: Project-dev role: documentation-specialist (status: implemented; awaiting manual verification)
+### Phase 13: Project-dev role: documentation-specialist (status: complete)
 
 Goal: Add the workflow-owned `documentation-specialist` role while preserving
 direct documentation-skill quality.
@@ -1683,21 +1685,22 @@ Verification:
 
 - Completed: automated role formatting, front matter, and contract checks ran
   through `node --test tests/roles.test.mjs tests/skill-instructions.test.mjs`.
-- Pending developer review: manually review the `documentation-specialist` role file against the role
+- Completed: developer manually reviewed the `documentation-specialist` role file against the role
   verification rubric.
-- Pending developer review: manually verify changed documentation skills still stand alone.
-- Pending developer review: manually verify any `plan-create` changes preserve direct planning behavior
+- Completed: developer manually verified changed documentation skills still stand alone.
+- Completed: developer manually verified `plan-create` changes preserve direct planning behavior
   and capture documentation impact without taking over documentation-review or
   design-promotion procedures.
-- Pending developer review: manually verify `delegate-to-role` delegates to `documentation-specialist`.
-- Pending developer review: manually verify `documentation-specialist` produces useful documentation
+- Completed: developer manually verified `delegate-to-role` delegates to `documentation-specialist`
+  through a prompt-overlay fallback review.
+- Completed: `documentation-specialist` produced useful documentation
   impact, design-promotion, structure, link, and current-state accuracy output
   in a representative scenario.
 - Completed: recorded automated checks and implementation evidence below.
-  Manual role review, skill standalone review, delegation verification,
-  scenario-quality result, and human approval remain pending developer review.
-  Commit checkpoint status: no commit requested or created.
-- Pending developer review: human approval recorded before starting the next project-development role
+  Manual role review, skill standalone review, delegation verification, and
+  scenario-quality result are complete. Commit checkpoint status: no commit
+  requested or created.
+- Completed: human approval recorded before starting the next project-development role
   phase.
 
 Implementation notes:
@@ -1736,10 +1739,14 @@ Verification:
 Execution notes:
 
 - 2026-08-25: Implemented Phase 13 documentation-specialist role and
-  reciprocal skill collaboration hooks. Automated verification passed.
-  Developer manual review, delegation scenario review, representative
-  documentation-quality scenario, and approval before the next project-dev role
-  phase remain pending.
+  reciprocal skill collaboration hooks. Automated verification passed. Manual
+  review, delegation scenario review, representative documentation-quality
+  scenario, and approval before the next project-dev role phase were completed
+  later in the same phase.
+- 2026-08-25: Completed manual verification after developer review and a
+  delegated `documentation-specialist` docs-impact scenario. The scenario
+  identified stale stable-design and plan text, confirmed no contrary
+  implementation behavior, and those documentation findings were fixed.
 
 ### Phase 14: Project-dev role: implementation-engineer (status: approved)
 
