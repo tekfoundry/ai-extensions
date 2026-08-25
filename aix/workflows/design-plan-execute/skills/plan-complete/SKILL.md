@@ -30,6 +30,22 @@ Do not require `security-reviewer` for direct use. If the role is unavailable
 or the host cannot delegate, continue closeout yourself by checking the same
 security-sensitive behavior and recording the review evidence.
 
+When `.agents/roles/ux-writer.md` exists and the completed work changed
+user-facing or developer-facing copy, use `delegate-to-role` or a
+prompt-overlay delegation to request bounded final copy-readiness input before
+archive. Good triggers include labels, prompts, command help, terminal output,
+errors, empty states, onboarding copy, README language, workflow instructions,
+release notes, or docs copy that tells users what to do.
+
+Fold returned evidence into the completion checklist, final risks, follow-on
+work, documentation impact, design-promotion notes, or closeout report as
+appropriate. Do not require `ux-writer` for direct use. If the role is
+unavailable or the host cannot delegate, continue closeout yourself by checking
+the same copy, terminology, message-state, recovery, and user-action concerns.
+Do not use the role to override developer acceptance or approve final wording
+for product claims, security language, legal text, support promises, or release
+commitments.
+
 ## Workflow
 
 1. Resolve the plan explicitly, or infer it only when exactly one active plan

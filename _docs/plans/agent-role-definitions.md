@@ -1177,7 +1177,7 @@ Execution notes:
   modify implementation files. The generated test plan was deleted after
   review.
 
-### Phase 9: Project-dev role: security-reviewer (status: in progress)
+### Phase 9: Project-dev role: security-reviewer (status: complete)
 
 Goal: Add the workflow-owned `security-reviewer` role with a clean manual
 validation checkpoint.
@@ -1241,26 +1241,25 @@ Verification:
 
 - Completed: ran automated role formatting, front matter, and contract checks
   through `tests/roles.test.mjs`.
-- Pending human checkpoint: manually review the `security-reviewer` role file
+- Completed: manually reviewed the `security-reviewer` role file
   against the role verification rubric.
-- Pending human checkpoint: manually verify any changed skills still stand
-  alone.
-- Pending human checkpoint: manually verify any `plan-create` changes preserve
+- Completed: manually verified changed skills still stand alone.
+- Completed: manually verified `plan-create` changes preserve
   direct planning behavior and surface security questions, non-goals, risks,
   and verification needs at the right planning gate.
-- Pending human checkpoint: manually verify the `Security Review` template
+- Completed: manually verified the `Security Review` template
   section and completion checklist item capture post-phase findings without
   replacing normal phases, tasks, risks, or verification sections.
 - Completed: verified `delegate-to-role` delegates to `security-reviewer`
   through prompt-overlay fallback in `tests/roles.test.mjs`.
-- Pending human checkpoint: manually verify `security-reviewer` produces useful
+- Completed: manually verified `security-reviewer` produces useful
   trust-boundary, secret, authorization, destructive-operation, dependency,
   and safety findings in a representative scenario.
-- Completed: recorded automated checks and delegation verification. Manual
-  role review, skill standalone review, plan-create review, Security Review
-  template/checklist review, scenario-quality result, commit checkpoint status,
-  and human approval remain pending the human checkpoints.
-- Pending human checkpoint: human approval recorded before starting the next
+- Completed: recorded automated checks, manual role review, skill standalone
+  review, plan-create review, Security Review template/checklist review,
+  delegation verification, scenario-quality result, and commit checkpoint
+  status.
+- Completed: human approval recorded before starting the next
   project-development role phase.
 
 Execution notes:
@@ -1275,37 +1274,69 @@ Execution notes:
   tests/package-smoke.test.mjs tests/skill-instructions.test.mjs`;
   `node --test tests/templates.test.mjs`;
   `AIX_CACHE_DIR=/private/tmp/aix-phase9-cache npm test` passed with 171 tests.
-  Remaining gap: human role review, changed-skill standalone review,
-  plan-create security planning review, Security Review template/checklist
-  review, representative scenario-quality review, commit checkpoint, and human
-  approval are required before marking Phase 9 complete or starting Phase 10.
+- 2026-08-25: Human validation completed for Phase 9. Manual review accepted
+  the role and skill changes, and the representative `plan-create` scenario
+  passed: it created a draft backlog plan, used `security-reviewer` security
+  guidance, preserved planning gates, included the `Security Review` section
+  without replacing normal plan sections, and did not modify implementation
+  files. The generated scenario plan was deleted after review.
 
-### Phase 10: Project-dev role: ux-writer (status: approved)
+### Phase 10: Project-dev role: ux-writer (status: in progress)
 
 Goal: Add the workflow-owned `ux-writer` role with a clean manual validation
 checkpoint.
 
 Tasks:
 
-- ⬜️ Create
+- ✅ Create
   `aix/workflows/design-plan-execute/roles/project-dev/ux-writer.md`.
-- ⬜️ Review README, CLI help, documentation, workflow docs, `design-create`,
+- ✅ Review README, CLI help, documentation, workflow docs, `design-create`,
   `documentation-review`, and `plan-review` for language patterns and
   user-facing content review points.
-- ⬜️ Integrate `ux-writer` with `plan-create` for user-facing labels, prompts,
+- ✅ Integrate `ux-writer` with `plan-create` for user-facing labels, prompts,
   errors, empty states, onboarding copy, and README language requirements when
   the planned work changes product or developer-facing text.
-- ⬜️ Integrate `ux-writer` with `plan-review`, `design-create`, and
+- ✅ Integrate `ux-writer` with `plan-review`, `design-create`, and
   `documentation-review` when plans or design docs include user-facing labels,
   prompts, errors, empty states, onboarding copy, README language, or other
   product/developer-facing text.
-- ⬜️ Review every `ux-writer` `Skills To Consider` entry and add reciprocal
+- ✅ Review every `ux-writer` `Skills To Consider` entry and add reciprocal
   skill-to-role collaboration where UX writing review materially affects the
   skill outcome, while preserving direct skill invocation.
-- ⬜️ Modify workflow-owned skills identified by the reciprocal review while
+- ✅ Modify workflow-owned skills identified by the reciprocal review while
   preserving standalone skill behavior.
-- ⬜️ If any skill is changed, verify the skill still works when invoked
+- ✅ If any skill is changed, verify the skill still works when invoked
   directly without role context.
+
+Implementation notes:
+
+- Added the workflow-owned `ux-writer` role under
+  `aix/workflows/design-plan-execute/roles/project-dev/ux-writer.md`. The role
+  focuses on labels, prompts, command help, terminal output, errors, empty
+  states, onboarding copy, README language, workflow instructions,
+  developer-facing docs, terminology, recovery guidance, and human-review
+  questions.
+- Reviewed README, workflow README, workflow design docs, existing role files,
+  role/delegation tests, and the `design-create`, `documentation-review`,
+  `plan-create`, and `plan-review` skills for writing-sensitive collaboration
+  points.
+- Updated `plan-create` so copy-sensitive plans can use `ux-writer` for
+  bounded UX writing review while preserving direct planning when the role is
+  unavailable.
+- Updated `plan-review`, `design-create`, and `documentation-review` so they
+  can use `ux-writer` for bounded copy, terminology, message-state, README,
+  onboarding, and developer-facing language review while preserving direct
+  skill behavior.
+- Updated `design-promote` and `plan-complete` so copy-sensitive promotion and
+  closeout can use `ux-writer` without making it required for direct
+  invocation or unrelated closeout work.
+- Updated the workflow README and stable workflow design docs so the installed
+  role catalog includes `ux-writer`.
+- Updated role, init, package-smoke, and skill-instruction tests for the new
+  role and reciprocal collaboration contract.
+- Refined `ux-writer` after review so it lists `unslop` as an optional skill
+  to consider when that skill is installed and the work needs to remove vague,
+  formulaic, promotional, overstructured, or AI-sounding language.
 
 Verification:
 
@@ -1325,6 +1356,48 @@ Verification:
   status.
 - Human approval recorded before starting the next project-development role
   phase.
+
+- Completed: ran automated role formatting, front matter, and contract checks
+  through `tests/roles.test.mjs`.
+- Completed: manually reviewed the `ux-writer` role file against the role
+  verification rubric.
+- Completed: manually verified changed skills still stand alone: each role
+  collaboration hook is conditional and includes a direct no-role fallback.
+- Completed: manually verified `plan-create` preserves direct planning
+  behavior and limits UX writing review to copy-sensitive plans.
+- Completed: verified `delegate-to-role` delegates to `ux-writer` through
+  prompt-overlay fallback in `tests/roles.test.mjs`.
+- Completed: recorded automated checks, manual role review, skill standalone
+  review, `plan-create` review, and delegation verification. Commit checkpoint
+  status: not requested.
+- Pending human checkpoint: manually verify `ux-writer` produces useful labels,
+  prompts, empty states, error messages, onboarding text, and README language
+  in a representative scenario.
+- Pending human checkpoint: human approval recorded before starting the next
+  project-development role phase.
+
+Execution notes:
+
+- 2026-08-25: Added `ux-writer`, wired bounded collaboration into
+  `plan-create`, `plan-review`, `design-create`, and `documentation-review`,
+  updated workflow README and stable workflow design docs, and extended role,
+  init, package-smoke, and skill-instruction tests. Verification:
+  `npm run build`; `git diff --check`; `node --test tests/roles.test.mjs`;
+  `node --test tests/skill-instructions.test.mjs`; `node --test
+  tests/init.test.mjs`; `node --test tests/package-smoke.test.mjs`;
+  `node --test tests/status.test.mjs tests/verify.test.mjs
+  tests/workflow.test.mjs`; `AIX_CACHE_DIR=/private/tmp/aix-phase10-cache npm
+  test` passed with 172 tests. Remaining gap: representative scenario-quality
+  review and human approval are required before marking Phase 10 complete or
+  starting Phase 11.
+- 2026-08-25: Added `unslop` as an optional `ux-writer` skill hint and
+  clarified that it is an editing procedure, not a replacement for UX writing
+  judgment about reader task, message state, terminology, or product truth.
+  Verification: `node --test tests/roles.test.mjs`; `git diff --check`.
+- 2026-08-25: Added `design-promote` and `plan-complete` as `ux-writer`
+  collaboration points for copy-sensitive promotion and closeout. Verification:
+  `node --test tests/skill-instructions.test.mjs`; `node --test
+  tests/roles.test.mjs`; `git diff --check`.
 
 ### Phase 11: Project-dev role: requirements-engineer (status: approved)
 

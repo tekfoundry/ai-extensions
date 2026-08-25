@@ -60,6 +60,17 @@ expectations, implementation-phase constraints, open questions, and human
 review notes as appropriate. Do not use the role to approve unsafe behavior or
 waive security findings.
 
+When `.agents/roles/ux-writer.md` exists and the plan changes user-facing or
+developer-facing text, use `delegate-to-role` or a prompt-overlay delegation
+to request a bounded UX writing pass. Good triggers include labels, prompts,
+command help, terminal output, errors, empty states, onboarding copy, README
+language, workflow instructions, or other docs copy that tells users what to
+do. Fold the returned evidence into `Design Intent`, `Non-Goals`,
+`Boundaries And Invariants`, verification expectations, implementation-phase
+constraints, open questions, and human review notes as appropriate. Do not use
+the role to finalize product claims, support promises, security language,
+legal text, release commitments, or other wording that needs developer review.
+
 Do not require `product-strategist` for direct use. If the role is unavailable
 or the host cannot delegate, continue the planning session yourself by asking
 concise product-vision questions and recording the answers in the living plan.
@@ -76,6 +87,10 @@ unavailable or the host cannot delegate, continue the planning session yourself
 by asking concise trust-boundary, credential, authorization, file-operation,
 dependency, failure-path, and safety-verification questions when those
 concerns apply.
+Do not require `ux-writer` for direct use either. If the role is unavailable or
+the host cannot delegate, continue the planning session yourself by asking
+concise reader, task, terminology, prompt, error, empty-state, onboarding,
+README, and verification questions when copy or docs language concerns apply.
 
 ## Workflow
 
@@ -124,6 +139,10 @@ concerns apply.
    credentials, authorization, permissions, destructive file operations,
    dependencies, network or external systems, package trust, source resolution,
    lockfile integrity, or other safety-sensitive behavior.
+   Use `ux-writer` for a bounded copy pass when the plan changes labels,
+   prompts, command help, terminal output, errors, empty states, onboarding
+   copy, README language, workflow instructions, or other product or
+   developer-facing text.
 9. Iterate on design intent until the user explicitly agrees that it captures
    the desired direction. Do not generate implementation phases or task lists
    before Design Intent is accepted.

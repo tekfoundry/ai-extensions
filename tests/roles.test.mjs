@@ -296,7 +296,7 @@ test("discoverRoles reports shipped workflow-owned project development roles", (
 
   assert.deepEqual(
     roles.map((role) => role.name),
-    ["product-designer", "product-strategist", "security-reviewer", "technical-architect"]
+    ["product-designer", "product-strategist", "security-reviewer", "technical-architect", "ux-writer"]
   );
 
   for (const role of roles) {
@@ -357,6 +357,23 @@ test("resolveRoleDelegation delegates to the shipped security reviewer role", ()
   assert.match(prompt, /Review plans, design intent, verification evidence, and completed phased work/);
   assert.match(prompt, /Trust-boundary and authorization assessment/);
   assert.match(prompt, /Blocking findings that should become normal plan tasks before closeout/);
+  assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
+});
+
+test("resolveRoleDelegation delegates to the shipped UX writer role", () => {
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/ux-writer.md");
+  const resolution = resolveRoleDelegation("use ux-writer to review this command output", [role]);
+  const prompt = buildPromptOverlayDelegation(role, "Review the labels, errors, empty states, and README language in this plan.");
+
+  assert.equal(resolution.role.name, "ux-writer");
+  assert.equal(resolution.mode, "prompt-overlay");
+  assert.match(prompt, /Name: ux-writer/);
+  assert.match(prompt, /Review plans, design docs, workflow docs, README text/);
+  assert.match(prompt, /Consider `design-promote` when completed work changed durable copy/);
+  assert.match(prompt, /Consider `plan-complete` when closeout needs a final copy-readiness check/);
+  assert.match(prompt, /Consider `unslop` when it is installed/);
+  assert.match(prompt, /Target reader and task the copy must support/);
+  assert.match(prompt, /Missing copy states, recovery guidance, or user actions/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 

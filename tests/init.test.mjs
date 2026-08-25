@@ -113,6 +113,7 @@ test("initProject initializes an empty project with default sources and skills",
     const productDesignerRole = lockfile.roles.find((role) => role.activeName === "product-designer");
     const technicalArchitectRole = lockfile.roles.find((role) => role.activeName === "technical-architect");
     const securityReviewerRole = lockfile.roles.find((role) => role.activeName === "security-reviewer");
+    const uxWriterRole = lockfile.roles.find((role) => role.activeName === "ux-writer");
     const brainstormingSkill = lockfile.skills.find((skill) => skill.activeName === "brainstorming-skill");
     const discoverSkill = lockfile.skills.find((skill) => skill.activeName === "discover-skill");
 
@@ -132,9 +133,9 @@ test("initProject initializes an empty project with default sources and skills",
     assert.equal(lockfile.workflows[0].docs.length, 4);
     assert.equal(lockfile.workflows[0].templates.length, 15);
     assert.equal(lockfile.workflows[0].skills.length, 17);
-    assert.equal(lockfile.workflows[0].roles.length, 4);
+    assert.equal(lockfile.workflows[0].roles.length, 5);
     assert.equal(lockfile.skills.length, 18);
-    assert.equal(lockfile.roles.length, 4);
+    assert.equal(lockfile.roles.length, 5);
     assert.ok(lockfile.skills.every((skill) => skill.kind === "skill"));
     assert.equal(lockfile.skills.filter((skill) => skill.owner?.kind === "workflow").length, 17);
     assert.ok(discoverSkill);
@@ -187,6 +188,13 @@ test("initProject initializes an empty project with default sources and skills",
     assert.deepEqual(securityReviewerRole.owner, { kind: "workflow", name: "design-plan-execute" });
     assert.equal(securityReviewerRole.packagePath, ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/security-reviewer.md");
     assert.equal(securityReviewerRole.activationPath, ".agents/roles/security-reviewer.md");
+    assert.ok(uxWriterRole);
+    assert.equal(uxWriterRole.source, "aix");
+    assert.equal(uxWriterRole.sourcePath, "roles/project-dev/ux-writer.md");
+    assert.equal(uxWriterRole.requested, false);
+    assert.deepEqual(uxWriterRole.owner, { kind: "workflow", name: "design-plan-execute" });
+    assert.equal(uxWriterRole.packagePath, ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/ux-writer.md");
+    assert.equal(uxWriterRole.activationPath, ".agents/roles/ux-writer.md");
     assert.ok(lockfile.skills.every((skill) => skill.sourceType === "git"));
     assert.ok(lockfile.workflows.some((workflow) => workflow.source === "aix" && workflow.resolvedCommit === defaults.aixCommit));
     assert.ok(lockfile.skills.filter((skill) => skill.owner?.kind === "workflow").every((skill) => skill.packagePath.startsWith(".agents/packages/workflows/aix/design-plan-execute/skills/")));
@@ -223,6 +231,8 @@ test("initProject initializes an empty project with default sources and skills",
     assert.ok(existsSync(join(projectPath, ".agents/roles/technical-architect.md")));
     assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/security-reviewer.md")));
     assert.ok(existsSync(join(projectPath, ".agents/roles/security-reviewer.md")));
+    assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/ux-writer.md")));
+    assert.ok(existsSync(join(projectPath, ".agents/roles/ux-writer.md")));
     assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/design-plan-execute/skills/brainstorming-skill/SKILL.md")));
     assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/design-plan-execute/skills/brainstorming-skill/README.md")));
     assert.ok(existsSync(join(projectPath, ".agents/skills/brainstorming-skill/SKILL.md")));

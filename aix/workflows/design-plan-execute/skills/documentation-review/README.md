@@ -53,3 +53,8 @@ while leaving routine formatting and link checks standalone. When the
 workflow-owned `product-strategist` role is installed, the skill can use it
 for bounded product-strategy input on positioning, audience, value, scope,
 sequencing, README language, marketing pages, or idea-to-plan handoffs.
+When the workflow-owned `ux-writer` role is installed, the skill can use it for
+bounded UX writing input on README language, onboarding text, labels, prompts,
+command help, terminal output, errors, empty states, warning or success
+messages, workflow instructions, release notes, or other copy that tells users
+what to do.

@@ -43,6 +43,20 @@ use. If the role is unavailable or the host cannot delegate, continue the
 design-document creation yourself by checking the same product-design
 concerns.
 
+When `.agents/roles/ux-writer.md` exists and the design document records
+durable product or developer-facing language, use `delegate-to-role` or a
+prompt-overlay delegation to request bounded UX writing input. Good triggers
+include terminology, labels, prompts, command help, terminal output, errors,
+empty states, onboarding copy, README language, workflow instructions, or
+message-state requirements.
+
+Fold returned evidence into the design document's current-state behavior,
+terminology, message-state expectations, copy constraints, related-doc links,
+human-review notes, or unresolved gaps as appropriate. Do not require
+`ux-writer` for direct use. If the role is unavailable or the host cannot
+delegate, continue the design-document creation yourself by checking the same
+copy, terminology, reader, task, and recovery-path concerns.
+
 ## Workflow
 
 1. Read `_docs/README.md` and `_docs/design/README.md` to understand the

@@ -63,4 +63,8 @@ those concerns itself when the role is unavailable. When the workflow-owned
 security-readiness review on trust boundaries, secrets, authorization,
 destructive operations, dependency risk, source resolution, lockfile integrity,
 and no-write guarantees while still checking those concerns itself when the
-role is unavailable.
+role is unavailable. When the workflow-owned `ux-writer` role is installed,
+the skill can use it for bounded copy-readiness review on labels, prompts,
+command help, terminal output, errors, empty states, onboarding copy, README
+language, and developer-facing docs while still checking those concerns itself
+when the role is unavailable.

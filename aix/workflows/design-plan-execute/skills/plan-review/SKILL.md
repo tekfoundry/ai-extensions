@@ -68,6 +68,20 @@ review notes, or readiness notes as appropriate. Do not require
 cannot delegate, continue the review yourself by checking the same
 security-readiness concerns.
 
+When `.agents/roles/ux-writer.md` exists and the plan has user-facing or
+developer-facing copy scope, use `delegate-to-role` or a prompt-overlay
+delegation to request a bounded UX writing readiness pass. Good triggers
+include labels, prompts, command help, terminal output, errors, empty states,
+onboarding copy, README language, workflow instructions, release notes, or
+docs copy that tells users what to do.
+
+Fold returned evidence into review findings, activation blockers, risks,
+verification gaps, requested plan revisions, human-review notes, or readiness
+notes as appropriate. Do not require `ux-writer` for direct use. If the role
+is unavailable or the host cannot delegate, continue the review yourself by
+checking the same copy, terminology, message-state, recovery, and user-action
+concerns.
+
 ## Workflow
 
 1. Resolve the plan and read its context, design intent, phases, risks,

@@ -54,4 +54,8 @@ still checking those concerns itself when the role is unavailable. When the
 workflow-owned `product-designer` role is installed, the skill can use it for
 bounded product-design input on user flows, interaction states, accessibility,
 terminal UX, prompts, and design-system fit while still checking those
-concerns itself when the role is unavailable.
+concerns itself when the role is unavailable. When the workflow-owned
+`ux-writer` role is installed, the skill can use it for bounded UX writing
+input on terminology, labels, prompts, command help, errors, empty states,
+onboarding copy, README language, and message-state requirements while still
+checking those concerns itself when the role is unavailable.

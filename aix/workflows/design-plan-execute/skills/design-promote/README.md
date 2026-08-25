@@ -48,4 +48,8 @@ the stable design truth. If a new design document is needed, it follows
 `design-create` guidance for placement, template use, and index links. When the
 workflow-owned `technical-architect` role is installed, the skill can use it
 for bounded architecture-promotion input while still promoting only implemented
-and accepted current-state behavior.
+and accepted current-state behavior. When the workflow-owned `ux-writer` role
+is installed, the skill can use it for bounded UX writing promotion input when
+completed work changed durable terminology, labels, prompts, command help,
+errors, empty states, onboarding copy, README language, release notes, or
+message-state requirements.

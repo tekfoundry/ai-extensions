@@ -53,4 +53,7 @@ when present, and archives the completed plan under `_docs/plans/completed/`
 with the required dated filename. When the workflow-owned `security-reviewer`
 role is installed, the skill can use it for bounded post-phase security review
 while still checking security-sensitive behavior itself when the role is
-unavailable.
+unavailable. When the workflow-owned `ux-writer` role is installed, the skill
+can use it for bounded final copy-readiness review when completed work changed
+labels, prompts, command help, errors, empty states, onboarding copy, README
+language, release notes, or developer-facing docs.

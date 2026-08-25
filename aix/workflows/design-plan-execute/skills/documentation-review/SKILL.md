@@ -42,6 +42,23 @@ require `product-strategist` for direct use. If the role is unavailable or the
 host cannot delegate, continue the documentation review yourself by checking
 the same product-strategy concerns.
 
+When `.agents/roles/ux-writer.md` exists and the reviewed docs include
+user-facing or developer-facing copy, use `delegate-to-role` or a
+prompt-overlay delegation to request bounded UX writing input. Good triggers
+include README language, onboarding text, labels, prompts, command help,
+terminal output, errors, empty states, warning or success messages, workflow
+instructions, release notes, and docs copy that tells users what to do.
+
+Fold returned evidence into documentation-review findings, current-state
+accuracy notes, copy fixes, terminology corrections, README or workflow-doc
+follow-up, human-review notes, or unresolved gaps as appropriate. Do not
+require `ux-writer` for direct use. If the role is unavailable or the host
+cannot delegate, continue the documentation review yourself by checking the
+same reader, task, copy-state, terminology, and recovery-guidance concerns.
+Routine formatting, link, index, and stale-placeholder checks do not require
+UX writing delegation unless the documentation content itself changes
+user-facing or developer-facing language.
+
 ## Workflow
 
 1. Read `_docs/README.md`, `_docs/design/README.md`, and any relevant
