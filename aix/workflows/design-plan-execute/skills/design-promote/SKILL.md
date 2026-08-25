@@ -8,6 +8,28 @@ description: Transfer accepted durable behavior from a completed implementation 
 Promote accepted current-state behavior, not speculative plan intent or
 execution history.
 
+## Role Collaboration
+
+`design-promote` owns the promotion decision, stable documentation edits, and
+user-facing handoff. Roles can supply bounded specialist judgment, but they do
+not authorize new design truth or promote behavior that has not been
+implemented and accepted.
+
+When `.agents/roles/technical-architect.md` exists and the completed work
+changed architecture-sensitive behavior, use `delegate-to-role` or a
+prompt-overlay delegation to request bounded architecture-promotion input.
+Good triggers include system shape, component boundaries, module ownership,
+runtime contracts, integration choices, data flow, persistence,
+package-management behavior, workflow lifecycle behavior, or maintainability
+tradeoffs.
+
+Fold returned evidence into the stable design update, related-doc placement,
+boundary and invariant language, retained follow-up gaps, or promotion report
+as appropriate. Do not require `technical-architect` for direct use. If the
+role is unavailable or the host cannot delegate, continue promotion yourself by
+checking the same architecture-sensitive current-state concerns. Do not use the
+role to introduce speculative future behavior into `_docs/design`.
+
 ## Workflow
 
 1. Read the completed or substantially completed plan and identify decisions

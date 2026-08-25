@@ -45,4 +45,11 @@ The skill reads the documentation indexes, checks whether documents have clear
 homes, reviews Markdown conventions, finds broken or ambiguous links, compares
 docs against accepted design and code when needed, and makes focused fixes when
 the right correction is clear. Broader reorganizations are recorded as follow-up
-work or routed back to the developer for approval.
+work or routed back to the developer for approval. When the workflow-owned
+`product-designer` role is installed, the skill can use it for bounded
+product-design input on product-facing docs, design docs, user flows,
+interaction states, accessibility, terminal UX, prompts, and design-system fit
+while leaving routine formatting and link checks standalone. When the
+workflow-owned `product-strategist` role is installed, the skill can use it
+for bounded product-strategy input on positioning, audience, value, scope,
+sequencing, README language, marketing pages, or idea-to-plan handoffs.

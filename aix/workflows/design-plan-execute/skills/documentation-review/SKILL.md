@@ -8,6 +8,40 @@ description: Review project documentation for structure, formatting conventions,
 Use this skill to keep `_docs/` maintainable after plans, design promotion, or
 substantial documentation changes.
 
+## Role Collaboration
+
+`documentation-review` owns the documentation review result, structure and
+link recommendations, current-state accuracy checks, focused fixes, and
+user-facing handoff. Roles can supply bounded specialist judgment, but they do
+not own documentation edits or final current-state truth.
+
+When `.agents/roles/product-designer.md` exists and the reviewed docs describe
+product-facing behavior, user flows, interaction states, accessibility,
+layout hierarchy, prototypes, terminal UX, prompts, or design-system fit, use
+`delegate-to-role` or a prompt-overlay delegation to request bounded
+product-design input.
+
+Fold returned evidence into documentation-review findings, current-state
+accuracy notes, structure recommendations, design-doc fixes, human-review
+notes, or follow-up work as appropriate. Do not require `product-designer` for
+direct use. If the role is unavailable or the host cannot delegate, continue
+the documentation review yourself by checking the same product-design concerns.
+Routine formatting, link, index, and stale-placeholder checks do not require
+role delegation unless the documentation content itself is product-facing.
+
+When `.agents/roles/product-strategist.md` exists and the reviewed docs
+describe product positioning, user value, audience, scope, sequencing,
+competitive framing, README language, marketing pages, or idea-to-plan
+handoffs, use `delegate-to-role` or a prompt-overlay delegation to request
+bounded product-strategy input.
+
+Fold returned evidence into documentation-review findings, current-state
+accuracy notes, positioning or scope corrections, README or product-doc
+follow-up, human-review notes, or unresolved gaps as appropriate. Do not
+require `product-strategist` for direct use. If the role is unavailable or the
+host cannot delegate, continue the documentation review yourself by checking
+the same product-strategy concerns.
+
 ## Workflow
 
 1. Read `_docs/README.md`, `_docs/design/README.md`, and any relevant

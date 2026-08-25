@@ -55,7 +55,10 @@ use it for bounded product-vision judgment while still remaining directly
 runnable without role context. When the workflow-owned `product-designer` role
 is installed, the skill can use it for bounded user-flow, interaction,
 accessibility, layout, prompt, terminal UX, and design-system review while
-still asking those questions itself when the role is unavailable. New plans
-are placed under
+still asking those questions itself when the role is unavailable. When the
+workflow-owned `technical-architect` role is installed, the skill can use it
+for bounded boundary, contract, integration, maintainability, and
+implementation-phase sequencing review while still asking those questions
+itself when the role is unavailable. New plans are placed under
 `_docs/plans/backlog/` and pause there until the developer later uses
 `plan-activate`.

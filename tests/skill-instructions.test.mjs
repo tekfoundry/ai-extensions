@@ -5,9 +5,13 @@ import { test } from "node:test";
 
 const skillPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/code-review-refactor/SKILL.md");
 const delegateToRolePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/delegate-to-role/SKILL.md");
+const designCreatePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/design-create/SKILL.md");
+const designPromotePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/design-promote/SKILL.md");
+const documentationReviewPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/documentation-review/SKILL.md");
 const discoverSkillPath = join(process.cwd(), "aix/skills/discover-skill/SKILL.md");
 const brainstormingSkillPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/brainstorming-skill/SKILL.md");
 const planCreatePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-create/SKILL.md");
+const planReviewPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-review/SKILL.md");
 const planCompletePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-complete/SKILL.md");
 
 test("code-review-refactor skill declares workflow review contract", () => {
@@ -29,6 +33,11 @@ test("code-review-refactor skill declares workflow review contract", () => {
   assert.match(skill, /use the `plan-create` skill to create a backlog\s+review-and-refactor plan/);
   assert.match(skill, /When the review runs inside an active plan/);
   assert.match(skill, /When the review runs outside an active plan/);
+  assert.match(skill, /When `.agents\/roles\/technical-architect\.md` exists/);
+  assert.match(skill, /architectural coupling, module ownership, runtime contracts/);
+  assert.match(skill, /Fold returned evidence into the normal review findings/);
+  assert.match(skill, /Do not require\s+`technical-architect` for direct use/);
+  assert.match(skill, /The role must not choose findings, approve refactors,\s+edit files, or bypass the developer confirmation gate/);
 });
 
 test("discover-skill declares conservative discovery and install routing", () => {
@@ -92,7 +101,37 @@ test("brainstorming-skill declares durable idea discovery workflow", () => {
   assert.match(skill, /Reference dependencies by exact idea name/);
 });
 
-test("plan-create declares gated planning and product-strategy collaboration", () => {
+test("design-create declares role collaboration", () => {
+  const skill = readFileSync(designCreatePath, "utf8");
+
+  assert.match(skill, /^name: design-create$/m);
+  assert.match(skill, /`design-create` owns the stable design document/);
+  assert.match(skill, /When `.agents\/roles\/technical-architect\.md` exists/);
+  assert.match(skill, /system shape, component boundaries, module ownership, runtime\s+contracts/);
+  assert.match(skill, /Fold returned evidence into the design document's current-state behavior/);
+  assert.match(skill, /Do not require `technical-architect` for\s+direct use/);
+  assert.match(skill, /continue\s+the design-document creation yourself by checking the same architecture\s+concerns/);
+  assert.match(skill, /When `.agents\/roles\/product-designer\.md` exists/);
+  assert.match(skill, /product-facing behavior, user flows, interaction states/);
+  assert.match(skill, /Fold returned evidence into the design document's current-state behavior,\s+user-flow expectations/);
+  assert.match(skill, /Do not require `product-designer` for direct\s+use/);
+});
+
+test("design-promote declares technical architecture collaboration", () => {
+  const skill = readFileSync(designPromotePath, "utf8");
+
+  assert.match(skill, /^name: design-promote$/m);
+  assert.match(skill, /Promote accepted current-state behavior, not speculative plan intent/);
+  assert.match(skill, /`design-promote` owns the promotion decision/);
+  assert.match(skill, /When `.agents\/roles\/technical-architect\.md` exists/);
+  assert.match(skill, /changed architecture-sensitive behavior/);
+  assert.match(skill, /system shape, component boundaries, module ownership/);
+  assert.match(skill, /Fold returned evidence into the stable design update/);
+  assert.match(skill, /Do not require `technical-architect` for direct use/);
+  assert.match(skill, /Do not use the\s+role to introduce speculative future behavior into `_docs\/design`/);
+});
+
+test("plan-create declares gated planning and role collaboration", () => {
   const skill = readFileSync(planCreatePath, "utf8");
 
   assert.match(skill, /^name: plan-create$/m);
@@ -103,19 +142,64 @@ test("plan-create declares gated planning and product-strategy collaboration", (
   assert.match(skill, /user\s+flows, interaction design, accessibility, layout hierarchy, prototypes/);
   assert.match(skill, /terminal UX, prompts, or design-system fit/);
   assert.match(skill, /Do not use\s+the role to finalize product surfaces without developer review/);
+  assert.match(skill, /When `.agents\/roles\/technical-architect\.md` exists/);
+  assert.match(skill, /system boundaries, component contracts, module ownership, runtime contracts/);
+  assert.match(skill, /Use architecture review to shape phases only after Design Intent\s+is accepted/);
   assert.match(skill, /Do not require `product-strategist` for direct use/);
   assert.match(skill, /Do not require `product-designer` for direct use either/);
   assert.match(skill, /asking concise flow, interaction, accessibility, and design-system questions/);
+  assert.match(skill, /Do not require `technical-architect` for direct use either/);
+  assert.match(skill, /asking concise boundary, contract, integration, maintainability, and\s+verification questions/);
   assert.match(skill, /Run the vision gate first/);
   assert.match(skill, /Record acceptance on the `High-Level Goal` heading only after the user\s+agrees/);
   assert.match(skill, /Treat template comments marked\s+`DO NOT INCLUDE IN OUTPUT` as agent-only instructions/);
   assert.match(skill, /never copy those\s+comments into the project-owned plan/);
   assert.match(skill, /Do not generate implementation phases or task lists\s+before Design Intent is accepted/);
+  assert.match(skill, /Use `technical-architect` for phase-shaping guidance/);
   assert.match(skill, /Only after Design Intent is accepted, break it into ordered implementation\s+phases/);
   assert.match(skill, /Not drafted until Design Intent is accepted/);
   assert.match(skill, /strip every\s+`DO NOT INCLUDE IN OUTPUT` comment block from the created or updated plan/);
   assert.match(skill, /Do not leave agent-only template comments/);
   assert.match(skill, /Do not generate implementation phases or task lists against unaccepted Design\s+Intent/);
+});
+
+test("plan-review declares role collaboration", () => {
+  const skill = readFileSync(planReviewPath, "utf8");
+
+  assert.match(skill, /^name: plan-review$/m);
+  assert.match(skill, /`plan-review` owns the review result/);
+  assert.match(skill, /When `.agents\/roles\/technical-architect\.md` exists/);
+  assert.match(skill, /architecture-sensitive scope/);
+  assert.match(skill, /system boundaries, component contracts, module ownership, runtime\s+contracts/);
+  assert.match(skill, /implementation-phase sequencing, or\s+maintainability tradeoffs/);
+  assert.match(skill, /Fold returned evidence into review findings, activation blockers, risks/);
+  assert.match(skill, /Do not require `technical-architect` for direct use/);
+  assert.match(skill, /continue the review yourself by checking the same\s+architecture-readiness concerns/);
+  assert.match(skill, /When `.agents\/roles\/product-strategist\.md` exists/);
+  assert.match(skill, /product-scope, audience, value, sequencing, prioritization/);
+  assert.match(skill, /bounded product-strategy readiness pass/);
+  assert.match(skill, /Do not require `product-strategist` for direct use/);
+  assert.match(skill, /When `.agents\/roles\/product-designer\.md` exists/);
+  assert.match(skill, /product-facing UX scope/);
+  assert.match(skill, /user flows,\s+interaction design, accessibility, layout hierarchy/);
+  assert.match(skill, /Fold returned evidence into review findings, activation blockers, risks,\s+verification gaps, requested plan revisions, human-review notes/);
+  assert.match(skill, /Do not require `product-designer` for direct use/);
+});
+
+test("documentation-review declares product role collaboration", () => {
+  const skill = readFileSync(documentationReviewPath, "utf8");
+
+  assert.match(skill, /^name: documentation-review$/m);
+  assert.match(skill, /`documentation-review` owns the documentation review result/);
+  assert.match(skill, /When `.agents\/roles\/product-designer\.md` exists/);
+  assert.match(skill, /product-facing behavior, user flows, interaction states/);
+  assert.match(skill, /Fold returned evidence into documentation-review findings/);
+  assert.match(skill, /Do not require `product-designer` for\s+direct use/);
+  assert.match(skill, /Routine formatting, link, index, and stale-placeholder checks do not require\s+role delegation/);
+  assert.match(skill, /When `.agents\/roles\/product-strategist\.md` exists/);
+  assert.match(skill, /product positioning, user value, audience, scope, sequencing/);
+  assert.match(skill, /bounded product-strategy input/);
+  assert.match(skill, /Do not\s+require `product-strategist` for direct use/);
 });
 
 test("plan-complete requires human validation before closeout", () => {

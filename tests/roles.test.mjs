@@ -296,7 +296,7 @@ test("discoverRoles reports shipped workflow-owned project development roles", (
 
   assert.deepEqual(
     roles.map((role) => role.name),
-    ["product-designer", "product-strategist"]
+    ["product-designer", "product-strategist", "technical-architect"]
   );
 
   for (const role of roles) {
@@ -329,6 +329,20 @@ test("resolveRoleDelegation delegates to the shipped product designer role", () 
   assert.match(prompt, /Review product-facing plans, workflows, screens, prompts, prototypes/);
   assert.match(prompt, /Primary user flow and whether it is complete enough to implement/);
   assert.match(prompt, /Accessibility and usability expectations/);
+  assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
+});
+
+test("resolveRoleDelegation delegates to the shipped technical architect role", () => {
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/technical-architect.md");
+  const resolution = resolveRoleDelegation("delegate to technical-architect for architecture review", [role]);
+  const prompt = buildPromptOverlayDelegation(role, "Review whether the workflow install preview plan has clean module boundaries.");
+
+  assert.equal(resolution.role.name, "technical-architect");
+  assert.equal(resolution.mode, "prompt-overlay");
+  assert.match(prompt, /Name: technical-architect/);
+  assert.match(prompt, /Review technical plans, design intent, architecture notes/);
+  assert.match(prompt, /Boundary assessment for modules, commands, files, persistence, and runtime/);
+  assert.match(prompt, /Suggested implementation phase order and the smallest coherent next slices/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 

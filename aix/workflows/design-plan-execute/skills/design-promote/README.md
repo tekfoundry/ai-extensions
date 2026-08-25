@@ -45,4 +45,7 @@ that behavior needs to be reflected in `_docs/design/`.
 The skill reads the completed or nearly completed plan, identifies decisions
 that are now current behavior, finds the right design document, and updates only
 the stable design truth. If a new design document is needed, it follows
-`design-create` guidance for placement, template use, and index links.
+`design-create` guidance for placement, template use, and index links. When the
+workflow-owned `technical-architect` role is installed, the skill can use it
+for bounded architecture-promotion input while still promoting only implemented
+and accepted current-state behavior.

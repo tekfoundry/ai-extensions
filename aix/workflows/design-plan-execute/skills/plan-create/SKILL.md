@@ -37,6 +37,17 @@ returned evidence into `Design Intent`, `Non-Goals`,
 constraints, open questions, and human review notes as appropriate. Do not use
 the role to finalize product surfaces without developer review.
 
+When `.agents/roles/technical-architect.md` exists and the plan involves
+system boundaries, component contracts, module ownership, runtime contracts,
+integration choices, data flow, persistence, package-management behavior,
+workflow lifecycle behavior, or maintainability tradeoffs, use
+`delegate-to-role` or a prompt-overlay delegation to request a bounded
+architecture pass. Fold the returned evidence into accepted `Design Intent`,
+`Boundaries And Invariants`, implementation-phase order, task boundaries,
+verification expectations, risks, and promotion-to-design notes as
+appropriate. Use architecture review to shape phases only after Design Intent
+is accepted.
+
 Do not require `product-strategist` for direct use. If the role is unavailable
 or the host cannot delegate, continue the planning session yourself by asking
 concise product-vision questions and recording the answers in the living plan.
@@ -44,6 +55,10 @@ Do not require `product-designer` for direct use either. If the role is
 unavailable or the host cannot delegate, continue the planning session yourself
 by asking concise flow, interaction, accessibility, and design-system questions
 when those concerns apply.
+Do not require `technical-architect` for direct use either. If the role is
+unavailable or the host cannot delegate, continue the planning session yourself
+by asking concise boundary, contract, integration, maintainability, and
+verification questions when those concerns apply.
 
 ## Workflow
 
@@ -83,13 +98,20 @@ when those concerns apply.
    posture, verification needs, rollout considerations, non-goals, and open
    decisions. Use `product-designer` for a bounded design pass when the plan
    touches user flows, interaction design, accessibility, layout hierarchy,
-   prototypes, terminal UX, prompts, or design-system fit.
+   prototypes, terminal UX, prompts, or design-system fit. Use
+   `technical-architect` for a bounded architecture pass when the plan touches
+   system boundaries, component contracts, integration choices, runtime
+   contracts, persistence, data flow, package-management behavior, workflow
+   lifecycle behavior, or maintainability tradeoffs.
 9. Iterate on design intent until the user explicitly agrees that it captures
    the desired direction. Do not generate implementation phases or task lists
    before Design Intent is accepted.
 10. Only after Design Intent is accepted, break it into ordered implementation
    phases with concrete tasks. Prefer phases that support iterative
    development, verification, and review over one large all-or-nothing phase.
+   Use `technical-architect` for phase-shaping guidance when architecture
+   boundaries, component responsibilities, runtime contracts, or integration
+   sequencing materially affect task order.
 11. Apply the task status markers from `.agents/workflow.md` to every phased
    task list. New backlog tasks should start with `⬜️`; use `🟨`, `✅`, and
    `⚠️` only when the plan is recording actual execution state or a known

@@ -8,6 +8,41 @@ description: Create a new stable design document in the right _docs/design area,
 Use this skill when a new stable design document is needed. Prefer updating an
 existing design document when the topic already has a clear home.
 
+## Role Collaboration
+
+`design-create` owns the stable design document, placement decision, template
+use, index links, and user-facing handoff. Roles can supply bounded specialist
+judgment, but they do not own final design truth or promote speculative
+architecture.
+
+When `.agents/roles/technical-architect.md` exists and the design document
+concerns system shape, component boundaries, module ownership, runtime
+contracts, integration choices, data flow, persistence, package-management
+behavior, workflow lifecycle behavior, or maintainability tradeoffs, use
+`delegate-to-role` or a prompt-overlay delegation to request bounded
+architecture input.
+
+Fold returned evidence into the design document's current-state behavior,
+ownership boundaries, invariants, constraints, tradeoffs, related-doc links,
+or unresolved gaps as appropriate. Do not require `technical-architect` for
+direct use. If the role is unavailable or the host cannot delegate, continue
+the design-document creation yourself by checking the same architecture
+concerns.
+
+When `.agents/roles/product-designer.md` exists and the design document
+concerns product-facing behavior, user flows, interaction states,
+accessibility, layout hierarchy, prototypes, terminal UX, prompts, or
+design-system fit, use `delegate-to-role` or a prompt-overlay delegation to
+request bounded product-design input.
+
+Fold returned evidence into the design document's current-state behavior,
+user-flow expectations, interaction states, accessibility and usability
+constraints, layout or hierarchy notes, related-doc links, human-review notes,
+or unresolved gaps as appropriate. Do not require `product-designer` for direct
+use. If the role is unavailable or the host cannot delegate, continue the
+design-document creation yourself by checking the same product-design
+concerns.
+
 ## Workflow
 
 1. Read `_docs/README.md` and `_docs/design/README.md` to understand the

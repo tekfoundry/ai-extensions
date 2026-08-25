@@ -175,6 +175,15 @@ help from roles for bounded specialist judgment. In both directions, the
 invoking unit keeps ownership of the task boundary, final decision, artifact,
 lifecycle state, verification evidence, and user-facing report.
 
+`Skills To Consider` creates a reciprocal review obligation. When a role lists
+a skill, the role phase should review that skill for a bounded
+role-collaboration hook and add one unless there is a clear reason the role
+should only recommend the skill and never contribute to it. Reciprocal hooks
+should be conditional, not mandatory for every skill invocation: they should
+state when the role's voice matters, how to delegate or use prompt-overlay
+fallback, what evidence should flow back into the skill's normal output, and
+that the skill still owns its procedure and works without the role.
+
 Role extraction must not weaken existing skills. When role-oriented guidance is
 moved out of a skill, the skill still needs to stand alone for direct user
 invocation. It should keep its triggers, procedure, guardrails, artifact rules,
@@ -836,8 +845,8 @@ Tasks:
 - ✅ Create
   `aix/workflows/design-plan-execute/roles/project-dev/product-strategist.md`.
 - ✅ Review `_docs/design`, `_docs/ideas.md`, and planning skills for context.
-- ✅ Modify workflow-owned skills only if the role exposes a clear standalone
-  skill gap.
+- ✅ Modify workflow-owned skills where reciprocal role collaboration is
+  warranted, while preserving standalone skill behavior.
 - ✅ If any skill is changed, verify the skill still works when invoked
   directly without role context.
 - ✅ Refine `plan-create` so it uses gated planning: draft and vet vision
@@ -966,8 +975,8 @@ Tasks:
 - ✅ Integrate `product-designer` with `plan-create` where plans involve user
   flows, interaction design, accessibility, layout hierarchy, or design-system
   fit, while keeping `plan-create` directly runnable.
-- ✅ Modify workflow-owned skills only if the role exposes a clear standalone
-  skill gap.
+- ✅ Modify workflow-owned skills where reciprocal role collaboration is
+  warranted, while preserving standalone skill behavior.
 - ✅ If any skill is changed, verify the skill still works when invoked
   directly without role context.
 
@@ -1033,42 +1042,137 @@ Execution notes:
   for workflow-owned project-development roles and normalized the
   `Installed Skills` section to match the project README's bundled asset table
   format. Verification: `git diff --check`.
+- 2026-08-25: Added bounded `product-designer` collaboration to `plan-review`
+  for product-facing UX readiness, to `design-create` for product-facing
+  design intent, and to `documentation-review` for product-facing docs and
+  design docs. Each skill preserves direct invocation when the role is
+  unavailable, and `documentation-review` keeps routine formatting/link checks
+  standalone. Verification: `node --test tests/skill-instructions.test.mjs`;
+  `git diff --check`.
+- 2026-08-25: Added bounded `product-strategist` collaboration to
+  `plan-review` for product-scope readiness and to `documentation-review` for
+  product positioning, audience, value, scope, sequencing, README language,
+  marketing pages, and idea-to-plan handoffs. Captured the reciprocal
+  `Skills To Consider` policy in Design Intent so future role phases review
+  every listed skill for conditional role collaboration. Verification:
+  `node --test tests/skill-instructions.test.mjs`; `git diff --check`.
 
-### Phase 8: Project-dev role: technical-architect (status: approved)
+### Phase 8: Project-dev role: technical-architect (status: in progress)
 
 Goal: Add the workflow-owned `technical-architect` role with a clean manual
 validation checkpoint.
 
 Tasks:
 
-- ⬜️ Create
+- ✅ Create
   `aix/workflows/design-plan-execute/roles/project-dev/technical-architect.md`.
-- ⬜️ Review design docs, `design-create`, `plan-create`, and `design-promote`
+- ✅ Review design docs, `design-create`, `plan-create`, and `design-promote`
   for possible interaction points.
-- ⬜️ Integrate `technical-architect` with `plan-create` for system boundaries,
+- ✅ Integrate `technical-architect` with `plan-create` for system boundaries,
   component contracts, integration choices, maintainability tradeoffs, and
   implementation-phase shaping after design intent is accepted.
-- ⬜️ Modify workflow-owned skills only if the role exposes a clear standalone
-  skill gap.
-- ⬜️ If any skill is changed, verify the skill still works when invoked
+- ✅ Modify workflow-owned skills identified by the reciprocal review while
+  preserving standalone skill behavior.
+- ✅ If any skill is changed, verify the skill still works when invoked
   directly without role context.
+
+Implementation notes:
+
+- Added the workflow-owned `technical-architect` role under
+  `aix/workflows/design-plan-execute/roles/project-dev/technical-architect.md`.
+  The role focuses on system boundaries, module ownership, runtime contracts,
+  integration choices, data flow, persistence, package-management and workflow
+  lifecycle implications, maintainability tradeoffs, verification strategy, and
+  design-promotion targets.
+- Reviewed existing design and workflow guidance for architecture context:
+  `_docs/design/README.md`, `_docs/design/workflows.md`,
+  `_docs/design/cli.md`, `design-create`, `plan-create`, `design-promote`,
+  and the existing project-development roles.
+- Updated `plan-create` so it can use `technical-architect` for bounded
+  architecture review when a plan involves system boundaries, component
+  contracts, module ownership, runtime contracts, integration choices, data
+  flow, persistence, package-management behavior, workflow lifecycle behavior,
+  or maintainability tradeoffs.
+- Updated `plan-review` so architecture-sensitive plan reviews can use
+  `technical-architect` for bounded architecture-readiness review while
+  preserving direct review behavior when the role is unavailable.
+- Updated `design-create` so architecture-sensitive design document creation
+  can use `technical-architect` for bounded architecture input while
+  preserving direct document creation when the role is unavailable.
+- Updated `design-promote` so architecture-sensitive design promotion can use
+  `technical-architect` for bounded architecture-promotion input while still
+  promoting only implemented and accepted current-state behavior.
+- Updated `code-review-refactor` so architecture-sensitive maintainability
+  reviews can use `technical-architect` for bounded architecture-risk review
+  without letting the role choose findings, approve refactors, edit files, or
+  bypass the developer confirmation gate.
+- Preserved direct `plan-create` invocation when roles are unavailable by
+  instructing it to ask concise boundary, contract, integration,
+  maintainability, and verification questions itself.
+- Updated the workflow README `Installed Roles` table to include
+  `technical-architect`.
+- Updated role, init, package-smoke, and skill-instruction tests for the new
+  workflow-owned role and collaboration path.
 
 Verification:
 
-- Run automated role formatting, front matter, and contract checks.
-- Manually review the `technical-architect` role file against the role
-  verification rubric.
-- Manually verify any changed skills still stand alone.
-- Manually verify any `plan-create` changes preserve direct planning behavior
-  and improve architecture readiness before phases/tasks are drafted.
-- Manually verify `delegate-to-role` delegates to `technical-architect`.
-- Manually verify `technical-architect` produces useful boundary, contract,
-  integration, and maintainability guidance in a representative scenario.
-- Record automated checks, manual role review, skill standalone review,
-  delegation verification, scenario-quality result, and commit checkpoint
-  status.
-- Human approval recorded before starting the next project-development role
-  phase.
+- Completed: ran automated role formatting, front matter, and contract checks
+  through `tests/roles.test.mjs`.
+- Completed: manually reviewed the `technical-architect` role file against the
+  role verification rubric.
+- Completed: manually verified changed `plan-create` guidance still preserves
+  direct skill invocation without requiring role context.
+- Completed: manually verified `plan-create` changes preserve direct planning
+  behavior and improve architecture readiness before phases/tasks are drafted.
+- Completed: manually verified changed `plan-review` guidance still preserves
+  direct skill invocation without requiring role context.
+- Completed: manually verified changed `design-create` guidance still
+  preserves direct skill invocation without requiring role context.
+- Completed: manually verified changed `design-promote` guidance still
+  preserves direct skill invocation, current-state promotion, and the
+  speculative-design guardrail without requiring role context.
+- Completed: manually verified changed `code-review-refactor` guidance still
+  preserves direct skill invocation, developer finding selection, and refactor
+  confirmation without requiring role context.
+- Completed: verified `delegate-to-role` delegates to `technical-architect`
+  through prompt-overlay fallback in `tests/roles.test.mjs`.
+- Pending human checkpoint: manually verify `technical-architect` produces
+  useful boundary, contract, integration, and maintainability guidance in a
+  representative scenario.
+- Completed: recorded automated checks, manual role review, skill standalone
+  review, and delegation verification. Scenario-quality result and commit
+  checkpoint status remain pending the human checkpoint.
+- Pending human checkpoint: human approval recorded before starting the next
+  project-development role phase.
+
+Execution notes:
+
+- 2026-08-25: Added `technical-architect`, wired bounded `plan-create`
+  collaboration for architecture-sensitive plans, updated the workflow README
+  role table, and updated role/init/package-smoke/skill instruction coverage.
+  Verification: `npm run build`; `node --test tests/roles.test.mjs`;
+  `node --test tests/skill-instructions.test.mjs`; `node --test
+  tests/init.test.mjs`; `node --test tests/workflow.test.mjs`; `node --test
+  tests/package-smoke.test.mjs`; `AIX_CACHE_DIR=/private/tmp/aix-phase8-cache
+  npm test` passed with 164 tests; `git diff --check`.
+  Remaining gap: human scenario-quality review and human checkpoint approval
+  are required before marking Phase 8 complete or starting Phase 9.
+- 2026-08-25: Added bounded `technical-architect` collaboration to
+  `plan-review` for architecture-sensitive plan reviews, preserving standalone
+  review behavior when the role is unavailable. Verification: `node --test
+  tests/skill-instructions.test.mjs`; `git diff --check`.
+- 2026-08-25: Added bounded `technical-architect` collaboration to
+  `design-create` for architecture-sensitive stable design docs and to
+  `code-review-refactor` for architecture-sensitive maintainability reviews.
+  Both skills preserve direct invocation when the role is unavailable, and
+  `code-review-refactor` still keeps finding selection and refactor approval
+  with the developer. Verification: `node --test
+  tests/skill-instructions.test.mjs`; `git diff --check`.
+- 2026-08-25: Added bounded `technical-architect` collaboration to
+  `design-promote` for architecture-sensitive design promotion while keeping
+  promotion limited to implemented and accepted current-state behavior.
+  Verification: `node --test tests/skill-instructions.test.mjs`;
+  `git diff --check`.
 
 ### Phase 9: Project-dev role: security-reviewer (status: approved)
 
@@ -1084,14 +1188,17 @@ Tasks:
 - ⬜️ Integrate `security-reviewer` with `plan-create` for trust boundaries,
   secrets, authorization, destructive operations, dependency risk, and
   safety-sensitive verification before implementation is authorized.
+- ⬜️ Review every `security-reviewer` `Skills To Consider` entry and add
+  reciprocal skill-to-role collaboration where security review materially
+  affects the skill outcome, while preserving direct skill invocation.
 - ⬜️ Update the plan template and `plan-create` instructions to include a
   formal `Security Review` section for post-phase findings.
 - ⬜️ Update the completion checklist so every plan performs one security review
   after all implementation phases are complete and before plan completion.
 - ⬜️ Ensure security-review findings are recorded in the `Security Review`
   section and any blocking findings become normal plan tasks before closeout.
-- ⬜️ Modify workflow-owned skills only if the role exposes a clear standalone
-  skill gap.
+- ⬜️ Modify workflow-owned skills identified by the reciprocal review while
+  preserving standalone skill behavior.
 - ⬜️ If any skill is changed, verify the skill still works when invoked
   directly without role context.
 
@@ -1126,13 +1233,21 @@ Tasks:
 
 - ⬜️ Create
   `aix/workflows/design-plan-execute/roles/project-dev/ux-writer.md`.
-- ⬜️ Review README, CLI help, documentation, and workflow docs for language
-  patterns.
+- ⬜️ Review README, CLI help, documentation, workflow docs, `design-create`,
+  `documentation-review`, and `plan-review` for language patterns and
+  user-facing content review points.
 - ⬜️ Integrate `ux-writer` with `plan-create` for user-facing labels, prompts,
   errors, empty states, onboarding copy, and README language requirements when
   the planned work changes product or developer-facing text.
-- ⬜️ Modify workflow-owned skills only if the role exposes a clear standalone
-  skill gap.
+- ⬜️ Integrate `ux-writer` with `plan-review`, `design-create`, and
+  `documentation-review` when plans or design docs include user-facing labels,
+  prompts, errors, empty states, onboarding copy, README language, or other
+  product/developer-facing text.
+- ⬜️ Review every `ux-writer` `Skills To Consider` entry and add reciprocal
+  skill-to-role collaboration where UX writing review materially affects the
+  skill outcome, while preserving direct skill invocation.
+- ⬜️ Modify workflow-owned skills identified by the reciprocal review while
+  preserving standalone skill behavior.
 - ⬜️ If any skill is changed, verify the skill still works when invoked
   directly without role context.
 
@@ -1170,8 +1285,11 @@ Tasks:
   design-intent collaborator after the vision gate is accepted, including
   requirements, non-goals, boundaries, acceptance signals, open decisions, and
   plan-readiness judgment.
-- ⬜️ Modify `plan-create` only if role extraction exposes a clear standalone
-  skill gap.
+- ⬜️ Review every `requirements-engineer` `Skills To Consider` entry and add
+  reciprocal skill-to-role collaboration where requirements review materially
+  affects the skill outcome, while preserving direct skill invocation.
+- ⬜️ Modify workflow-owned skills identified by the reciprocal review while
+  preserving standalone skill behavior.
 - ⬜️ Keep `plan-create` responsible for template resolution, file placement,
   lifecycle status, plan structure, verification, and final reporting.
 - ⬜️ If `plan-create` changes, verify it still elicits requirements when invoked
@@ -1210,8 +1328,11 @@ Tasks:
 - ⬜️ Integrate `quality-engineer` with `plan-create` for acceptance checks,
   verification strategy, regression-risk notes, and evidence expectations in
   implementation phases after design intent is accepted.
-- ⬜️ Modify verification-related skills only if role extraction exposes a clear
-  standalone skill gap.
+- ⬜️ Review every `quality-engineer` `Skills To Consider` entry and add
+  reciprocal skill-to-role collaboration where quality review materially
+  affects the skill outcome, while preserving direct skill invocation.
+- ⬜️ Modify verification-related skills identified by the reciprocal review
+  while preserving standalone skill behavior.
 - ⬜️ Keep `work-verify` responsible for selecting and reporting checks when
   invoked directly.
 - ⬜️ If any verification-related skill changes, verify it still works without
@@ -1249,8 +1370,11 @@ Tasks:
 - ⬜️ Integrate `documentation-specialist` with `plan-create` for documentation
   impact, design-promotion notes, `_docs` placement, current-state docs, and
   closeout expectations when the planned work changes durable behavior.
-- ⬜️ Modify documentation-related skills only if role extraction exposes a clear
-  standalone skill gap.
+- ⬜️ Review every `documentation-specialist` `Skills To Consider` entry and add
+  reciprocal skill-to-role collaboration where documentation review materially
+  affects the skill outcome, while preserving direct skill invocation.
+- ⬜️ Modify documentation-related skills identified by the reciprocal review
+  while preserving standalone skill behavior.
 - ⬜️ Keep documentation skills responsible for their own procedures, review
   gates, design-promotion rules, and final reporting when invoked directly.
 - ⬜️ If any documentation-related skill changes, verify it still works without
@@ -1289,8 +1413,12 @@ Tasks:
 - ⬜️ Integrate `implementation-engineer` with `plan-create` for implementation
   phase/task decomposition after design intent is accepted, including scoped
   task boundaries, sequencing, likely changed areas, and verification handoff.
-- ⬜️ Modify execution-related skills only if role extraction exposes a clear
-  standalone skill gap.
+- ⬜️ Review every `implementation-engineer` `Skills To Consider` entry and add
+  reciprocal skill-to-role collaboration where implementation judgment
+  materially affects the skill outcome, while preserving direct skill
+  invocation.
+- ⬜️ Modify execution-related skills identified by the reciprocal review while
+  preserving standalone skill behavior.
 - ⬜️ Keep execution skills responsible for task status, scoped code changes,
   verification, plan updates, and final reporting when invoked directly.
 - ⬜️ If any execution-related skill changes, verify it still works without role
