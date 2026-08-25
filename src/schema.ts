@@ -2,8 +2,8 @@ export const MANIFEST_FILE_NAME = "aix.json";
 export const LOCKFILE_FILE_NAME = "aix.lock.json";
 export const LOCKFILE_VERSION = 1;
 
-export type SourceType = "git";
-export type PackageKind = "skill" | "workflow";
+export type SourceType = "git" | "local";
+export type PackageKind = "skill" | "workflow" | "role";
 
 export interface BaseSourceDefinition {
   type: SourceType;
@@ -81,6 +81,28 @@ export interface LockfileSkillEntry {
   activeFiles: FileHash[];
 }
 
+export interface LockfileRoleEntry {
+  kind: "role";
+  source: string;
+  sourceType: SourceType;
+  sourceUrl?: string;
+  requestedRef?: string;
+  resolvedCommit?: string;
+  sourcePath: string;
+  packagePath: string;
+  activationPath: string;
+  originalName: string;
+  activeName: string;
+  alias?: string;
+  requested: boolean;
+  owner?: {
+    kind: "workflow";
+    name: string;
+  };
+  packageFiles: FileHash[];
+  activeFiles: FileHash[];
+}
+
 export interface LockfileWorkflowDoc {
   sourcePath: string;
   targetPath: string;
@@ -110,6 +132,10 @@ export interface LockfileWorkflowEntry {
     sourcePath: string;
     activeName: string;
   }>;
+  roles?: Array<{
+    sourcePath: string;
+    activeName: string;
+  }>;
   templates?: FileHash[];
   packageFiles: FileHash[];
 }
@@ -117,6 +143,7 @@ export interface LockfileWorkflowEntry {
 export interface SkillsLockfile {
   lockfileVersion: typeof LOCKFILE_VERSION;
   skills: LockfileSkillEntry[];
+  roles?: LockfileRoleEntry[];
   workflows?: LockfileWorkflowEntry[];
 }
 

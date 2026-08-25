@@ -2,16 +2,28 @@ import { existsSync, readFileSync } from "node:fs";
 import { diffSkills, verifySkills } from "../activation.js";
 import { readLockfileJson } from "../activation/lockfile.js";
 import { parseManifest } from "../manifest.js";
+import { verifyRoles } from "../roles/index.js";
 import { diffWorkflow, verifyWorkflow } from "../workflows/index.js";
 import {
   LOCKFILE_FILE_NAME,
   MANIFEST_FILE_NAME,
+  type LockfileRoleEntry,
   type LockfileSkillEntry,
   type SkillsManifest,
   type SourceDefinition
 } from "../schema.js";
 
 export interface StatusSkill {
+  activeName: string;
+  source: string;
+  sourcePath: string;
+  requestedRef?: string;
+  resolvedCommit?: string;
+  packagePath: string;
+  activationPath: string;
+}
+
+export interface StatusRole {
   activeName: string;
   source: string;
   sourcePath: string;
@@ -38,6 +50,7 @@ export interface WorkspaceStatus {
     docCount: number;
     templateCount: number;
     skillCount: number;
+    roleCount: number;
   };
   skillSources: Array<{
     name: string;
@@ -56,6 +69,8 @@ export interface WorkspaceStatus {
   activeSkills: StatusSkill[];
   dependencySkills: StatusSkill[];
   workflowSkills: StatusSkill[];
+  activeRoles: StatusRole[];
+  workflowRoles: StatusRole[];
   verificationIssues: string[];
   update: {
     checked: boolean;
@@ -91,6 +106,18 @@ function statusSkill(skill: LockfileSkillEntry, inherited?: { requestedRef?: str
   };
 }
 
+function statusRole(role: LockfileRoleEntry, inherited?: { requestedRef?: string; resolvedCommit?: string }): StatusRole {
+  return {
+    activeName: role.activeName,
+    source: role.source,
+    sourcePath: role.sourcePath,
+    ...(role.requestedRef || inherited?.requestedRef ? { requestedRef: role.requestedRef || inherited?.requestedRef } : {}),
+    ...(role.resolvedCommit || inherited?.resolvedCommit ? { resolvedCommit: role.resolvedCommit || inherited?.resolvedCommit } : {}),
+    packagePath: role.packagePath,
+    activationPath: role.activationPath
+  };
+}
+
 function collectVerificationIssues(manifestExists: boolean): string[] {
   const issues: string[] = [];
 
@@ -101,6 +128,13 @@ function collectVerificationIssues(manifestExists: boolean): string[] {
       const message = error instanceof Error ? error.message : String(error);
       issues.push(`Skill verification unavailable: ${message}`);
     }
+  }
+
+  try {
+    issues.push(...verifyRoles().issues);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    issues.push(`Role verification unavailable: ${message}`);
   }
 
   try {
@@ -183,7 +217,8 @@ export function collectWorkspaceStatus(): WorkspaceStatus {
             packagePath: activeWorkflow.packagePath,
             docCount: activeWorkflow.docs.length,
             templateCount: activeWorkflow.templates?.length || 0,
-            skillCount: activeWorkflow.skills.length
+            skillCount: activeWorkflow.skills.length,
+            roleCount: activeWorkflow.roles?.length || 0
           }
         }
       : {}),
@@ -194,6 +229,10 @@ export function collectWorkspaceStatus(): WorkspaceStatus {
     workflowSkills: lockfile.skills
       .filter((skill) => skill.owner?.kind === "workflow")
       .map((skill) => statusSkill(skill, activeWorkflow)),
+    activeRoles: (lockfile.roles || []).filter((role) => role.requested && !role.owner).map((role) => statusRole(role)),
+    workflowRoles: (lockfile.roles || [])
+      .filter((role) => role.owner?.kind === "workflow")
+      .map((role) => statusRole(role, activeWorkflow)),
     verificationIssues: collectVerificationIssues(manifestExists),
     update: collectUpdateStatus(manifestExists)
   };

@@ -113,6 +113,42 @@ test("run skill activate materializes a package, updates manifest, writes lockfi
   });
 });
 
+test("run skill activate resolves aix/skills paths from local project source first", async () => {
+  const projectRoot = await mkdtemp(join(tmpdir(), "aix-local-skill-project-"));
+  const previousCwd = process.cwd();
+
+  process.chdir(projectRoot);
+
+  try {
+    mkdirSync(join(projectRoot, "aix/skills/local-demo"), { recursive: true });
+    writeFileSync(join(projectRoot, "aix/skills/local-demo/SKILL.md"), "---\nname: local-demo\n---\n\n# Local Demo\n", "utf8");
+    writeFileSync(
+      join(projectRoot, "aix.json"),
+      JSON.stringify({ sources: { skills: {}, workflows: {} }, skills: [] }, null, 2) + "\n",
+      "utf8"
+    );
+
+    const result = run(["skill", "activate", "aix/skills/local-demo"]);
+    const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
+
+    assert.equal(result.exitCode, 0);
+    assert.match(result.stdout, /Activated skill aix\/skills\/local-demo as local-demo/);
+    assert.deepEqual(JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8")).skills, ["aix:skills/local-demo"]);
+    assert.equal(lockfile.skills[0].source, "aix");
+    assert.equal(lockfile.skills[0].sourceType, "local");
+    assert.equal(lockfile.skills[0].sourceUrl, undefined);
+    assert.equal(lockfile.skills[0].resolvedCommit, undefined);
+    assert.equal(lockfile.skills[0].sourcePath, "skills/local-demo");
+    assert.equal(existsSync(join(projectRoot, ".agents/packages/skills/aix/skills/local-demo/SKILL.md")), true);
+    assert.equal(readFileSync(join(projectRoot, ".agents/packages/skills/aix/skills/local-demo/SKILL.md"), "utf8"), "---\nname: local-demo\n---\n\n# Local Demo\n");
+
+    assert.equal(run(["skill", "deactivate", "local-demo"]).exitCode, 0);
+    assert.equal(existsSync(join(projectRoot, "aix/skills/local-demo/SKILL.md")), true);
+  } finally {
+    process.chdir(previousCwd);
+  }
+});
+
 test("run skill activate with an alias writes a manifest object and managed active wrapper", async () => {
   await withProject(async (projectRoot) => {
     const result = run(["skill", "activate", "fixture/skills/demo", "demo-alias"]);

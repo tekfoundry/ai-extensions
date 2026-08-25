@@ -4,7 +4,7 @@ import { AixError } from "../errors.js";
 import { copyFilesSafely } from "../fs/files.js";
 import { parseManifest } from "../manifest.js";
 import { activeSkillPath, packageSkillPath, SKILL_PACKAGES_DIR } from "../paths/agents.js";
-import { LOCKFILE_FILE_NAME, MANIFEST_FILE_NAME, type LockfileSkillDependency, type LockfileSkillEntry, type SourceDefinition } from "../schema.js";
+import { LOCKFILE_FILE_NAME, MANIFEST_FILE_NAME, type LockfileSkillDependency, type LockfileSkillEntry, type SourceDefinition, type SourceType } from "../schema.js";
 import { discoverSkills, parseSkillNameFromDirectory } from "../skills.js";
 import { defaultCacheRoot, loadSourceDefinitions, resolveSourceFromDefinitions, type ResolvedSource } from "../sources/index.js";
 import { activateAliasWrapper, activateDirectSymlink, assertActivationPathAvailable, assertActiveFilesMatchLockfile } from "./active-files.js";
@@ -30,6 +30,7 @@ export interface PreparedSkillActivation {
   source: string;
   sourcePath: string;
   definition: SourceDefinition;
+  sourceType: SourceType;
   resolvedCommit: string | undefined;
   plans: SkillActivationPlan[];
   requestedPlan: SkillActivationPlan;
@@ -146,9 +147,69 @@ function readActivationManifestJson(options: PrepareSkillActivationOptions): Rec
   return readJsonObject(MANIFEST_FILE_NAME);
 }
 
+function localAixSkillPath(source: string, sourcePath: string): string | undefined {
+  if (source !== "aix" || !sourcePath.startsWith("skills/")) {
+    return undefined;
+  }
+
+  const path = join("aix", sourcePath);
+
+  return existsSync(path) ? path : undefined;
+}
+
+function remoteAixSkillPath(source: string, sourcePath: string): string {
+  if (source === "aix" && sourcePath.startsWith("skills/")) {
+    return sourcePath.slice("skills/".length);
+  }
+
+  return sourcePath;
+}
+
+function resolveSkillActivationSource(
+  source: string,
+  sourcePath: string,
+  sourceDefinitions: Record<string, SourceDefinition>,
+  cacheRoot: string
+): { definition: SourceDefinition; resolvedSource: ResolvedSource; sourcePath: string; sourceType: SourceType } {
+  const localPath = localAixSkillPath(source, sourcePath);
+
+  if (localPath) {
+    const definition: SourceDefinition = {
+      type: "git",
+      url: ".",
+      path: "aix"
+    };
+
+    return {
+      definition,
+      resolvedSource: {
+        name: source,
+        definition,
+        rootPath: "aix"
+      },
+      sourcePath,
+      sourceType: "local"
+    };
+  }
+
+  const definition = sourceDefinitions[source];
+
+  if (!definition) {
+    throw new AixError(`Unknown source: ${source}`);
+  }
+
+  return {
+    definition,
+    resolvedSource: resolveSourceFromDefinitions(source, sourceDefinitions, cacheRoot),
+    sourcePath: remoteAixSkillPath(source, sourcePath),
+    sourceType: "git"
+  };
+}
+
 function activatePlannedSkill(
   plan: SkillActivationPlan,
   definition: SourceDefinition,
+  sourceType: SourceType,
   resolvedCommit: string | undefined,
   manifestJson: Record<string, unknown>,
   lockfile: { skills: LockfileSkillEntry[] },
@@ -172,10 +233,10 @@ function activatePlannedSkill(
   upsertLockfileEntry(lockfile, {
     kind: "skill",
     source: plan.source,
-    sourceType: "git",
-    sourceUrl: definition.url,
-    requestedRef: definition.ref,
-    resolvedCommit,
+    sourceType,
+    ...(sourceType === "git" ? { sourceUrl: definition.url } : {}),
+    ...(sourceType === "git" && definition.ref ? { requestedRef: definition.ref } : {}),
+    ...(sourceType === "git" && resolvedCommit ? { resolvedCommit } : {}),
     sourcePath: plan.sourcePath,
     packagePath,
     activationPath,
@@ -210,30 +271,27 @@ export function prepareSkillActivationFromDefinitions(
     ...defaultSourceDefinitions,
     ...manifestSources
   };
-  const definition = sourceDefinitions[source];
-
-  if (!definition) {
-    throw new AixError(`Unknown source: ${source}`);
-  }
-
-  const resolvedSource = resolveSourceFromDefinitions(source, sourceDefinitions, cacheRoot);
-  const plans = createActivationPlan(resolvedSource, sourcePath, alias);
+  const sourceResolution = resolveSkillActivationSource(source, sourcePath, sourceDefinitions, cacheRoot);
+  const { definition, resolvedSource, sourceType } = sourceResolution;
+  const resolvedSourcePath = sourceResolution.sourcePath;
+  const plans = createActivationPlan(resolvedSource, resolvedSourcePath, alias);
   const lockfile = readLockfileJson();
 
   for (const plan of plans) {
     assertActivationPlanSafe(lockfile, plan);
   }
 
-  const requestedPlan = plans.find((plan) => plan.source === source && plan.sourcePath === sourcePath);
+  const requestedPlan = plans.find((plan) => plan.source === source && plan.sourcePath === resolvedSourcePath);
 
   if (!requestedPlan) {
-    throw new AixError(`Unknown skill in source ${source}: ${sourcePath}`);
+    throw new AixError(`Unknown skill in source ${source}: ${resolvedSourcePath}`);
   }
 
   return {
     source,
-    sourcePath,
+    sourcePath: resolvedSourcePath,
     definition,
+    sourceType,
     resolvedCommit: resolvedSource.resolvedCommit,
     plans,
     requestedPlan,
@@ -266,6 +324,7 @@ export function activateSkillFromDefinitions(
     activatePlannedSkill(
       plan,
       prepared.definition,
+      prepared.sourceType,
       prepared.resolvedCommit,
       prepared.manifestJson,
       prepared.lockfile,

@@ -10,7 +10,8 @@ import {
   MANIFEST_FILE_NAME,
   type LockfileSkillEntry,
   type LockfileWorkflowEntry,
-  type SourceDefinition
+  type SourceDefinition,
+  type SourceType
 } from "../schema.js";
 import { readJsonObject, writeJsonObjectAtomic } from "../activation/json.js";
 import { readLockfileJson } from "../activation/lockfile.js";
@@ -69,8 +70,9 @@ export function installResolvedWorkflow(
   resolvedCommit: string | undefined,
   manifestJson: Record<string, unknown>,
   lockfile: { skills: LockfileSkillEntry[]; workflows?: LockfileWorkflowEntry[] },
-  options: { allowExistingWorkflow?: boolean } = {}
+  options: { allowExistingWorkflow?: boolean; sourceType?: SourceType } = {}
 ): InstallWorkflowResult {
+  const sourceType = options.sourceType || "git";
   const stagedPackage = stageWorkflowPackage(resolvedRoot);
 
   try {
@@ -97,10 +99,10 @@ export function installResolvedWorkflow(
       {
         kind: "workflow",
         source,
-        sourceType: "git",
-        sourceUrl: definition.url,
-        requestedRef: definition.ref,
-        resolvedCommit,
+        sourceType,
+        ...(sourceType === "git" ? { sourceUrl: definition.url } : {}),
+        ...(sourceType === "git" && definition.ref ? { requestedRef: definition.ref } : {}),
+        ...(sourceType === "git" && resolvedCommit ? { resolvedCommit } : {}),
         sourcePath,
         packagePath,
         name: workflow.name,
@@ -132,12 +134,87 @@ export function installResolvedWorkflow(
   }
 }
 
+function emptyManifestJson(): Record<string, unknown> {
+  return {
+    sources: {
+      skills: {},
+      workflows: {}
+    },
+    skills: []
+  };
+}
+
+function readWorkflowInstallManifestJson(): Record<string, unknown> {
+  return existsSync(MANIFEST_FILE_NAME) ? readJsonObject(MANIFEST_FILE_NAME) : emptyManifestJson();
+}
+
+function localAixWorkflowPath(input: string): string | undefined {
+  if (!input.startsWith("aix/workflows/")) {
+    return undefined;
+  }
+
+  return existsSync(input) ? input : undefined;
+}
+
+function installLocalAixWorkflow(
+  sourcePath: string,
+  cacheRoot: string,
+  options: { allowExistingWorkflow?: boolean } = {}
+): InstallWorkflowResult {
+  const manifestJson = readWorkflowInstallManifestJson();
+  parseManifest(manifestJson);
+
+  const definition: SourceDefinition = {
+    type: "git",
+    url: ".",
+    path: sourcePath
+  };
+  const lockfile = readLockfileJson();
+  const result = installResolvedWorkflow(
+    "aix",
+    definition,
+    sourcePath,
+    sourcePath,
+    undefined,
+    manifestJson,
+    lockfile,
+    {
+      ...options,
+      sourceType: "local"
+    }
+  );
+
+  writeJsonObjectAtomic(MANIFEST_FILE_NAME, manifestJson);
+  writeJsonObjectAtomic(LOCKFILE_FILE_NAME, lockfile);
+
+  return result;
+}
+
+function installDefaultAixWorkflowPath(
+  sourcePath: string,
+  cacheRoot: string,
+  options: { allowExistingWorkflow?: boolean } = {}
+): InstallWorkflowResult {
+  const defaultSource = getDefaultWorkflowSources().aix;
+
+  return installWorkflowFromDefinitions(
+    {
+      aix: {
+        ...defaultSource,
+        path: sourcePath
+      }
+    },
+    cacheRoot,
+    options
+  );
+}
+
 export function installWorkflowFromDefinitions(
   sourceDefinitions: Record<string, SourceDefinition>,
   cacheRoot = defaultCacheRoot(),
   options: { allowExistingWorkflow?: boolean } = {}
 ): InstallWorkflowResult {
-  const manifestJson = existsSync(MANIFEST_FILE_NAME) ? readJsonObject(MANIFEST_FILE_NAME) : { sources: { skills: {}, workflows: {} }, skills: [] };
+  const manifestJson = readWorkflowInstallManifestJson();
   parseManifest(manifestJson);
 
   const source = Object.keys(sourceDefinitions)[0];
@@ -172,6 +249,24 @@ export function installWorkflowFromDefinitions(
 export function installWorkflow(input?: string, alias?: string, cacheRoot = defaultCacheRoot()): InstallWorkflowResult {
   if (!input) {
     return installWorkflowFromDefinitions(getDefaultWorkflowSources(), cacheRoot);
+  }
+
+  const localWorkflowPath = localAixWorkflowPath(input);
+
+  if (localWorkflowPath) {
+    if (alias) {
+      throw new AixError("Local aix workflow paths always use the aix source name and do not accept an alias.");
+    }
+
+    return installLocalAixWorkflow(localWorkflowPath, cacheRoot);
+  }
+
+  if (input.startsWith("aix/workflows/")) {
+    if (alias) {
+      throw new AixError("Default aix workflow paths always use the aix source name and do not accept an alias.");
+    }
+
+    return installDefaultAixWorkflowPath(input, cacheRoot);
   }
 
   const definition = parseSourceInput(input);

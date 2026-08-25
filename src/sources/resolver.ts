@@ -111,7 +111,7 @@ function cloneOrFetchGitSource(name: string, definition: SourceDefinition, cache
     throw new AixError(`Unable to resolve ref "${requestedRef}" for source "${name}" from ${definition.url}.`);
   }
 
-  runGit(["checkout", "--detach", resolvedCommit], sourceCachePath);
+  runGit(["checkout", "--force", "--detach", resolvedCommit], sourceCachePath);
 
   return {
     name,

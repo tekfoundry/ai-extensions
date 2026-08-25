@@ -1,4 +1,4 @@
-import { collectWorkspaceStatus, type StatusSkill, type WorkspaceStatus } from "../../../status/index.js";
+import { collectWorkspaceStatus, type StatusRole, type StatusSkill, type WorkspaceStatus } from "../../../status/index.js";
 import { renderTable } from "../../../ui/table.js";
 import { CliError, EXIT_USAGE } from "../../errors.js";
 import type { CliResult, Command } from "../../types.js";
@@ -106,6 +106,26 @@ function renderSkillTable(title: string, skills: StatusSkill[], status: Workspac
   );
 }
 
+function renderRoleTable(title: string, roles: StatusRole[] | undefined, options: RenderStatusOptions): string {
+  const useColor = options.color === true;
+  const roleRows = roles || [];
+
+  if (roleRows.length === 0) {
+    return `${statusHeading(title, useColor)}\n  ${subtle("none", useColor)}`;
+  }
+
+  return renderTable(
+    [
+      { header: "Name", value: (role) => role.activeName },
+      { header: "Source", value: (role) => `${role.source}/${role.sourcePath}` },
+      { header: "Ref", value: (role) => valueOrDash(role.requestedRef) },
+      { header: "Commit", value: (role) => shortCommit(role.resolvedCommit) }
+    ],
+    roleRows,
+    { title: statusHeading(title, useColor) }
+  );
+}
+
 function renderSourceTable(title: string, sources: WorkspaceStatus["skillSources"], options: RenderStatusOptions): string {
   if (sources.length === 0) {
     return `${statusHeading(title, options.color === true)}\n  ${subtle("none", options.color === true)}`;
@@ -141,6 +161,7 @@ function renderWorkflow(status: WorkspaceStatus, options: RenderStatusOptions): 
       { header: "Docs", value: () => String(workflow.docCount) },
       { header: "Templates", value: () => String(workflow.templateCount) },
       { header: "Skills", value: () => String(workflow.skillCount) },
+      { header: "Roles", value: () => String(workflow.roleCount) },
       { header: "Status", value: () => workflowStatus(status, useColor) }
     ],
     [workflow],
@@ -224,6 +245,10 @@ export function renderStatus(status: WorkspaceStatus, options: RenderStatusOptio
     renderSkillTable("Dependency-only skills", status.dependencySkills, status, options),
     "",
     renderSkillTable("Workflow-owned skills", status.workflowSkills, status, options),
+    "",
+    renderRoleTable("Active roles", status.activeRoles, options),
+    "",
+    renderRoleTable("Workflow-owned roles", status.workflowRoles, options),
     "",
     renderHealth(status, options),
     "",

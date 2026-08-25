@@ -34,6 +34,17 @@ export function getDefaultWorkflowSources(): Record<string, SourceDefinition> {
   };
 }
 
+export function getDefaultRoleSources(): Record<string, SourceDefinition> {
+  return {
+    aix: {
+      type: "git",
+      url: process.env.AIX_SOURCE_AIX_URL || "https://github.com/tekfoundry/ai-extensions.git",
+      path: process.env.AIX_SOURCE_AIX_ROLE_PATH || "aix/roles",
+      ref: process.env.AIX_SOURCE_AIX_REF || "master"
+    }
+  };
+}
+
 export function createSkillRequest(source: string, path: string): SkillRequest {
   return { source, path };
 }

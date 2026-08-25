@@ -1,4 +1,5 @@
 import { verifySkills, type VerifySkillsResult } from "../../../activation.js";
+import { verifyRoles } from "../../../roles/index.js";
 import { verifyWorkflow } from "../../../workflows/index.js";
 import { CliError, EXIT_USAGE } from "../../errors.js";
 import type { CliResult, Command } from "../../types.js";
@@ -20,8 +21,9 @@ function runVerify(argv: string[]): CliResult {
   }
 
   const result = verifySkills();
+  const roleResult = verifyRoles();
   const workflowResult = verifyWorkflow();
-  const issues = [...result.issues, ...workflowResult.issues];
+  const issues = [...result.issues, ...roleResult.issues, ...workflowResult.issues];
 
   return {
     exitCode: issues.length === 0 ? 0 : 2,

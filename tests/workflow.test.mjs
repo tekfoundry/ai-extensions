@@ -113,6 +113,75 @@ test("run workflow install installs docs, managed AGENTS block, and workflow-own
   });
 });
 
+test("run workflow install resolves aix/workflows paths from local project source first", async () => {
+  await withProject(async (projectPath) => {
+    writeWorkflow(join(projectPath, "aix/workflows/local-flow"), "Local Workflow", "Local body.", "local-flow");
+
+    const result = run(["workflow", "install", "aix/workflows/local-flow"]);
+    const manifest = JSON.parse(readFileSync("aix.json", "utf8"));
+    const lockfile = JSON.parse(readFileSync("aix.lock.json", "utf8"));
+
+    assert.equal(result.exitCode, 0);
+    assert.match(result.stdout, /Installed workflow local-flow/);
+    assert.equal(manifest.workflow, "aix:aix/workflows/local-flow");
+    assert.equal(lockfile.workflows[0].source, "aix");
+    assert.equal(lockfile.workflows[0].sourceType, "local");
+    assert.equal(lockfile.workflows[0].sourceUrl, undefined);
+    assert.equal(lockfile.workflows[0].resolvedCommit, undefined);
+    assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/local-flow/workflow.json")));
+    assert.ok(existsSync(join(projectPath, ".agents/skills/alpha/SKILL.md")));
+
+    assert.equal(run(["workflow", "uninstall"]).exitCode, 0);
+    assert.ok(existsSync(join(projectPath, "aix/workflows/local-flow/workflow.json")));
+  });
+});
+
+test("run workflow install falls back to default aix source for missing local aix/workflows paths", async () => {
+  const source = await createWorkflowRepo("aix-default-workflow-source-", "remote-flow", "aix/workflows/remote-flow");
+
+  await withProject(async () => {
+    const previousUrl = process.env.AIX_SOURCE_AIX_URL;
+    const previousRef = process.env.AIX_SOURCE_AIX_REF;
+    const previousWorkflowPath = process.env.AIX_SOURCE_AIX_WORKFLOW_PATH;
+
+    process.env.AIX_SOURCE_AIX_URL = source;
+    process.env.AIX_SOURCE_AIX_REF = "master";
+    delete process.env.AIX_SOURCE_AIX_WORKFLOW_PATH;
+
+    try {
+      const result = run(["workflow", "install", "aix/workflows/remote-flow"]);
+      const manifest = JSON.parse(readFileSync("aix.json", "utf8"));
+      const lockfile = JSON.parse(readFileSync("aix.lock.json", "utf8"));
+
+      assert.equal(result.exitCode, 0);
+      assert.match(result.stdout, /Installed workflow remote-flow/);
+      assert.equal(manifest.workflow, "aix:aix/workflows/remote-flow");
+      assert.equal(manifest.sources.workflows.aix.url, source);
+      assert.equal(lockfile.workflows[0].sourceType, "git");
+      assert.equal(lockfile.workflows[0].sourceUrl, source);
+      assert.equal(lockfile.workflows[0].sourcePath, "aix/workflows/remote-flow");
+    } finally {
+      if (previousUrl === undefined) {
+        delete process.env.AIX_SOURCE_AIX_URL;
+      } else {
+        process.env.AIX_SOURCE_AIX_URL = previousUrl;
+      }
+
+      if (previousRef === undefined) {
+        delete process.env.AIX_SOURCE_AIX_REF;
+      } else {
+        process.env.AIX_SOURCE_AIX_REF = previousRef;
+      }
+
+      if (previousWorkflowPath === undefined) {
+        delete process.env.AIX_SOURCE_AIX_WORKFLOW_PATH;
+      } else {
+        process.env.AIX_SOURCE_AIX_WORKFLOW_PATH = previousWorkflowPath;
+      }
+    }
+  });
+});
+
 test("runInteractive workflow install prompts for a bundled workflow when no URL is provided", async () => {
   const source = await createWorkflowRepo("aix-bundled-workflow-source-", "design-plan-execute", "aix/workflows/design-plan-execute");
   const input = new PassThrough();

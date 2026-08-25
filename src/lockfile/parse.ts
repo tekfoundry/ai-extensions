@@ -2,6 +2,7 @@ import {
   LOCKFILE_FILE_NAME,
   LOCKFILE_VERSION,
   type FileHash,
+  type LockfileRoleEntry,
   type LockfileAgentsMdBlock,
   type LockfileSkillDependency,
   type LockfileSkillEntry,
@@ -108,8 +109,8 @@ function parseSkillEntry(value: unknown, path: string): LockfileSkillEntry {
   }
 
   const sourceType = requireString(value.sourceType, `${path}.sourceType`);
-  if (sourceType !== "git") {
-    throw new LockfileError(`${path}.sourceType must be "git".`);
+  if (sourceType !== "git" && sourceType !== "local") {
+    throw new LockfileError(`${path}.sourceType must be "git" or "local".`);
   }
 
   const kind = requireString(value.kind, `${path}.kind`);
@@ -144,6 +145,75 @@ function parseSkillEntry(value: unknown, path: string): LockfileSkillEntry {
     requested: optionalBoolean(value.requested, `${path}.requested`, true),
     ...(owner ? { owner } : {}),
     ...(dependencies ? { dependencies: dependencies.map((dependency, index) => parseSkillDependency(dependency, `${path}.dependencies[${index}]`)) } : {}),
+    packageFiles: value.packageFiles.map((file, index) => parseFileHash(file, `${path}.packageFiles[${index}]`)),
+    activeFiles: value.activeFiles.map((file, index) => parseFileHash(file, `${path}.activeFiles[${index}]`))
+  };
+}
+
+function parseRoleOwner(value: unknown, path: string): LockfileRoleEntry["owner"] {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (!isRecord(value)) {
+    throw new LockfileError(`${path} must be an object.`);
+  }
+
+  const kind = requireString(value.kind, `${path}.kind`);
+  if (kind !== "workflow") {
+    throw new LockfileError(`${path}.kind must be "workflow".`);
+  }
+
+  return {
+    kind,
+    name: requireString(value.name, `${path}.name`)
+  };
+}
+
+function parseRoleEntry(value: unknown, path: string): LockfileRoleEntry {
+  if (!isRecord(value)) {
+    throw new LockfileError(`${path} must be an object.`);
+  }
+
+  if (!Array.isArray(value.packageFiles)) {
+    throw new LockfileError(`${path}.packageFiles must be an array.`);
+  }
+
+  if (!Array.isArray(value.activeFiles)) {
+    throw new LockfileError(`${path}.activeFiles must be an array.`);
+  }
+
+  const sourceType = requireString(value.sourceType, `${path}.sourceType`);
+  if (sourceType !== "git" && sourceType !== "local") {
+    throw new LockfileError(`${path}.sourceType must be "git" or "local".`);
+  }
+
+  const kind = requireString(value.kind, `${path}.kind`);
+  if (kind !== "role") {
+    throw new LockfileError(`${path}.kind must be "role".`);
+  }
+
+  const sourceUrl = optionalString(value.sourceUrl, `${path}.sourceUrl`);
+  const requestedRef = optionalString(value.requestedRef, `${path}.requestedRef`);
+  const resolvedCommit = optionalString(value.resolvedCommit, `${path}.resolvedCommit`);
+  const alias = optionalString(value.alias, `${path}.alias`);
+  const owner = parseRoleOwner(value.owner, `${path}.owner`);
+
+  return {
+    kind,
+    source: requireString(value.source, `${path}.source`),
+    sourceType,
+    ...(sourceUrl ? { sourceUrl } : {}),
+    ...(requestedRef ? { requestedRef } : {}),
+    ...(resolvedCommit ? { resolvedCommit } : {}),
+    sourcePath: requireString(value.sourcePath, `${path}.sourcePath`),
+    packagePath: requireString(value.packagePath, `${path}.packagePath`),
+    activationPath: requireString(value.activationPath, `${path}.activationPath`),
+    originalName: requireString(value.originalName, `${path}.originalName`),
+    activeName: requireString(value.activeName, `${path}.activeName`),
+    ...(alias ? { alias } : {}),
+    requested: optionalBoolean(value.requested, `${path}.requested`, true),
+    ...(owner ? { owner } : {}),
     packageFiles: value.packageFiles.map((file, index) => parseFileHash(file, `${path}.packageFiles[${index}]`)),
     activeFiles: value.activeFiles.map((file, index) => parseFileHash(file, `${path}.activeFiles[${index}]`))
   };
@@ -188,6 +258,17 @@ function parseWorkflowSkill(value: unknown, path: string): LockfileWorkflowEntry
   };
 }
 
+function parseWorkflowRole(value: unknown, path: string): NonNullable<LockfileWorkflowEntry["roles"]>[number] {
+  if (!isRecord(value)) {
+    throw new LockfileError(`${path} must be an object.`);
+  }
+
+  return {
+    sourcePath: requireString(value.sourcePath, `${path}.sourcePath`),
+    activeName: requireString(value.activeName, `${path}.activeName`)
+  };
+}
+
 function parseWorkflowEntry(value: unknown, path: string): LockfileWorkflowEntry {
   if (!isRecord(value)) {
     throw new LockfileError(`${path} must be an object.`);
@@ -199,8 +280,8 @@ function parseWorkflowEntry(value: unknown, path: string): LockfileWorkflowEntry
   }
 
   const sourceType = requireString(value.sourceType, `${path}.sourceType`);
-  if (sourceType !== "git") {
-    throw new LockfileError(`${path}.sourceType must be "git".`);
+  if (sourceType !== "git" && sourceType !== "local") {
+    throw new LockfileError(`${path}.sourceType must be "git" or "local".`);
   }
 
   if (!Array.isArray(value.docs)) {
@@ -209,6 +290,10 @@ function parseWorkflowEntry(value: unknown, path: string): LockfileWorkflowEntry
 
   if (!Array.isArray(value.skills)) {
     throw new LockfileError(`${path}.skills must be an array.`);
+  }
+
+  if (value.roles !== undefined && !Array.isArray(value.roles)) {
+    throw new LockfileError(`${path}.roles must be an array when provided.`);
   }
 
   if (!Array.isArray(value.packageFiles)) {
@@ -221,6 +306,7 @@ function parseWorkflowEntry(value: unknown, path: string): LockfileWorkflowEntry
   const title = optionalString(value.title, `${path}.title`);
   const agentsMd = parseAgentsMdBlock(value.agentsMd, `${path}.agentsMd`);
   const templates = Array.isArray(value.templates) ? value.templates : undefined;
+  const roles = Array.isArray(value.roles) ? value.roles : undefined;
 
   return {
     kind,
@@ -236,6 +322,7 @@ function parseWorkflowEntry(value: unknown, path: string): LockfileWorkflowEntry
     docs: value.docs.map((doc, index) => parseWorkflowDoc(doc, `${path}.docs[${index}]`)),
     ...(agentsMd ? { agentsMd } : {}),
     skills: value.skills.map((skill, index) => parseWorkflowSkill(skill, `${path}.skills[${index}]`)),
+    ...(roles ? { roles: roles.map((role, index) => parseWorkflowRole(role, `${path}.roles[${index}]`)) } : {}),
     ...(templates ? { templates: templates.map((file, index) => parseFileHash(file, `${path}.templates[${index}]`)) } : {}),
     packageFiles: value.packageFiles.map((file, index) => parseFileHash(file, `${path}.packageFiles[${index}]`))
   };
@@ -245,6 +332,7 @@ export function emptyLockfile(): SkillsLockfile {
   return {
     lockfileVersion: LOCKFILE_VERSION,
     skills: [],
+    roles: [],
     workflows: []
   };
 }
@@ -266,9 +354,14 @@ export function parseLockfile(value: unknown): SkillsLockfile {
     throw new LockfileError("workflows must be an array when provided.");
   }
 
+  if (value.roles !== undefined && !Array.isArray(value.roles)) {
+    throw new LockfileError("roles must be an array when provided.");
+  }
+
   return {
     lockfileVersion: LOCKFILE_VERSION,
     skills: value.skills.map((skill, index) => parseSkillEntry(skill, `skills[${index}]`)),
+    roles: (value.roles || []).map((role, index) => parseRoleEntry(role, `roles[${index}]`)),
     workflows: (value.workflows || []).map((workflow, index) => parseWorkflowEntry(workflow, `workflows[${index}]`))
   };
 }

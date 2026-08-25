@@ -11,6 +11,7 @@ test("loadLockfile returns an empty v1 lockfile when the file is missing", async
   assert.deepEqual(await loadLockfile(join(directory, "aix.lock.json")), {
     lockfileVersion: 1,
     skills: [],
+    roles: [],
     workflows: []
   });
 });
@@ -54,6 +55,98 @@ test("writeLockfile writes parseable JSON atomically", async () => {
   );
 
   assert.deepEqual(parseLockfile(JSON.parse(await readFile(filePath, "utf8"))).skills[0]?.activeName, "tdd");
+});
+
+test("parseLockfile supports standalone and workflow-owned roles", () => {
+  const lockfile = parseLockfile({
+    lockfileVersion: 1,
+    skills: [],
+    roles: [
+      {
+        kind: "role",
+        source: "fixture",
+        sourceType: "git",
+        sourceUrl: "https://example.com/roles.git",
+        requestedRef: "main",
+        resolvedCommit: "abc123",
+        sourcePath: "roles/quality-engineer.md",
+        packagePath: ".agents/packages/roles/fixture/roles/quality-engineer.md",
+        activationPath: ".agents/roles/quality-engineer.md",
+        originalName: "quality-engineer",
+        activeName: "quality-engineer",
+        requested: true,
+        packageFiles: [{ path: "quality-engineer.md", sha256: "abc" }],
+        activeFiles: [{ path: "quality-engineer.md", sha256: "abc" }]
+      },
+      {
+        kind: "role",
+        source: "aix",
+        sourceType: "git",
+        sourcePath: "roles/project-dev/documentation-specialist.md",
+        packagePath: ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/documentation-specialist.md",
+        activationPath: ".agents/roles/documentation-specialist.md",
+        originalName: "documentation-specialist",
+        activeName: "documentation-specialist",
+        requested: false,
+        owner: {
+          kind: "workflow",
+          name: "design-plan-execute"
+        },
+        packageFiles: [{ path: "documentation-specialist.md", sha256: "def" }],
+        activeFiles: [{ path: "documentation-specialist.md", sha256: "def" }]
+      }
+    ],
+    workflows: [
+      {
+        kind: "workflow",
+        source: "aix",
+        sourceType: "git",
+        sourcePath: "aix/workflows/design-plan-execute",
+        packagePath: ".agents/packages/workflows/aix/design-plan-execute",
+        name: "design-plan-execute",
+        docs: [],
+        skills: [],
+        roles: [
+          {
+            sourcePath: "roles/project-dev/documentation-specialist.md",
+            activeName: "documentation-specialist"
+          }
+        ],
+        packageFiles: []
+      }
+    ]
+  });
+
+  assert.equal(lockfile.roles.length, 2);
+  assert.equal(lockfile.roles[0].kind, "role");
+  assert.equal(lockfile.roles[0].requested, true);
+  assert.equal(lockfile.roles[1].owner.name, "design-plan-execute");
+  assert.equal(lockfile.workflows[0].roles[0].activeName, "documentation-specialist");
+});
+
+test("parseLockfile rejects malformed role entries", () => {
+  assert.throws(
+    () =>
+      parseLockfile({
+        lockfileVersion: 1,
+        skills: [],
+        roles: [
+          {
+            kind: "skill",
+            source: "fixture",
+            sourceType: "git",
+            sourcePath: "roles/quality-engineer.md",
+            packagePath: ".agents/packages/roles/fixture/roles/quality-engineer.md",
+            activationPath: ".agents/roles/quality-engineer.md",
+            originalName: "quality-engineer",
+            activeName: "quality-engineer",
+            packageFiles: [],
+            activeFiles: []
+          }
+        ]
+      }),
+    /roles\[0\]\.kind must be "role"/
+  );
 });
 
 test("loadLockfile reports malformed JSON", async () => {
