@@ -1057,7 +1057,7 @@ Execution notes:
   every listed skill for conditional role collaboration. Verification:
   `node --test tests/skill-instructions.test.mjs`; `git diff --check`.
 
-### Phase 8: Project-dev role: technical-architect (status: in progress)
+### Phase 8: Project-dev role: technical-architect (status: complete)
 
 Goal: Add the workflow-owned `technical-architect` role with a clean manual
 validation checkpoint.
@@ -1136,13 +1136,12 @@ Verification:
   confirmation without requiring role context.
 - Completed: verified `delegate-to-role` delegates to `technical-architect`
   through prompt-overlay fallback in `tests/roles.test.mjs`.
-- Pending human checkpoint: manually verify `technical-architect` produces
+- Completed: manually verified `technical-architect` produces
   useful boundary, contract, integration, and maintainability guidance in a
   representative scenario.
 - Completed: recorded automated checks, manual role review, skill standalone
-  review, and delegation verification. Scenario-quality result and commit
-  checkpoint status remain pending the human checkpoint.
-- Pending human checkpoint: human approval recorded before starting the next
+  review, delegation verification, and scenario-quality result.
+- Completed: human approval recorded before starting the next
   project-development role phase.
 
 Execution notes:
@@ -1155,8 +1154,6 @@ Execution notes:
   tests/init.test.mjs`; `node --test tests/workflow.test.mjs`; `node --test
   tests/package-smoke.test.mjs`; `AIX_CACHE_DIR=/private/tmp/aix-phase8-cache
   npm test` passed with 164 tests; `git diff --check`.
-  Remaining gap: human scenario-quality review and human checkpoint approval
-  are required before marking Phase 8 complete or starting Phase 9.
 - 2026-08-25: Added bounded `technical-architect` collaboration to
   `plan-review` for architecture-sensitive plan reviews, preserving standalone
   review behavior when the role is unavailable. Verification: `node --test
@@ -1173,6 +1170,12 @@ Execution notes:
   promotion limited to implemented and accepted current-state behavior.
   Verification: `node --test tests/skill-instructions.test.mjs`;
   `git diff --check`.
+- 2026-08-25: Manual scenario-quality review passed. `plan-create` created a
+  draft backlog plan for install/update preview behavior, used
+  `technical-architect` architecture guidance, preserved planning gates, left
+  implementation phases undrafted until Design Intent acceptance, and did not
+  modify implementation files. The generated test plan was deleted after
+  review.
 
 ### Phase 9: Project-dev role: security-reviewer (status: approved)
 
