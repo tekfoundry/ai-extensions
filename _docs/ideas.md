@@ -90,3 +90,15 @@ None yet.
      - [Claude steering methods blog](https://claude.com/blog/steering-claude-code-skills-hooks-rules-subagents-and-more)
      - [Claude Code subagents docs](https://code.claude.com/docs/en/sub-agents)
      - [OpenAI Agents SDK handoffs](https://openai.github.io/openai-agents-js/guides/handoffs/)
+
+11. **workflow-cli-commands**
+   - Summary: Let installed workflows register project-local `aix` CLI command namespaces that expose workflow-specific operations. For example, an agile Kanban workflow could provide `aix kanban board` to render the current board, with possible future commands such as `aix kanban card add`, `aix kanban card move`, or `aix kanban status`. This would make workflows feel like installable development systems rather than only folders of instructions and skills.
+   - Difficulty: medium
+   - Dependencies: workflows
+   - Notes:
+     - Start with read-only or declarative commands, such as board/status rendering, before allowing mutating workflow commands.
+     - Prefer namespaced commands like `aix kanban board` so multiple workflows can coexist without ambiguous top-level command collisions.
+     - Command registration could come from a workflow-owned manifest that `aix help` and command dispatch can discover.
+     - Mutating commands should preserve AIX safety rules: no silent overwrites, explicit collision handling, and clear previews where feasible.
+   - Source links:
+     - [AIX workflow design](design/workflows.md)

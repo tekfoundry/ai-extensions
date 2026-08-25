@@ -1,0 +1,16 @@
+{
+  "name": "agile-kanban",
+  "title": "Agile Kanban",
+  "agentsMd": {
+    "mode": "managed-block",
+    "source": "AGENTS.append.md",
+    "marker": "aix:workflow agile-kanban"
+  },
+  "docs": [
+    "README.md",
+    "workflow.md",
+    "engineering-best-practices.md"
+  ],
+  "templatesDir": "templates",
+  "skillsDir": "skills"
+}

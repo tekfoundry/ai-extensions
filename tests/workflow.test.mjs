@@ -192,7 +192,7 @@ test("runInteractive workflow install prompts for a bundled workflow when no URL
     rendered += chunk.toString("utf8");
   });
 
-  input.end("1\n");
+  input.end("2\n");
 
   await withProject(async (projectPath) => {
     const previousUrl = process.env.AIX_SOURCE_AIX_URL;
@@ -209,7 +209,8 @@ test("runInteractive workflow install prompts for a bundled workflow when no URL
 
       assert.equal(result.exitCode, 0);
       assert.match(rendered, /Select a bundled workflow to install:/);
-      assert.match(rendered, /1\. design-plan-execute/);
+      assert.match(rendered, /1\. agile-kanban/);
+      assert.match(rendered, /2\. design-plan-execute/);
       assert.match(rendered, /q - Quit/);
       assert.match(result.stdout, /Installed workflow design-plan-execute/);
       assert.equal(manifest.workflow, "aix:aix/workflows/design-plan-execute");

@@ -155,13 +155,25 @@ aix skills update
 
 ## Workflows
 
+An AIX workflow is an installable package of agent instructions that defines how
+a project wants agents to work. A workflow can include process documentation,
+workflow-owned skills, reusable templates, managed `AGENTS.md` guidance, and
+other assets that should move together as one coherent operating model.
+
+Skills inside a workflow handle specific repeatable tasks. Roles can provide
+specialized guidance for larger responsibilities or review perspectives. The
+workflow ties those pieces together so agents know which context to read, which
+artifacts to update, what safety boundaries apply, and how work should move
+from request to completion.
+
+You can [create your own custom workflows](#custom-workflow), or start with one
+of the default `aix` workflows.
+
+Packaged `aix` workflows:
+
+### Design-Plan-Execute
+
 [![Design, Plan, Execute workflow summary](assets/design-plan-execute-summary.png)](aix/workflows/design-plan-execute/README.md)
-
-A workflow is installed as one package because it defines how a project wants
-agents to work. You can [create your own custom workflows](#custom-workflow),
-or start with one of the default `aix` workflows.
-
-Default `aix` workflows:
 
 `design-plan-execute` is the default planning and execution workflow for coding
 agents. It gives agents a repeatable loop for reading design intent, creating
@@ -169,6 +181,8 @@ or activating plans, implementing small tasks, verifying changes, and promoting
 durable decisions back into docs. The workflow also uses user-editable
 templates to format the plans, design docs, and other artifacts agents create
 along the way.
+
+This workflow is installed by default when AIX initializes a project.
 
 Install it directly:
 
@@ -188,6 +202,24 @@ It includes:
 
 See [the workflow details](aix/workflows/design-plan-execute/README.md) for the
 full file list, skill list, and installed layout.
+
+### Kanban
+
+[![Agile Kanban workflow summary](assets/agile-kanban-summary.png)](aix/workflows/agile-kanban/README.md)
+
+`agile-kanban` is a lightweight Kanban workflow for project-local software work.
+It uses Markdown work item records organized by state directory to manage
+`Backlog`, `Ready`, `In Progress`, `Review`, `Blocked`, and `Done` work without
+requiring Jira, Trello, GitHub Projects, Linear, or another external service.
+
+Install it directly:
+
+```bash
+aix workflow install https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/agile-kanban aix
+```
+
+See [the Agile Kanban workflow details](aix/workflows/agile-kanban/README.md)
+for its skills, templates, and installed layout.
 
 ### Custom workflow
 
