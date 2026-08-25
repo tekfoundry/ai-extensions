@@ -102,9 +102,13 @@ test("plan-create declares gated planning and product-strategy collaboration", (
   assert.match(skill, /Do not require `product-strategist` for direct use/);
   assert.match(skill, /Run the vision gate first/);
   assert.match(skill, /Record acceptance on the `High-Level Goal` heading only after the user\s+agrees/);
+  assert.match(skill, /Treat template comments marked\s+`DO NOT INCLUDE IN OUTPUT` as agent-only instructions/);
+  assert.match(skill, /never copy those\s+comments into the project-owned plan/);
   assert.match(skill, /Do not generate implementation phases or task lists\s+before Design Intent is accepted/);
   assert.match(skill, /Only after Design Intent is accepted, break it into ordered implementation\s+phases/);
   assert.match(skill, /Not drafted until Design Intent is accepted/);
+  assert.match(skill, /strip every\s+`DO NOT INCLUDE IN OUTPUT` comment block from the created or updated plan/);
+  assert.match(skill, /Do not leave agent-only template comments/);
   assert.match(skill, /Do not generate implementation phases or task lists against unaccepted Design\s+Intent/);
 });
 

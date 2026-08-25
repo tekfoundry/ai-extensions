@@ -893,6 +893,9 @@ Implementation notes:
   instructions, and workflow design docs so closeout requires developer
   evaluation of the completed phased work, or an explicit recorded waiver,
   before the checklist can be completed.
+- Tightened `plan-create` after manual smoke testing so agent-only template
+  comments such as `DO NOT INCLUDE IN OUTPUT` are stripped from project-owned
+  backlog plans even when the agent drafts from the template manually.
 
 Verification:
 
@@ -938,6 +941,11 @@ Execution notes:
   `plan-complete` so automated checks alone cannot imply developer acceptance.
   Verification: `node --test tests/templates.test.mjs
   tests/skill-instructions.test.mjs`; `npm run build`; `git diff --check`.
+- 2026-08-25: Manual `plan-create` smoke exposed one leaked agent-only template
+  comment in `_docs/plans/backlog/skill-role-routing-assistance.md`; removed
+  it and updated `plan-create` to forbid copying `DO NOT INCLUDE IN OUTPUT`
+  comments into plans. Verification: `node --test
+  tests/skill-instructions.test.mjs`; `git diff --check`.
 
 ### Phase 7: Project-dev role: product-designer (status: approved)
 

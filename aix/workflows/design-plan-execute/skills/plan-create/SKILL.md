@@ -47,7 +47,9 @@ concise product-vision questions and recording the answers in the living plan.
    available, so planning work is retained as it evolves. The initial document
    should use the active workflow `plan.md` template when available and a
    status that clearly means plan creation, review, and approval are not
-   complete yet, such as `📝 Planning Draft`.
+   complete yet, such as `📝 Planning Draft`. Treat template comments marked
+   `DO NOT INCLUDE IN OUTPUT` as agent-only instructions; never copy those
+   comments into the project-owned plan.
 5. Use the plan document as the living planning record. Keep it current as the
    goal, design intent, questions, phases, tasks, risks, verification, lessons,
    and promotion notes evolve. Do not fill every template section
@@ -132,7 +134,8 @@ planning work without pretending it is final:
 Resolve `plan.md` from `.agents/templates/plan.md` first, then from the active
 workflow origin under `.agents/packages/workflows/<source>/<workflow>/templates/`.
 If neither exists, continue with the structure above and report the missing
-template.
+template. When using a template manually instead of a renderer, strip every
+`DO NOT INCLUDE IN OUTPUT` comment block from the created or updated plan.
 
 For accepted backlog plans, place acceptance state in the section and phase
 headings, for example:
@@ -149,6 +152,8 @@ Do not use a final `Review Gates` section as the lasting acceptance record.
 
 - Keep user intent and accepted design decisions separate from implementation
   history.
+- Do not leave agent-only template comments, including `DO NOT INCLUDE IN
+  OUTPUT` blocks, in project-owned plans.
 - Do not use Markdown task checkboxes such as `- [ ]` or `- [x]` for plan
   tasks. Use the status markers from `.agents/workflow.md` so task state is
   visible and consistent across backlog and active plans.
