@@ -60,6 +60,22 @@ coverage, regression, manual-validation, skipped-check, evidence, and
 residual-risk concerns. Do not use the role to override developer acceptance,
 waive checks, or replace `work-verify`.
 
+When `.agents/roles/documentation-specialist.md` exists and closeout depends
+on documentation impact, design promotion, current-state accuracy,
+documentation structure, README or workflow-doc updates, link/index coverage,
+or documentation follow-up, use `delegate-to-role` or a prompt-overlay
+delegation to request bounded final documentation input before archive.
+
+Fold returned evidence into the completion checklist, documentation impact,
+design-promotion notes, documentation-review handoff, final risks, follow-on
+work, current-state accuracy gaps, human-review notes, or closeout report as
+appropriate. Do not require `documentation-specialist` for direct use. If the
+role is unavailable or the host cannot delegate, continue closeout yourself by
+checking the same documentation-impact, design-promotion, link, structure,
+README, workflow-doc, and current-state accuracy concerns. Do not use the role
+to override developer acceptance, archive the plan, promote speculative
+behavior, or replace `design-promote` or `documentation-review`.
+
 ## Workflow
 
 1. Resolve the plan explicitly, or infer it only when exactly one active plan

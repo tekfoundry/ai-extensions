@@ -15,6 +15,28 @@ link recommendations, current-state accuracy checks, focused fixes, and
 user-facing handoff. Roles can supply bounded specialist judgment, but they do
 not own documentation edits or final current-state truth.
 
+When `.agents/roles/documentation-specialist.md` exists and the reviewed docs
+need documentation-system judgment, use `delegate-to-role` or a prompt-overlay
+delegation to request bounded documentation-specialist input. Good triggers
+include `_docs` placement, design-promotion fit, current-state accuracy,
+durable behavior left only in plans, stable docs that contain execution
+history, implementation behavior that appears contrary to `_docs/design` or
+current in-progress plans, implemented design intent missing from both stable
+docs and plans, index coverage, related-doc ownership, README or workflow-doc
+drift, large documentation follow-up decisions, or closeout documentation
+impact.
+
+Fold returned evidence into documentation-review findings, current-state
+accuracy notes, structure recommendations, design-promotion recommendations,
+link or index fixes, focused documentation edits, human-review notes, or
+follow-up work as appropriate. Do not require `documentation-specialist` for
+direct use. If the role is unavailable or the host cannot delegate, continue
+the documentation review yourself by checking the same placement,
+promotion-fit, current-state accuracy, implementation-to-intent, structure,
+link, and follow-up concerns. Routine formatting, link, index, and
+stale-placeholder checks can still run without role delegation unless the
+documentation-system judgment is material to the outcome.
+
 When `.agents/roles/product-designer.md` exists and the reviewed docs describe
 product-facing behavior, user flows, interaction states, accessibility,
 layout hierarchy, prototypes, terminal UX, prompts, or design-system fit, use

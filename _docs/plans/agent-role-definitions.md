@@ -1655,48 +1655,91 @@ Execution notes:
   tests/init.test.mjs tests/package-smoke.test.mjs`; `npm test` passed with
   178 tests; `git diff --check`.
 
-### Phase 13: Project-dev role: documentation-specialist (status: approved)
+### Phase 13: Project-dev role: documentation-specialist (status: implemented; awaiting manual verification)
 
 Goal: Add the workflow-owned `documentation-specialist` role while preserving
 direct documentation-skill quality.
 
 Tasks:
 
-- ⬜️ Create
+- ✅ Create
   `aix/workflows/design-plan-execute/roles/project-dev/documentation-specialist.md`.
-- ⬜️ Review `documentation-review`, `design-promote`, `design-create`, and
+- ✅ Review `documentation-review`, `design-promote`, `design-create`, and
   `plan-complete` for documentation ownership and direct invocation behavior.
-- ⬜️ Integrate `documentation-specialist` with `plan-create` for documentation
+- ✅ Integrate `documentation-specialist` with `plan-create` for documentation
   impact, design-promotion notes, `_docs` placement, current-state docs, and
   closeout expectations when the planned work changes durable behavior.
-- ⬜️ Review every `documentation-specialist` `Skills To Consider` entry and add
+- ✅ Review every `documentation-specialist` `Skills To Consider` entry and add
   reciprocal skill-to-role collaboration where documentation review materially
   affects the skill outcome, while preserving direct skill invocation.
-- ⬜️ Modify documentation-related skills identified by the reciprocal review
+- ✅ Modify documentation-related skills identified by the reciprocal review
   while preserving standalone skill behavior.
-- ⬜️ Keep documentation skills responsible for their own procedures, review
+- ✅ Keep documentation skills responsible for their own procedures, review
   gates, design-promotion rules, and final reporting when invoked directly.
-- ⬜️ If any documentation-related skill changes, verify it still works without
+- ✅ If any documentation-related skill changes, verify it still works without
   role context.
 
 Verification:
 
-- Run automated role formatting, front matter, and contract checks.
-- Manually review the `documentation-specialist` role file against the role
+- Completed: automated role formatting, front matter, and contract checks ran
+  through `node --test tests/roles.test.mjs tests/skill-instructions.test.mjs`.
+- Pending developer review: manually review the `documentation-specialist` role file against the role
   verification rubric.
-- Manually verify changed documentation skills still stand alone.
-- Manually verify any `plan-create` changes preserve direct planning behavior
+- Pending developer review: manually verify changed documentation skills still stand alone.
+- Pending developer review: manually verify any `plan-create` changes preserve direct planning behavior
   and capture documentation impact without taking over documentation-review or
   design-promotion procedures.
-- Manually verify `delegate-to-role` delegates to `documentation-specialist`.
-- Manually verify `documentation-specialist` produces useful documentation
+- Pending developer review: manually verify `delegate-to-role` delegates to `documentation-specialist`.
+- Pending developer review: manually verify `documentation-specialist` produces useful documentation
   impact, design-promotion, structure, link, and current-state accuracy output
   in a representative scenario.
-- Record automated checks, manual role review, skill standalone review,
-  delegation verification, scenario-quality result, and commit checkpoint
-  status.
-- Human approval recorded before starting the next project-development role
+- Completed: recorded automated checks and implementation evidence below.
+  Manual role review, skill standalone review, delegation verification,
+  scenario-quality result, and human approval remain pending developer review.
+  Commit checkpoint status: no commit requested or created.
+- Pending developer review: human approval recorded before starting the next project-development role
   phase.
+
+Implementation notes:
+
+- Added the workflow-owned `documentation-specialist` role under
+  `aix/workflows/design-plan-execute/roles/project-dev/` with contract
+  sections for purpose, when to use, context to inspect, skills to consider,
+  stop conditions, and expected output.
+- Added implementation-to-intent reconciliation to the role so it can compare
+  current implementation against `_docs/design` and in-progress plans, then
+  flag undocumented design intent or behavior that appears contrary to accepted
+  or planned intent.
+- Added reciprocal documentation-specialist collaboration hooks to
+  `plan-create`, `plan-update`, `design-create`, `design-promote`,
+  `documentation-review`, and `plan-complete`.
+- Preserved direct skill ownership: `plan-create` still owns planning,
+  `plan-update` still owns plan edits, `design-create` still owns new stable
+  design docs, `design-promote` still owns promotion, `documentation-review`
+  still owns documentation review and fixes, and `plan-complete` still owns
+  closeout and archive decisions.
+- Updated workflow README and stable design docs so the installed role catalog
+  and bundled workflow documentation include `documentation-specialist`.
+- Extended role, skill-instruction, init, and package-smoke tests for the new
+  role, reciprocal hooks, workflow-owned activation, and package inclusion.
+
+Verification:
+
+- Completed: `npm run build`.
+- Completed: `node --test tests/roles.test.mjs tests/skill-instructions.test.mjs`
+  passed with 44 tests.
+- Completed: `node --test tests/init.test.mjs tests/package-smoke.test.mjs`
+  passed with 8 tests.
+- Completed: `npm test` passed with 179 tests.
+- Completed: `git diff --check`.
+
+Execution notes:
+
+- 2026-08-25: Implemented Phase 13 documentation-specialist role and
+  reciprocal skill collaboration hooks. Automated verification passed.
+  Developer manual review, delegation scenario review, representative
+  documentation-quality scenario, and approval before the next project-dev role
+  phase remain pending.
 
 ### Phase 14: Project-dev role: implementation-engineer (status: approved)
 

@@ -56,4 +56,7 @@ while still checking security-sensitive behavior itself when the role is
 unavailable. When the workflow-owned `ux-writer` role is installed, the skill
 can use it for bounded final copy-readiness review when completed work changed
 labels, prompts, command help, errors, empty states, onboarding copy, README
-language, release notes, or developer-facing docs.
+language, release notes, or developer-facing docs. When the workflow-owned
+`documentation-specialist` role is installed, the skill can use it for bounded
+final documentation-impact review before archive while still running
+`design-promote` and `documentation-review` as the closeout procedures.

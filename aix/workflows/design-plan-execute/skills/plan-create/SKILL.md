@@ -93,6 +93,19 @@ notes, open questions, and human review notes as appropriate. Do not use the
 role to run commands, mark phases ready, waive checks, or take over
 `work-verify`.
 
+When `.agents/roles/documentation-specialist.md` exists and the plan changes
+durable behavior, project-owned docs, README or workflow docs, developer-facing
+instructions, examples, or documentation closeout expectations, use
+`delegate-to-role` or a prompt-overlay delegation to request a bounded
+documentation-impact pass. Good triggers include `_docs` placement,
+design-promotion notes, current-state documentation, README or workflow-doc
+updates, index links, stale docs risk, and closeout expectations. Fold the
+returned evidence into `Design Intent`, implementation-phase constraints,
+documentation impact, promotion-to-design notes, completion checklist notes,
+open questions, risks, and human review notes as appropriate. Do not use the
+role to invent design truth, promote speculative behavior, finalize docs, or
+take over `documentation-review`, `design-create`, or `design-promote`.
+
 Do not require `product-strategist` for direct use. If the role is unavailable
 or the host cannot delegate, continue the planning session yourself by asking
 concise product-vision questions and recording the answers in the living plan.
@@ -123,6 +136,11 @@ unavailable or the host cannot delegate, continue the planning session yourself
 by asking concise acceptance-check, targeted-test, regression-risk,
 manual-validation, skipped-check, evidence, and residual-risk questions after
 Design Intent is accepted.
+Do not require `documentation-specialist` for direct use either. If the role is
+unavailable or the host cannot delegate, continue the planning session yourself
+by asking concise documentation-impact, `_docs` placement, design-promotion,
+current-state accuracy, README, workflow-doc, index-link, and closeout
+questions when durable behavior or project documentation may change.
 
 ## Workflow
 
@@ -183,6 +201,10 @@ Design Intent is accepted.
    accepted when acceptance checks, verification strategy, regression risk,
    manual validation, evidence expectations, or validation gaps need
    specialist review.
+   Use `documentation-specialist` for a bounded documentation pass when the
+   plan changes durable behavior, `_docs` placement, design-promotion needs,
+   current-state docs, README or workflow docs, index links, or closeout
+   expectations.
 9. Iterate on design intent until the user explicitly agrees that it captures
    the desired direction. Do not generate implementation phases or task lists
    before Design Intent is accepted.
@@ -195,6 +217,10 @@ Design Intent is accepted.
    Use `quality-engineer` for phase verification guidance when targeted
    checks, regression coverage, manual validation, skipped-check rationale, or
    acceptance evidence materially affect task order or phase success criteria.
+   Use `documentation-specialist` for phase documentation guidance when
+   documentation tasks, promotion notes, current-state accuracy checks, or
+   closeout docs expectations materially affect task order or phase success
+   criteria.
 11. Apply the task status markers from `.agents/workflow.md` to every phased
    task list. New backlog tasks should start with `⬜️`; use `🟨`, `✅`, and
    `⚠️` only when the plan is recording actual execution state or a known

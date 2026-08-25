@@ -46,6 +46,12 @@ homes, reviews Markdown conventions, finds broken or ambiguous links, compares
 docs against accepted design and code when needed, and makes focused fixes when
 the right correction is clear. Broader reorganizations are recorded as follow-up
 work or routed back to the developer for approval. When the workflow-owned
+`documentation-specialist` role is installed, the skill can use it for bounded
+documentation-system input on `_docs` placement, design-promotion fit,
+current-state accuracy, durable behavior left only in plans, index coverage,
+related-doc ownership, README or workflow-doc drift, and closeout
+documentation impact while still running routine documentation review itself.
+When the workflow-owned
 `product-designer` role is installed, the skill can use it for bounded
 product-design input on product-facing docs, design docs, user flows,
 interaction states, accessibility, terminal UX, prompts, and design-system fit

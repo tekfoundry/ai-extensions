@@ -218,11 +218,15 @@ terminal output, errors, empty states, onboarding copy, README language,
 workflow instructions, and other product or developer-facing text. The
 `quality-engineer` role contributes bounded review of acceptance checks,
 targeted verification, regression risk, manual validation, validation gaps,
-evidence expectations, and residual risk. Planning, plan maintenance, review,
-design creation, design promotion, documentation review, verification, task
-execution, phase execution, and completion skills remain directly runnable
-without role context, but use the matching role when installed and when the
-role's specialty materially affects the outcome.
+evidence expectations, and residual risk. The `documentation-specialist` role
+contributes bounded review of documentation impact, `_docs` placement, design
+promotion needs, current-state accuracy, implementation behavior that is
+missing from or contrary to `_docs/design` and in-progress plans, index and
+link coverage, README or workflow-doc impact, and documentation closeout risk. Planning, plan
+maintenance, review, design creation, design promotion, documentation review,
+verification, task execution, phase execution, and completion skills remain
+directly runnable without role context, but use the matching role when
+installed and when the role's specialty materially affects the outcome.
 
 Plan completion should include a human validation gate before the completion
 checklist is finished. In the normal case, the developer evaluates the completed

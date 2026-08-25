@@ -58,4 +58,9 @@ concerns itself when the role is unavailable. When the workflow-owned
 `ux-writer` role is installed, the skill can use it for bounded UX writing
 input on terminology, labels, prompts, command help, errors, empty states,
 onboarding copy, README language, and message-state requirements while still
-checking those concerns itself when the role is unavailable.
+checking those concerns itself when the role is unavailable. When the
+workflow-owned `documentation-specialist` role is installed, the skill can use
+it for bounded documentation input on placement, ownership, index coverage,
+related-doc links, current-state accuracy, and separation between stable truth
+and plan history while still checking those concerns itself when the role is
+unavailable.

@@ -59,12 +59,19 @@ manual validation, skipped-check rationale, evidence expectations, validation
 gaps, residual risk, or phase success criteria, use `delegate-to-role` or a
 prompt-overlay delegation to request bounded quality input.
 
+When `.agents/roles/documentation-specialist.md` exists and the requested
+update changes documentation impact, `_docs` placement, design-promotion
+notes, README or workflow-doc expectations, index-link tasks, current-state
+accuracy risks, documentation follow-up, or closeout docs expectations, use
+`delegate-to-role` or a prompt-overlay delegation to request bounded
+documentation input.
+
 Fold returned evidence into the smallest appropriate plan update: scope,
 Design Intent, non-goals, boundaries, tasks, risks, verification, Security
-Review expectations, promotion notes, open questions, or human-review notes.
-Do not require any role for direct use. If a role is unavailable or the host
-cannot delegate, continue the plan update yourself by checking the same
-specialty concerns when they apply.
+Review expectations, documentation impact, promotion notes, open questions, or
+human-review notes. Do not require any role for direct use. If a role is
+unavailable or the host cannot delegate, continue the plan update yourself by
+checking the same specialty concerns when they apply.
 
 ## Workflow
 

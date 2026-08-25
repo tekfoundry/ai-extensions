@@ -57,6 +57,21 @@ human-review notes, or unresolved gaps as appropriate. Do not require
 delegate, continue the design-document creation yourself by checking the same
 copy, terminology, reader, task, and recovery-path concerns.
 
+When `.agents/roles/documentation-specialist.md` exists and the design
+document placement, ownership, index coverage, related-doc links,
+current-state accuracy, or separation between stable truth and plan history is
+material, use `delegate-to-role` or a prompt-overlay delegation to request
+bounded documentation input.
+
+Fold returned evidence into the design document's placement decision,
+current-state behavior, related-doc links, index updates, ownership boundary,
+promotion notes, human-review notes, or unresolved gaps as appropriate. Do not
+require `documentation-specialist` for direct use. If the role is unavailable
+or the host cannot delegate, continue the design-document creation yourself by
+checking the same documentation structure, placement, link, and current-state
+accuracy concerns. Do not use the role to create a new doc when a focused
+update to an existing doc is clearer.
+
 ## Workflow
 
 1. Read `_docs/README.md` and `_docs/design/README.md` to understand the

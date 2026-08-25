@@ -297,6 +297,7 @@ test("discoverRoles reports shipped workflow-owned project development roles", (
   assert.deepEqual(
     roles.map((role) => role.name),
     [
+      "documentation-specialist",
       "product-designer",
       "product-strategist",
       "quality-engineer",
@@ -310,6 +311,24 @@ test("discoverRoles reports shipped workflow-owned project development roles", (
   for (const role of roles) {
     assertRoleContract(parseRoleFileFromPath(join("aix/workflows/design-plan-execute/roles/project-dev", role.path)));
   }
+});
+
+test("resolveRoleDelegation delegates to the shipped documentation specialist role", () => {
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/documentation-specialist.md");
+  const resolution = resolveRoleDelegation("delegate to documentation-specialist for docs impact", [role]);
+  const prompt = buildPromptOverlayDelegation(role, "Review documentation impact, design promotion, and current-state accuracy.");
+
+  assert.equal(resolution.role.name, "documentation-specialist");
+  assert.equal(resolution.mode, "prompt-overlay");
+  assert.match(prompt, /Name: documentation-specialist/);
+  assert.match(prompt, /Review plans, design docs, README text, workflow docs/);
+  assert.match(prompt, /Suggested `_docs` placement, index-link changes/);
+  assert.match(prompt, /Current-state accuracy risks, stale claims, missing design truth/);
+  assert.match(prompt, /Implementation-to-intent findings/);
+  assert.match(prompt, /implementation that appears contrary to accepted design intent/);
+  assert.match(prompt, /Consider `documentation-review` when the main need is checking or fixing/);
+  assert.match(prompt, /Do not claim documentation readiness unless current-state behavior/);
+  assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
 test("resolveRoleDelegation delegates to the shipped product strategist role", () => {
@@ -422,6 +441,7 @@ test("resolveRoleDelegation delegates to the shipped quality engineer role", () 
 
 test("shipped project development roles can route existing-plan edits through plan-update", () => {
   const roleNames = [
+    "documentation-specialist",
     "product-designer",
     "product-strategist",
     "quality-engineer",

@@ -72,6 +72,10 @@ role is unavailable. When the workflow-owned `ux-writer` role is installed,
 the skill can use it for bounded labels, prompts, errors, empty states,
 onboarding copy, README language, command help, and developer-facing docs
 language review while still asking those questions itself when the role is
-unavailable. New plans are placed under
+unavailable. When the workflow-owned `documentation-specialist` role is
+installed, the skill can use it for bounded documentation-impact, `_docs`
+placement, design-promotion, current-state docs, README or workflow-doc,
+index-link, and closeout-expectation review while still asking those questions
+itself when the role is unavailable. New plans are placed under
 `_docs/plans/backlog/` and pause there until the developer later uses
 `plan-activate`.

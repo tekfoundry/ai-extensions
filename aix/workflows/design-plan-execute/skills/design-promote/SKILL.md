@@ -45,6 +45,21 @@ checking the same copy, terminology, reader, task, and recovery-path concerns.
 Do not use the role to promote unimplemented wording or final product claims
 that still need developer review.
 
+When `.agents/roles/documentation-specialist.md` exists and promotion depends
+on `_docs` placement, stable design ownership, current-state accuracy,
+related-doc links, README or workflow-doc impact, or separating plan history
+from durable truth, use `delegate-to-role` or a prompt-overlay delegation to
+request bounded documentation-promotion input.
+
+Fold returned evidence into the stable design update, related-doc placement,
+index links, retained plan-history notes, README or workflow-doc follow-up,
+documentation-review handoff, unresolved gaps, or promotion report as
+appropriate. Do not require `documentation-specialist` for direct use. If the
+role is unavailable or the host cannot delegate, continue promotion yourself
+by checking the same placement, ownership, link, and current-state accuracy
+concerns. Do not use the role to promote unimplemented behavior or bypass
+`documentation-review`.
+
 ## Workflow
 
 1. Read the completed or substantially completed plan and identify decisions

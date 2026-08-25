@@ -110,6 +110,16 @@ and `plan-create` handoff. It should run independently when invoked directly,
 but it ships with the workflow so workflow-owned roles such as
 `product-strategist` can rely on it being installed.
 
+The default workflow also ships project-development roles. Those roles are
+workflow-owned and activate under `.agents/roles/` with the workflow:
+`product-strategist`, `product-designer`, `requirements-engineer`,
+`technical-architect`, `security-reviewer`, `ux-writer`, `quality-engineer`,
+and `documentation-specialist`. They provide bounded specialist judgment for
+planning, design, documentation, implementation-to-intent drift, verification,
+and closeout while the
+workflow-owned skills continue to own their procedures and direct invocation
+behavior.
+
 The `unslop` skill is intentionally not included in `aix/skills`. `aix init`
 should declare and activate `cursor-pstack/unslop` from the `cursor-pstack`
 source rather than from a local AI Extensions-only skill directory.
