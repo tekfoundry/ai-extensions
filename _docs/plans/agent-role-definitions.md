@@ -826,7 +826,7 @@ Execution notes:
   `AIX_CACHE_DIR=/private/tmp/aix-phase5-cache npm test` passed with 157
   tests.
 
-### Phase 6: Project-dev role: product-strategist (status: validation pending)
+### Phase 6: Project-dev role: product-strategist (status: complete)
 
 Goal: Add the workflow-owned `product-strategist` role with a clean manual
 validation checkpoint.
@@ -913,11 +913,12 @@ Verification:
   `tests/roles.test.mjs`.
 - Completed: verified the `plan-create` gated-planning instruction changes with
   targeted skill-instruction tests.
-- ⚠️ Pending human checkpoint: manually verify `product-strategist` produces
-  useful product scope, sequencing, tradeoff, and audience guidance in a
-  representative scenario.
-- ⚠️ Pending human approval before starting the next project-development role
-  phase.
+- Completed: human checkpoint approved. The representative `plan-create`
+  scenario produced useful product scope, sequencing, tradeoff, audience, and
+  value guidance, honored planning gates, and used `product-strategist` product
+  judgment appropriately.
+- Completed: human approval recorded for Phase 6 completion. Phase 7 remains
+  unstarted until explicitly requested.
 
 Execution notes:
 
@@ -946,6 +947,10 @@ Execution notes:
   it and updated `plan-create` to forbid copying `DO NOT INCLUDE IN OUTPUT`
   comments into plans. Verification: `node --test
   tests/skill-instructions.test.mjs`; `git diff --check`.
+- 2026-08-25: Human checkpoint approved for Phase 6. The
+  `product-strategist` plus `plan-create` manual scenario produced useful
+  product guidance and respected the gated planning flow. Phase 6 marked
+  complete; Phase 7 not started.
 
 ### Phase 7: Project-dev role: product-designer (status: approved)
 
