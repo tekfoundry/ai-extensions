@@ -17,13 +17,14 @@ copy in five others. `aix` gives those assets a normal developer lifecycle:
 install them from Git, keep them local to the project, lock the exact version,
 review updates, and refuse to overwrite local edits silently.
 
-The first assets are workflows and skills.
+AIX treats agent behavior like something you can package and reuse. The pieces
+fit together like this:
 
-- A workflow is the project's AI operating model. It installs process docs under
-  `.agents/`, can add a workflow-owned block in `AGENTS.md`, and activates the
-  skills that help agents follow the process.
-- A skill is one reusable agent capability. It is activated into
-  `.agents/skills/<name>` so compatible agents can discover and use it.
+| Concept | Summary | Restaurant analogy | Development examples |
+| --- | --- | --- | --- |
+| Skill | A repeatable procedure an agent can follow to complete a task. | A recipe. | `plan-create`, `task-execute`, `kanban-create-item`, `kanban-execute`. |
+| Role | A persona with domain knowledge that helps an agent choose, apply, or review skills more effectively. | A specialist, like a pie chef or kitchen manager. | `aix-workflow-architect`, `aix-skill-author`, `technical-architect`, `quality-engineer`. |
+| Workflow | A repeatable development pipeline that coordinates docs, skills, roles, and templates so agents produce higher-quality, maintainable work. | A restaurant operating playbook that can be repeated across locations. | Design-plan-execute, agile-kanban. |
 
 The command is `aix`. The npm package is `@tekfoundry/aix`.
 
@@ -225,6 +226,10 @@ for its skills, templates, and installed layout.
 
 A custom workflow is a Git-backed directory with a `workflow.json` file:
 
+When you are designing one with an agent, use the `aix-workflow-architect`
+role. It helps shape the workflow package, choose which skills and roles belong
+inside it, and keep the workflow boundary clean.
+
 ```text
 workflows/team-flow/
   workflow.json
@@ -307,6 +312,93 @@ skills from the built-in `aix` source.
 `aix workflow uninstall` removes only package-managed workflow content. It
 leaves project-owned `_docs` content and any `AGENTS.md` text outside the
 managed block alone.
+
+## Roles
+
+![AIX roles summary](assets/roles-summary.png)
+
+Roles give agents a focused point of view for work that needs judgment. A skill
+tells an agent how to repeat a task. A role tells an agent what kind of expert
+to be while choosing, applying, or reviewing those tasks.
+
+A role is a Markdown file with front matter and clear operating guidance. Roles
+can be top-level project roles or workflow-owned roles. If a role depends on a
+workflow's skills, it belongs inside that workflow. If it does not depend on
+workflow-owned skills, it can live as a top-level role.
+
+AIX materializes active roles under `.agents/roles/<name>.md`. Public role
+commands are still being added, but the packaged roles already define the
+contracts AIX will install and verify.
+
+### Bundled roles
+
+AIX includes development roles for building and reviewing AIX itself. These are
+top-level roles, not workflow-owned roles, so they can help with workflows,
+skills, package safety, instructions, and release readiness without depending
+on a specific workflow.
+
+| Role name | Example prompts | What it does |
+| --- | --- | --- |
+| [`aix-workflow-architect`](aix/roles/aix-dev/aix-workflow-architect.md) | "Use aix-workflow-architect to review this workflow."<br>"Create a workflow under `./aix/workflows/team-flow/`." | Designs, authors, maintains, and reviews AIX workflow packages, including workflow-owned skills, templates, managed `AGENTS.md` blocks, and lifecycle boundaries. |
+| [`aix-skill-author`](aix/roles/aix-dev/aix-skill-author.md) | "Use aix-skill-author to draft this skill."<br>"Review this `SKILL.md` for trigger clarity." | Authors, maintains, and reviews AIX skills for clear triggers, repeatable steps, supporting resources, and safe standalone or workflow-owned use. |
+| [`aix-package-safety-reviewer`](aix/roles/aix-dev/aix-package-safety-reviewer.md) | "Use aix-package-safety-reviewer to inspect this activation change."<br>"Review this uninstall path for overwrite risk." | Reviews source resolution, package copies, active files, lockfile integrity, drift detection, collision handling, and removal behavior. |
+| [`aix-agent-instructions-auditor`](aix/roles/aix-dev/aix-agent-instructions-auditor.md) | "Use aix-agent-instructions-auditor to review these agent docs."<br>"Check this managed `AGENTS.md` block for conflicts." | Reviews cross-tool agent instruction files for drift, stale paths, ownership conflicts, and unsupported host behavior. |
+| [`aix-release-readiness-specialist`](aix/roles/aix-dev/aix-release-readiness-specialist.md) | "Use aix-release-readiness-specialist before release."<br>"Check whether these bundled assets are package-ready." | Reviews package contents, smoke checks, generated artifacts, npm metadata, release docs, and public install readiness. |
+
+### Custom role
+
+Create a role when a project or workflow needs a repeatable expert perspective,
+not just a repeatable procedure. A role should say when to use it, what context
+to inspect, what skills it may consider, when to stop, and what output it
+should return.
+
+```text
+aix/
+  roles/
+    project-dev/
+      quality-engineer.md
+```
+
+Example role file:
+
+```md
+---
+name: quality-engineer
+description: Reviews test strategy, regression risk, and verification evidence.
+tools: Read, Glob, Grep, Bash
+model: inherit
+color: green
+---
+
+# Purpose
+
+Review whether a change has enough verification for its risk and scope.
+
+# When To Use
+
+Use this role before completing risky implementation work or when test coverage
+is unclear.
+
+# Context To Inspect
+
+Read the active plan or work item, changed source files, changed tests,
+existing test patterns, and the latest verification output.
+
+# Skills To Consider
+
+If the host project has verification or review skills active, consider using
+them for targeted checks.
+
+# Stop Conditions
+
+Stop if expected behavior is unclear, verification cannot run, or safety
+sensitive behavior lacks an explicit test or review path.
+
+# Expected Output
+
+Return concrete test gaps, suggested checks, residual risk, and the exact
+verification evidence reviewed.
+```
 
 ## Skills
 
@@ -402,6 +494,10 @@ even if the active workflow is later uninstalled.
 | [`discover-skill`](aix/skills/discover-skill/README.md) | "Use discover-skill. Find a skill for accessibility-focused code reviews."<br>"Find an installable skill for TDD."<br>"I need a skill that helps with secure code review." | Finds installable software-development skills from natural-language requests. It searches configured sources and `known-sources.json` first, asks before broadening to unreviewed GitHub or internet results, presents review links and unsafe-flag notes, and uses a two-step `install #` / `confirm install #` flow before running `aix skills add` or `aix skill activate`. |
 
 ### Custom skill
+
+When you are writing or revising a skill with an agent, use the
+`aix-skill-author` role. It helps keep the trigger clear, the steps repeatable,
+and the skill usable on its own or inside the workflow that owns it.
 
 Create a skill folder in a Git repo:
 

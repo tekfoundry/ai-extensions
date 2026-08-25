@@ -634,6 +634,7 @@ Verification:
 - `node --test tests/roles.test.mjs`
 - `AIX_CACHE_DIR=/private/tmp/aix-phase3-local-cache npm test` (148 tests)
 - `npm run smoke:local-assets`
+- `npm run smoke:aix-dev-roles`
 
 - Completed: added tests for role package discovery, activation, deactivation
   guardrails, hashes, drift checks, and active-name collisions in

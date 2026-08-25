@@ -43,6 +43,7 @@
     "release:pack-preview": "node scripts/pack-preview.mjs",
     "release:publish-dry-run": "node scripts/publish-dry-run.mjs",
     "release:verify": "npm run build && npm run typecheck && npm test && npm run release:pack-preview && npm run release:local-smoke",
+    "smoke:aix-dev-roles": "npm run build && node scripts/aix-dev-roles-smoke.mjs",
     "smoke:local-assets": "npm run build && node scripts/local-assets-smoke.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "verify": "npm run build && npm run typecheck && npm test",
