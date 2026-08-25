@@ -1281,7 +1281,7 @@ Execution notes:
   without replacing normal plan sections, and did not modify implementation
   files. The generated scenario plan was deleted after review.
 
-### Phase 10: Project-dev role: ux-writer (status: in progress)
+### Phase 10: Project-dev role: ux-writer (status: complete)
 
 Goal: Add the workflow-owned `ux-writer` role with a clean manual validation
 checkpoint.
@@ -1370,10 +1370,10 @@ Verification:
 - Completed: recorded automated checks, manual role review, skill standalone
   review, `plan-create` review, and delegation verification. Commit checkpoint
   status: not requested.
-- Pending human checkpoint: manually verify `ux-writer` produces useful labels,
+- Completed: manually verified `ux-writer` produces useful labels,
   prompts, empty states, error messages, onboarding text, and README language
   in a representative scenario.
-- Pending human checkpoint: human approval recorded before starting the next
+- Completed: human approval recorded before starting the next
   project-development role phase.
 
 Execution notes:
@@ -1398,6 +1398,12 @@ Execution notes:
   collaboration points for copy-sensitive promotion and closeout. Verification:
   `node --test tests/skill-instructions.test.mjs`; `node --test
   tests/roles.test.mjs`; `git diff --check`.
+- 2026-08-25: Human validation completed for Phase 10. The representative
+  `ux-writer` scenario reviewed planned role-deactivation copy, used `unslop`
+  guidance, recommended clearer command-aligned error and recovery text,
+  identified missing success, not-found, refusal, empty interactive, and
+  README/help states, and did not edit files or change plan state during the
+  scenario.
 
 ### Phase 11: Project-dev role: requirements-engineer (status: approved)
 
