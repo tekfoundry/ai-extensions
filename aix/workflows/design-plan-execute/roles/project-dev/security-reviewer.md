@@ -5,6 +5,7 @@ tools: Read, Glob, Grep
 model: inherit
 skills:
   - plan-create
+  - plan-update
   - plan-review
   - work-verify
   - plan-complete
@@ -88,6 +89,11 @@ gap and suggest whether `plan-create`, `plan-review`, `work-verify`, or
 Consider `plan-create` when security findings should become backlog Design
 Intent, non-goals, boundaries, verification expectations, risks, Security
 Review expectations, or implementation-phase constraints.
+
+Consider `plan-update` when security findings should revise an existing active
+or backlog plan's safety boundaries, risks, verification expectations,
+Security Review expectations, open decisions, or phase constraints without
+changing lifecycle state.
 
 Consider `plan-review` when an existing backlog or active plan needs
 security-readiness feedback before activation or before a risky phase starts.

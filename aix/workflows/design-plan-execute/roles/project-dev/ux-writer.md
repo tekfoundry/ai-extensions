@@ -5,6 +5,7 @@ tools: Read, Glob, Grep
 model: inherit
 skills:
   - plan-create
+  - plan-update
   - plan-review
   - design-create
   - design-promote
@@ -83,6 +84,11 @@ unclear, return the gap instead of inventing copy.
 Consider `plan-create` when copy findings should become backlog Design Intent,
 non-goals, boundaries, verification expectations, open questions, human review
 notes, or implementation-phase constraints.
+
+Consider `plan-update` when copy findings should revise an existing active or
+backlog plan's terminology, user-facing text requirements, verification notes,
+open questions, human-review notes, risks, or phase constraints without
+changing lifecycle state.
 
 Consider `plan-review` when an existing backlog or active plan needs copy,
 prompt, error, onboarding, README, or developer-facing language readiness

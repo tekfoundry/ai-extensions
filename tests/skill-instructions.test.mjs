@@ -12,6 +12,7 @@ const discoverSkillPath = join(process.cwd(), "aix/skills/discover-skill/SKILL.m
 const brainstormingSkillPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/brainstorming-skill/SKILL.md");
 const planCreatePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-create/SKILL.md");
 const planReviewPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-review/SKILL.md");
+const planUpdatePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-update/SKILL.md");
 const planCompletePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-complete/SKILL.md");
 const workVerifyPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/work-verify/SKILL.md");
 const planTemplatePath = join(process.cwd(), "aix/workflows/design-plan-execute/templates/plan.md");
@@ -157,6 +158,10 @@ test("plan-create declares gated planning and role collaboration", () => {
   assert.match(skill, /user\s+flows, interaction design, accessibility, layout hierarchy, prototypes/);
   assert.match(skill, /terminal UX, prompts, or design-system fit/);
   assert.match(skill, /Do not use\s+the role to finalize product surfaces without developer review/);
+  assert.match(skill, /When `.agents\/roles\/requirements-engineer\.md` exists/);
+  assert.match(skill, /requirements, actors, workflows, inputs, outputs, constraints/);
+  assert.match(skill, /plan-readiness judgment/);
+  assert.match(skill, /Do not use the role to\s+invent requirements from thin context/);
   assert.match(skill, /When `.agents\/roles\/technical-architect\.md` exists/);
   assert.match(skill, /system boundaries, component contracts, module ownership, runtime contracts/);
   assert.match(skill, /Use architecture review to shape phases only after Design Intent\s+is accepted/);
@@ -170,6 +175,8 @@ test("plan-create declares gated planning and role collaboration", () => {
   assert.match(skill, /Do not require `product-strategist` for direct use/);
   assert.match(skill, /Do not require `product-designer` for direct use either/);
   assert.match(skill, /asking concise flow, interaction, accessibility, and design-system questions/);
+  assert.match(skill, /Do not require `requirements-engineer` for direct use either/);
+  assert.match(skill, /asking concise requirements, actor, workflow, constraint, non-goal,\s+boundary, acceptance-signal, and open-decision questions/);
   assert.match(skill, /Do not require `technical-architect` for direct use either/);
   assert.match(skill, /asking concise boundary, contract, integration, maintainability, and\s+verification questions/);
   assert.match(skill, /Do not require `security-reviewer` for direct use either/);
@@ -181,6 +188,7 @@ test("plan-create declares gated planning and role collaboration", () => {
   assert.match(skill, /Treat template comments marked\s+`DO NOT INCLUDE IN OUTPUT` as agent-only instructions/);
   assert.match(skill, /never copy those\s+comments into the project-owned plan/);
   assert.match(skill, /Do not generate implementation phases or task lists\s+before Design Intent is accepted/);
+  assert.match(skill, /Use `requirements-engineer` for a bounded requirements pass/);
   assert.match(skill, /Use `technical-architect` for phase-shaping guidance/);
   assert.match(skill, /Use `security-reviewer`\s+for a bounded security pass/);
   assert.match(skill, /Use `ux-writer` for a bounded copy pass/);
@@ -212,6 +220,11 @@ test("plan-review declares role collaboration", () => {
   assert.match(skill, /user flows,\s+interaction design, accessibility, layout hierarchy/);
   assert.match(skill, /Fold returned evidence into review findings, activation blockers, risks,\s+verification gaps, requested plan revisions, human-review notes/);
   assert.match(skill, /Do not require `product-designer` for direct use/);
+  assert.match(skill, /When `.agents\/roles\/requirements-engineer\.md` exists/);
+  assert.match(skill, /requirements-readiness review/);
+  assert.match(skill, /requirements, actors, workflows, inputs, outputs, constraints/);
+  assert.match(skill, /whether implementation phases were drafted too early/);
+  assert.match(skill, /Do not require\s+`requirements-engineer` for direct use/);
   assert.match(skill, /When `.agents\/roles\/security-reviewer\.md` exists/);
   assert.match(skill, /security-sensitive scope/);
   assert.match(skill, /trust\s+boundaries, secrets, authentication, authorization, permissions/);
@@ -222,7 +235,29 @@ test("plan-review declares role collaboration", () => {
   assert.match(skill, /labels, prompts, command help, terminal output, errors, empty states/);
   assert.match(skill, /Fold returned evidence into review findings, activation blockers, risks,\s+verification gaps, requested plan revisions, human-review notes/);
   assert.match(skill, /Do not require `ux-writer` for direct use/);
+  assert.match(skill, /lacks required actors, workflows, inputs,\s+outputs, constraints, non-goals, boundaries, acceptance signals/);
   assert.match(skill, /lacks\s+trust-boundary, credential, authorization, destructive-operation, dependency,\s+failure-path, or safety-verification decisions/);
+});
+
+test("plan-update declares project-development role collaboration", () => {
+  const skill = readFileSync(planUpdatePath, "utf8");
+
+  assert.match(skill, /^name: plan-update$/m);
+  assert.match(skill, /`plan-update` owns the plan edit/);
+  assert.match(skill, /When `.agents\/roles\/product-strategist\.md` exists/);
+  assert.match(skill, /product scope, audience, user value, prioritization/);
+  assert.match(skill, /When `.agents\/roles\/product-designer\.md` exists/);
+  assert.match(skill, /user flows, interaction states, accessibility expectations/);
+  assert.match(skill, /When `.agents\/roles\/requirements-engineer\.md` exists/);
+  assert.match(skill, /requirements, actors, workflows, inputs, outputs, constraints/);
+  assert.match(skill, /When `.agents\/roles\/technical-architect\.md` exists/);
+  assert.match(skill, /system boundaries, component contracts, module ownership/);
+  assert.match(skill, /When `.agents\/roles\/security-reviewer\.md` exists/);
+  assert.match(skill, /trust boundaries, secrets, authentication, authorization/);
+  assert.match(skill, /When `.agents\/roles\/ux-writer\.md` exists/);
+  assert.match(skill, /user-facing or developer-facing text requirements/);
+  assert.match(skill, /Fold returned evidence into the smallest appropriate plan update/);
+  assert.match(skill, /Do not require any role for direct use/);
 });
 
 test("work-verify declares security review collaboration", () => {

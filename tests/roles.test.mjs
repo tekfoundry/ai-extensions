@@ -296,7 +296,7 @@ test("discoverRoles reports shipped workflow-owned project development roles", (
 
   assert.deepEqual(
     roles.map((role) => role.name),
-    ["product-designer", "product-strategist", "security-reviewer", "technical-architect", "ux-writer"]
+    ["product-designer", "product-strategist", "requirements-engineer", "security-reviewer", "technical-architect", "ux-writer"]
   );
 
   for (const role of roles) {
@@ -346,6 +346,21 @@ test("resolveRoleDelegation delegates to the shipped technical architect role", 
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
+test("resolveRoleDelegation delegates to the shipped requirements engineer role", () => {
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/requirements-engineer.md");
+  const resolution = resolveRoleDelegation("use requirements-engineer to refine this Design Intent", [role]);
+  const prompt = buildPromptOverlayDelegation(role, "Review whether requirements are ready before implementation phases are drafted.");
+
+  assert.equal(resolution.role.name, "requirements-engineer");
+  assert.equal(resolution.mode, "prompt-overlay");
+  assert.match(prompt, /Name: requirements-engineer/);
+  assert.match(prompt, /Review accepted product vision and turn it into implementation-ready/);
+  assert.match(prompt, /Requirements brief with actors, workflows, inputs, outputs/);
+  assert.match(prompt, /Non-goals and deferred work that prevent scope creep/);
+  assert.match(prompt, /Do not claim implementation readiness unless the requirements/);
+  assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
+});
+
 test("resolveRoleDelegation delegates to the shipped security reviewer role", () => {
   const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/security-reviewer.md");
   const resolution = resolveRoleDelegation("use security-reviewer to review this plan", [role]);
@@ -375,6 +390,27 @@ test("resolveRoleDelegation delegates to the shipped UX writer role", () => {
   assert.match(prompt, /Target reader and task the copy must support/);
   assert.match(prompt, /Missing copy states, recovery guidance, or user actions/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
+});
+
+test("shipped project development roles can route existing-plan edits through plan-update", () => {
+  const roleNames = [
+    "product-designer",
+    "product-strategist",
+    "requirements-engineer",
+    "security-reviewer",
+    "technical-architect",
+    "ux-writer"
+  ];
+
+  for (const roleName of roleNames) {
+    const rolePath = `aix/workflows/design-plan-execute/roles/project-dev/${roleName}.md`;
+    const role = parseRoleFileFromPath(rolePath);
+    const markdown = readFileSync(rolePath, "utf8");
+
+    assert.ok(role.hints.skills.includes("plan-update"), `${roleName} should list plan-update as a skill hint`);
+    assert.match(markdown, /Consider `plan-update`/, `${roleName} should explain when plan-update is useful`);
+    assert.match(markdown, /without\s+changing lifecycle state/, `${roleName} should preserve plan-update lifecycle boundaries`);
+  }
 });
 
 test("activateRoleFromDefinitions materializes active role files and lockfile hashes", async () => {

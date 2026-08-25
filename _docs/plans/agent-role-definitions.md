@@ -1405,33 +1405,65 @@ Execution notes:
   README/help states, and did not edit files or change plan state during the
   scenario.
 
-### Phase 11: Project-dev role: requirements-engineer (status: approved)
+### Phase 11: Project-dev role: requirements-engineer (status: validation pending)
 
 Goal: Add the workflow-owned `requirements-engineer` role while preserving
 direct `plan-create` quality.
 
 Tasks:
 
-- ⬜️ Create
+- ✅ Create
   `aix/workflows/design-plan-execute/roles/project-dev/requirements-engineer.md`.
-- ⬜️ Review `plan-create` for requirement elicitation, backlog plan boundaries,
+- ✅ Review `plan-create` for requirement elicitation, backlog plan boundaries,
   template ownership, and direct invocation behavior.
-- ⬜️ Integrate `requirements-engineer` with `plan-create` as the primary
+- ✅ Integrate `requirements-engineer` with `plan-create` as the primary
   design-intent collaborator after the vision gate is accepted, including
   requirements, non-goals, boundaries, acceptance signals, open decisions, and
   plan-readiness judgment.
-- ⬜️ Review every `requirements-engineer` `Skills To Consider` entry and add
+- ✅ Review every `requirements-engineer` `Skills To Consider` entry and add
   reciprocal skill-to-role collaboration where requirements review materially
   affects the skill outcome, while preserving direct skill invocation.
-- ⬜️ Modify workflow-owned skills identified by the reciprocal review while
+- ✅ Modify workflow-owned skills identified by the reciprocal review while
   preserving standalone skill behavior.
-- ⬜️ Keep `plan-create` responsible for template resolution, file placement,
+- ✅ Keep `plan-create` responsible for template resolution, file placement,
   lifecycle status, plan structure, verification, and final reporting.
-- ⬜️ If `plan-create` changes, verify it still elicits requirements when invoked
+- ✅ If `plan-create` changes, verify it still elicits requirements when invoked
   directly with an under-specified idea.
-- ⬜️ Verify `plan-create` waits for accepted design intent before generating
+- ✅ Verify `plan-create` waits for accepted design intent before generating
   implementation phases/tasks, even when `requirements-engineer` delegation is
   used.
+
+Implementation notes:
+
+- Added the workflow-owned `requirements-engineer` role under
+  `aix/workflows/design-plan-execute/roles/project-dev/requirements-engineer.md`.
+  The role focuses on translating accepted product vision into requirements,
+  actors, workflows, inputs, outputs, constraints, non-goals, boundaries,
+  acceptance signals, open decisions, and plan-readiness evidence.
+- Reviewed `plan-create` for requirement elicitation, backlog-plan boundaries,
+  template ownership, lifecycle gates, direct invocation behavior, and the
+  existing product, design, architecture, security, and UX writing role hooks.
+- Updated `plan-create` so it can use `requirements-engineer` as the primary
+  Design Intent collaborator after the high-level goal is accepted. The skill
+  keeps ownership of template resolution, file placement, lifecycle state,
+  plan structure, verification, and final reporting.
+- Preserved direct `plan-create` invocation when roles are unavailable by
+  instructing it to ask concise requirements, actor, workflow, constraint,
+  non-goal, boundary, acceptance-signal, and open-decision questions itself
+  after the high-level goal is accepted.
+- Reviewed the `requirements-engineer` `Skills To Consider` entries. Added
+  reciprocal collaboration to `plan-review` because requirements readiness
+  materially affects activation and execution readiness. Added reciprocal
+  collaboration to `plan-update` because requirements, boundaries, acceptance
+  signals, and open decisions often change after a plan already exists.
+- Reviewed the previously shipped project-development roles against
+  `plan-update`. Added `plan-update` as a skill hint and conditional
+  `Skills To Consider` entry for `product-strategist`, `product-designer`,
+  `requirements-engineer`, `technical-architect`, `security-reviewer`, and
+  `ux-writer`.
+- Updated workflow README, stable workflow design docs, role tests, init
+  tests, package-smoke tests, and skill-instruction tests for the new
+  workflow-owned role and collaboration path.
 
 Verification:
 
@@ -1448,6 +1480,45 @@ Verification:
   status.
 - Human approval recorded before starting the next project-development role
   phase.
+
+- Completed: ran automated role formatting, front matter, and contract checks
+  through `tests/roles.test.mjs`.
+- Completed: manually reviewed the `requirements-engineer` role file against
+  the role verification rubric. It is operating doctrine rather than persona
+  prose, names inspected context, keeps authority bounded, preserves parent
+  ownership, and returns actionable evidence.
+- Completed: manually verified changed skills still stand alone:
+  `plan-create` and `plan-review` each include direct no-role fallback
+  behavior.
+- Completed: verified `delegate-to-role` delegates to
+  `requirements-engineer` through prompt-overlay fallback in
+  `tests/roles.test.mjs`.
+- Completed: manually verified `requirements-engineer` produces a useful
+  requirements brief, non-goals, boundaries, acceptance signals, open
+  decisions, and plan-readiness judgment in a representative scenario.
+- Completed: verified `plan-create` still preserves the Design Intent gate and
+  waits for accepted Design Intent before implementation phases or tasks are
+  drafted, including when requirements delegation is available.
+- Pending: human approval is not yet recorded. Phase 12 must not start until
+  the developer reviews this phase and explicitly approves continuation.
+
+Execution notes:
+
+- 2026-08-25: Added `requirements-engineer`, wired bounded collaboration into
+  `plan-create` and `plan-review`, updated workflow README and stable workflow
+  design docs, and extended role, init, package-smoke, and
+  skill-instruction tests. Verification: `npm run build`; `node --test
+  tests/roles.test.mjs tests/skill-instructions.test.mjs`; `node --test
+  tests/init.test.mjs tests/package-smoke.test.mjs`;
+  `AIX_CACHE_DIR=/private/tmp/aix-phase11-cache npm test` passed with 173
+  tests; `git diff --check`.
+- 2026-08-25: Follow-up review added `plan-update` collaboration for all
+  shipped project-development roles and wired `plan-update` to request bounded
+  product-strategy, product-design, requirements, architecture, security, or
+  UX writing input when a plan maintenance edit touches those concerns.
+  Verification: `npm run build`; `node --test tests/roles.test.mjs
+  tests/skill-instructions.test.mjs`; `AIX_CACHE_DIR=/private/tmp/aix-phase11-plan-update-cache
+  npm test` passed with 175 tests; `git diff --check`.
 
 ### Phase 12: Project-dev role: quality-engineer (status: approved)
 

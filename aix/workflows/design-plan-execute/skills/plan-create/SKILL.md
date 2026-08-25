@@ -37,6 +37,18 @@ returned evidence into `Design Intent`, `Non-Goals`,
 constraints, open questions, and human review notes as appropriate. Do not use
 the role to finalize product surfaces without developer review.
 
+When `.agents/roles/requirements-engineer.md` exists and the high-level goal
+has been accepted, use `delegate-to-role` or a prompt-overlay delegation to
+request a bounded requirements pass for Design Intent. Good triggers include
+requirements, actors, workflows, inputs, outputs, constraints, non-goals,
+boundaries, invariants, acceptance signals, open decisions, and
+plan-readiness judgment. Fold the returned evidence into `Design Intent`,
+`Non-Goals`, `Boundaries And Invariants`, verification expectations, risks,
+Security Review expectations, implementation-phase constraints, open
+questions, and human review notes as appropriate. Do not use the role to
+invent requirements from thin context or to approve implementation phases
+before Design Intent is accepted.
+
 When `.agents/roles/technical-architect.md` exists and the plan involves
 system boundaries, component contracts, module ownership, runtime contracts,
 integration choices, data flow, persistence, package-management behavior,
@@ -78,6 +90,11 @@ Do not require `product-designer` for direct use either. If the role is
 unavailable or the host cannot delegate, continue the planning session yourself
 by asking concise flow, interaction, accessibility, and design-system questions
 when those concerns apply.
+Do not require `requirements-engineer` for direct use either. If the role is
+unavailable or the host cannot delegate, continue the planning session yourself
+by asking concise requirements, actor, workflow, constraint, non-goal,
+boundary, acceptance-signal, and open-decision questions after the high-level
+goal is accepted.
 Do not require `technical-architect` for direct use either. If the role is
 unavailable or the host cannot delegate, continue the planning session yourself
 by asking concise boundary, contract, integration, maintainability, and
@@ -128,10 +145,14 @@ README, and verification questions when copy or docs language concerns apply.
    the accepted goal into design intentions that describe the intended
    implementation shape, tradeoffs, boundaries, interfaces, data and safety
    posture, verification needs, rollout considerations, non-goals, and open
-   decisions. Use `product-designer` for a bounded design pass when the plan
-   touches user flows, interaction design, accessibility, layout hierarchy,
-   prototypes, terminal UX, prompts, or design-system fit. Use
-   `technical-architect` for a bounded architecture pass when the plan touches
+   decisions. Use `requirements-engineer` for a bounded requirements pass
+   when requirements, actors, workflows, inputs, outputs, constraints,
+   non-goals, boundaries, acceptance signals, open decisions, or
+   plan-readiness judgment need specialist review. Use `product-designer` for
+   a bounded design pass when the plan touches user flows, interaction design,
+   accessibility, layout hierarchy, prototypes, terminal UX, prompts, or
+   design-system fit. Use `technical-architect` for a bounded architecture
+   pass when the plan touches
    system boundaries, component contracts, integration choices, runtime
    contracts, persistence, data flow, package-management behavior, workflow
    lifecycle behavior, or maintainability tradeoffs. Use `security-reviewer`
@@ -175,7 +196,7 @@ Require explicit user agreement before moving past these gates:
 
 - Vision gate: `Context` and `High-Level Goal` are clear enough to continue.
 - High-level goal agreed.
-- Design intent agreed.
+- Requirements and Design Intent agreed.
 - Each implementation phase and its tasks agreed.
 - Final backlog plan accepted.
 

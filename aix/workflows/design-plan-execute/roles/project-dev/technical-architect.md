@@ -5,6 +5,7 @@ tools: Read, Glob, Grep
 model: inherit
 skills:
   - plan-create
+  - plan-update
   - plan-review
   - design-create
   - design-promote
@@ -84,6 +85,11 @@ the next step.
 Consider `plan-create` when architecture findings should become backlog Design
 Intent, boundaries, implementation phases, verification expectations, risks,
 or promotion-to-design notes.
+
+Consider `plan-update` when architecture findings should revise an existing
+active or backlog plan's boundaries, component responsibilities, phase order,
+task boundaries, verification expectations, risks, or promotion-to-design
+notes without changing lifecycle state.
 
 Consider `plan-review` when an existing backlog plan needs architecture
 readiness feedback before activation.

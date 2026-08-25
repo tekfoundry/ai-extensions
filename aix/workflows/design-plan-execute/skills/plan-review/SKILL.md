@@ -52,6 +52,20 @@ notes as appropriate. Do not require `product-designer` for direct use. If the
 role is unavailable or the host cannot delegate, continue the review yourself
 by checking the same product-design readiness concerns.
 
+When `.agents/roles/requirements-engineer.md` exists and the plan needs
+requirements-readiness review, use `delegate-to-role` or a prompt-overlay
+delegation to request a bounded requirements pass. Good triggers include
+requirements, actors, workflows, inputs, outputs, constraints, non-goals,
+boundaries, invariants, acceptance signals, open decisions, Design Intent
+readiness, and whether implementation phases were drafted too early.
+
+Fold returned evidence into review findings, activation blockers, risks,
+verification gaps, requested plan revisions, open questions, human-review
+notes, or readiness notes as appropriate. Do not require
+`requirements-engineer` for direct use. If the role is unavailable or the host
+cannot delegate, continue the review yourself by checking the same
+requirements-readiness concerns.
+
 When `.agents/roles/security-reviewer.md` exists and the plan has
 security-sensitive scope, use `delegate-to-role` or a prompt-overlay delegation
 to request a bounded security-readiness pass. Good triggers include trust
@@ -107,6 +121,9 @@ concerns.
 - Do not claim readiness when a material data-safety, credential,
   external-system, publishing, persistence, runtime-boundary, or contract
   decision remains unresolved.
+- Do not claim readiness when a plan lacks required actors, workflows, inputs,
+  outputs, constraints, non-goals, boundaries, acceptance signals, or
+  decision timing for unresolved requirements.
 - Do not claim readiness when a plan with security-sensitive scope lacks
   trust-boundary, credential, authorization, destructive-operation, dependency,
   failure-path, or safety-verification decisions.

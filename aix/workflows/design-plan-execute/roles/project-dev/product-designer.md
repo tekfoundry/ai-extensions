@@ -5,6 +5,7 @@ tools: Read, Glob, Grep
 model: inherit
 skills:
   - plan-create
+  - plan-update
   - plan-review
 color: pink
 ---
@@ -71,6 +72,11 @@ or user workflow, return the gap rather than inventing it.
 Consider `plan-create` when design findings should become backlog design
 intent, non-goals, boundaries, verification expectations, or implementation
 phase constraints.
+
+Consider `plan-update` when design findings should revise an existing active
+or backlog plan's user-flow constraints, interaction states, accessibility
+expectations, verification notes, open questions, or human-review notes
+without changing lifecycle state.
 
 Consider `plan-review` when an existing backlog plan needs user-flow,
 interaction, accessibility, layout, or design-system readiness feedback before

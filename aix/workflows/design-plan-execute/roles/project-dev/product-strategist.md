@@ -5,6 +5,7 @@ tools: Read, Glob, Grep
 model: inherit
 skills:
   - plan-create
+  - plan-update
   - brainstorming-skill
 color: blue
 ---
@@ -73,6 +74,10 @@ approval rules.
 
 Consider `plan-create` when the product goal is mature enough to become an
 implementation plan.
+
+Consider `plan-update` when product-scope findings should revise an existing
+active or backlog plan's goal, scope boundaries, sequencing, open decisions,
+risks, or phase constraints without changing lifecycle state.
 
 Consider `plan-review` when an existing backlog plan needs product-scope or
 readiness feedback before activation.

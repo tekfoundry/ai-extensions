@@ -205,17 +205,20 @@ are complete. Blocking security findings should become normal plan tasks before
 completion, while the section preserves the review evidence and residual risk.
 
 The default `design-plan-execute` workflow installs project-development roles
-for product strategy, product design, technical architecture, security review,
-and UX writing. The `security-reviewer` role contributes bounded review of
-trust boundaries, secrets, authorization, destructive operations, dependency
-risk, source resolution, lockfile integrity, and no-write guarantees. The
-`ux-writer` role contributes bounded review of labels, prompts, command help,
-terminal output, errors, empty states, onboarding copy, README language,
-workflow instructions, and other product or developer-facing text. Planning,
-review, design creation, design promotion, documentation review,
-verification, and completion skills remain directly runnable without role
-context, but use the matching role when installed and when the role's specialty
-materially affects the outcome.
+for product strategy, product design, requirements, technical architecture,
+security review, and UX writing. The `requirements-engineer` role contributes
+bounded review of accepted product vision, requirements, non-goals,
+boundaries, acceptance signals, open decisions, and Design Intent readiness
+before implementation phases are drafted. The `security-reviewer` role
+contributes bounded review of trust boundaries, secrets, authorization,
+destructive operations, dependency risk, source resolution, lockfile
+integrity, and no-write guarantees. The `ux-writer` role contributes bounded
+review of labels, prompts, command help, terminal output, errors, empty states,
+onboarding copy, README language, workflow instructions, and other product or
+developer-facing text. Planning, plan maintenance, review, design creation,
+design promotion, documentation review, verification, and completion skills
+remain directly runnable without role context, but use the matching role when
+installed and when the role's specialty materially affects the outcome.
 
 Plan completion should include a human validation gate before the completion
 checklist is finished. In the normal case, the developer evaluates the completed

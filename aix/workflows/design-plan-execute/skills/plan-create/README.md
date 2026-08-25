@@ -56,6 +56,11 @@ runnable without role context. When the workflow-owned `product-designer` role
 is installed, the skill can use it for bounded user-flow, interaction,
 accessibility, layout, prompt, terminal UX, and design-system review while
 still asking those questions itself when the role is unavailable. When the
+workflow-owned `requirements-engineer` role is installed after the high-level
+goal is accepted, the skill can use it for bounded requirements, non-goals,
+boundaries, acceptance signals, open decisions, and plan-readiness judgment
+while still eliciting those requirements itself when the role is unavailable.
+When the
 workflow-owned `technical-architect` role is installed, the skill can use it
 for bounded boundary, contract, integration, maintainability, and
 implementation-phase sequencing review while still asking those questions
