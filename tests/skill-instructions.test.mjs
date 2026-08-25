@@ -99,7 +99,13 @@ test("plan-create declares gated planning and product-strategy collaboration", (
   assert.match(skill, /`plan-create` owns the planning procedure and the backlog plan artifact/);
   assert.match(skill, /When `.agents\/roles\/product-strategist\.md` exists/);
   assert.match(skill, /use `delegate-to-role` or a prompt-overlay delegation/);
+  assert.match(skill, /When `.agents\/roles\/product-designer\.md` exists/);
+  assert.match(skill, /user\s+flows, interaction design, accessibility, layout hierarchy, prototypes/);
+  assert.match(skill, /terminal UX, prompts, or design-system fit/);
+  assert.match(skill, /Do not use\s+the role to finalize product surfaces without developer review/);
   assert.match(skill, /Do not require `product-strategist` for direct use/);
+  assert.match(skill, /Do not require `product-designer` for direct use either/);
+  assert.match(skill, /asking concise flow, interaction, accessibility, and design-system questions/);
   assert.match(skill, /Run the vision gate first/);
   assert.match(skill, /Record acceptance on the `High-Level Goal` heading only after the user\s+agrees/);
   assert.match(skill, /Treat template comments marked\s+`DO NOT INCLUDE IN OUTPUT` as agent-only instructions/);

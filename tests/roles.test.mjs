@@ -296,7 +296,7 @@ test("discoverRoles reports shipped workflow-owned project development roles", (
 
   assert.deepEqual(
     roles.map((role) => role.name),
-    ["product-strategist"]
+    ["product-designer", "product-strategist"]
   );
 
   for (const role of roles) {
@@ -315,6 +315,20 @@ test("resolveRoleDelegation delegates to the shipped product strategist role", (
   assert.match(prompt, /Generate and evaluate product ideas/);
   assert.match(prompt, /Candidate ideas when the task is pure brainstorming/);
   assert.match(prompt, /Product value and why it matters now/);
+  assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
+});
+
+test("resolveRoleDelegation delegates to the shipped product designer role", () => {
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/product-designer.md");
+  const resolution = resolveRoleDelegation("use product-designer to review this plan", [role]);
+  const prompt = buildPromptOverlayDelegation(role, "Review the onboarding flow in this backlog plan.");
+
+  assert.equal(resolution.role.name, "product-designer");
+  assert.equal(resolution.mode, "prompt-overlay");
+  assert.match(prompt, /Name: product-designer/);
+  assert.match(prompt, /Review product-facing plans, workflows, screens, prompts, prototypes/);
+  assert.match(prompt, /Primary user flow and whether it is complete enough to implement/);
+  assert.match(prompt, /Accessibility and usability expectations/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 

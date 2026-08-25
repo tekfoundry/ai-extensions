@@ -52,6 +52,10 @@ phase tasks, risks, verification, and final backlog acceptance. It does not
 draft implementation phases or task lists until Design Intent is accepted.
 When the workflow-owned `product-strategist` role is installed, the skill can
 use it for bounded product-vision judgment while still remaining directly
-runnable without role context. New plans are placed under
+runnable without role context. When the workflow-owned `product-designer` role
+is installed, the skill can use it for bounded user-flow, interaction,
+accessibility, layout, prompt, terminal UX, and design-system review while
+still asking those questions itself when the role is unavailable. New plans
+are placed under
 `_docs/plans/backlog/` and pause there until the developer later uses
 `plan-activate`.

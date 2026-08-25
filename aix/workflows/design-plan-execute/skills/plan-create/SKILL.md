@@ -28,9 +28,22 @@ product-strategy pass. Fold the returned evidence into `Context`,
 `High-Level Goal`, open questions, risks, and later scope boundaries as
 appropriate.
 
+When `.agents/roles/product-designer.md` exists and the plan involves user
+flows, interaction design, accessibility, layout hierarchy, prototypes,
+terminal UX, prompts, or design-system fit, use `delegate-to-role` or a
+prompt-overlay delegation to request a bounded product-design pass. Fold the
+returned evidence into `Design Intent`, `Non-Goals`,
+`Boundaries And Invariants`, verification expectations, implementation-phase
+constraints, open questions, and human review notes as appropriate. Do not use
+the role to finalize product surfaces without developer review.
+
 Do not require `product-strategist` for direct use. If the role is unavailable
 or the host cannot delegate, continue the planning session yourself by asking
 concise product-vision questions and recording the answers in the living plan.
+Do not require `product-designer` for direct use either. If the role is
+unavailable or the host cannot delegate, continue the planning session yourself
+by asking concise flow, interaction, accessibility, and design-system questions
+when those concerns apply.
 
 ## Workflow
 
@@ -68,7 +81,9 @@ concise product-vision questions and recording the answers in the living plan.
    the accepted goal into design intentions that describe the intended
    implementation shape, tradeoffs, boundaries, interfaces, data and safety
    posture, verification needs, rollout considerations, non-goals, and open
-   decisions.
+   decisions. Use `product-designer` for a bounded design pass when the plan
+   touches user flows, interaction design, accessibility, layout hierarchy,
+   prototypes, terminal UX, prompts, or design-system fit.
 9. Iterate on design intent until the user explicitly agrees that it captures
    the desired direction. Do not generate implementation phases or task lists
    before Design Intent is accepted.

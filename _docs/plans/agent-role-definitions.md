@@ -952,42 +952,79 @@ Execution notes:
   product guidance and respected the gated planning flow. Phase 6 marked
   complete; Phase 7 not started.
 
-### Phase 7: Project-dev role: product-designer (status: approved)
+### Phase 7: Project-dev role: product-designer (status: in progress)
 
 Goal: Add the workflow-owned `product-designer` role with a clean manual
 validation checkpoint.
 
 Tasks:
 
-- ⬜️ Create
+- ✅ Create
   `aix/workflows/design-plan-execute/roles/project-dev/product-designer.md`.
-- ⬜️ Review existing design docs and any UI/UX guidance in workflow docs for
+- ✅ Review existing design docs and any UI/UX guidance in workflow docs for
   context.
-- ⬜️ Integrate `product-designer` with `plan-create` where plans involve user
+- ✅ Integrate `product-designer` with `plan-create` where plans involve user
   flows, interaction design, accessibility, layout hierarchy, or design-system
   fit, while keeping `plan-create` directly runnable.
-- ⬜️ Modify workflow-owned skills only if the role exposes a clear standalone
+- ✅ Modify workflow-owned skills only if the role exposes a clear standalone
   skill gap.
-- ⬜️ If any skill is changed, verify the skill still works when invoked
+- ✅ If any skill is changed, verify the skill still works when invoked
   directly without role context.
+
+Implementation notes:
+
+- Added the workflow-owned `product-designer` role under
+  `aix/workflows/design-plan-execute/roles/project-dev/product-designer.md`.
+  The role focuses on user flows, interaction states, accessibility,
+  information hierarchy, layout and scannability, design-system fit, prompt and
+  terminal UX, human review questions, and residual design uncertainty.
+- Reviewed existing design and workflow guidance for product-facing context:
+  `_docs/design/README.md`, `_docs/design/overview.md`,
+  `_docs/design/package-management.md`, `_docs/design/workflows.md`,
+  `_docs/design/cli.md`, `.agents/workflow.md`, and
+  `.agents/engineering-best-practices.md`.
+- Updated `plan-create` so it can use `product-designer` for bounded
+  product-design review when a plan involves user flows, interaction design,
+  accessibility, layout hierarchy, prototypes, terminal UX, prompts, or
+  design-system fit. The skill remains directly runnable when the role is
+  unavailable by asking concise design questions itself.
+- Updated `plan-create` README and static skill-instruction coverage for the
+  new collaboration path. No additional workflow-owned skill gaps were found.
 
 Verification:
 
-- Run automated role formatting, front matter, and contract checks.
-- Manually review the `product-designer` role file against the role
+- Completed: ran automated role formatting, front matter, and contract checks
+  through `tests/roles.test.mjs`.
+- Completed: manually reviewed the `product-designer` role file against the role
   verification rubric.
-- Manually verify any changed skills still stand alone.
-- Manually verify any `plan-create` changes preserve direct planning behavior
-  and add useful design-review prompts only when design context applies.
-- Manually verify `delegate-to-role` delegates to `product-designer`.
-- Manually verify `product-designer` produces useful flow, interaction,
-  accessibility, layout, and design-system feedback in a representative
-  scenario.
-- Record automated checks, manual role review, skill standalone review,
-  delegation verification, scenario-quality result, and commit checkpoint
-  status.
-- Human approval recorded before starting the next project-development role
-  phase.
+- Completed: manually verified changed `plan-create` guidance still preserves
+  direct skill invocation without requiring role context.
+- Completed: manually verified `plan-create` changes preserve direct planning
+  behavior and add useful design-review prompts only when design context
+  applies.
+- Completed: verified `delegate-to-role` delegates to `product-designer`
+  through prompt-overlay fallback in `tests/roles.test.mjs`.
+- Pending human checkpoint: manually verify `product-designer` produces useful
+  flow, interaction, accessibility, layout, and design-system feedback in a
+  representative scenario.
+- Completed: recorded automated checks, manual role review, skill standalone
+  review, and delegation verification. Scenario-quality result and commit
+  checkpoint status remain pending the human checkpoint.
+- Pending human checkpoint: human approval recorded before starting the next
+  project-development role phase.
+
+Execution notes:
+
+- 2026-08-25: Added `product-designer`, wired bounded `plan-create`
+  collaboration for design-sensitive plans, and updated role/init/skill
+  instruction coverage. Verification: `npm run build`; `node --test
+  tests/roles.test.mjs`; `node --test tests/skill-instructions.test.mjs`;
+  `node --test tests/workflow.test.mjs`; `node --test tests/init.test.mjs`;
+  `node --test tests/status.test.mjs tests/verify.test.mjs`; `node --test
+  tests/package-smoke.test.mjs`; `AIX_CACHE_DIR=/private/tmp/aix-phase7-cache
+  npm test` passed with 163 tests; `git diff --check`.
+  Remaining gap: human scenario-quality review and human checkpoint approval
+  are required before marking Phase 7 complete or starting Phase 8.
 
 ### Phase 8: Project-dev role: technical-architect (status: approved)
 
