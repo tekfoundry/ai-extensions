@@ -952,7 +952,7 @@ Execution notes:
   product guidance and respected the gated planning flow. Phase 6 marked
   complete; Phase 7 not started.
 
-### Phase 7: Project-dev role: product-designer (status: in progress)
+### Phase 7: Project-dev role: product-designer (status: complete)
 
 Goal: Add the workflow-owned `product-designer` role with a clean manual
 validation checkpoint.
@@ -1004,14 +1004,15 @@ Verification:
   applies.
 - Completed: verified `delegate-to-role` delegates to `product-designer`
   through prompt-overlay fallback in `tests/roles.test.mjs`.
-- Pending human checkpoint: manually verify `product-designer` produces useful
-  flow, interaction, accessibility, layout, and design-system feedback in a
-  representative scenario.
+- Completed: human checkpoint approved. The representative `plan-create`
+  scenario produced useful flow, interaction, accessibility, layout,
+  design-system, terminal UX, and recovery-path guidance, honored planning
+  gates, and used `product-designer` product-design judgment appropriately.
 - Completed: recorded automated checks, manual role review, skill standalone
-  review, and delegation verification. Scenario-quality result and commit
-  checkpoint status remain pending the human checkpoint.
-- Pending human checkpoint: human approval recorded before starting the next
-  project-development role phase.
+  review, delegation verification, and scenario-quality result. Commit
+  checkpoint status was not requested for this phase checkpoint.
+- Completed: human approval recorded for Phase 7 completion. Phase 8 remains
+  unstarted until explicitly requested.
 
 Execution notes:
 
@@ -1023,8 +1024,15 @@ Execution notes:
   `node --test tests/status.test.mjs tests/verify.test.mjs`; `node --test
   tests/package-smoke.test.mjs`; `AIX_CACHE_DIR=/private/tmp/aix-phase7-cache
   npm test` passed with 163 tests; `git diff --check`.
-  Remaining gap: human scenario-quality review and human checkpoint approval
-  are required before marking Phase 7 complete or starting Phase 8.
+- 2026-08-25: Human checkpoint approved for Phase 7. The manual
+  `product-designer` plus `plan-create` scenario produced useful
+  product-design guidance and respected the gated planning flow. The
+  scenario-created backlog plan was removed after review, leaving only this
+  execution record. Phase 7 marked complete; Phase 8 not started.
+- 2026-08-25: Updated the workflow README to add an `Installed Roles` section
+  for workflow-owned project-development roles and normalized the
+  `Installed Skills` section to match the project README's bundled asset table
+  format. Verification: `git diff --check`.
 
 ### Phase 8: Project-dev role: technical-architect (status: approved)
 

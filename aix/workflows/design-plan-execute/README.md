@@ -77,37 +77,41 @@ agent creates and updates them while following the developer workflow below.
 Existing project-owned documentation is preserved. Routine workflow updates do
 not rewrite project documents.
 
+## Installed Roles
+
+This workflow installs these roles:
+
+| Role name | Example prompts | What it does |
+| --- | --- | --- |
+| [`product-strategist`](roles/project-dev/product-strategist.md) | "Use product-strategist to review this feature idea."<br>"Should this idea become a plan, or should we narrow it first?"<br>"Compare these feature ideas by user value and sequencing." | Generates and evaluates product ideas, audience fit, scope, tradeoffs, and sequencing before planned work is accepted. |
+| [`product-designer`](roles/project-dev/product-designer.md) | "Use product-designer to review this workflow."<br>"Review this plan's user flow and accessibility before implementation."<br>"Does this prompt flow have clear states, recovery paths, and layout hierarchy?" | Reviews user flows, interaction design, accessibility, layout hierarchy, prototypes, terminal UX, and design-system fit before product-facing work is finalized. |
+
+The workflow activates these roles under `.agents/roles/`. Remove or update the
+workflow to change them. Do not deactivate them like normal root roles.
+
 ## Installed Skills
 
 This workflow installs these skills:
 
-- `project-init`: create or repair the project-owned `_docs` structure.
-- `brainstorming-skill`: run project-grounded idea discovery before
-  implementation planning.
-- `design-create`: create a focused stable design document with the right
-  template and index links.
-- `plan-create`: turn an idea into a backlog plan for review.
-- `plan-review`: review a plan for scope, authorization, design completeness,
-  risks, and verification readiness.
-- `plan-activate`: move a human-authorized backlog plan into active
-  implementation.
-- `plan-update`: revise an active or backlog plan without implementing it.
-- `plan-execute`: run an active implementation plan across phases.
-- `phase-execute`: execute one phase of an active plan through focused tasks.
-- `task-execute`: implement one concrete task from an active plan, or one
-  approved micro-fix.
-- `work-verify`: choose and run targeted checks for changed behavior.
-- `code-review-refactor`: review project code for maintainability risks and
-  route selected refactors through the right workflow path.
-- `delegate-to-role`: select an installed project role and prepare bounded
-  delegation while preserving parent-context ownership.
-- `plan-defer`: move active planned work back to the backlog.
-- `plan-complete`: close a plan after tasks, verification, documentation, and
-  risks are resolved or recorded.
-- `design-promote`: move accepted behavior from completed plans into stable
-  design docs.
-- `documentation-review`: review documentation structure, formatting, links,
-  and current-state accuracy.
+| Skill name | Example prompts | What it does |
+| --- | --- | --- |
+| [`project-init`](skills/project-init/README.md) | "Initialize project."<br>"Bootstrap project docs." | Creates or repairs the project-owned `_docs` structure without overwriting existing project-owned content. |
+| [`brainstorming-skill`](skills/brainstorming-skill/README.md) | "Use brainstorming-skill. Let's brainstorm."<br>"Brainstorm new workflow ideas."<br>"Review our ideas and help prioritize what should come next." | Runs project-grounded idea discovery before implementation planning, maintains `_docs/ideas.md`, and routes mature ideas toward `plan-create`. |
+| [`design-create`](skills/design-create/README.md) | "Use design-create for this feature."<br>"Create a stable design doc for workflow install." | Creates a focused stable design document in the right `_docs/design` area, using the workflow template and index links. |
+| [`plan-create`](skills/plan-create/README.md) | "Use plan-create to plan saved search filters."<br>"Create a plan for workflow update diff previews." | Turns an idea into a backlog implementation plan through gated vision, design-intent, phase, and task review. |
+| [`plan-review`](skills/plan-review/README.md) | "Use plan-review on this backlog plan."<br>"Review this plan before activation." | Reviews an implementation plan for scope, authorization, design completeness, risks, and verification readiness without implementing it. |
+| [`plan-activate`](skills/plan-activate/README.md) | "Use plan-activate on this backlog plan."<br>"Activate the approved plan." | Moves a human-authorized backlog plan into active implementation without changing its intended scope. |
+| [`plan-update`](skills/plan-update/README.md) | "Use plan-update to revise this plan."<br>"Record this risk in the active plan." | Updates an active or backlog implementation plan without executing it or changing lifecycle boundaries. |
+| [`plan-execute`](skills/plan-execute/README.md) | "Use plan-execute on this active plan."<br>"Continue the current implementation plan." | Orchestrates execution of an active implementation plan across phases while preserving plan continuity and verification evidence. |
+| [`phase-execute`](skills/phase-execute/README.md) | "Use phase-execute for Phase 3."<br>"Complete as much of the current phase as possible." | Executes one active-plan phase through bounded task work and records phase-level evidence, risks, and gaps. |
+| [`task-execute`](skills/task-execute/README.md) | "Use task-execute for the next task."<br>"Implement this active-plan task." | Implements one concrete task from an active plan, or one approved micro-fix, with targeted verification and plan updates. |
+| [`work-verify`](skills/work-verify/README.md) | "Use work-verify on this change."<br>"Verify the current phase." | Selects and runs targeted verification for a change, then reports evidence, gaps, and whether success criteria are satisfied. |
+| [`code-review-refactor`](skills/code-review-refactor/README.md) | "Use code-review-refactor."<br>"Review these changes for maintainability risks." | Reviews project code for maintainability risks and routes substantial refactors through developer-approved planning. |
+| [`delegate-to-role`](skills/delegate-to-role/README.md) | "Use quality-engineer."<br>"Delegate to documentation-specialist." | Selects an installed project role and prepares bounded delegation while preserving parent-context ownership. |
+| [`plan-defer`](skills/plan-defer/README.md) | "Use plan-defer for this active plan."<br>"Move this work back to backlog." | Moves planned work out of active implementation and back into backlog while preserving status and future activation context. |
+| [`plan-complete`](skills/plan-complete/README.md) | "Use plan-complete."<br>"Complete and archive this plan." | Closes an implementation plan after tasks, verification, human validation, design promotion, risks, and documentation impact are resolved or recorded. |
+| [`design-promote`](skills/design-promote/README.md) | "Use design-promote for this completed plan."<br>"Promote accepted behavior into design docs." | Transfers accepted durable behavior from completed implementation plans into stable design documentation. |
+| [`documentation-review`](skills/documentation-review/README.md) | "Use documentation-review."<br>"Check the docs after this phase." | Reviews documentation structure, formatting, links, maintainability, and current-state accuracy; fixes issues or records follow-up work. |
 
 The workflow activates these skills under `.agents/skills/`. Remove or update
 the workflow to change them. Do not deactivate them like normal root skills.
