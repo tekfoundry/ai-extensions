@@ -86,6 +86,8 @@ none remain, write "None." or remove the section.
 
 {{ section:risks }}
 
+{{ section:security-review }}
+
 ## Lessons To Carry Forward
 
 <!-- DO NOT INCLUDE IN OUTPUT

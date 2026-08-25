@@ -1177,55 +1177,108 @@ Execution notes:
   modify implementation files. The generated test plan was deleted after
   review.
 
-### Phase 9: Project-dev role: security-reviewer (status: approved)
+### Phase 9: Project-dev role: security-reviewer (status: in progress)
 
 Goal: Add the workflow-owned `security-reviewer` role with a clean manual
 validation checkpoint.
 
 Tasks:
 
-- ⬜️ Create
+- ✅ Create
   `aix/workflows/design-plan-execute/roles/project-dev/security-reviewer.md`.
-- ⬜️ Review workflow safety rules, package-management design, and verification
+- ✅ Review workflow safety rules, package-management design, and verification
   skills for context.
-- ⬜️ Integrate `security-reviewer` with `plan-create` for trust boundaries,
+- ✅ Integrate `security-reviewer` with `plan-create` for trust boundaries,
   secrets, authorization, destructive operations, dependency risk, and
   safety-sensitive verification before implementation is authorized.
-- ⬜️ Review every `security-reviewer` `Skills To Consider` entry and add
+- ✅ Review every `security-reviewer` `Skills To Consider` entry and add
   reciprocal skill-to-role collaboration where security review materially
   affects the skill outcome, while preserving direct skill invocation.
-- ⬜️ Update the plan template and `plan-create` instructions to include a
+- ✅ Update the plan template and `plan-create` instructions to include a
   formal `Security Review` section for post-phase findings.
-- ⬜️ Update the completion checklist so every plan performs one security review
+- ✅ Update the completion checklist so every plan performs one security review
   after all implementation phases are complete and before plan completion.
-- ⬜️ Ensure security-review findings are recorded in the `Security Review`
+- ✅ Ensure security-review findings are recorded in the `Security Review`
   section and any blocking findings become normal plan tasks before closeout.
-- ⬜️ Modify workflow-owned skills identified by the reciprocal review while
+- ✅ Modify workflow-owned skills identified by the reciprocal review while
   preserving standalone skill behavior.
-- ⬜️ If any skill is changed, verify the skill still works when invoked
+- ✅ If any skill is changed, verify the skill still works when invoked
   directly without role context.
+
+Implementation notes:
+
+- Added the workflow-owned `security-reviewer` role under
+  `aix/workflows/design-plan-execute/roles/project-dev/security-reviewer.md`.
+  The role focuses on trust boundaries, secrets, authentication,
+  authorization, permissions, destructive file operations, dependency and
+  supply-chain risk, package trust, source resolution, lockfile integrity,
+  no-write guarantees, and closeout security findings.
+- Reviewed workflow safety and package-management context in `AGENTS.md`,
+  `.agents/workflow.md`, `_docs/design/package-management.md`,
+  `_docs/design/workflows.md`, `plan-create`, `plan-review`, `work-verify`,
+  and `plan-complete`.
+- Updated `plan-create` so security-sensitive plans can use
+  `security-reviewer` for bounded security review before implementation is
+  authorized, while preserving direct planning when the role is unavailable.
+- Updated `plan-review` so security-sensitive plan reviews can use
+  `security-reviewer` for bounded security-readiness review while preserving
+  direct review behavior when the role is unavailable.
+- Updated `work-verify` so security-sensitive verification can use
+  `security-reviewer` for bounded verification input while keeping
+  `work-verify` responsible for check selection, command execution, evidence,
+  and final reporting.
+- Updated `plan-complete` so closeout completes the formal Security Review
+  gate, records post-phase findings, and converts blocking security findings
+  into normal plan tasks before archive.
+- Added `templates/sections/security-review.md`, included it in the default
+  plan template before the completion checklist, and added a completion
+  checklist item requiring Security Review after implementation phases.
+- Updated workflow README, skill READMEs, stable workflow design docs, role
+  tests, init/package-smoke tests, template tests, and skill-instruction tests
+  for the new role and Security Review contract.
 
 Verification:
 
-- Run automated role formatting, front matter, and contract checks.
-- Manually review the `security-reviewer` role file against the role
-  verification rubric.
-- Manually verify any changed skills still stand alone.
-- Manually verify any `plan-create` changes preserve direct planning behavior
-  and surface security questions, non-goals, risks, and verification needs at
-  the right planning gate.
-- Manually verify the `Security Review` template section and completion
-  checklist item capture post-phase findings without replacing normal phases,
-  tasks, risks, or verification sections.
-- Manually verify `delegate-to-role` delegates to `security-reviewer`.
-- Manually verify `security-reviewer` produces useful trust-boundary, secret,
-  authorization, destructive-operation, dependency, and safety findings in a
-  representative scenario.
-- Record automated checks, manual role review, skill standalone review,
-  delegation verification, scenario-quality result, and commit checkpoint
-  status.
-- Human approval recorded before starting the next project-development role
-  phase.
+- Completed: ran automated role formatting, front matter, and contract checks
+  through `tests/roles.test.mjs`.
+- Pending human checkpoint: manually review the `security-reviewer` role file
+  against the role verification rubric.
+- Pending human checkpoint: manually verify any changed skills still stand
+  alone.
+- Pending human checkpoint: manually verify any `plan-create` changes preserve
+  direct planning behavior and surface security questions, non-goals, risks,
+  and verification needs at the right planning gate.
+- Pending human checkpoint: manually verify the `Security Review` template
+  section and completion checklist item capture post-phase findings without
+  replacing normal phases, tasks, risks, or verification sections.
+- Completed: verified `delegate-to-role` delegates to `security-reviewer`
+  through prompt-overlay fallback in `tests/roles.test.mjs`.
+- Pending human checkpoint: manually verify `security-reviewer` produces useful
+  trust-boundary, secret, authorization, destructive-operation, dependency,
+  and safety findings in a representative scenario.
+- Completed: recorded automated checks and delegation verification. Manual
+  role review, skill standalone review, plan-create review, Security Review
+  template/checklist review, scenario-quality result, commit checkpoint status,
+  and human approval remain pending the human checkpoints.
+- Pending human checkpoint: human approval recorded before starting the next
+  project-development role phase.
+
+Execution notes:
+
+- 2026-08-25: Added `security-reviewer`, wired bounded collaboration into
+  `plan-create`, `plan-review`, `work-verify`, and `plan-complete`, added the
+  reusable `Security Review` plan section and closeout checklist item, updated
+  workflow README and stable workflow design docs, and extended role, init,
+  package-smoke, template, and skill-instruction tests. Verification:
+  `node --test tests/skill-instructions.test.mjs`; `git diff --check`;
+  `node --test tests/roles.test.mjs tests/init.test.mjs
+  tests/package-smoke.test.mjs tests/skill-instructions.test.mjs`;
+  `node --test tests/templates.test.mjs`;
+  `AIX_CACHE_DIR=/private/tmp/aix-phase9-cache npm test` passed with 171 tests.
+  Remaining gap: human role review, changed-skill standalone review,
+  plan-create security planning review, Security Review template/checklist
+  review, representative scenario-quality review, commit checkpoint, and human
+  approval are required before marking Phase 9 complete or starting Phase 10.
 
 ### Phase 10: Project-dev role: ux-writer (status: approved)
 

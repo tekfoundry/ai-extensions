@@ -204,6 +204,15 @@ section and a closeout checklist item that runs after all implementation phases
 are complete. Blocking security findings should become normal plan tasks before
 completion, while the section preserves the review evidence and residual risk.
 
+The default `design-plan-execute` workflow installs project-development roles
+for product strategy, product design, technical architecture, and security
+review. The `security-reviewer` role contributes bounded review of trust
+boundaries, secrets, authorization, destructive operations, dependency risk,
+source resolution, lockfile integrity, and no-write guarantees. Planning,
+review, verification, and completion skills remain directly runnable without
+role context, but use the role when installed and when security-sensitive
+scope is present.
+
 Plan completion should include a human validation gate before the completion
 checklist is finished. In the normal case, the developer evaluates the completed
 phased work and accepts it before closeout proceeds. When manual validation is

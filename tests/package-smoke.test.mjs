@@ -45,6 +45,8 @@ test("npm pack artifact contains a working aix binary", async () => {
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/skills/brainstorming-skill/SKILL.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/skills/brainstorming-skill/README.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/skills/task-execute/SKILL.md")), true);
+  assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/templates/sections/security-review.md")), true);
+  assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/roles/project-dev/security-reviewer.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/roles/project-dev/technical-architect.md")), true);
   assert.equal(readdirSync(packDirectory).some((entry) => entry.endsWith(".tgz")), true);
   assert.match(helpOutput, /AI Extensions/);

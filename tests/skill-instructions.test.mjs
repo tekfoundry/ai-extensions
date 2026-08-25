@@ -13,6 +13,10 @@ const brainstormingSkillPath = join(process.cwd(), "aix/workflows/design-plan-ex
 const planCreatePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-create/SKILL.md");
 const planReviewPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-review/SKILL.md");
 const planCompletePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-complete/SKILL.md");
+const workVerifyPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/work-verify/SKILL.md");
+const planTemplatePath = join(process.cwd(), "aix/workflows/design-plan-execute/templates/plan.md");
+const completionChecklistTemplatePath = join(process.cwd(), "aix/workflows/design-plan-execute/templates/sections/completion-checklist.md");
+const securityReviewTemplatePath = join(process.cwd(), "aix/workflows/design-plan-execute/templates/sections/security-review.md");
 
 test("code-review-refactor skill declares workflow review contract", () => {
   const skill = readFileSync(skillPath, "utf8");
@@ -145,17 +149,24 @@ test("plan-create declares gated planning and role collaboration", () => {
   assert.match(skill, /When `.agents\/roles\/technical-architect\.md` exists/);
   assert.match(skill, /system boundaries, component contracts, module ownership, runtime contracts/);
   assert.match(skill, /Use architecture review to shape phases only after Design Intent\s+is accepted/);
+  assert.match(skill, /When `.agents\/roles\/security-reviewer\.md` exists/);
+  assert.match(skill, /trust\s+boundaries, secrets, authentication, authorization, permissions/);
+  assert.match(skill, /Security Review\s+expectations/);
+  assert.match(skill, /Do not use the role to approve unsafe behavior or\s+waive security findings/);
   assert.match(skill, /Do not require `product-strategist` for direct use/);
   assert.match(skill, /Do not require `product-designer` for direct use either/);
   assert.match(skill, /asking concise flow, interaction, accessibility, and design-system questions/);
   assert.match(skill, /Do not require `technical-architect` for direct use either/);
   assert.match(skill, /asking concise boundary, contract, integration, maintainability, and\s+verification questions/);
+  assert.match(skill, /Do not require `security-reviewer` for direct use either/);
+  assert.match(skill, /asking concise trust-boundary, credential, authorization, file-operation,\s+dependency, failure-path, and safety-verification questions/);
   assert.match(skill, /Run the vision gate first/);
   assert.match(skill, /Record acceptance on the `High-Level Goal` heading only after the user\s+agrees/);
   assert.match(skill, /Treat template comments marked\s+`DO NOT INCLUDE IN OUTPUT` as agent-only instructions/);
   assert.match(skill, /never copy those\s+comments into the project-owned plan/);
   assert.match(skill, /Do not generate implementation phases or task lists\s+before Design Intent is accepted/);
   assert.match(skill, /Use `technical-architect` for phase-shaping guidance/);
+  assert.match(skill, /Use `security-reviewer`\s+for a bounded security pass/);
   assert.match(skill, /Only after Design Intent is accepted, break it into ordered implementation\s+phases/);
   assert.match(skill, /Not drafted until Design Intent is accepted/);
   assert.match(skill, /strip every\s+`DO NOT INCLUDE IN OUTPUT` comment block from the created or updated plan/);
@@ -184,6 +195,25 @@ test("plan-review declares role collaboration", () => {
   assert.match(skill, /user flows,\s+interaction design, accessibility, layout hierarchy/);
   assert.match(skill, /Fold returned evidence into review findings, activation blockers, risks,\s+verification gaps, requested plan revisions, human-review notes/);
   assert.match(skill, /Do not require `product-designer` for direct use/);
+  assert.match(skill, /When `.agents\/roles\/security-reviewer\.md` exists/);
+  assert.match(skill, /security-sensitive scope/);
+  assert.match(skill, /trust\s+boundaries, secrets, authentication, authorization, permissions/);
+  assert.match(skill, /Fold returned evidence into review findings, activation blockers, risks,\s+verification gaps, requested plan revisions, Security Review notes/);
+  assert.match(skill, /Do not require\s+`security-reviewer` for direct use/);
+  assert.match(skill, /lacks\s+trust-boundary, credential, authorization, destructive-operation, dependency,\s+failure-path, or safety-verification decisions/);
+});
+
+test("work-verify declares security review collaboration", () => {
+  const skill = readFileSync(workVerifyPath, "utf8");
+
+  assert.match(skill, /^name: work-verify$/m);
+  assert.match(skill, /`work-verify` owns check selection, command execution, verification evidence/);
+  assert.match(skill, /When `.agents\/roles\/security-reviewer\.md` exists/);
+  assert.match(skill, /security-sensitive/);
+  assert.match(skill, /trust\s+boundaries, secrets, authentication, authorization, permissions/);
+  assert.match(skill, /Fold returned evidence into selected checks, skipped-check rationale, manual\s+verification notes, residual risk, or follow-up work/);
+  assert.match(skill, /Do not\s+require `security-reviewer` for direct use/);
+  assert.match(skill, /Dependency and package-management changes require trust, source-resolution,\s+lockfile-integrity, drift, and no-write failure-path review/);
 });
 
 test("documentation-review declares product role collaboration", () => {
@@ -206,9 +236,31 @@ test("plan-complete requires human validation before closeout", () => {
   const skill = readFileSync(planCompletePath, "utf8");
 
   assert.match(skill, /^name: plan-complete$/m);
+  assert.match(skill, /`plan-complete` owns closeout, checklist updates, final risk recording/);
+  assert.match(skill, /When `.agents\/roles\/security-reviewer\.md` exists/);
+  assert.match(skill, /required post-phase security review before\s+completion/);
+  assert.match(skill, /Fold returned evidence into the plan's `Security Review` section/);
+  assert.match(skill, /Do not require `security-reviewer` for direct use/);
   assert.match(skill, /Confirm the human validation gate before completing the checklist/);
   assert.match(skill, /developer has evaluated the completed phased work and accepted it/);
   assert.match(skill, /explicitly waived manual validation and the plan records the\s+reason/);
   assert.match(skill, /Do not infer acceptance from passing automated tests/);
+  assert.match(skill, /Complete the Security Review gate/);
+  assert.match(skill, /Convert blocking security findings into\s+normal plan tasks before closeout/);
   assert.match(skill, /Refuse closeout when the human validation gate is missing, incomplete, or\s+only implied by automated checks/);
+  assert.match(skill, /Refuse closeout when a required Security Review is missing/);
+});
+
+test("plan template includes security review before completion checklist", () => {
+  const template = readFileSync(planTemplatePath, "utf8");
+  const securityReview = readFileSync(securityReviewTemplatePath, "utf8");
+  const completionChecklist = readFileSync(completionChecklistTemplatePath, "utf8");
+
+  assert.match(template, /\{\{ section:security-review \}\}/);
+  assert.ok(template.indexOf("{{ section:security-review }}") < template.indexOf("{{ section:completion-checklist }}"));
+  assert.match(securityReview, /^## Security Review$/m);
+  assert.match(securityReview, /record post-phase findings, blocking\s+findings converted to normal plan tasks, residual risk/);
+  assert.match(securityReview, /Blocking findings converted to plan tasks/);
+  assert.match(completionChecklist, /Complete Security Review after all implementation phases/);
+  assert.match(completionChecklist, /convert blocking findings into normal plan tasks/);
 });

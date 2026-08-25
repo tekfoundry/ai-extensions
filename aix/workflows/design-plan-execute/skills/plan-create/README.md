@@ -59,6 +59,10 @@ still asking those questions itself when the role is unavailable. When the
 workflow-owned `technical-architect` role is installed, the skill can use it
 for bounded boundary, contract, integration, maintainability, and
 implementation-phase sequencing review while still asking those questions
-itself when the role is unavailable. New plans are placed under
+itself when the role is unavailable. When the workflow-owned
+`security-reviewer` role is installed, the skill can use it for bounded trust
+boundary, credential, authorization, destructive-operation, dependency, and
+safety-verification review while still asking those questions itself when the
+role is unavailable. New plans are placed under
 `_docs/plans/backlog/` and pause there until the developer later uses
 `plan-activate`.

@@ -58,4 +58,9 @@ concerns itself when the role is unavailable. When the
 workflow-owned `product-designer` role is installed, the skill can use it for
 bounded design-readiness review on user flows, interaction states,
 accessibility, terminal UX, prompts, and design-system fit while still checking
-those concerns itself when the role is unavailable.
+those concerns itself when the role is unavailable. When the workflow-owned
+`security-reviewer` role is installed, the skill can use it for bounded
+security-readiness review on trust boundaries, secrets, authorization,
+destructive operations, dependency risk, source resolution, lockfile integrity,
+and no-write guarantees while still checking those concerns itself when the
+role is unavailable.

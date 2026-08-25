@@ -52,10 +52,26 @@ notes as appropriate. Do not require `product-designer` for direct use. If the
 role is unavailable or the host cannot delegate, continue the review yourself
 by checking the same product-design readiness concerns.
 
+When `.agents/roles/security-reviewer.md` exists and the plan has
+security-sensitive scope, use `delegate-to-role` or a prompt-overlay delegation
+to request a bounded security-readiness pass. Good triggers include trust
+boundaries, secrets, authentication, authorization, permissions, dependency or
+supply-chain risk, local file writes, overwrites, deletes, renames, external
+systems, network access, package trust, workflow installation or updates,
+source resolution, lockfile integrity, destructive operations, and no-write
+guarantees.
+
+Fold returned evidence into review findings, activation blockers, risks,
+verification gaps, requested plan revisions, Security Review notes, human
+review notes, or readiness notes as appropriate. Do not require
+`security-reviewer` for direct use. If the role is unavailable or the host
+cannot delegate, continue the review yourself by checking the same
+security-readiness concerns.
+
 ## Workflow
 
 1. Resolve the plan and read its context, design intent, phases, risks,
-   verification, and promotion requirements.
+   verification, Security Review, and promotion requirements.
    Compare the plan against the active workflow `plan.md` template when that
    template is available, but do not treat local template customization as a
    defect by itself.
@@ -77,3 +93,6 @@ by checking the same product-design readiness concerns.
 - Do not claim readiness when a material data-safety, credential,
   external-system, publishing, persistence, runtime-boundary, or contract
   decision remains unresolved.
+- Do not claim readiness when a plan with security-sensitive scope lacks
+  trust-boundary, credential, authorization, destructive-operation, dependency,
+  failure-path, or safety-verification decisions.

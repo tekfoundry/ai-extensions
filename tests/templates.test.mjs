@@ -164,6 +164,13 @@ test("bundled plan template renders expected Markdown without agent notes", () =
     risk: {
       item: "Template drift must be visible during review."
     },
+    security_review: {
+      status: "completed",
+      scope: "Template publishing and local override safety.",
+      findings: "No blocking findings.",
+      blockers: "None.",
+      residual_risk: "Published templates may drift and need review."
+    },
     lesson: {
       item: "Shared workflow artifacts are the right template boundary."
     },
@@ -254,6 +261,7 @@ test("bundled plan template renders expected Markdown without agent notes", () =
   assert.match(rendered, /- ⬜️ Review published template docs/);
   assert.match(rendered, /## Completion Checklist/);
   assert.match(rendered, /- ⬜️ Human validation: developer evaluated the completed phased work and accepted it, or explicitly waived manual validation with a recorded reason\./);
+  assert.match(rendered, /- ⬜️ Complete Security Review after all implementation phases; record findings, convert blocking findings into normal plan tasks, and document residual risk\./);
   assert.match(rendered, /- ⬜️ Review the codebase using `\$code-review-refactor`; refactor or record follow-up work if needed\./);
   assert.match(rendered, /- ⬜️ Promote accepted durable behavior into design docs using `\$design-promote`\./);
   assert.match(rendered, /- ⬜️ Review documentation structure, formatting, and links using `\$documentation-review`; fix issues or record follow-up work\./);
@@ -360,7 +368,7 @@ test("published bundled templates preserve output guardrails", async () => {
 
   const publish = runCli(projectPath, ["templates", "publish"]);
   assert.equal(publish.exitCode, 0);
-  assert.match(publish.stdout, /Published 14 templates/);
+  assert.match(publish.stdout, /Published 15 templates/);
 
   const planTemplate = readFileSync(join(projectPath, ".agents/templates/plan.md"), "utf8");
   const taskTemplate = readFileSync(join(projectPath, ".agents/templates/sections/task.md"), "utf8");

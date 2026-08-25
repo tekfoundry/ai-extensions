@@ -48,6 +48,18 @@ verification expectations, risks, and promotion-to-design notes as
 appropriate. Use architecture review to shape phases only after Design Intent
 is accepted.
 
+When `.agents/roles/security-reviewer.md` exists and the plan involves trust
+boundaries, secrets, authentication, authorization, permissions, dependency or
+supply-chain risk, local file writes, overwrites, deletes, renames, external
+systems, network access, package trust, workflow installation or updates,
+source resolution, lockfile integrity, or other safety-sensitive behavior, use
+`delegate-to-role` or a prompt-overlay delegation to request a bounded security
+pass. Fold the returned evidence into `Design Intent`, `Non-Goals`,
+`Boundaries And Invariants`, verification expectations, risks, Security Review
+expectations, implementation-phase constraints, open questions, and human
+review notes as appropriate. Do not use the role to approve unsafe behavior or
+waive security findings.
+
 Do not require `product-strategist` for direct use. If the role is unavailable
 or the host cannot delegate, continue the planning session yourself by asking
 concise product-vision questions and recording the answers in the living plan.
@@ -59,6 +71,11 @@ Do not require `technical-architect` for direct use either. If the role is
 unavailable or the host cannot delegate, continue the planning session yourself
 by asking concise boundary, contract, integration, maintainability, and
 verification questions when those concerns apply.
+Do not require `security-reviewer` for direct use either. If the role is
+unavailable or the host cannot delegate, continue the planning session yourself
+by asking concise trust-boundary, credential, authorization, file-operation,
+dependency, failure-path, and safety-verification questions when those
+concerns apply.
 
 ## Workflow
 
@@ -102,7 +119,11 @@ verification questions when those concerns apply.
    `technical-architect` for a bounded architecture pass when the plan touches
    system boundaries, component contracts, integration choices, runtime
    contracts, persistence, data flow, package-management behavior, workflow
-   lifecycle behavior, or maintainability tradeoffs.
+   lifecycle behavior, or maintainability tradeoffs. Use `security-reviewer`
+   for a bounded security pass when the plan touches trust boundaries,
+   credentials, authorization, permissions, destructive file operations,
+   dependencies, network or external systems, package trust, source resolution,
+   lockfile integrity, or other safety-sensitive behavior.
 9. Iterate on design intent until the user explicitly agrees that it captures
    the desired direction. Do not generate implementation phases or task lists
    before Design Intent is accepted.
@@ -166,6 +187,10 @@ planning work without pretending it is final:
   decisions, and the point in execution when each must be revisited.
 - `Risks`: especially data-safety, credentials, file operations,
   external-system, publishing, persistence, runtime-contract, and rollout risks.
+- `Security Review`: planned or completed security-review evidence for
+  security-sensitive work. During planning, record expected review scope or
+  intentionally deferred questions. During closeout, record post-phase
+  findings, blocking issues converted to normal plan tasks, and residual risk.
 - `Lessons To Carry Forward` and `Promotion To Design` when relevant.
 
 Resolve `plan.md` from `.agents/templates/plan.md` first, then from the active

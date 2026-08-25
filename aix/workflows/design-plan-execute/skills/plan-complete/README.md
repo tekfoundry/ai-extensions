@@ -24,6 +24,7 @@ Dependencies:
 
 - The active implementation plan under `_docs/plans/`
 - Required targeted and repository verification commands
+- The plan's `Security Review` section
 - `design-promote`
 - `documentation-review`
 - The active workflow `plan.md` template, when available
@@ -45,7 +46,11 @@ It is not used to archive backlog plans or hide incomplete work.
 
 The skill resolves the plan, confirms all tasks and success goals, requires
 developer validation or an explicit recorded waiver, reviews or runs required
-verification, promotes durable behavior with `design-promote`, reviews
-documentation with `documentation-review`, records remaining risks and
-follow-on work, updates the completion checklist when present, and archives the
-completed plan under `_docs/plans/completed/` with the required dated filename.
+verification, completes the Security Review gate, promotes durable behavior
+with `design-promote`, reviews documentation with `documentation-review`,
+records remaining risks and follow-on work, updates the completion checklist
+when present, and archives the completed plan under `_docs/plans/completed/`
+with the required dated filename. When the workflow-owned `security-reviewer`
+role is installed, the skill can use it for bounded post-phase security review
+while still checking security-sensitive behavior itself when the role is
+unavailable.

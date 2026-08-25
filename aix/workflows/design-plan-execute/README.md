@@ -86,6 +86,7 @@ This workflow installs these roles:
 | [`product-strategist`](roles/project-dev/product-strategist.md) | "Use product-strategist to review this feature idea."<br>"Should this idea become a plan, or should we narrow it first?"<br>"Compare these feature ideas by user value and sequencing." | Generates and evaluates product ideas, audience fit, scope, tradeoffs, and sequencing before planned work is accepted. |
 | [`product-designer`](roles/project-dev/product-designer.md) | "Use product-designer to review this workflow."<br>"Review this plan's user flow and accessibility before implementation."<br>"Does this prompt flow have clear states, recovery paths, and layout hierarchy?" | Reviews user flows, interaction design, accessibility, layout hierarchy, prototypes, terminal UX, and design-system fit before product-facing work is finalized. |
 | [`technical-architect`](roles/project-dev/technical-architect.md) | "Use technical-architect to review this plan."<br>"Do these module boundaries and runtime contracts look ready for implementation?"<br>"Split this design into maintainable implementation phases." | Reviews system design, component boundaries, runtime contracts, integration choices, and maintainability tradeoffs before implementation phases are finalized. |
+| [`security-reviewer`](roles/project-dev/security-reviewer.md) | "Use security-reviewer to review this plan."<br>"Do these install and update safeguards cover local drift and trust boundaries?"<br>"Review the security risks before closeout." | Reviews trust boundaries, secrets, authorization, destructive operations, dependency risk, and safety-sensitive behavior before implementation or closeout. |
 
 The workflow activates these roles under `.agents/roles/`. Remove or update the
 workflow to change them. Do not deactivate them like normal root roles.
@@ -152,13 +153,14 @@ The current section templates are:
 - `sections/promotion-to-design`
 - `sections/reviewed-context`
 - `sections/risks`
+- `sections/security-review`
 - `sections/task`
 - `sections/verification`
 
-The default plan template includes a reusable completion checklist section.
-That checklist makes closeout work visible in the plan, while the
-`plan-complete` skill still enforces completion requirements if the local plan
-template was edited.
+The default plan template includes reusable security-review and completion
+checklist sections. Those sections make closeout work visible in the plan,
+while the `plan-complete` skill still enforces completion requirements if the
+local plan template was edited.
 
 Projects can publish editable copies with `aix templates publish` after the
 workflow is installed. Published copies belong under `.agents/templates/` and
