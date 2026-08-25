@@ -5,9 +5,6 @@ workflow.
 
 Default bundled skills:
 
-- `brainstorming-skill`: runs project-grounded brainstorming sessions before
-  implementation planning and maintains approved plus in-flight ideas in
-  `_docs/ideas.md`.
 - `discover-skill`: finds installable software-development skills from a
   natural-language request and guides installation through `aix` commands.
   It searches configured sources and `known-sources.json` first, asks before

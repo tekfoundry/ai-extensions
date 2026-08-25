@@ -1,4 +1,5 @@
 export * from "./discovery.js";
+export * from "./delegation.js";
 export * from "./front-matter.js";
 export * from "./activation.js";
 export * from "./files.js";

@@ -13,7 +13,7 @@ None yet.
    - Source links:
      - [Claude Agent Skills overview](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview)
      - [AIX bundled skills design](design/bundled-skills.md)
-     - [brainstorming-skill implementation](../aix/skills/brainstorming-skill/SKILL.md)
+     - [brainstorming-skill implementation](../aix/workflows/design-plan-execute/skills/brainstorming-skill/SKILL.md)
 
 2. **skill-review**
    - Summary: A standalone skill that reviews a skill package before install, update, or publication. It would check trigger clarity, unsafe instructions, missing README, bad source links, overbroad tool use, stale examples, and whether the skill should be standalone or workflow-owned.

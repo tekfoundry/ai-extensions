@@ -1,3 +1,4 @@
+import { roleCommand } from "./cmds/role/index.js";
 import { skillCommand } from "./cmds/skill/index.js";
 import { skillsCommand } from "./cmds/skills/index.js";
 import { templatesCommand } from "./cmds/templates/index.js";
@@ -12,6 +13,7 @@ export const commands: Command[] = [
   updateCommand,
   workflowCommand,
   templatesCommand,
+  roleCommand,
   skillsCommand,
   skillCommand
 ];

@@ -41,7 +41,7 @@ test("run renders help with a zero exit code", () => {
 test("command registry owns splash command metadata", () => {
   assert.deepEqual(
     commands.map((command) => command.name),
-    ["init", "verify", "status", "update", "workflow", "templates", "skills", "skill"]
+    ["init", "verify", "status", "update", "workflow", "templates", "role", "skills", "skill"]
   );
 
   const result = run([]);
@@ -99,7 +99,7 @@ test("old verb-first command forms are unsupported", () => {
 });
 
 test("command modules are grouped by object", () => {
-  for (const objectName of ["workspace", "workflow", "skills", "skill"]) {
+  for (const objectName of ["workspace", "workflow", "role", "skills", "skill"]) {
     assert.equal(existsSync(join("src/cli/cmds", objectName, "index.ts")), true);
   }
 

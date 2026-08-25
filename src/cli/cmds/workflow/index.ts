@@ -21,6 +21,7 @@ function renderInstallWorkflowResult(result: InstallWorkflowResult): string {
     `Installed ${result.installedDocs.length} workflow docs.`,
     `Installed ${result.installedTemplates} workflow templates.`,
     `Activated ${result.activatedSkills.length} workflow-owned skills.`,
+    `Activated ${result.activatedRoles.length} workflow-owned roles.`,
     `Wrote ${result.manifestPath}.`,
     `Wrote ${result.lockfilePath}.`
   ].join("\n");
@@ -31,6 +32,7 @@ function renderRemoveWorkflowResult(result: RemoveWorkflowResult): string {
     `Removed workflow ${result.name}.`,
     `Removed ${result.removedDocs.length} workflow docs.`,
     `Removed ${result.removedSkills.length} workflow-owned skills.`,
+    `Removed ${result.removedRoles.length} workflow-owned roles.`,
     result.removedAgentsMdBlock ? "Removed workflow block from AGENTS.md." : "No workflow block found in AGENTS.md.",
     `Wrote ${result.manifestPath}.`,
     `Wrote ${result.lockfilePath}.`

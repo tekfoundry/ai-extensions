@@ -253,10 +253,21 @@ test("bundled plan template renders expected Markdown without agent notes", () =
   assert.match(rendered, /- ✅ Add CLI routing/);
   assert.match(rendered, /- ⬜️ Review published template docs/);
   assert.match(rendered, /## Completion Checklist/);
+  assert.match(rendered, /- ⬜️ Human validation: developer evaluated the completed phased work and accepted it, or explicitly waived manual validation with a recorded reason\./);
   assert.match(rendered, /- ⬜️ Review the codebase using `\$code-review-refactor`; refactor or record follow-up work if needed\./);
   assert.match(rendered, /- ⬜️ Promote accepted durable behavior into design docs using `\$design-promote`\./);
   assert.match(rendered, /- ⬜️ Review documentation structure, formatting, and links using `\$documentation-review`; fix issues or record follow-up work\./);
   assert.doesNotMatch(rendered, /## Promotion To Design/);
+});
+
+test("bundled plan template includes gated planning agent notes", () => {
+  const template = readFileSync("aix/workflows/design-plan-execute/templates/plan.md", "utf8");
+
+  assert.match(template, /this is the vision gate/);
+  assert.match(template, /Do not mark it\s+accepted until the developer agrees the vision is clear enough/);
+  assert.match(template, /this is the design-intent gate/);
+  assert.match(template, /Do not draft implementation phases or task lists\s+until this section is accepted/);
+  assert.match(template, /Not drafted until Design Intent is accepted/);
 });
 
 test("discovers document and section workflow templates", async () => {

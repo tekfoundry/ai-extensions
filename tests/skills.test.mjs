@@ -151,8 +151,7 @@ test("run skills list reports aix git source skills without mutating project fil
     assert.equal(result.exitCode, 0);
     assert.match(result.stdout, /Skills in aix:/);
     assert.match(result.stdout, /Path\s+Name\s+Install Command/);
-    assert.match(result.stdout, /brainstorming-skill\s+brainstorming-skill/);
-    assert.match(result.stdout, /aix skill activate aix\/brainstorming-skill/);
+    assert.doesNotMatch(result.stdout, /brainstorming-skill\s+brainstorming-skill/);
     assert.match(result.stdout, /discover-skill\s+discover-skill/);
     assert.equal(readFileSync("aix.json", "utf8"), beforeManifest);
     assertNoManagedProjectWrites(projectPath);
@@ -289,11 +288,11 @@ test("run skills list can report only missing aix and installed workflow skills"
               kind: "skill",
               source: "aix",
               sourceType: "git",
-              sourcePath: "brainstorming-skill",
-              packagePath: ".agents/packages/skills/aix/brainstorming-skill",
-              activationPath: ".agents/skills/brainstorming-skill",
-              originalName: "brainstorming-skill",
-              activeName: "brainstorming-skill",
+              sourcePath: "discover-skill",
+              packagePath: ".agents/packages/skills/aix/discover-skill",
+              activationPath: ".agents/skills/discover-skill",
+              originalName: "discover-skill",
+              activeName: "discover-skill",
               requested: true,
               packageFiles: [],
               activeFiles: []
@@ -326,16 +325,16 @@ test("run skills list can report only missing aix and installed workflow skills"
     const all = run(["skills", "list", "aix"]);
     assert.equal(all.exitCode, 0);
     assert.match(all.stdout, /Skills in aix:/);
-    assert.match(all.stdout, /brainstorming-skill\s+brainstorming-skill/);
+    assert.match(all.stdout, /discover-skill\s+discover-skill/);
     assert.match(all.stdout, /aix\/workflows\/design-plan-execute\/skills\/existing-workflow-skill\s+existing-workflow-skill\s+aix workflow update/);
     assert.match(all.stdout, /aix\/workflows\/design-plan-execute\/skills\/new-workflow-skill\s+new-workflow-skill\s+aix workflow update/);
 
     const missing = run(["skills", "list", "aix", "--missing-only"]);
     assert.equal(missing.exitCode, 0);
     assert.match(missing.stdout, /Missing skills in aix:/);
-    assert.doesNotMatch(missing.stdout, /brainstorming-skill\s+brainstorming-skill/);
+    assert.doesNotMatch(missing.stdout, /discover-skill\s+discover-skill/);
     assert.doesNotMatch(missing.stdout, /existing-workflow-skill\s+existing-workflow-skill/);
-    assert.match(missing.stdout, /discover-skill\s+discover-skill\s+aix skill activate aix\/discover-skill/);
+    assert.doesNotMatch(missing.stdout, /discover-skill\s+discover-skill/);
     assert.match(missing.stdout, /aix\/workflows\/design-plan-execute\/skills\/new-workflow-skill\s+new-workflow-skill\s+aix workflow update/);
   } finally {
     if (previousCache === undefined) {

@@ -180,6 +180,47 @@ moved out of a skill, the skill still needs to stand alone for direct user
 invocation. It should keep its triggers, procedure, guardrails, artifact rules,
 verification expectations, and reporting requirements.
 
+Planning skills and roles should collaborate through explicit planning gates.
+`plan-create` remains the procedural owner for creating and refining backlog
+plan documents, but it should not draft implementation phases or task lists
+until the upper planning sections have been reviewed and accepted. The expected
+direction is:
+
+- `product-strategist` helps shape product vision, value, audience, scope,
+  tradeoffs, sequencing, and candidate ideas. In plan documents this maps most
+  directly to `Context` and `High-Level Goal`.
+- A future `requirements-engineer` role helps turn accepted vision into
+  detailed requirements and constraints. In plan documents this maps most
+  directly to `Design Intent`, `Non-Goals`, and `Boundaries And Invariants`.
+- Future architecture, design, implementation, and quality roles help turn
+  accepted design intent into ordered implementation phases, task lists, and
+  verification strategy.
+
+`plan-create` should still run independently when roles are unavailable or not
+requested. In that mode it asks the necessary product, requirements,
+architecture, and verification questions itself. When relevant roles are
+installed, it may delegate bounded judgment to them, but it keeps ownership of
+the plan artifact, acceptance gates, final task breakdown, and user-facing
+handoff.
+
+Role-specific plan output should usually flow into the existing plan sections,
+not into one permanent section per role. `requirements-engineer` output belongs
+in `Design Intent`, `Non-Goals`, `Boundaries And Invariants`, and
+`Open Questions / Decisions`. `technical-architect` and
+`implementation-engineer` output belongs mainly in accepted Design Intent and
+the eventual implementation phases/tasks. Product design and UX writing review
+should remain human-in-the-loop where product surfaces are involved, with role
+findings incorporated into normal design intent, phase, task, and docs-impact
+sections rather than replacing human review.
+
+Security review is the exception that should become a formal plan gate. The
+plan template should include a `Security Review` section, and the completion
+checklist should include one post-phase security review task after all planned
+phases are complete. The security review records trust-boundary, secret,
+authorization, destructive-operation, dependency, and safety-sensitive findings
+in that section. Any blocking finding should create or update normal plan tasks
+that must be completed before the plan can be closed.
+
 Role ideas discussed so far fall into two groups.
 
 Project-development roles help an AIX user develop features in their own
@@ -663,7 +704,7 @@ Execution notes:
   `npm run typecheck`; `AIX_CACHE_DIR=/private/tmp/aix-phase3-cache npm test`
   passed with 145 tests.
 
-### Phase 4: Workflow-owned role lifecycle (status: approved)
+### Phase 4: Workflow-owned role lifecycle (status: complete)
 
 Goal: Teach workflow install, update, diff, uninstall, status, and verify to
 manage workflow-owned roles before individual project-development roles are
@@ -671,80 +712,232 @@ added.
 
 Tasks:
 
-- ⬜️ Modify workflow package discovery to include role files under
-  `roles/project-dev/`.
-- ⬜️ Modify workflow install to activate every workflow-owned role into
+- ✅ Modify workflow package discovery to include role files under the workflow
+  package path `roles/project-dev/`, for example
+  `aix/workflows/design-plan-execute/roles/project-dev/`.
+- ✅ Modify workflow install to activate every workflow-owned role into
   `.agents/roles/`.
-- ⬜️ Modify workflow update, diff, uninstall, status, and verify to include
+- ✅ Modify workflow update, diff, uninstall, status, and verify to include
   workflow-owned role files and hashes.
-- ⬜️ Modify `aix role deactivate <active-name>` to refuse workflow-owned roles
+- ✅ Modify `aix role deactivate <active-name>` to refuse workflow-owned roles
   with a clear workflow-owned message.
-- ⬜️ Add fixture workflow role files only as needed for automated lifecycle
+- ✅ Add fixture workflow role files only as needed for automated lifecycle
   tests.
+
+Implementation notes:
+
+- Added `src/workflows/roles.ts` as the workflow-owned role lifecycle layer.
+  It discovers role Markdown files under `roles/project-dev/` inside a workflow
+  package, validates the existing role contract, writes active role files under
+  `.agents/roles/`, records workflow-owned role lockfile entries, checks active
+  and package hashes, and removes workflow-owned active roles during workflow
+  uninstall.
+- Kept real project-development roles out of the shipped
+  `aix/workflows/design-plan-execute/roles/project-dev/` directory in this
+  phase. Tests create fixture workflow roles in temporary workflow packages
+  only.
+- Extended workflow install and update preflight to check workflow-owned active
+  roles before replacing package materialization.
+- Extended workflow install, update, diff, uninstall, status, and verify through
+  existing workflow package hashing plus first-class role lockfile entries.
+- Added the narrow `aix role deactivate <active-name>` command wrapper so
+  direct deactivation of workflow-owned roles fails through the role domain's
+  existing guardrail.
 
 Verification:
 
-- Add workflow install/update/diff/uninstall tests covering workflow-owned role
-  activation, hashes, drift, and removal.
-- Add status and verify tests for workflow-owned roles.
-- Verify workflow-owned role deactivation fails with a clear message.
-- Confirm fixture roles do not become product-shipped project-development roles.
+- Completed: added workflow install/update/diff/uninstall tests covering
+  workflow-owned role activation, hashes, drift, and removal.
+- Completed: added an update-removal smoke test proving that when a
+  workflow-owned role is deleted from the workflow source, `aix workflow
+  update` removes the active `.agents/roles/<role>.md` file, clears role
+  lockfile entries, updates status role counts, and leaves `aix verify`
+  passing.
+- Completed: added status and verify coverage for workflow-owned roles.
+- Completed: verified `aix role deactivate <active-name>` refuses
+  workflow-owned roles with a clear workflow-owned message.
+- Completed: fixture role files are created only in temporary test workflow
+  packages and do not become product-shipped project-development roles.
 
-### Phase 5: Delegate-to-role baseline (status: approved)
+Execution notes:
+
+- 2026-08-25: Completed Phase 4 workflow-owned role lifecycle. Verification:
+  `npm run build`; `node --test tests/workflow.test.mjs tests/roles.test.mjs
+  tests/status.test.mjs tests/verify.test.mjs`; `AIX_CACHE_DIR=/private/tmp/aix-phase4-cache
+  npm test` passed with 152 tests.
+- 2026-08-25: Added update-removal smoke coverage for workflow-owned roles.
+  Verification: `npm run build`; `node --test tests/workflow.test.mjs`.
+
+### Phase 5: Delegate-to-role baseline (status: complete)
 
 Goal: Provide the basic `delegate-to-role` path so each project-development
 role can be validated through the real delegation flow as it is added.
 
 Tasks:
 
-- ⬜️ Create or modify the workflow-owned `delegate-to-role` skill.
-- ⬜️ Define explicit routing for prompts such as "use quality-engineer" or
+- ✅ Create or modify the workflow-owned `delegate-to-role` skill.
+- ✅ Define explicit routing for prompts such as "use quality-engineer" or
   "delegate to documentation-specialist".
-- ⬜️ Keep implicit routing conservative when user intent is ambiguous.
-- ⬜️ Define the bounded delegation prompt shape and required return evidence.
-- ⬜️ Document when delegation is not allowed, especially unresolved product
+- ✅ Keep implicit routing conservative when user intent is ambiguous.
+- ✅ Define the bounded delegation prompt shape and required return evidence.
+- ✅ Document when delegation is not allowed, especially unresolved product
   decisions, unclear authorization, and safety-sensitive file operations.
-- ⬜️ Preserve parent-context ownership of plans, worktree safety, verification
+- ✅ Preserve parent-context ownership of plans, worktree safety, verification
   review, and final decisions.
+
+Implementation notes:
+
+- Added the workflow-owned `delegate-to-role` skill under
+  `aix/workflows/design-plan-execute/skills/delegate-to-role/`. The skill
+  resolves only explicit role intent, stops on missing or ambiguous roles,
+  prefers native subagent handoff only when a host clearly supports it, and
+  otherwise defines prompt-overlay fallback.
+- Added `src/roles/delegation.ts` with deterministic role delegation lookup and
+  prompt-overlay construction. The helper returns no delegation when role
+  intent is only implied, throws clear missing-role and ambiguous-role errors,
+  and includes parent-owned boundaries and required return evidence in the
+  generated prompt.
+- Added `delegate-to-role` to the documented workflow-owned skill list in the
+  workflow README and stable bundled-skills design doc.
+- Updated init expectations because the default workflow now materializes one
+  additional workflow-owned skill.
 
 Verification:
 
-- Add tests or fixture checks for role lookup, missing role errors, ambiguous
-  role errors, and prompt-overlay fallback.
-- Manually verify `delegate-to-role` delegates to a fixture role and preserves
-  parent-context ownership.
-- Manually review the `delegate-to-role` skill as a standalone skill that a user
-  can invoke directly.
+- Completed: added tests for explicit role lookup, missing-role errors,
+  ambiguous-role errors, conservative implied routing, and prompt-overlay
+  fallback in `tests/roles.test.mjs`.
+- Completed: verified the prompt-overlay fallback delegates to a fixture
+  `quality-engineer` role and preserves parent-context ownership language for
+  plan state, worktree safety, verification review, and final decisions.
+- Completed: manually reviewed the `delegate-to-role` skill as a standalone
+  skill. It includes direct invocation triggers, lookup rules, native handoff
+  preference, fallback shape, stop conditions, parent ownership, and reporting
+  requirements.
+- Completed: added static skill-instruction checks for `delegate-to-role` in
+  `tests/skill-instructions.test.mjs`.
 
-### Phase 6: Project-dev role: product-strategist (status: approved)
+Execution notes:
+
+- 2026-08-25: Completed Phase 5 delegate-to-role baseline. Verification:
+  `npm run build`; `node --test tests/roles.test.mjs
+  tests/skill-instructions.test.mjs`; `node --test tests/workflow.test.mjs
+  tests/init.test.mjs tests/status.test.mjs tests/verify.test.mjs`;
+  `AIX_CACHE_DIR=/private/tmp/aix-phase5-cache npm test` passed with 157
+  tests.
+
+### Phase 6: Project-dev role: product-strategist (status: validation pending)
 
 Goal: Add the workflow-owned `product-strategist` role with a clean manual
 validation checkpoint.
 
 Tasks:
 
-- ⬜️ Create
+- ✅ Create
   `aix/workflows/design-plan-execute/roles/project-dev/product-strategist.md`.
-- ⬜️ Review `_docs/design`, `_docs/ideas.md`, and planning skills for context.
-- ⬜️ Modify workflow-owned skills only if the role exposes a clear standalone
+- ✅ Review `_docs/design`, `_docs/ideas.md`, and planning skills for context.
+- ✅ Modify workflow-owned skills only if the role exposes a clear standalone
   skill gap.
-- ⬜️ If any skill is changed, verify the skill still works when invoked
+- ✅ If any skill is changed, verify the skill still works when invoked
   directly without role context.
+- ✅ Refine `plan-create` so it uses gated planning: draft and vet vision
+  before detailed design intent, and draft implementation phases/tasks only
+  after design intent is accepted.
+- ✅ Wire `plan-create` to collaborate with `product-strategist` for the vision
+  gate when that role is installed, while preserving a standalone path when
+  roles are unavailable.
+- ✅ Add or update instruction tests proving `plan-create` does not generate
+  phases/tasks before design intent acceptance and still works without role
+  context.
+
+Implementation notes:
+
+- Added the workflow-owned `product-strategist` role under
+  `aix/workflows/design-plan-execute/roles/project-dev/product-strategist.md`.
+  The role focuses on pure product brainstorming, product value, target user,
+  scope, tradeoffs, sequencing, fit with AIX design priorities, next workflow
+  step, and residual uncertainty.
+- Refined the role/skill boundary after review: `brainstorming-skill` owns the
+  brainstorming procedure and `_docs/ideas.md` checkpointing, while
+  `product-strategist` owns the product-strategy idea funnel: generating raw
+  candidate ideas, framing product vision, and judging audience, value, scope,
+  tradeoffs, and sequencing.
+- Moved `brainstorming-skill` from standalone `aix/skills/` into the
+  workflow-owned skill set under
+  `aix/workflows/design-plan-execute/skills/brainstorming-skill/`, because its
+  `_docs/ideas.md` output, planning handoff, and product-strategy collaboration
+  make it loosely coupled to the workflow.
+- Kept `brainstorming-skill` directly runnable. It uses
+  `product-strategist` through `delegate-to-role` when that role is installed
+  and product strategy would improve the session, but it can still elicit basic
+  vision inputs itself when the role is unavailable.
+- Updated README, workflow README, bundled-skill design docs, package smoke
+  checks, init tests, skill-listing tests, and role/delegation tests for the
+  new ownership model.
+- Added the gated planning direction to Design Intent: `product-strategist`
+  supports the early vision funnel, future `requirements-engineer` supports
+  requirements and design intent, and later roles help form phases/tasks only
+  after design intent is accepted.
+- Updated the workflow-owned `plan-create` skill so it now owns a gated
+  planning procedure: create the backlog plan early, vet vision first, use
+  `product-strategist` for bounded vision judgment when installed, preserve a
+  standalone path when roles are unavailable, and keep implementation
+  phases/tasks as an explicit placeholder until Design Intent is accepted.
+- Updated the `plan-create` README to describe the vision gate,
+  product-strategy collaboration, standalone behavior, and no-phases-before
+  Design Intent rule.
+- Added non-rendered gatekeeper comments to the bundled `plan.md` template so
+  agents editing a plan see the vision gate, design-intent gate, and
+  no-phases-before-Design-Intent rule at the relevant template sections.
+- Added a human validation gate to the completion checklist, `plan-complete`
+  instructions, and workflow design docs so closeout requires developer
+  evaluation of the completed phased work, or an explicit recorded waiver,
+  before the checklist can be completed.
 
 Verification:
 
-- Run automated role formatting, front matter, and contract checks.
-- Manually review the `product-strategist` role file against the role
-  verification rubric.
-- Manually verify any changed skills still stand alone.
-- Manually verify `delegate-to-role` delegates to `product-strategist`.
-- Manually verify `product-strategist` produces useful product scope,
-  sequencing, tradeoff, and audience guidance in a representative scenario.
-- Record automated checks, manual role review, skill standalone review,
-  delegation verification, scenario-quality result, and commit checkpoint
-  status.
-- Human approval recorded before starting the next project-development role
+- Completed: automated role formatting, front matter, and contract checks cover
+  shipped workflow-owned project-development roles in `tests/roles.test.mjs`.
+- Completed: manually reviewed `product-strategist` against the role
+  verification rubric. It is operating doctrine rather than persona prose,
+  names inspected context, keeps authority bounded, preserves parent ownership,
+  and returns actionable evidence.
+- Completed: changed `brainstorming-skill` and verified it still stands alone
+  through static skill-instruction coverage. It remains directly invokable and
+  does not require the product-strategist role to run.
+- Completed: verified `delegate-to-role` delegates to the shipped
+  `product-strategist` role through prompt-overlay fallback in
+  `tests/roles.test.mjs`.
+- Completed: verified the `plan-create` gated-planning instruction changes with
+  targeted skill-instruction tests.
+- ⚠️ Pending human checkpoint: manually verify `product-strategist` produces
+  useful product scope, sequencing, tradeoff, and audience guidance in a
+  representative scenario.
+- ⚠️ Pending human approval before starting the next project-development role
   phase.
+
+Execution notes:
+
+- 2026-08-25: Added `product-strategist`, moved `brainstorming-skill` into the
+  workflow-owned skill set, and wired the role/skill collaboration boundary.
+  Verification: `npm run build`; `node --test tests/init.test.mjs
+  tests/skills.test.mjs tests/package-smoke.test.mjs
+  tests/skill-instructions.test.mjs tests/roles.test.mjs
+  tests/workflow.test.mjs`; `AIX_CACHE_DIR=/private/tmp/aix-phase6-cache npm
+  test` passed with 159 tests.
+- 2026-08-25: Completed the new `plan-create` gated-planning tasks. Updated
+  `plan-create` to delegate bounded product-vision judgment to
+  `product-strategist` when available, keep direct invocation usable when roles
+  are absent, and withhold implementation phases/tasks until Design Intent is
+  accepted. Verification: `node --test tests/skill-instructions.test.mjs`;
+  `npm run build`; `git diff --check`.
+- 2026-08-25: Added bundled `plan.md` template gatekeeper comments for the
+  vision gate, design-intent gate, and implementation-phase placeholder rule.
+  Verification: `node --test tests/templates.test.mjs`; `git diff --check`.
+- 2026-08-25: Added a completion-checklist human validation gate and updated
+  `plan-complete` so automated checks alone cannot imply developer acceptance.
+  Verification: `node --test tests/templates.test.mjs
+  tests/skill-instructions.test.mjs`; `npm run build`; `git diff --check`.
 
 ### Phase 7: Project-dev role: product-designer (status: approved)
 
@@ -757,6 +950,9 @@ Tasks:
   `aix/workflows/design-plan-execute/roles/project-dev/product-designer.md`.
 - ⬜️ Review existing design docs and any UI/UX guidance in workflow docs for
   context.
+- ⬜️ Integrate `product-designer` with `plan-create` where plans involve user
+  flows, interaction design, accessibility, layout hierarchy, or design-system
+  fit, while keeping `plan-create` directly runnable.
 - ⬜️ Modify workflow-owned skills only if the role exposes a clear standalone
   skill gap.
 - ⬜️ If any skill is changed, verify the skill still works when invoked
@@ -768,6 +964,8 @@ Verification:
 - Manually review the `product-designer` role file against the role
   verification rubric.
 - Manually verify any changed skills still stand alone.
+- Manually verify any `plan-create` changes preserve direct planning behavior
+  and add useful design-review prompts only when design context applies.
 - Manually verify `delegate-to-role` delegates to `product-designer`.
 - Manually verify `product-designer` produces useful flow, interaction,
   accessibility, layout, and design-system feedback in a representative
@@ -789,6 +987,9 @@ Tasks:
   `aix/workflows/design-plan-execute/roles/project-dev/technical-architect.md`.
 - ⬜️ Review design docs, `design-create`, `plan-create`, and `design-promote`
   for possible interaction points.
+- ⬜️ Integrate `technical-architect` with `plan-create` for system boundaries,
+  component contracts, integration choices, maintainability tradeoffs, and
+  implementation-phase shaping after design intent is accepted.
 - ⬜️ Modify workflow-owned skills only if the role exposes a clear standalone
   skill gap.
 - ⬜️ If any skill is changed, verify the skill still works when invoked
@@ -800,6 +1001,8 @@ Verification:
 - Manually review the `technical-architect` role file against the role
   verification rubric.
 - Manually verify any changed skills still stand alone.
+- Manually verify any `plan-create` changes preserve direct planning behavior
+  and improve architecture readiness before phases/tasks are drafted.
 - Manually verify `delegate-to-role` delegates to `technical-architect`.
 - Manually verify `technical-architect` produces useful boundary, contract,
   integration, and maintainability guidance in a representative scenario.
@@ -820,6 +1023,15 @@ Tasks:
   `aix/workflows/design-plan-execute/roles/project-dev/security-reviewer.md`.
 - ⬜️ Review workflow safety rules, package-management design, and verification
   skills for context.
+- ⬜️ Integrate `security-reviewer` with `plan-create` for trust boundaries,
+  secrets, authorization, destructive operations, dependency risk, and
+  safety-sensitive verification before implementation is authorized.
+- ⬜️ Update the plan template and `plan-create` instructions to include a
+  formal `Security Review` section for post-phase findings.
+- ⬜️ Update the completion checklist so every plan performs one security review
+  after all implementation phases are complete and before plan completion.
+- ⬜️ Ensure security-review findings are recorded in the `Security Review`
+  section and any blocking findings become normal plan tasks before closeout.
 - ⬜️ Modify workflow-owned skills only if the role exposes a clear standalone
   skill gap.
 - ⬜️ If any skill is changed, verify the skill still works when invoked
@@ -831,6 +1043,12 @@ Verification:
 - Manually review the `security-reviewer` role file against the role
   verification rubric.
 - Manually verify any changed skills still stand alone.
+- Manually verify any `plan-create` changes preserve direct planning behavior
+  and surface security questions, non-goals, risks, and verification needs at
+  the right planning gate.
+- Manually verify the `Security Review` template section and completion
+  checklist item capture post-phase findings without replacing normal phases,
+  tasks, risks, or verification sections.
 - Manually verify `delegate-to-role` delegates to `security-reviewer`.
 - Manually verify `security-reviewer` produces useful trust-boundary, secret,
   authorization, destructive-operation, dependency, and safety findings in a
@@ -852,6 +1070,9 @@ Tasks:
   `aix/workflows/design-plan-execute/roles/project-dev/ux-writer.md`.
 - ⬜️ Review README, CLI help, documentation, and workflow docs for language
   patterns.
+- ⬜️ Integrate `ux-writer` with `plan-create` for user-facing labels, prompts,
+  errors, empty states, onboarding copy, and README language requirements when
+  the planned work changes product or developer-facing text.
 - ⬜️ Modify workflow-owned skills only if the role exposes a clear standalone
   skill gap.
 - ⬜️ If any skill is changed, verify the skill still works when invoked
@@ -863,6 +1084,9 @@ Verification:
 - Manually review the `ux-writer` role file against the role verification
   rubric.
 - Manually verify any changed skills still stand alone.
+- Manually verify any `plan-create` changes preserve direct planning behavior
+  and capture copy/content requirements without forcing copy review on
+  unrelated plans.
 - Manually verify `delegate-to-role` delegates to `ux-writer`.
 - Manually verify `ux-writer` produces useful labels, prompts, empty states,
   error messages, onboarding text, and README language in a representative
@@ -884,12 +1108,19 @@ Tasks:
   `aix/workflows/design-plan-execute/roles/project-dev/requirements-engineer.md`.
 - ⬜️ Review `plan-create` for requirement elicitation, backlog plan boundaries,
   template ownership, and direct invocation behavior.
+- ⬜️ Integrate `requirements-engineer` with `plan-create` as the primary
+  design-intent collaborator after the vision gate is accepted, including
+  requirements, non-goals, boundaries, acceptance signals, open decisions, and
+  plan-readiness judgment.
 - ⬜️ Modify `plan-create` only if role extraction exposes a clear standalone
   skill gap.
 - ⬜️ Keep `plan-create` responsible for template resolution, file placement,
   lifecycle status, plan structure, verification, and final reporting.
 - ⬜️ If `plan-create` changes, verify it still elicits requirements when invoked
   directly with an under-specified idea.
+- ⬜️ Verify `plan-create` waits for accepted design intent before generating
+  implementation phases/tasks, even when `requirements-engineer` delegation is
+  used.
 
 Verification:
 
@@ -918,6 +1149,9 @@ Tasks:
   `aix/workflows/design-plan-execute/roles/project-dev/quality-engineer.md`.
 - ⬜️ Review `work-verify`, `task-execute`, `phase-execute`, and `plan-complete`
   for verification ownership and direct invocation behavior.
+- ⬜️ Integrate `quality-engineer` with `plan-create` for acceptance checks,
+  verification strategy, regression-risk notes, and evidence expectations in
+  implementation phases after design intent is accepted.
 - ⬜️ Modify verification-related skills only if role extraction exposes a clear
   standalone skill gap.
 - ⬜️ Keep `work-verify` responsible for selecting and reporting checks when
@@ -931,6 +1165,8 @@ Verification:
 - Manually review the `quality-engineer` role file against the role
   verification rubric.
 - Manually verify changed verification skills still stand alone.
+- Manually verify any `plan-create` changes preserve direct planning behavior
+  and improve verification quality without taking over `work-verify`.
 - Manually verify `delegate-to-role` delegates to `quality-engineer`.
 - Manually verify `quality-engineer` produces useful targeted checks,
   regression coverage, acceptance evidence, gaps, and residual risk in a
@@ -952,6 +1188,9 @@ Tasks:
   `aix/workflows/design-plan-execute/roles/project-dev/documentation-specialist.md`.
 - ⬜️ Review `documentation-review`, `design-promote`, `design-create`, and
   `plan-complete` for documentation ownership and direct invocation behavior.
+- ⬜️ Integrate `documentation-specialist` with `plan-create` for documentation
+  impact, design-promotion notes, `_docs` placement, current-state docs, and
+  closeout expectations when the planned work changes durable behavior.
 - ⬜️ Modify documentation-related skills only if role extraction exposes a clear
   standalone skill gap.
 - ⬜️ Keep documentation skills responsible for their own procedures, review
@@ -965,6 +1204,9 @@ Verification:
 - Manually review the `documentation-specialist` role file against the role
   verification rubric.
 - Manually verify changed documentation skills still stand alone.
+- Manually verify any `plan-create` changes preserve direct planning behavior
+  and capture documentation impact without taking over documentation-review or
+  design-promotion procedures.
 - Manually verify `delegate-to-role` delegates to `documentation-specialist`.
 - Manually verify `documentation-specialist` produces useful documentation
   impact, design-promotion, structure, link, and current-state accuracy output
@@ -986,6 +1228,9 @@ Tasks:
   `aix/workflows/design-plan-execute/roles/project-dev/implementation-engineer.md`.
 - ⬜️ Review `task-execute`, `phase-execute`, and `plan-execute` for execution
   ownership and direct invocation behavior.
+- ⬜️ Integrate `implementation-engineer` with `plan-create` for implementation
+  phase/task decomposition after design intent is accepted, including scoped
+  task boundaries, sequencing, likely changed areas, and verification handoff.
 - ⬜️ Modify execution-related skills only if role extraction exposes a clear
   standalone skill gap.
 - ⬜️ Keep execution skills responsible for task status, scoped code changes,
@@ -999,6 +1244,8 @@ Verification:
 - Manually review the `implementation-engineer` role file against the role
   verification rubric.
 - Manually verify changed execution skills still stand alone.
+- Manually verify any `plan-create` changes preserve direct planning behavior
+  and improve implementation-task readiness without authorizing execution.
 - Manually verify `delegate-to-role` delegates to `implementation-engineer`.
 - Manually verify `implementation-engineer` produces useful scoped
   implementation, changed-file, verification, documentation-impact, and
@@ -1140,6 +1387,7 @@ Verification:
 ## Completion Checklist
 
 - ⬜️ Confirm every task and success goal is complete or explicitly deferred.
+- ⬜️ Human validation: developer evaluated the completed phased work and accepted it, or explicitly waived manual validation with a recorded reason.
 - ⬜️ Run or review required targeted and repository verification.
 - ⬜️ Review the codebase using `$code-review-refactor`; refactor or record follow-up work if needed.
 - ⬜️ Promote accepted durable behavior into design docs using `$design-promote`.

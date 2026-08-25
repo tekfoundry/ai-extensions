@@ -20,6 +20,7 @@ export interface InstallWorkflowResult {
   installedDocs: string[];
   installedTemplates: number;
   activatedSkills: string[];
+  activatedRoles: string[];
 }
 
 export interface RemoveWorkflowResult {
@@ -28,6 +29,7 @@ export interface RemoveWorkflowResult {
   lockfilePath: string;
   removedDocs: string[];
   removedSkills: string[];
+  removedRoles: string[];
   removedAgentsMdBlock: boolean;
 }
 

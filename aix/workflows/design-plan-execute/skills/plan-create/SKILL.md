@@ -14,6 +14,24 @@ Act as a technical design partner. Lead the user from a high-level product
 goal into implementation-ready design intent and phased work, but keep the
 conversation grounded in explicit user agreement at each major step.
 
+## Role Collaboration
+
+`plan-create` owns the planning procedure and the backlog plan artifact. Roles
+can supply bounded specialist judgment, but they do not own template
+resolution, file placement, lifecycle state, accepted gates, final task
+breakdown, or user-facing handoff.
+
+When `.agents/roles/product-strategist.md` exists and the plan needs stronger
+vision, audience, value, scope, tradeoff, sequencing, or product-fit judgment,
+use `delegate-to-role` or a prompt-overlay delegation to request a bounded
+product-strategy pass. Fold the returned evidence into `Context`,
+`High-Level Goal`, open questions, risks, and later scope boundaries as
+appropriate.
+
+Do not require `product-strategist` for direct use. If the role is unavailable
+or the host cannot delegate, continue the planning session yourself by asking
+concise product-vision questions and recording the answers in the living plan.
+
 ## Workflow
 
 1. Read `AGENTS.md`, `.agents/workflow.md`, `_docs/README.md`, relevant
@@ -32,32 +50,43 @@ conversation grounded in explicit user agreement at each major step.
    complete yet, such as `📝 Planning Draft`.
 5. Use the plan document as the living planning record. Keep it current as the
    goal, design intent, questions, phases, tasks, risks, verification, lessons,
-   and promotion notes evolve.
-6. Relentlessly clarify the high-level goal until both the agent and user agree
-   on the product intent. Focus this stage on the "what" and "why"; avoid
-   prematurely committing to the "how" unless it constrains the goal.
-7. After the goal is agreed, translate it into design intentions that describe
-   the intended implementation shape, tradeoffs, boundaries, interfaces, data
-   and safety posture, verification needs, and rollout considerations.
-8. Iterate on design intent until the user explicitly agrees that it captures
-   the desired direction.
-9. Break the accepted design intent into ordered implementation phases with
-   concrete tasks. Prefer phases that support iterative development,
-   verification, and review over one large all-or-nothing phase.
-10. Apply the task status markers from `.agents/workflow.md` to every phased
+   and promotion notes evolve. Do not fill every template section
+   speculatively. When a later section is not accepted yet, leave it clearly
+   pending rather than drafting work against unstable intent.
+6. Run the vision gate first. Relentlessly clarify the high-level goal until
+   both the agent and user agree on the product intent. Focus this stage on
+   the "what" and "why"; avoid prematurely committing to the "how" unless it
+   constrains the goal. Use `product-strategist` for a bounded vision pass when
+   that role is installed and product strategy would materially improve the
+   plan.
+7. Record acceptance on the `High-Level Goal` heading only after the user
+   agrees that the vision, audience, value, and scope direction are clear
+   enough to continue.
+8. After the high-level goal is accepted, run the design-intent gate. Translate
+   the accepted goal into design intentions that describe the intended
+   implementation shape, tradeoffs, boundaries, interfaces, data and safety
+   posture, verification needs, rollout considerations, non-goals, and open
+   decisions.
+9. Iterate on design intent until the user explicitly agrees that it captures
+   the desired direction. Do not generate implementation phases or task lists
+   before Design Intent is accepted.
+10. Only after Design Intent is accepted, break it into ordered implementation
+   phases with concrete tasks. Prefer phases that support iterative
+   development, verification, and review over one large all-or-nothing phase.
+11. Apply the task status markers from `.agents/workflow.md` to every phased
    task list. New backlog tasks should start with `⬜️`; use `🟨`, `✅`, and
    `⚠️` only when the plan is recording actual execution state or a known
    validation gap.
-11. Lead the user through a phase-by-phase review. For each phase, ask for
+12. Lead the user through a phase-by-phase review. For each phase, ask for
    sign-off or requested changes before treating that phase as accepted.
-12. As each gate is accepted, record that acceptance inline on the relevant
+13. As each gate is accepted, record that acceptance inline on the relevant
    section or phase heading, such as
    `## Design Intent (status: accepted)` or
    `### Phase 1: Name (status: accepted)`.
-13. Once all phases and tasks are accepted, update the plan status to indicate
+14. Once all phases and tasks are accepted, update the plan status to indicate
    the backlog plan is ready for later activation, such as `💤 Backlog`. Do not
    leave a detached review-gates section in the final accepted plan.
-14. Place every newly created implementation plan in `_docs/plans/backlog/`.
+15. Place every newly created implementation plan in `_docs/plans/backlog/`.
    Moving a plan to `_docs/plans/` requires a later explicit `plan-activate`
    request from the user.
 
@@ -65,6 +94,7 @@ conversation grounded in explicit user agreement at each major step.
 
 Require explicit user agreement before moving past these gates:
 
+- Vision gate: `Context` and `High-Level Goal` are clear enough to continue.
 - High-level goal agreed.
 - Design intent agreed.
 - Each implementation phase and its tasks agreed.
@@ -86,11 +116,13 @@ planning work without pretending it is final:
 - `Design Intent`: the accepted implementation direction and boundaries.
 - `Non-Goals` and `Boundaries And Invariants` when they materially reduce
   ambiguity or risk.
-- `Implementation Phases`: ordered phases with concrete tasks, success goals,
-  and verification. Use the workflow task status markers directly in task
-  lists: `⬜️` not started, `🟨` in progress, `✅` completed, and `⚠️`
-  implemented or substantially complete with a known validation gap or follow-up
-  risk.
+- `Implementation Phases`: before Design Intent is accepted, keep this section
+  as a clear placeholder such as `Not drafted until Design Intent is accepted`.
+  After Design Intent is accepted, replace the placeholder with ordered phases
+  containing concrete tasks, success goals, and verification. Use the workflow
+  task status markers directly in task lists: `⬜️` not started, `🟨` in
+  progress, `✅` completed, and `⚠️` implemented or substantially complete with
+  a known validation gap or follow-up risk.
 - `Open Questions / Decisions`: unresolved questions, deferred "wait and see"
   decisions, and the point in execution when each must be revisited.
 - `Risks`: especially data-safety, credentials, file operations,
@@ -122,6 +154,8 @@ Do not use a final `Review Gates` section as the lasting acceptance record.
   visible and consistent across backlog and active plans.
 - Do not create active plans directly. Backlog review is the required pause
   before implementation authorization.
+- Do not generate implementation phases or task lists against unaccepted Design
+  Intent. Record placeholders and open questions instead.
 - Do not invent material behavior when the request or repository context is
   insufficient.
 - Identify data-safety, credentials, external-system, publishing, persistence,

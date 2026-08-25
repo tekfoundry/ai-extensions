@@ -88,6 +88,7 @@ Execution notes:
 ## Completion Checklist
 
 - ⬜️ Confirm every task and success goal is complete or explicitly deferred.
+- ⬜️ Human validation: developer evaluated the completed phased work and accepted it, or explicitly waived manual validation with a recorded reason.
 - ⬜️ Run or review required targeted and repository verification.
 - ⬜️ Review the codebase using `$code-review-refactor`; refactor or record follow-up work if needed.
 - ⬜️ Promote accepted durable behavior into design docs using `$design-promote`.

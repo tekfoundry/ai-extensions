@@ -1549,6 +1549,7 @@ Completion evidence:
 ## Completion Checklist
 
 - ⬜️ Confirm every task and success goal is complete or explicitly deferred.
+- ⬜️ Human validation: developer evaluated the completed phased work and accepted it, or explicitly waived manual validation with a recorded reason.
 - ⬜️ Run or review required targeted and repository verification.
 - ⬜️ Review the codebase to ensure the code is maintainable and clean; refactor if needed.
 - ⬜️ Promote accepted durable behavior into design docs using `$design-promote`.

@@ -47,7 +47,11 @@ the plan.
 
 The skill reads repository instructions, workflow guidance, design docs, and
 related plans. It creates a backlog plan early, then works through explicit
-planning gates: high-level goal, design intent, implementation phases, phase
-tasks, risks, verification, and final backlog acceptance. New plans are placed
-under `_docs/plans/backlog/` and pause there until the developer later uses
+planning gates: vision, high-level goal, design intent, implementation phases,
+phase tasks, risks, verification, and final backlog acceptance. It does not
+draft implementation phases or task lists until Design Intent is accepted.
+When the workflow-owned `product-strategist` role is installed, the skill can
+use it for bounded product-vision judgment while still remaining directly
+runnable without role context. New plans are placed under
+`_docs/plans/backlog/` and pause there until the developer later uses
 `plan-activate`.

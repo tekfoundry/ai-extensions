@@ -2,8 +2,9 @@
 
 ## Skill Summary
 
-Closes an implementation plan after tasks, verification, design promotion,
-risks, and documentation impact have been resolved or recorded.
+Closes an implementation plan after tasks, human validation, verification,
+design promotion, risks, and documentation impact have been resolved or
+recorded.
 
 Installation:
 
@@ -42,8 +43,9 @@ It is not used to archive backlog plans or hide incomplete work.
 
 ## What it does
 
-The skill resolves the plan, confirms all tasks and success goals, reviews or
-runs required verification, promotes durable behavior with `design-promote`,
-reviews documentation with `documentation-review`, records remaining risks and
+The skill resolves the plan, confirms all tasks and success goals, requires
+developer validation or an explicit recorded waiver, reviews or runs required
+verification, promotes durable behavior with `design-promote`, reviews
+documentation with `documentation-review`, records remaining risks and
 follow-on work, updates the completion checklist when present, and archives the
 completed plan under `_docs/plans/completed/` with the required dated filename.

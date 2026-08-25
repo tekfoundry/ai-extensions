@@ -26,8 +26,8 @@ AI Extensions should start with three default sources:
 
 The `aix` workflow source is the default workflow pack. The `aix` skill source
 is reserved for default bundled skills that are not owned by the workflow. It
-contains project-agnostic helpers such as `discover-skill` and
-`brainstorming-skill`. All default sources use the same Git resolution path.
+contains project-agnostic helpers such as `discover-skill`. All default sources
+use the same Git resolution path.
 
 `discover-skill` should guide an agent through advisory discovery only. It
 searches configured skill sources and its bundled `known-sources.json` source
@@ -86,6 +86,7 @@ aix skill activate mattpocock/engineering/typescript
 These repository-local skills should be available as workflow-owned skills in
 the default `aix` workflow:
 
+- `brainstorming-skill`
 - `project-init`
 - `design-create`
 - `design-promote`
@@ -101,6 +102,13 @@ the default `aix` workflow:
 - `task-execute`
 - `work-verify`
 - `code-review-refactor`
+- `delegate-to-role`
+
+`brainstorming-skill` is workflow-owned because it depends on the workflow's
+project documentation shape, plan lifecycle, product-strategy role delegation,
+and `plan-create` handoff. It should run independently when invoked directly,
+but it ships with the workflow so workflow-owned roles such as
+`product-strategist` can rely on it being installed.
 
 The `unslop` skill is intentionally not included in `aix/skills`. `aix init`
 should declare and activate `cursor-pstack/unslop` from the `cursor-pstack`
@@ -111,21 +119,11 @@ initializes a project unless the user explicitly chooses a smaller profile
 later. `code-review-refactor` is workflow-owned because it depends on the
 workflow engineering guidance and plan lifecycle skills.
 
-These standalone `aix` skills should also be activated by default during
-`aix init`, but they are not workflow-owned and should remain active after
+This standalone `aix` skill should also be activated by default during
+`aix init`, but it is not workflow-owned and should remain active after
 workflow uninstall:
 
-- `brainstorming-skill`
 - `discover-skill`
-
-`brainstorming-skill` should run project-grounded idea discovery before
-`plan-create`. It reviews current project docs, plans, code shape, existing
-ideas, and relevant marketing artifacts such as README files. When useful, it
-researches comparable products or projects and keeps source links with the
-ideas they informed. Its durable output is `_docs/ideas.md`, with approved
-prioritized ideas at the top and in-flight ideas at the bottom so sessions can
-resume later. Brainstorming output is not implementation authorization; one
-accepted idea still routes through `plan-create` before implementation.
 
 Default skills should remain project-agnostic. Skills that depend heavily on a
 specific application's build scripts, release flow, runtime stack, deployment

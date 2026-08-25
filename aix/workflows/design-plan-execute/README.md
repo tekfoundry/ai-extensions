@@ -82,6 +82,8 @@ not rewrite project documents.
 This workflow installs these skills:
 
 - `project-init`: create or repair the project-owned `_docs` structure.
+- `brainstorming-skill`: run project-grounded idea discovery before
+  implementation planning.
 - `design-create`: create a focused stable design document with the right
   template and index links.
 - `plan-create`: turn an idea into a backlog plan for review.
@@ -97,6 +99,8 @@ This workflow installs these skills:
 - `work-verify`: choose and run targeted checks for changed behavior.
 - `code-review-refactor`: review project code for maintainability risks and
   route selected refactors through the right workflow path.
+- `delegate-to-role`: select an installed project role and prepare bounded
+  delegation while preserving parent-context ownership.
 - `plan-defer`: move active planned work back to the backlog.
 - `plan-complete`: close a plan after tasks, verification, documentation, and
   risks are resolved or recorded.

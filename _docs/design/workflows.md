@@ -185,6 +185,32 @@ fragment so closeout expectations are visible from the start. The
 `plan-complete` skill remains authoritative for completion gates if a project
 edits or removes that section.
 
+Plan creation should proceed through explicit planning gates instead of filling
+the entire template with speculative execution detail at the first draft.
+`plan-create` should capture the initial `Context` and `High-Level Goal`, then
+wait for user agreement before deepening `Design Intent`. It should draft
+implementation phases and task lists only after the design intent is accepted.
+When workflow-owned roles are available, the product-strategy role can support
+the vision gate, future requirements roles can support design-intent detail,
+and future architecture, design, implementation, and quality roles can support
+phase and verification planning. `plan-create` remains responsible for the plan
+artifact and must still run without roles by asking the necessary questions
+itself.
+
+Role findings should normally be incorporated into the plan sections they
+change rather than creating one permanent section per role. Security review is
+the formal exception: implementation plans should include a `Security Review`
+section and a closeout checklist item that runs after all implementation phases
+are complete. Blocking security findings should become normal plan tasks before
+completion, while the section preserves the review evidence and residual risk.
+
+Plan completion should include a human validation gate before the completion
+checklist is finished. In the normal case, the developer evaluates the completed
+phased work and accepts it before closeout proceeds. When manual validation is
+not practical or not needed, the developer may explicitly waive it, but the
+plan must record the waiver reason. Passing automated checks alone should not
+imply developer acceptance.
+
 Plan closeout promotes accepted current-state behavior through
 `design-promote`. When promotion needs a new stable design document,
 `design-promote` uses `design-create` guidance for placement, template use, and

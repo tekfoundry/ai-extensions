@@ -9,10 +9,12 @@ import {
   activateRoleFromDefinitions,
   assertNoActiveRoleNameCollision,
   assertRoleContract,
+  buildPromptOverlayDelegation,
   deactivateRole,
   discoverRoles,
   parseRoleFile,
   parseRoleFileFromPath,
+  resolveRoleDelegation,
   roleContractIssues,
   verifyRoles
 } from "../dist/roles.js";
@@ -118,6 +120,47 @@ test("parseRoleFile preserves front matter hints and body", () => {
   assert.equal(role.hints.color, "green");
   assert.equal(role.frontMatter.routing, "explicit");
   assert.match(role.body, /# Purpose/);
+});
+
+test("resolveRoleDelegation resolves explicit role prompts and builds prompt-overlay fallback", () => {
+  const role = parseRoleFile(validRoleMarkdown(), "quality-engineer.md");
+  const resolution = resolveRoleDelegation("use quality-engineer to plan verification", [role]);
+
+  assert.equal(resolution.mode, "prompt-overlay");
+  assert.equal(resolution.role.name, "quality-engineer");
+
+  const prompt = buildPromptOverlayDelegation(role, "Plan verification for the role workflow changes.");
+
+  assert.match(prompt, /Mode: prompt-overlay fallback/);
+  assert.match(prompt, /Name: quality-engineer/);
+  assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
+  assert.match(prompt, /Plan verification for the role workflow changes/);
+  assert.match(prompt, /# Purpose/);
+  assert.match(prompt, /Return findings, recommended next actions/);
+});
+
+test("resolveRoleDelegation stops on missing and ambiguous role prompts", () => {
+  const qualityEngineer = parseRoleFile(validRoleMarkdown(), "quality-engineer.md");
+  const documentationSpecialist = parseRoleFile(
+    validRoleMarkdown().replaceAll("quality-engineer", "documentation-specialist"),
+    "documentation-specialist.md"
+  );
+
+  assert.throws(
+    () => resolveRoleDelegation("delegate to missing-role for this task", [qualityEngineer]),
+    /Unknown role for delegation: missing-role/
+  );
+
+  assert.throws(
+    () => resolveRoleDelegation("use quality-engineer or documentation-specialist", [qualityEngineer, documentationSpecialist]),
+    /Ambiguous role delegation: quality-engineer, documentation-specialist/
+  );
+});
+
+test("resolveRoleDelegation keeps implicit routing conservative", () => {
+  const role = parseRoleFile(validRoleMarkdown(), "quality-engineer.md");
+
+  assert.equal(resolveRoleDelegation("please review the verification plan", [role]), undefined);
 });
 
 test("parseRoleFile rejects missing front matter", () => {
@@ -246,6 +289,33 @@ test("discoverRoles reports the bundled AIX development role pack", () => {
   for (const role of roles) {
     assertRoleContract(parseRoleFileFromPath(join("aix/roles", role.path)));
   }
+});
+
+test("discoverRoles reports shipped workflow-owned project development roles", () => {
+  const roles = discoverRoles("aix/workflows/design-plan-execute/roles/project-dev");
+
+  assert.deepEqual(
+    roles.map((role) => role.name),
+    ["product-strategist"]
+  );
+
+  for (const role of roles) {
+    assertRoleContract(parseRoleFileFromPath(join("aix/workflows/design-plan-execute/roles/project-dev", role.path)));
+  }
+});
+
+test("resolveRoleDelegation delegates to the shipped product strategist role", () => {
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/product-strategist.md");
+  const resolution = resolveRoleDelegation("delegate to product-strategist for this feature idea", [role]);
+  const prompt = buildPromptOverlayDelegation(role, "Review whether role lifecycle smoke tests should be in Phase 6.");
+
+  assert.equal(resolution.role.name, "product-strategist");
+  assert.equal(resolution.mode, "prompt-overlay");
+  assert.match(prompt, /Name: product-strategist/);
+  assert.match(prompt, /Generate and evaluate product ideas/);
+  assert.match(prompt, /Candidate ideas when the task is pure brainstorming/);
+  assert.match(prompt, /Product value and why it matters now/);
+  assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
 test("activateRoleFromDefinitions materializes active role files and lockfile hashes", async () => {

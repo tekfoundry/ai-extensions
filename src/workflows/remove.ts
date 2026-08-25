@@ -7,6 +7,7 @@ import { assertPackageFilesMatchLockfile, removePackagePath } from "../activatio
 import { AixError } from "../errors.js";
 import { assertAgentsMdBlockUnmodified, removeAgentsMdBlock } from "./agents-md.js";
 import { assertWorkflowDocsUnmodified, removeWorkflowDocs } from "./docs.js";
+import { assertWorkflowRolesUnmodified, removeWorkflowActiveRoles, replaceWorkflowRoleEntries, workflowRoles } from "./roles.js";
 import { removeWorkflowActiveSkills } from "./skills.js";
 import { assertWorkflowPackageUnmodified, replaceWorkflowSkillEntries, workflowSkills } from "./shared.js";
 import { assertWorkflowTemplatesUnmodified } from "./templates.js";
@@ -24,24 +25,28 @@ export function removeWorkflow(): RemoveWorkflowResult {
   }
 
   const ownedSkills = workflowSkills(lockfile, workflow.name);
+  const ownedRoles = workflowRoles(lockfile, workflow.name);
   assertWorkflowPackageUnmodified(workflow, "remove");
 
   for (const skill of ownedSkills) {
     assertActiveFilesMatchLockfile(skill);
     assertPackageFilesMatchLockfile(skill);
   }
+  assertWorkflowRolesUnmodified(ownedRoles);
 
   assertWorkflowDocsUnmodified(workflow);
   assertWorkflowTemplatesUnmodified(workflow);
   assertAgentsMdBlockUnmodified(workflow.agentsMd);
 
   removeWorkflowActiveSkills(ownedSkills);
+  removeWorkflowActiveRoles(ownedRoles);
   removeWorkflowDocs(workflow);
 
   const removedAgentsMdBlock = removeAgentsMdBlock(workflow.agentsMd);
 
   removePackagePath(workflow.packagePath);
   replaceWorkflowSkillEntries(lockfile, workflow.name, []);
+  replaceWorkflowRoleEntries(lockfile, workflow.name, []);
   lockfile.workflows = [];
   delete manifestJson.workflow;
 
@@ -54,6 +59,7 @@ export function removeWorkflow(): RemoveWorkflowResult {
     lockfilePath: LOCKFILE_FILE_NAME,
     removedDocs: workflow.docs.map((doc) => doc.targetPath),
     removedSkills: ownedSkills.map((skill) => skill.activeName),
+    removedRoles: ownedRoles.map((role) => role.activeName),
     removedAgentsMdBlock
   };
 }
