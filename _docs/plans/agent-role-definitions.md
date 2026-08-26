@@ -1775,22 +1775,25 @@ Tasks:
 
 Verification:
 
-- Run automated role formatting, front matter, and contract checks.
-- Manually review the `implementation-engineer` role file against the role
-  verification rubric.
-- Manually verify changed execution skills still stand alone.
-- Manually verify any `plan-create` changes preserve direct planning behavior
-  and improve implementation-task readiness without authorizing execution.
-- Manually verify `delegate-to-role` delegates to `implementation-engineer`.
-- Manually verify `implementation-engineer` produces useful scoped
+- Completed: automated role formatting, front matter, and contract checks.
+- Completed: manual review of the `implementation-engineer` role file against
+  the role verification rubric.
+- Completed: manual verification that changed execution skills still stand
+  alone.
+- Completed: manual verification that `plan-create` changes preserve direct
+  planning behavior and improve implementation-task readiness without
+  authorizing execution.
+- Completed: manual verification that `delegate-to-role` delegates to
+  `implementation-engineer`.
+- Completed: manual verification that `implementation-engineer` produces useful scoped
   implementation, changed-file, verification, documentation-impact, and
   residual-risk output in a representative scenario.
-- Record automated checks, manual role review, skill standalone review,
+- Completed: recorded automated checks, manual role review, skill standalone review,
   delegation verification, scenario-quality result, and commit checkpoint
   status.
-- Pending: human approval recorded before starting the next project-development
-  role phase. Developer review of Phase 14 changes is expected before Phase 15
-  begins.
+- Completed: human approval recorded before starting the next
+  project-development role phase. Developer reviewed and approved Phase 14
+  changes on 2026-08-25.
 
 Implementation notes:
 
@@ -1838,7 +1841,7 @@ Verification:
   fixtures, docs, dependencies, sequencing, verification handoff,
   documentation impact, residual risk, and scope-expansion status.
 - Commit checkpoint status: no commit requested or created.
-- Remaining manual gate: developer review and approval before Phase 15 starts.
+- Completed: developer reviewed and approved Phase 14 changes on 2026-08-25.
 
 Execution notes:
 
@@ -1846,8 +1849,16 @@ Execution notes:
   reciprocal planning/execution skill collaboration hooks. Automated
   verification passed. Developer review remains the gate before the next
   project-development role phase.
+- 2026-08-25: Developer reviewed and approved Phase 14 changes. Manual gate
+  before Phase 15 is satisfied.
+- 2026-08-25: Manual delegation scenario passed. The
+  `implementation-engineer` output covered scoped task boundaries, likely
+  changed files/tests/docs, verification handoff, documentation impact,
+  residual risk, engineering best-practices adherence, coding-standard
+  adherence, stop conditions, approved-exception needs, and a proceed
+  recommendation.
 
-### Phase 15: Local AIX source precedence and cleanup safety (status: approved)
+### Phase 15: Local AIX source precedence and cleanup safety (status: complete)
 
 Goal: Make local project `./aix/skills` and `./aix/workflows` the editable
 source of truth for locally generated extension artifacts, while keeping
@@ -1855,37 +1866,83 @@ source of truth for locally generated extension artifacts, while keeping
 
 Tasks:
 
-- ⬜️ Update skill source resolution so `aix skill activate
+- ✅ Update skill source resolution so `aix skill activate
   aix/skills/<skill-name>` checks `./aix/skills/<skill-name>` before
   configured or bundled/default `aix` sources.
-- ⬜️ Update workflow source resolution so `aix workflow install
+- ✅ Update workflow source resolution so `aix workflow install
   aix/workflows/<workflow-name>` checks `./aix/workflows/<workflow-name>`
   before configured or bundled/default `aix` sources.
-- ⬜️ Represent local `./aix/` source ownership in the manifest or lockfile so
+- ✅ Represent local `./aix/` source ownership in the manifest or lockfile so
   deactivate, uninstall, update, diff, status, and verify can distinguish
   editable local source from remote package-managed materialization.
-- ⬜️ Ensure deactivating a locally sourced skill removes only active exposure
+- ✅ Ensure deactivating a locally sourced skill removes only active exposure
   and lockfile/manifest activation state, while preserving
   `./aix/skills/<skill-name>`.
-- ⬜️ Ensure uninstalling a locally sourced workflow removes only active
+- ✅ Ensure uninstalling a locally sourced workflow removes only active
   exposure and lockfile/manifest activation state, while preserving
   `./aix/workflows/<workflow-name>`.
-- ⬜️ Ensure `.agents/packages/skills` and `.agents/packages/workflows` cleanup
+- ✅ Ensure `.agents/packages/skills` and `.agents/packages/workflows` cleanup
   happens only for package-managed materialized copies, not local source
   artifacts.
-- ⬜️ Update `aix status`, `aix verify`, `aix diff`, and `aix update` messaging
+- ✅ Update `aix status`, `aix verify`, `aix diff`, and `aix update` messaging
   to make local source ownership explicit.
 
 Verification:
 
-- Add CLI tests for local `./aix/skills` precedence over default `aix` skill
+- Completed: CLI tests cover local `./aix/skills` precedence over default `aix` skill
   sources.
-- Add CLI tests for local `./aix/workflows` precedence over default `aix`
+- Completed: CLI tests cover local `./aix/workflows` precedence over default `aix`
   workflow sources.
-- Add package-safety tests confirming locally sourced skill deactivation and
+- Completed: package-safety tests confirm locally sourced skill deactivation and
   workflow uninstall preserve local `./aix/` source artifacts.
-- Add status, verify, diff, and update tests for local source ownership and
+- Completed: status, verify, diff, and update tests cover local source ownership and
   remote fallback behavior.
+
+Implementation notes:
+
+- Extended skill diff and update to resolve lockfile entries with
+  `sourceType: "local"` against the editable local source path instead of
+  configured Git source definitions. Local `aix` skill entries resolve to
+  `./aix/<sourcePath>`, so `aix/skills/<skill-name>` updates and diffs compare
+  `.agents/packages/skills/aix/skills/<skill-name>` against
+  `./aix/skills/<skill-name>`.
+- Extended workflow diff and update to resolve local workflow lockfile entries
+  against their locked `sourcePath`, preserving local `sourceType` and avoiding
+  Git ref or commit metadata for local workflow updates.
+- Changed workflow-owned skill installation to inherit the workflow source
+  ownership type. Skills installed by a local workflow are now locked with
+  `sourceType: "local"` rather than being stamped as Git-backed entries.
+- Extended workspace status data and rendering to include a source `Type`
+  column for workflows, skills, and roles. Local entries render as `local`,
+  with no fake ref or commit value.
+- Existing deactivation and workflow uninstall behavior already removed only
+  active/package materialization while preserving the local `./aix/skills` and
+  `./aix/workflows` source directories; this phase added regression coverage
+  around that behavior.
+- Updated stable design documentation in `_docs/design/overview.md`,
+  `_docs/design/package-management.md`, and `_docs/design/workflows.md` with
+  the accepted local source precedence, lockfile ownership, update/diff, status,
+  and cleanup behavior.
+
+Verification results:
+
+- `npm run build`
+- `node --test tests/activation.test.mjs`
+- `node --test tests/workflow.test.mjs`
+- `node --test tests/status.test.mjs tests/verify.test.mjs`
+- `npm run typecheck`
+- `npm test` passed with 181 tests.
+- After design documentation updates: `git diff --check`; `npm run build`;
+  `node --test tests/cli.test.mjs tests/activation.test.mjs
+  tests/workflow.test.mjs tests/status.test.mjs tests/verify.test.mjs`.
+
+Execution notes:
+
+- 2026-08-26: Completed Phase 15 local AIX source precedence and cleanup
+  safety. Reviewed the plan and found Phase 14's manual approval gate already
+  recorded as satisfied. Implemented local-source-aware skill and workflow
+  diff/update behavior, workflow-owned skill source ownership propagation, and
+  status output that makes local ownership explicit. Verification passed.
 
 ### Phase 16: Delegation and host compatibility (status: approved)
 

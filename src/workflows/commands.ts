@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { AixError } from "../errors.js";
 import { compareFileHashesToLockfile } from "../lockfile/drift.js";
 import { LOCKFILE_FILE_NAME, type WorkflowRequest } from "../schema.js";
 import { readLockfileJson } from "../activation/lockfile.js";
@@ -20,13 +22,20 @@ export function diffWorkflow(cacheRoot = defaultCacheRoot()): DiffWorkflowResult
     };
   }
 
-  const definitions = loadWorkflowSourceDefinitions();
-  const resolved = resolveSourceFromDefinitions(workflow.source, definitions, cacheRoot);
-  const diff = diffPackageAgainstSourceSnapshot(workflow.packagePath, resolved.rootPath);
+  const sourcePath = workflow.sourceType === "local" ? workflow.sourcePath : undefined;
+
+  if (sourcePath && !existsSync(sourcePath)) {
+    throw new AixError(`Local workflow source is missing: ${sourcePath}`);
+  }
+
+  const resolvedRoot = sourcePath
+    ? sourcePath
+    : resolveSourceFromDefinitions(workflow.source, loadWorkflowSourceDefinitions(), cacheRoot).rootPath;
+  const diff = diffPackageAgainstSourceSnapshot(workflow.packagePath, resolvedRoot);
 
   return {
     lockfilePath: LOCKFILE_FILE_NAME,
-    diffs: diff.trim() ? [{ name: workflow.name, packagePath: workflow.packagePath, sourcePath: resolved.rootPath, diff }] : []
+    diffs: diff.trim() ? [{ name: workflow.name, packagePath: workflow.packagePath, sourcePath: resolvedRoot, diff }] : []
   };
 }
 

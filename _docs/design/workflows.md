@@ -103,7 +103,10 @@ Installing a workflow should:
 1. If no URL is provided, list bundled workflows from `aix/workflows` and ask
    the user which workflow to install.
 2. If a URL is provided, normalize the Git or GitHub tree URL into Git URL,
-   ref, and workflow path.
+   ref, and workflow path. If the input is `aix/workflows/<name>`, first check
+   for `./aix/workflows/<name>` and treat it as editable local project source
+   when present before falling back to configured or bundled/default `aix`
+   sources.
 3. Fetch the selected source into the shared Git cache.
 4. Read and validate `workflow.json`.
 5. Discover workflow docs and workflow-local skills from the manifest and
@@ -123,6 +126,13 @@ Installing a workflow should:
 Workflow install should be transactional. If any workflow doc or workflow-owned
 skill would overwrite local drift, or if the existing managed `AGENTS.md` block
 does not match the lockfile, the command should stop before changing files.
+Local workflow installs are locked with `sourceType: "local"` and no Git URL,
+requested ref, or resolved commit. Workflow-owned skills and roles installed
+from a local workflow inherit that local ownership. Workflow diff and update
+compare against and refresh from the locked local workflow source path, while
+workflow uninstall removes active exposure and package-managed
+materialization only. It must preserve the editable
+`./aix/workflows/<name>` source directory.
 
 ## Root AGENTS.md Integration
 

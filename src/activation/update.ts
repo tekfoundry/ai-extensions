@@ -1,4 +1,4 @@
-import { mkdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { AixError } from "../errors.js";
 import { copyFilesSafely } from "../fs/files.js";
@@ -17,7 +17,7 @@ interface PlannedSkillUpdate {
   entry: LockfileSkillEntry;
   sourceSkillPath: string;
   originalName: string;
-  sourceUrl: string;
+  sourceUrl?: string;
   requestedRef?: string;
   resolvedCommit?: string;
 }
@@ -57,6 +57,16 @@ function replaceAliasWrapper(entry: LockfileSkillEntry, sourceSkillPath: string)
   return activateAliasWrapper(entry.activationPath, sourceSkillPath, entry.activeName);
 }
 
+function localSkillSourcePath(entry: LockfileSkillEntry): string {
+  const sourcePath = entry.source === "aix" ? join("aix", entry.sourcePath) : entry.sourcePath;
+
+  if (!existsSync(sourcePath)) {
+    throw new AixError(`Local skill source is missing: ${sourcePath}`);
+  }
+
+  return sourcePath;
+}
+
 export function updateSkills(target?: string, cacheRoot = defaultCacheRoot()): UpdateSkillsResult {
   const manifestJson = readJsonObject(MANIFEST_FILE_NAME);
   parseManifest(manifestJson);
@@ -87,10 +97,11 @@ export function updateSkills(target?: string, cacheRoot = defaultCacheRoot()): U
     assertNoLocalDrift(entry);
   }
 
+  const gitEntries = entriesToUpdate.filter((entry) => entry.sourceType !== "local");
   const sourceDefinitions = loadSourceDefinitions();
   const resolvedSources = new Map<string, ReturnType<typeof resolveSourceFromDefinitions>>();
 
-  for (const entry of entriesToUpdate) {
+  for (const entry of gitEntries) {
     if (!sourceDefinitions[entry.source]) {
       throw new AixError(`Unknown source: ${entry.source}`);
     }
@@ -102,6 +113,16 @@ export function updateSkills(target?: string, cacheRoot = defaultCacheRoot()): U
 
   const updatedSkills: UpdatedSkill[] = [];
   const updatePlans = entriesToUpdate.map((entry): PlannedSkillUpdate => {
+    if (entry.sourceType === "local") {
+      const sourceSkillPath = localSkillSourcePath(entry);
+
+      return {
+        entry,
+        sourceSkillPath,
+        originalName: parseSkillNameFromDirectory(sourceSkillPath)
+      };
+    }
+
     const resolvedSource = resolvedSources.get(entry.source);
 
     if (!resolvedSource) {
@@ -142,9 +163,15 @@ export function updateSkills(target?: string, cacheRoot = defaultCacheRoot()): U
 
     return {
       ...updatedEntry,
-      sourceUrl: updatePlan.sourceUrl,
-      requestedRef: updatePlan.requestedRef,
-      resolvedCommit: updatePlan.resolvedCommit
+      ...(entry.sourceType === "local"
+        ? {
+            sourceType: "local" as const
+          }
+        : {
+            sourceUrl: updatePlan.sourceUrl,
+            requestedRef: updatePlan.requestedRef,
+            resolvedCommit: updatePlan.resolvedCommit
+          })
     };
   });
 

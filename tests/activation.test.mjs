@@ -142,6 +142,28 @@ test("run skill activate resolves aix/skills paths from local project source fir
     assert.equal(existsSync(join(projectRoot, ".agents/packages/skills/aix/skills/local-demo/SKILL.md")), true);
     assert.equal(readFileSync(join(projectRoot, ".agents/packages/skills/aix/skills/local-demo/SKILL.md"), "utf8"), "---\nname: local-demo\n---\n\n# Local Demo\n");
 
+    const status = run(["status"]);
+    assert.equal(status.exitCode, 0);
+    assert.match(status.stdout, /Active skills[\s\S]*local-demo[\s\S]*aix\/skills\/local-demo[\s\S]*local[\s\S]*current/);
+
+    writeFileSync(join(projectRoot, "aix/skills/local-demo/SKILL.md"), "---\nname: local-demo\n---\n\n# Local Demo\n\nUpdated local source.\n", "utf8");
+
+    const diff = run(["skills", "diff"]);
+    assert.equal(diff.exitCode, 0);
+    assert.match(diff.stdout, /Updated local source/);
+
+    const update = run(["skills", "update"]);
+    assert.equal(update.exitCode, 0);
+    assert.match(update.stdout, /Updated locked skills/);
+    assert.equal(
+      readFileSync(join(projectRoot, ".agents/packages/skills/aix/skills/local-demo/SKILL.md"), "utf8"),
+      "---\nname: local-demo\n---\n\n# Local Demo\n\nUpdated local source.\n"
+    );
+    const updatedLockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
+    assert.equal(updatedLockfile.skills[0].sourceType, "local");
+    assert.equal(updatedLockfile.skills[0].sourceUrl, undefined);
+    assert.equal(updatedLockfile.skills[0].resolvedCommit, undefined);
+
     assert.equal(run(["skill", "deactivate", "local-demo"]).exitCode, 0);
     assert.equal(existsSync(join(projectRoot, "aix/skills/local-demo/SKILL.md")), true);
   } finally {

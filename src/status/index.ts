@@ -16,6 +16,7 @@ import {
 export interface StatusSkill {
   activeName: string;
   source: string;
+  sourceType: string;
   sourcePath: string;
   requestedRef?: string;
   resolvedCommit?: string;
@@ -26,6 +27,7 @@ export interface StatusSkill {
 export interface StatusRole {
   activeName: string;
   source: string;
+  sourceType: string;
   sourcePath: string;
   requestedRef?: string;
   resolvedCommit?: string;
@@ -43,6 +45,7 @@ export interface WorkspaceStatus {
     name: string;
     title?: string;
     source: string;
+    sourceType: string;
     sourcePath: string;
     requestedRef?: string;
     resolvedCommit?: string;
@@ -98,6 +101,7 @@ function statusSkill(skill: LockfileSkillEntry, inherited?: { requestedRef?: str
   return {
     activeName: skill.activeName,
     source: skill.source,
+    sourceType: skill.sourceType,
     sourcePath: skill.sourcePath,
     ...(skill.requestedRef || inherited?.requestedRef ? { requestedRef: skill.requestedRef || inherited?.requestedRef } : {}),
     ...(skill.resolvedCommit || inherited?.resolvedCommit ? { resolvedCommit: skill.resolvedCommit || inherited?.resolvedCommit } : {}),
@@ -110,6 +114,7 @@ function statusRole(role: LockfileRoleEntry, inherited?: { requestedRef?: string
   return {
     activeName: role.activeName,
     source: role.source,
+    sourceType: role.sourceType,
     sourcePath: role.sourcePath,
     ...(role.requestedRef || inherited?.requestedRef ? { requestedRef: role.requestedRef || inherited?.requestedRef } : {}),
     ...(role.resolvedCommit || inherited?.resolvedCommit ? { resolvedCommit: role.resolvedCommit || inherited?.resolvedCommit } : {}),
@@ -211,6 +216,7 @@ export function collectWorkspaceStatus(): WorkspaceStatus {
             name: activeWorkflow.name,
             ...(activeWorkflow.title ? { title: activeWorkflow.title } : {}),
             source: activeWorkflow.source,
+            sourceType: activeWorkflow.sourceType,
             sourcePath: activeWorkflow.sourcePath,
             ...(activeWorkflow.requestedRef ? { requestedRef: activeWorkflow.requestedRef } : {}),
             ...(activeWorkflow.resolvedCommit ? { resolvedCommit: activeWorkflow.resolvedCommit } : {}),

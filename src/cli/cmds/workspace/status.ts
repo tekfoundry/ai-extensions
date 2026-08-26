@@ -15,6 +15,14 @@ function shortCommit(value: string | undefined): string {
   return value ? value.slice(0, 12) : "-";
 }
 
+function refLabel(item: { sourceType?: string; requestedRef?: string }): string {
+  return item.sourceType === "local" ? "local" : valueOrDash(item.requestedRef);
+}
+
+function commitLabel(item: { sourceType?: string; resolvedCommit?: string }): string {
+  return item.sourceType === "local" ? "-" : shortCommit(item.resolvedCommit);
+}
+
 function colorEnabled(): boolean {
   if (process.env.AIX_FORCE_COLOR !== undefined && process.env.AIX_FORCE_COLOR !== "0") {
     return true;
@@ -97,8 +105,9 @@ function renderSkillTable(title: string, skills: StatusSkill[], status: Workspac
     [
       { header: "Name", value: (skill) => skill.activeName },
       { header: "Source", value: (skill) => `${skill.source}/${skill.sourcePath}` },
-      { header: "Ref", value: (skill) => valueOrDash(skill.requestedRef) },
-      { header: "Commit", value: (skill) => shortCommit(skill.resolvedCommit) },
+      { header: "Type", value: (skill) => valueOrDash(skill.sourceType) },
+      { header: "Ref", value: (skill) => refLabel(skill) },
+      { header: "Commit", value: (skill) => commitLabel(skill) },
       { header: "Status", value: (skill) => skillStatus(status, skill, useColor) }
     ],
     skills,
@@ -118,8 +127,9 @@ function renderRoleTable(title: string, roles: StatusRole[] | undefined, options
     [
       { header: "Name", value: (role) => role.activeName },
       { header: "Source", value: (role) => `${role.source}/${role.sourcePath}` },
-      { header: "Ref", value: (role) => valueOrDash(role.requestedRef) },
-      { header: "Commit", value: (role) => shortCommit(role.resolvedCommit) }
+      { header: "Type", value: (role) => valueOrDash(role.sourceType) },
+      { header: "Ref", value: (role) => refLabel(role) },
+      { header: "Commit", value: (role) => commitLabel(role) }
     ],
     roleRows,
     { title: statusHeading(title, useColor) }
@@ -156,8 +166,9 @@ function renderWorkflow(status: WorkspaceStatus, options: RenderStatusOptions): 
     [
       { header: "Name", value: () => accent(workflow.name, useColor) },
       { header: "Source", value: () => accent(`${workflow.source}/${workflow.sourcePath}`, useColor) },
-      { header: "Ref", value: () => valueOrDash(workflow.requestedRef) },
-      { header: "Commit", value: () => shortCommit(workflow.resolvedCommit) },
+      { header: "Type", value: () => valueOrDash(workflow.sourceType) },
+      { header: "Ref", value: () => refLabel(workflow) },
+      { header: "Commit", value: () => commitLabel(workflow) },
       { header: "Docs", value: () => String(workflow.docCount) },
       { header: "Templates", value: () => String(workflow.templateCount) },
       { header: "Skills", value: () => String(workflow.skillCount) },

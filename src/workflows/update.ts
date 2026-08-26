@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { parseManifest } from "../manifest.js";
 import { LOCKFILE_FILE_NAME, MANIFEST_FILE_NAME } from "../schema.js";
 import { readJsonObject, writeJsonObjectAtomic } from "../activation/json.js";
@@ -18,6 +19,40 @@ export function updateWorkflow(cacheRoot = defaultCacheRoot()): UpdateWorkflowRe
     return {
       lockfilePath: LOCKFILE_FILE_NAME,
       updatedWorkflows: []
+    };
+  }
+
+  if (workflow.sourceType === "local") {
+    if (!existsSync(workflow.sourcePath)) {
+      throw new AixError(`Local workflow source is missing: ${workflow.sourcePath}`);
+    }
+
+    const definition = {
+      type: "git" as const,
+      url: ".",
+      path: workflow.sourcePath
+    };
+    const result = installResolvedWorkflow(
+      workflow.source,
+      definition,
+      workflow.sourcePath,
+      workflow.sourcePath,
+      undefined,
+      manifestJson,
+      lockfile,
+      { allowExistingWorkflow: true, sourceType: "local" }
+    );
+
+    writeJsonObjectAtomic(MANIFEST_FILE_NAME, manifestJson);
+    writeJsonObjectAtomic(LOCKFILE_FILE_NAME, lockfile);
+
+    return {
+      lockfilePath: LOCKFILE_FILE_NAME,
+      updatedWorkflows: [
+        {
+          name: result.name
+        }
+      ]
     };
   }
 

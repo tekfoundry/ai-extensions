@@ -203,8 +203,30 @@ test("run workflow install resolves aix/workflows paths from local project sourc
     assert.equal(lockfile.workflows[0].sourceType, "local");
     assert.equal(lockfile.workflows[0].sourceUrl, undefined);
     assert.equal(lockfile.workflows[0].resolvedCommit, undefined);
+    assert.equal(lockfile.skills[0].sourceType, "local");
     assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/aix/local-flow/workflow.json")));
     assert.ok(existsSync(join(projectPath, ".agents/skills/alpha/SKILL.md")));
+
+    const status = run(["status"]);
+    assert.equal(status.exitCode, 0);
+    assert.match(status.stdout, /Workflow[\s\S]*local-flow[\s\S]*aix\/aix\/workflows\/local-flow[\s\S]*local[\s\S]*current/);
+    assert.match(status.stdout, /Workflow-owned skills[\s\S]*alpha[\s\S]*aix\/skills\/alpha[\s\S]*local/);
+
+    writeFileSync(join(projectPath, "aix/workflows/local-flow/skills/alpha/SKILL.md"), "---\nname: alpha\n---\n\n# Alpha\n\nUpdated local workflow skill.\n", "utf8");
+
+    const diff = run(["workflow", "diff"]);
+    assert.equal(diff.exitCode, 0);
+    assert.match(diff.stdout, /Updated local workflow skill/);
+
+    const update = run(["workflow", "update"]);
+    assert.equal(update.exitCode, 0);
+    assert.match(update.stdout, /Updated workflow/);
+    assert.match(readFileSync(join(projectPath, ".agents/skills/alpha/SKILL.md"), "utf8"), /Updated local workflow skill/);
+    const updatedLockfile = JSON.parse(readFileSync("aix.lock.json", "utf8"));
+    assert.equal(updatedLockfile.workflows[0].sourceType, "local");
+    assert.equal(updatedLockfile.workflows[0].sourceUrl, undefined);
+    assert.equal(updatedLockfile.workflows[0].resolvedCommit, undefined);
+    assert.equal(updatedLockfile.skills[0].sourceType, "local");
 
     assert.equal(run(["workflow", "uninstall"]).exitCode, 0);
     assert.ok(existsSync(join(projectPath, "aix/workflows/local-flow/workflow.json")));

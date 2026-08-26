@@ -20,6 +20,11 @@ files, and project-owned documentation:
   workflow-local templates and skills.
 - `aix/skills/` is reserved for default bundled skills that are not owned by a
   workflow.
+- In a consuming project, `./aix/skills` and `./aix/workflows` are editable
+  project-local extension source directories. When a user activates
+  `aix/skills/<name>` or installs `aix/workflows/<name>`, AIX checks the local
+  `./aix/` path before falling back to configured or bundled/default `aix`
+  sources.
 - `.agents/` is managed by the skills package manager in consuming projects.
 - `.agents/packages/` contains project-local package copies, organized first by
   extension kind. The MVP uses `.agents/packages/skills/<source>/...` for

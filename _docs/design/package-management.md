@@ -11,6 +11,7 @@ Resolved source packages and active skills are recorded in `aix.lock.json`,
 including:
 
 - source name and Git URL
+- source ownership type, currently `git` or `local`
 - package kind
 - requested ref
 - resolved commit SHA
@@ -29,7 +30,8 @@ including:
 
 The manifest represents root user intent. The lockfile represents the exact
 fetched and active state, including dependency-only active skills and the
-active workflow.
+active workflow. Local project extension source is represented in the lockfile
+with `sourceType: "local"` and no Git URL, requested ref, or resolved commit.
 
 `aix status` should read both files and summarize the installed state without
 changing project files. It should report missing manifest or lockfile files as
@@ -256,10 +258,22 @@ supporting files. `.agents/packages/skills/<source>/...` is reserved for the
 project-local package copies needed by active skills.
 
 This keeps source discovery local and fast while avoiding project directory
-bloat. `aix skill activate` materializes the requested skill package from the cache
-into `.agents/packages/skills/<source>/...`, records only the user-requested
-root skill in the manifest `skills` list, then exposes the requested skill and
-any inferred dependency skills through `.agents/skills`.
+bloat. `aix skill activate` materializes the requested skill package from the
+cache into `.agents/packages/skills/<source>/...`, records only the
+user-requested root skill in the manifest `skills` list, then exposes the
+requested skill and any inferred dependency skills through `.agents/skills`.
+When the requested target is `aix/skills/<name>`, AIX first checks for
+`./aix/skills/<name>` and treats it as editable local source when present. The
+local source directory is copied into the package store and locked with
+`sourceType: "local"`; deactivation removes only the active exposure,
+manifest/lockfile activation state, and package materialization, while
+preserving the editable `./aix/skills/<name>` source.
+
+`aix skills diff` and `aix skills update` use the locked source ownership. Git
+entries compare against the resolved Git source snapshot. Local entries compare
+against and refresh from the locked local source path. `aix status` shows local
+ownership explicitly instead of displaying a Git ref or commit for local
+entries.
 
 The MVP supports the `skills` source kind. Using `aix skills add` keeps the
 command semantic and leaves room for later `aix agents add` or

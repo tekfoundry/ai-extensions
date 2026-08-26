@@ -93,7 +93,7 @@ export function installResolvedWorkflow(
     const packageFiles = writeWorkflowPackage(stagedPackage.path, packagePath);
     const docs = installWorkflowDocs(workflow, packagePath);
     const agentsMd = installAgentsMdBlock(workflow.agentsMd, packagePath);
-    const skillEntries = installWorkflowSkills(workflow, source, packagePath, existingWorkflow);
+    const skillEntries = installWorkflowSkills(workflow, source, sourceType, packagePath, existingWorkflow);
     const roleEntries = installWorkflowRoles(workflow, source, sourceType, packagePath, existingWorkflow);
     const templates = workflowTemplateHashes(discoverWorkflowTemplates(workflow, packagePath));
 

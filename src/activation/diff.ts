@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { AixError } from "../errors.js";
 import { parseManifest } from "../manifest.js";
@@ -24,6 +25,16 @@ function gitNoIndexDiff(fromPath: string, toPath: string): string {
 
     throw new AixError(`Git diff failed for ${fromPath} and ${toPath}.\n${message}`);
   }
+}
+
+function localSkillSourcePath(entry: LockfileSkillEntry): string {
+  const sourcePath = entry.source === "aix" ? join("aix", entry.sourcePath) : entry.sourcePath;
+
+  if (!existsSync(sourcePath)) {
+    throw new AixError(`Local skill source is missing: ${sourcePath}`);
+  }
+
+  return sourcePath;
 }
 
 export function diffSkills(target?: string, cacheRoot = defaultCacheRoot()): DiffSkillsResult {
@@ -52,10 +63,11 @@ export function diffSkills(target?: string, cacheRoot = defaultCacheRoot()): Dif
     };
   }
 
+  const gitEntries = entriesToDiff.filter((entry) => entry.sourceType !== "local");
   const sourceDefinitions = loadSourceDefinitions();
   const resolvedSources = new Map<string, ReturnType<typeof resolveSourceFromDefinitions>>();
 
-  for (const entry of entriesToDiff) {
+  for (const entry of gitEntries) {
     if (!sourceDefinitions[entry.source]) {
       throw new AixError(`Unknown source: ${entry.source}`);
     }
@@ -69,6 +81,19 @@ export function diffSkills(target?: string, cacheRoot = defaultCacheRoot()): Dif
     lockfilePath: LOCKFILE_FILE_NAME,
     diffs: entriesToDiff
       .map((entry: LockfileSkillEntry) => {
+        if (entry.sourceType === "local") {
+          const sourceSkillPath = localSkillSourcePath(entry);
+
+          return {
+            source: entry.source,
+            sourcePath: entry.sourcePath,
+            activeName: entry.activeName,
+            packagePath: entry.packagePath,
+            sourceSkillPath,
+            diff: gitNoIndexDiff(entry.packagePath, sourceSkillPath)
+          };
+        }
+
         const resolvedSource = resolvedSources.get(entry.source);
 
         if (!resolvedSource) {

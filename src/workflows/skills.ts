@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { activeSkillPath } from "../paths/agents.js";
-import type { LockfileSkillEntry, LockfileWorkflowEntry } from "../schema.js";
+import type { LockfileSkillEntry, LockfileWorkflowEntry, SourceType } from "../schema.js";
 import { discoverSkills, parseSkillNameFromDirectory } from "../skills.js";
 import { activateDirectSymlink, assertActivationPathAvailable, assertActiveFilesMatchLockfile, removeActivePath } from "../activation/active-files.js";
 import { assertNoActiveNameCollision } from "../activation/lockfile.js";
@@ -70,6 +70,7 @@ export function assertWorkflowActiveSkillsUnmodified(lockfile: { skills: Lockfil
 export function installWorkflowSkills(
   workflow: WorkflowManifestFile,
   workflowSource: string,
+  sourceType: SourceType,
   packagePath: string,
   previousWorkflow?: LockfileWorkflowEntry
 ): LockfileSkillEntry[] {
@@ -79,7 +80,7 @@ export function installWorkflowSkills(
     return {
       kind: "skill",
       source: workflowSource,
-      sourceType: "git",
+      sourceType,
       sourcePath: plan.sourcePath,
       packagePath: plan.packageSkillPath,
       activationPath: plan.activationPath,
