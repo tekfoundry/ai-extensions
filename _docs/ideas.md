@@ -102,3 +102,5 @@ None yet.
      - Mutating commands should preserve AIX safety rules: no silent overwrites, explicit collision handling, and clear previews where feasible.
    - Source links:
      - [AIX workflow design](design/workflows.md)
+
+12. **coding standards**

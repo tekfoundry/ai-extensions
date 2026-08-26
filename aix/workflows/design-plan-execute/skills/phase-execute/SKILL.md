@@ -39,6 +39,20 @@ require `quality-engineer` for direct use. If the role is unavailable or the
 host cannot delegate, continue phase execution yourself by checking the same
 verification and regression concerns.
 
+When `.agents/roles/implementation-engineer.md` exists and phase execution
+depends on task slicing, changed-area ownership, dependency order, integration
+risk, documentation impact, or whether the next task is ready for
+`task-execute`, use `delegate-to-role` or a prompt-overlay delegation to
+request bounded implementation input.
+
+Fold returned evidence into task ordering, task boundaries, changed-file
+expectations, implementation notes, verification handoff, documentation
+impact, residual risk, follow-on tasks, or phase closeout notes as
+appropriate. Do not require `implementation-engineer` for direct use. If the
+role is unavailable or the host cannot delegate, continue phase execution
+yourself by checking the same implementation readiness and sequencing
+concerns.
+
 ## 1. Orient
 
 1. Resolve the plan file using `Active Plan Resolution` in

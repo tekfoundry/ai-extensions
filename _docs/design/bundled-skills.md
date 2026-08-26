@@ -114,9 +114,9 @@ The default workflow also ships project-development roles. Those roles are
 workflow-owned and activate under `.agents/roles/` with the workflow:
 `product-strategist`, `product-designer`, `requirements-engineer`,
 `technical-architect`, `security-reviewer`, `ux-writer`, `quality-engineer`,
-and `documentation-specialist`. They provide bounded specialist judgment for
-planning, design, documentation, implementation-to-intent drift, verification,
-and closeout while the
+`documentation-specialist`, and `implementation-engineer`. They provide
+bounded specialist judgment for planning, design, implementation readiness,
+documentation, implementation-to-intent drift, verification, and closeout while the
 workflow-owned skills continue to own their procedures and direct invocation
 behavior.
 

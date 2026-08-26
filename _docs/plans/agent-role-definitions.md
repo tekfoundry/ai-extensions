@@ -1755,22 +1755,22 @@ direct task execution quality.
 
 Tasks:
 
-- ⬜️ Create
+- ✅ Create
   `aix/workflows/design-plan-execute/roles/project-dev/implementation-engineer.md`.
-- ⬜️ Review `task-execute`, `phase-execute`, and `plan-execute` for execution
+- ✅ Review `task-execute`, `phase-execute`, and `plan-execute` for execution
   ownership and direct invocation behavior.
-- ⬜️ Integrate `implementation-engineer` with `plan-create` for implementation
+- ✅ Integrate `implementation-engineer` with `plan-create` for implementation
   phase/task decomposition after design intent is accepted, including scoped
   task boundaries, sequencing, likely changed areas, and verification handoff.
-- ⬜️ Review every `implementation-engineer` `Skills To Consider` entry and add
+- ✅ Review every `implementation-engineer` `Skills To Consider` entry and add
   reciprocal skill-to-role collaboration where implementation judgment
   materially affects the skill outcome, while preserving direct skill
   invocation.
-- ⬜️ Modify execution-related skills identified by the reciprocal review while
+- ✅ Modify execution-related skills identified by the reciprocal review while
   preserving standalone skill behavior.
-- ⬜️ Keep execution skills responsible for task status, scoped code changes,
+- ✅ Keep execution skills responsible for task status, scoped code changes,
   verification, plan updates, and final reporting when invoked directly.
-- ⬜️ If any execution-related skill changes, verify it still works without role
+- ✅ If any execution-related skill changes, verify it still works without role
   context.
 
 Verification:
@@ -1788,8 +1788,64 @@ Verification:
 - Record automated checks, manual role review, skill standalone review,
   delegation verification, scenario-quality result, and commit checkpoint
   status.
-- Human approval recorded before starting the next project-development role
-  phase.
+- Pending: human approval recorded before starting the next project-development
+  role phase. Developer review of Phase 14 changes is expected before Phase 15
+  begins.
+
+Implementation notes:
+
+- Added the workflow-owned `implementation-engineer` role under
+  `aix/workflows/design-plan-execute/roles/project-dev/` with contract
+  sections for purpose, when to use, context to inspect, skills to consider,
+  stop conditions, and expected output.
+- Scoped the role around implementation readiness: task boundaries, phase
+  sequencing, likely changed areas, dependencies, verification handoff,
+  documentation impact, and residual risk.
+- Added reciprocal implementation-engineer collaboration hooks to
+  `plan-create`, `plan-update`, `plan-execute`, `phase-execute`,
+  `task-execute`, and `work-verify`.
+- Preserved direct execution ownership: `plan-create` still owns planning and
+  does not authorize execution, `plan-execute` still owns whole-plan
+  sequencing, `phase-execute` still owns phase sequencing, `task-execute`
+  still owns file edits and task closeout, and `work-verify` still owns
+  command execution and verification reporting.
+- Updated workflow README and stable design docs so the installed role catalog
+  and bundled workflow documentation include `implementation-engineer`.
+- Extended role, skill-instruction, init, and package-smoke tests for the new
+  role, prompt-overlay delegation, workflow-owned activation, and package
+  inclusion.
+
+Verification:
+
+- Completed: `npm run build`.
+- Completed: `node --test tests/roles.test.mjs tests/skill-instructions.test.mjs`
+  passed with 46 tests.
+- Completed: `node --test tests/init.test.mjs tests/package-smoke.test.mjs`
+  passed with 8 tests.
+- Completed: `npm test` passed with 181 tests.
+- Completed: `git diff --check`.
+- Completed: manual role review against the role verification rubric. The role
+  has required front matter, required sections, bounded scope, explicit stop
+  conditions, skill handoffs, and no direct edit or command ownership.
+- Completed: manual standalone skill review for changed execution skills.
+  Each changed skill still states that it owns its procedure and continues
+  without role context when the role is unavailable.
+- Completed: delegation verification through the shipped prompt-overlay
+  delegation test and review of the generated prompt for
+  `implementation-engineer`.
+- Completed: representative scenario-quality review. The role output contract
+  asks for scoped implementation objective, likely changed files, tests,
+  fixtures, docs, dependencies, sequencing, verification handoff,
+  documentation impact, residual risk, and scope-expansion status.
+- Commit checkpoint status: no commit requested or created.
+- Remaining manual gate: developer review and approval before Phase 15 starts.
+
+Execution notes:
+
+- 2026-08-25: Implemented Phase 14 `implementation-engineer` role and
+  reciprocal planning/execution skill collaboration hooks. Automated
+  verification passed. Developer review remains the gate before the next
+  project-development role phase.
 
 ### Phase 15: Local AIX source precedence and cleanup safety (status: approved)
 

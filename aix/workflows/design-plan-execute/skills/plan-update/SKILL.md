@@ -66,6 +66,12 @@ accuracy risks, documentation follow-up, or closeout docs expectations, use
 `delegate-to-role` or a prompt-overlay delegation to request bounded
 documentation input.
 
+When `.agents/roles/implementation-engineer.md` exists and the requested
+update changes task boundaries, phase sequencing, likely changed areas,
+dependencies, implementation risks, verification handoff, documentation
+impact, execution notes, or follow-on work, use `delegate-to-role` or a
+prompt-overlay delegation to request bounded implementation input.
+
 Fold returned evidence into the smallest appropriate plan update: scope,
 Design Intent, non-goals, boundaries, tasks, risks, verification, Security
 Review expectations, documentation impact, promotion notes, open questions, or

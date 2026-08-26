@@ -298,6 +298,7 @@ test("discoverRoles reports shipped workflow-owned project development roles", (
     roles.map((role) => role.name),
     [
       "documentation-specialist",
+      "implementation-engineer",
       "product-designer",
       "product-strategist",
       "quality-engineer",
@@ -311,6 +312,26 @@ test("discoverRoles reports shipped workflow-owned project development roles", (
   for (const role of roles) {
     assertRoleContract(parseRoleFileFromPath(join("aix/workflows/design-plan-execute/roles/project-dev", role.path)));
   }
+});
+
+test("resolveRoleDelegation delegates to the shipped implementation engineer role", () => {
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/implementation-engineer.md");
+  const resolution = resolveRoleDelegation("use implementation-engineer to split this phase into tasks", [role]);
+  const prompt = buildPromptOverlayDelegation(role, "Review task boundaries, changed files, docs impact, and verification handoff.");
+
+  assert.equal(resolution.role.name, "implementation-engineer");
+  assert.equal(resolution.mode, "prompt-overlay");
+  assert.match(prompt, /Name: implementation-engineer/);
+  assert.match(prompt, /Review accepted design intent, implementation phases, active tasks/);
+  assert.match(prompt, /Treat `.agents\/engineering-best-practices\.md` as binding implementation/);
+  assert.match(prompt, /If\s+`.agents\/coding-standards\.md` exists, treat it as binding local coding/);
+  assert.match(prompt, /apply general best-practice standards for readability, naming/);
+  assert.match(prompt, /Scoped implementation objective and the smallest coherent next slice/);
+  assert.match(prompt, /Likely changed files, tests, fixtures, docs/);
+  assert.match(prompt, /Coding-standard concerns, local convention mismatches/);
+  assert.match(prompt, /Verification handoff with targeted checks/);
+  assert.match(prompt, /Do not claim implementation readiness unless the task is scoped/);
+  assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
 test("resolveRoleDelegation delegates to the shipped documentation specialist role", () => {
@@ -442,6 +463,7 @@ test("resolveRoleDelegation delegates to the shipped quality engineer role", () 
 test("shipped project development roles can route existing-plan edits through plan-update", () => {
   const roleNames = [
     "documentation-specialist",
+    "implementation-engineer",
     "product-designer",
     "product-strategist",
     "quality-engineer",

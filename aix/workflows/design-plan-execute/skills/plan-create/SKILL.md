@@ -106,6 +106,19 @@ open questions, risks, and human review notes as appropriate. Do not use the
 role to invent design truth, promote speculative behavior, finalize docs, or
 take over `documentation-review`, `design-create`, or `design-promote`.
 
+When `.agents/roles/implementation-engineer.md` exists and Design Intent has
+been accepted, use `delegate-to-role` or a prompt-overlay delegation to request
+bounded implementation-readiness input before phases and tasks are finalized.
+Good triggers include scoped task boundaries, phase sequencing, likely changed
+areas, dependencies, test and fixture ownership, verification handoff,
+documentation impact, execution risks, and whether a planned task is small
+enough for `task-execute`. Fold returned evidence into implementation phases,
+task lists, likely changed areas, verification expectations, documentation
+impact, risks, open questions, and human review notes as appropriate. Do not
+use the role to authorize execution, edit files, mark tasks ready without
+developer acceptance, or bypass `plan-review`, `plan-activate`,
+`plan-execute`, `phase-execute`, `task-execute`, or `work-verify`.
+
 Do not require `product-strategist` for direct use. If the role is unavailable
 or the host cannot delegate, continue the planning session yourself by asking
 concise product-vision questions and recording the answers in the living plan.
@@ -141,6 +154,11 @@ unavailable or the host cannot delegate, continue the planning session yourself
 by asking concise documentation-impact, `_docs` placement, design-promotion,
 current-state accuracy, README, workflow-doc, index-link, and closeout
 questions when durable behavior or project documentation may change.
+Do not require `implementation-engineer` for direct use either. If the role is
+unavailable or the host cannot delegate, continue the planning session yourself
+by asking concise task-boundary, phase-order, likely-file, dependency,
+test-ownership, docs-impact, and verification-handoff questions after Design
+Intent is accepted.
 
 ## Workflow
 
@@ -221,6 +239,10 @@ questions when durable behavior or project documentation may change.
    documentation tasks, promotion notes, current-state accuracy checks, or
    closeout docs expectations materially affect task order or phase success
    criteria.
+   Use `implementation-engineer` for phase and task decomposition when scoped
+   task boundaries, likely changed areas, dependencies, execution sequencing,
+   test ownership, documentation impact, or verification handoff materially
+   affect whether the work is ready for activation and later execution.
 11. Apply the task status markers from `.agents/workflow.md` to every phased
    task list. New backlog tasks should start with `⬜️`; use `🟨`, `✅`, and
    `⚠️` only when the plan is recording actual execution state or a known

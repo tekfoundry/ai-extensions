@@ -43,6 +43,19 @@ unavailable or the host cannot delegate, continue verification yourself by
 checking the same targeted coverage, regression, acceptance, and residual-risk
 concerns.
 
+When `.agents/roles/implementation-engineer.md` exists and selecting checks
+depends on changed implementation boundaries, likely touched files, dependency
+order, fixtures, compatibility paths, build or package artifacts, or
+documentation impact, use `delegate-to-role` or a prompt-overlay delegation to
+request bounded implementation input.
+
+Fold returned evidence into selected checks, changed-file coverage notes,
+manual verification steps, skipped-check rationale, residual risk, or
+follow-up work as appropriate. Do not require `implementation-engineer` for
+direct use. If the role is unavailable or the host cannot delegate, continue
+verification yourself by checking the same implementation-boundary and
+coverage-handoff concerns.
+
 ## Workflow
 
 1. Identify the changed subsystem and read its design and quality guidance.

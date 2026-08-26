@@ -32,6 +32,22 @@ appropriate. Do not require `quality-engineer` for direct use. If the role is
 unavailable or the host cannot delegate, continue the task yourself by checking
 the same verification and regression concerns.
 
+When `.agents/roles/implementation-engineer.md` exists and the task's
+implementation boundary is non-trivial, use `delegate-to-role` or a
+prompt-overlay delegation to request bounded implementation input before
+editing. Good triggers include unclear task scope, likely changed files, test
+or fixture ownership, dependency order, file-operation risk, compatibility
+paths, documentation impact, or whether the task should be split before code
+changes begin.
+
+Fold returned evidence into task readiness, implementation notes, file-change
+plan, targeted verification, documentation impact, validation gaps, residual
+risk, follow-on tasks, or task completion evidence as appropriate. Do not
+require `implementation-engineer` for direct use. If the role is unavailable or
+the host cannot delegate, continue the task yourself by checking the same
+scope, ownership, sequencing, verification-handoff, and documentation-impact
+concerns.
+
 ## 1. Orient
 
 1. Resolve the plan file using `Active Plan Resolution` in

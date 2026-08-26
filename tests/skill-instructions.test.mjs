@@ -13,6 +13,7 @@ const brainstormingSkillPath = join(process.cwd(), "aix/workflows/design-plan-ex
 const planCreatePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-create/SKILL.md");
 const planReviewPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-review/SKILL.md");
 const planUpdatePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-update/SKILL.md");
+const planExecutePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-execute/SKILL.md");
 const planCompletePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-complete/SKILL.md");
 const workVerifyPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/work-verify/SKILL.md");
 const planTemplatePath = join(process.cwd(), "aix/workflows/design-plan-execute/templates/plan.md");
@@ -188,6 +189,10 @@ test("plan-create declares gated planning and role collaboration", () => {
   assert.match(skill, /documentation-impact pass/);
   assert.match(skill, /`_docs` placement,\s+design-promotion notes, current-state documentation/);
   assert.match(skill, /Do not use the\s+role to invent design truth, promote speculative behavior/);
+  assert.match(skill, /When `.agents\/roles\/implementation-engineer\.md` exists/);
+  assert.match(skill, /bounded implementation-readiness input before phases and tasks are finalized/);
+  assert.match(skill, /scoped task boundaries, phase sequencing, likely changed\s+areas/);
+  assert.match(skill, /Do not\s+use the role to authorize execution, edit files/);
   assert.match(skill, /Do not require `product-strategist` for direct use/);
   assert.match(skill, /Do not require `product-designer` for direct use either/);
   assert.match(skill, /asking concise flow, interaction, accessibility, and design-system questions/);
@@ -203,6 +208,8 @@ test("plan-create declares gated planning and role collaboration", () => {
   assert.match(skill, /asking concise acceptance-check, targeted-test, regression-risk/);
   assert.match(skill, /Do not require `documentation-specialist` for direct use either/);
   assert.match(skill, /asking concise documentation-impact, `_docs` placement, design-promotion/);
+  assert.match(skill, /Do not require `implementation-engineer` for direct use either/);
+  assert.match(skill, /asking concise task-boundary, phase-order, likely-file/);
   assert.match(skill, /Run the vision gate first/);
   assert.match(skill, /Record acceptance on the `High-Level Goal` heading only after the user\s+agrees/);
   assert.match(skill, /Treat template comments marked\s+`DO NOT INCLUDE IN OUTPUT` as agent-only instructions/);
@@ -216,6 +223,7 @@ test("plan-create declares gated planning and role collaboration", () => {
   assert.match(skill, /Use `documentation-specialist` for a bounded documentation pass/);
   assert.match(skill, /Use `quality-engineer` for phase verification guidance/);
   assert.match(skill, /Use `documentation-specialist` for phase documentation guidance/);
+  assert.match(skill, /Use `implementation-engineer` for phase and task decomposition/);
   assert.match(skill, /Only after Design Intent is accepted, break it into ordered implementation\s+phases/);
   assert.match(skill, /Not drafted until Design Intent is accepted/);
   assert.match(skill, /strip every\s+`DO NOT INCLUDE IN OUTPUT` comment block from the created or updated plan/);
@@ -289,11 +297,13 @@ test("plan-update declares project-development role collaboration", () => {
   assert.match(skill, /verification expectations, acceptance checks, regression-risk notes/);
   assert.match(skill, /When `.agents\/roles\/documentation-specialist\.md` exists/);
   assert.match(skill, /documentation impact, `_docs` placement, design-promotion\s+notes/);
+  assert.match(skill, /When `.agents\/roles\/implementation-engineer\.md` exists/);
+  assert.match(skill, /task boundaries, phase sequencing, likely changed areas/);
   assert.match(skill, /Fold returned evidence into the smallest appropriate plan update/);
   assert.match(skill, /Do not require any role for direct use/);
 });
 
-test("task-execute declares quality role collaboration", () => {
+test("task-execute declares implementation and quality role collaboration", () => {
   const skill = readFileSync(join(process.cwd(), "aix/workflows/design-plan-execute/skills/task-execute/SKILL.md"), "utf8");
 
   assert.match(skill, /^name: task-execute$/m);
@@ -301,9 +311,13 @@ test("task-execute declares quality role collaboration", () => {
   assert.match(skill, /When `.agents\/roles\/quality-engineer\.md` exists/);
   assert.match(skill, /non-trivial changed behavior, failure paths, regression risk/);
   assert.match(skill, /Do not require `quality-engineer` for direct use/);
+  assert.match(skill, /When `.agents\/roles\/implementation-engineer\.md` exists/);
+  assert.match(skill, /likely changed files, test\s+or fixture ownership/);
+  assert.match(skill, /Do not\s+require `implementation-engineer` for direct use/);
+  assert.match(skill, /scope, ownership, sequencing, verification-handoff/);
 });
 
-test("phase-execute declares quality role collaboration", () => {
+test("phase-execute declares implementation and quality role collaboration", () => {
   const skill = readFileSync(join(process.cwd(), "aix/workflows/design-plan-execute/skills/phase-execute/SKILL.md"), "utf8");
 
   assert.match(skill, /^name: phase-execute$/m);
@@ -311,6 +325,21 @@ test("phase-execute declares quality role collaboration", () => {
   assert.match(skill, /When `.agents\/roles\/quality-engineer\.md` exists/);
   assert.match(skill, /cross-task regression risk, integration checks/);
   assert.match(skill, /Do not\s+require `quality-engineer` for direct use/);
+  assert.match(skill, /When `.agents\/roles\/implementation-engineer\.md` exists/);
+  assert.match(skill, /task slicing, changed-area ownership, dependency order/);
+  assert.match(skill, /whether the next task is ready for\s+`task-execute`/);
+  assert.match(skill, /Do not require `implementation-engineer` for direct use/);
+});
+
+test("plan-execute declares implementation role collaboration", () => {
+  const skill = readFileSync(planExecutePath, "utf8");
+
+  assert.match(skill, /^name: plan-execute$/m);
+  assert.match(skill, /`plan-execute` owns plan-level phase sequencing/);
+  assert.match(skill, /When `.agents\/roles\/implementation-engineer\.md` exists/);
+  assert.match(skill, /whole-plan\s+execution depends on phase order, cross-phase dependencies/);
+  assert.match(skill, /whether the next phase\s+is ready for `phase-execute`/);
+  assert.match(skill, /Do not require `implementation-engineer` for direct use/);
 });
 
 test("work-verify declares security and quality review collaboration", () => {
@@ -327,6 +356,10 @@ test("work-verify declares security and quality review collaboration", () => {
   assert.match(skill, /verification choice or\s+evidence has meaningful quality risk/);
   assert.match(skill, /targeted-test selection, manual validation, skipped-check rationale/);
   assert.match(skill, /Do not require `quality-engineer` for direct use/);
+  assert.match(skill, /When `.agents\/roles\/implementation-engineer\.md` exists/);
+  assert.match(skill, /changed implementation boundaries, likely touched files/);
+  assert.match(skill, /build or package artifacts/);
+  assert.match(skill, /Do not require `implementation-engineer` for\s+direct use/);
   assert.match(skill, /Dependency and package-management changes require trust, source-resolution,\s+lockfile-integrity, drift, and no-write failure-path review/);
 });
 
