@@ -380,7 +380,9 @@ test("review-and-refresh-docs declares knowledge-base role collaboration", () =>
   assert.match(skill, /Delegated role evidence should include implementation facts inspected/);
   assert.match(skill, /`ux-writer` for developer-facing or user-facing copy/);
   assert.match(skill, /cross-links, freshness, duplication, stale references/);
-  assert.match(skill, /Do not edit, move, delete, or rewrite existing `_docs\/design` files/);
+  assert.match(skill, /Do not promote future intent, rejected behavior, or historical execution\s+notes into `_docs\/kb\/` as if they are current/);
+  assert.match(skill, /Preserve unrelated project documentation edits/);
+  assert.doesNotMatch(skill, /_docs\/design/);
 });
 
 test("plan-complete requires human validation before closeout", () => {
