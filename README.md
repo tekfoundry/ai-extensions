@@ -33,12 +33,7 @@ See the project promotion page at [tekfoundry.com/aix](https://tekfoundry.com/ai
 ## Try it in 60 seconds
 
 ```bash
-git clone https://github.com/tekfoundry/ai-extensions.git
-cd ai-extensions
-git checkout v0.2.0
-npm install
-npm run build
-npm install -g .
+npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.2.1/tekfoundry-aix-0.2.1.tgz
 aix init
 aix status
 aix verify
@@ -82,15 +77,10 @@ npm install -g @tekfoundry/aix
 
 > [!WARNING]
 > **Temporary install path:** The `@tekfoundry/aix` npm package is not published yet.
-> Until scoped npm publishing is complete, install from the current GitHub source release:
+> Until scoped npm publishing is complete, install the packed build from the GitHub Release artifact:
 >
 > ```bash
-> git clone https://github.com/tekfoundry/ai-extensions.git
-> cd ai-extensions
-> git checkout v0.2.0
-> npm install
-> npm run build
-> npm install -g .
+> npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.2.1/tekfoundry-aix-0.2.1.tgz
 > ```
 
 A quick verification test after installation:

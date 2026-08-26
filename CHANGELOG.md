@@ -2,6 +2,24 @@
 
 Release Please owns this file after the first release PR.
 
+## 0.2.1
+
+- Publish the KB workflow release with matching package metadata and GitHub
+  Release artifact install instructions.
+
+## 0.2.0
+
+- Add the `_docs/kb` knowledge-base documentation model for current-state
+  product, requirements, architecture, security, quality, operations,
+  decisions, and glossary documentation.
+- Update the `design-plan-execute` workflow, skills, roles, templates, and
+  scaffolding to route durable documentation to `_docs/kb` instead of the
+  retired `_docs/design` structure.
+- Backfill AIX documentation into the new KB structure and remove deprecated
+  documentation-review and security-reviewer references.
+- Add and refine release, operations, quality, security, architecture, and
+  requirements documentation for the current implementation.
+
 ## 0.1.4
 
 - Fix `aix update` missing-skill output so workflow-owned skills that moved out
