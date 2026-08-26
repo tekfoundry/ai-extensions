@@ -72,7 +72,7 @@ export function installWorkflowSkills(
   workflowSource: string,
   sourceType: SourceType,
   packagePath: string,
-  previousWorkflow?: LockfileWorkflowEntry
+  previousSkills: LockfileSkillEntry[] = []
 ): LockfileSkillEntry[] {
   const entries = workflowSkillPlans(workflow, packagePath).map((plan): LockfileSkillEntry => {
     const activeFiles = activateDirectSymlink(plan.activationPath, plan.packageSkillPath);
@@ -96,15 +96,14 @@ export function installWorkflowSkills(
     };
   });
 
-  const previousActiveNames = new Set(previousWorkflow?.skills.map((skill) => skill.activeName) || []);
   const nextActiveNames = new Set(entries.map((entry) => entry.activeName));
 
-  for (const activeName of previousActiveNames) {
-    if (nextActiveNames.has(activeName)) {
+  for (const previousSkill of previousSkills) {
+    if (nextActiveNames.has(previousSkill.activeName) || !existsSync(previousSkill.activationPath)) {
       continue;
     }
 
-    removeActivePath(activeSkillPath(activeName));
+    removeActivePath(previousSkill.activationPath);
   }
 
   return entries;

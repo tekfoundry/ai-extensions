@@ -24,7 +24,13 @@ import { readWorkflowManifest } from "./manifest.js";
 import { assertWorkflowActiveRolesUnmodified, assertWorkflowRolesSafe, installWorkflowRoles, replaceWorkflowRoleEntries } from "./roles.js";
 import { assertWorkflowActiveSkillsUnmodified, assertWorkflowSkillsSafe, installWorkflowSkills } from "./skills.js";
 import { deriveWorkflowSourceName, parseSourceInput, sourceManifestEntry, workflowSourcesJson } from "./source.js";
-import { assertWorkflowPackageUnmodified, removeStagedWorkflowPackage, replaceWorkflowSkillEntries, stageWorkflowPackage } from "./shared.js";
+import {
+  assertWorkflowPackageUnmodified,
+  removeStagedWorkflowPackage,
+  replaceWorkflowSkillEntries,
+  stageWorkflowPackage,
+  workflowSkills
+} from "./shared.js";
 import { discoverWorkflowTemplates, validateWorkflowTemplates, workflowTemplateHashes } from "./templates.js";
 import type { InstallWorkflowResult } from "./types.js";
 
@@ -93,7 +99,8 @@ export function installResolvedWorkflow(
     const packageFiles = writeWorkflowPackage(stagedPackage.path, packagePath);
     const docs = installWorkflowDocs(workflow, packagePath);
     const agentsMd = installAgentsMdBlock(workflow.agentsMd, packagePath);
-    const skillEntries = installWorkflowSkills(workflow, source, sourceType, packagePath, existingWorkflow);
+    const previousWorkflowSkills = existingWorkflow ? workflowSkills(lockfile, existingWorkflow.name) : [];
+    const skillEntries = installWorkflowSkills(workflow, source, sourceType, packagePath, previousWorkflowSkills);
     const roleEntries = installWorkflowRoles(workflow, source, sourceType, packagePath, existingWorkflow);
     const templates = workflowTemplateHashes(discoverWorkflowTemplates(workflow, packagePath));
 

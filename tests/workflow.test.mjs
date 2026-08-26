@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -21,6 +22,10 @@ function git(args, cwd) {
       GIT_COMMITTER_EMAIL: "aix@example.test"
     }
   }).trim();
+}
+
+function sha256(contents) {
+  return createHash("sha256").update(contents).digest("hex");
 }
 
 async function createWorkflowRepo(prefix, workflowName = "fixture-workflow", workflowPath = ".") {
@@ -478,6 +483,81 @@ test("run workflow update removes workflow-owned roles deleted from the source",
       assert.equal(lockfile.workflows[0].roles, undefined);
       assert.match(status.stdout, /Workflow[\s\S]*Roles[\s\S]*0/);
       assert.match(status.stdout, /Workflow-owned roles\n  none/);
+      assert.equal(verify.exitCode, 0);
+    } finally {
+      if (previousCache === undefined) {
+        delete process.env.AIX_CACHE_DIR;
+      } else {
+        process.env.AIX_CACHE_DIR = previousCache;
+      }
+    }
+  });
+});
+
+test("run workflow update removes stale workflow-owned skills missing from workflow summary", async () => {
+  const source = await createWorkflowRepo("aix-workflow-source-");
+
+  await withProject(async () => {
+    const previousCache = process.env.AIX_CACHE_DIR;
+    const cacheRoot = join(tmpdir(), `aix-workflow-stale-skill-cache-${Date.now()}`);
+    process.env.AIX_CACHE_DIR = cacheRoot;
+
+    try {
+      assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
+
+      const staleSkillContents = "---\nname: documentation-review\n---\n\n# Documentation Review\n";
+      const staleSkillPath = ".agents/skills/documentation-review";
+      mkdirSync(staleSkillPath, { recursive: true });
+      writeFileSync(join(staleSkillPath, "SKILL.md"), staleSkillContents, "utf8");
+
+      const lockfile = JSON.parse(readFileSync("aix.lock.json", "utf8"));
+      const staleHash = sha256(staleSkillContents);
+      lockfile.skills.push({
+        kind: "skill",
+        source: "fixture",
+        sourceType: "git",
+        sourcePath: "skills/documentation-review",
+        packagePath: ".agents/packages/workflows/fixture/fixture-workflow/skills/documentation-review",
+        activationPath: staleSkillPath,
+        originalName: "documentation-review",
+        activeName: "documentation-review",
+        requested: false,
+        owner: {
+          kind: "workflow",
+          name: "fixture-workflow"
+        },
+        packageFiles: [
+          {
+            path: "SKILL.md",
+            sha256: staleHash
+          }
+        ],
+        activeFiles: [
+          {
+            path: "SKILL.md",
+            sha256: staleHash
+          }
+        ]
+      });
+      writeFileSync("aix.lock.json", JSON.stringify(lockfile, null, 2) + "\n", "utf8");
+
+      writeFileSync(
+        join(source, "skills/alpha/SKILL.md"),
+        "---\nname: alpha\n---\n\n# Alpha\n\nUpdated body.\n",
+        "utf8"
+      );
+      git(["add", "."], source);
+      git(["commit", "-m", "update workflow skill"], source);
+
+      const update = run(["workflow", "update"]);
+      const updatedLockfile = JSON.parse(readFileSync("aix.lock.json", "utf8"));
+      const verify = run(["verify"]);
+
+      assert.equal(update.exitCode, 0);
+      assert.match(update.stdout, /Updated workflow/);
+      assert.equal(existsSync(staleSkillPath), false);
+      assert.equal(updatedLockfile.skills.some((skill) => skill.activeName === "documentation-review"), false);
+      assert.equal(updatedLockfile.workflows[0].skills.some((skill) => skill.activeName === "documentation-review"), false);
       assert.equal(verify.exitCode, 0);
     } finally {
       if (previousCache === undefined) {
