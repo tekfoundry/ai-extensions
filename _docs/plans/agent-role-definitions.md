@@ -307,6 +307,26 @@ aliases, and drift state. Verify should check role front matter, active-file
 hashes, missing files, invalid skill references, duplicate active names, and
 local edits that would block update or removal.
 
+Standalone role commands should mirror the established `aix skills` and
+`aix skill` command split. `aix roles add <git-or-github-tree-url> [alias]`
+declares a role source and records metadata without activating every role in
+the source. `aix roles list [source]` lists discoverable role files.
+`aix role activate <source>/<role-path> [alias]` materializes exactly one role
+into `.agents/packages/roles/...`, exposes it under `.agents/roles/`, and
+records the root user intent. `aix role diff`, `aix role update`, and
+`aix role deactivate` should use the same safety posture as skills: compare
+locked package and active files before writes, refuse drift, preserve aliases,
+and distinguish user-owned standalone roles from workflow-owned roles.
+
+Role packages may declare or contain role-owned skills in a later package
+shape. When a skill belongs to an active role, it should be managed as part of
+that role activation rather than as an independently removable root skill.
+Direct skill deactivation should refuse role-owned skills and tell the user to
+deactivate or update the owning role instead. Role activation, update, diff,
+and deactivation should be all-or-nothing across the role and any role-owned
+skills, so users cannot accidentally break a role by removing one of its
+procedural dependencies.
+
 ## Non-Goals
 
 - Do not make `.agents/roles/` a claimed cross-model standard. Treat it as an
@@ -316,8 +336,8 @@ local edits that would block update or removal.
 - Do not require all runtimes to support native subagents before roles are
   useful.
 - Do not create a large generic agent catalog as the first proof of value.
-- Do not add standalone role package commands, registry, plugin-package,
-  global-install, or publishing behavior as part of this plan.
+- Do not add registry, plugin-package, global-install, publishing behavior, or
+  host-native agent exposure as part of this plan.
 
 ## Boundaries And Invariants
 
@@ -2026,13 +2046,170 @@ Execution notes:
   tests/skill-instructions.test.mjs`; `npm run typecheck`; `npm test`;
   `git diff --check`.
 
+### Phase 17: Role CLI command surface (status: complete)
+
+Goal: Round out first-class role commands so standalone role sources and active
+roles can be discovered, activated, inspected, updated, diffed, and deactivated
+with safety behavior analogous to `aix skills` and `aix skill`.
+
+Design direction:
+
+- Treat roles as first-class package-managed assets, not as skills with a
+  different file extension.
+- Add a `sources.roles` manifest shape analogous to `sources.skills`, unless
+  implementation review finds a smaller compatible representation that better
+  preserves existing source parsing.
+- Add root manifest role intent, likely as a top-level `roles` list with
+  compact entries such as `team-roles:quality-engineer` and object entries for
+  aliases when needed.
+- Keep `aix roles add <git-or-github-tree-url> [source-alias]` analogous to
+  `aix skills add`: normalize Git and GitHub tree URLs, prefetch source
+  metadata, discover valid role files, and avoid activating roles or writing
+  active files.
+- Keep `aix roles list [source]` analogous to `aix skills list`: list valid
+  role Markdown files from configured role sources, support interactive source
+  selection when no source is provided, and do not mutate manifest, lockfile,
+  package, or active role files.
+- Keep `aix role activate <source>/<role-path> [alias]` analogous to
+  `aix skill activate`: materialize the selected role package, expose it under
+  `.agents/roles/<active-name>.md`, preserve package role front matter, rewrite
+  only the active alias front matter when an alias is requested, detect active
+  name collisions before writes, and record lockfile hashes.
+- Keep `aix role diff [active-name]` and `aix role update [active-name]`
+  analogous to skill diff/update for standalone roles, including local
+  `./aix/roles` source precedence when the source is `aix`.
+- Keep `aix role deactivate <active-name>` for user-owned standalone roles and
+  continue refusing workflow-owned roles.
+- Treat role-owned skills as all-or-nothing with the owning role. If role
+  activation installs role-owned skills, direct `aix skill deactivate` must
+  refuse them and tell the user to deactivate or update the owning role
+  instead. Role update, diff, and deactivation own the role plus its role-owned
+  skills as one coherent package-managed unit.
+- Keep workflow-owned roles under workflow lifecycle commands. Direct role
+  activate, diff, update, or deactivate commands must not take ownership of
+  workflow-owned roles.
+- Do not add registry, plugin-package, publishing, global role install, or
+  host-native agent exposure behavior as part of this phase.
+
+Tasks:
+
+- ✅ Define the manifest and lockfile shape for configured role sources, root
+  active role intent, standalone role entries, and any role-owned skill
+  ownership metadata.
+- ✅ Add `aix roles add <git-or-github-tree-url> [source-alias]` with URL
+  normalization, source metadata writes, role discovery validation, and no
+  activation side effects.
+- ✅ Add `aix roles list [source]` with non-mutating discovery, interactive
+  source selection, role path/name/description output, and clear handling for
+  unknown or empty sources.
+- ✅ Add `aix role activate <source>/<role-path> [alias]` for standalone roles,
+  including package materialization, active role exposure, alias handling,
+  collision detection, local `./aix/roles` precedence for `aix/roles/...`, and
+  lockfile/manifest updates.
+- ✅ Add `aix role diff [active-name]` and `aix role update [active-name]` for
+  standalone roles, including local-source comparison, drift refusal, targeted
+  update, and all-role update behavior when no active name is supplied.
+- ✅ Extend `aix role deactivate <active-name>` as needed for standalone role
+  manifest cleanup, role-owned skill cleanup, and role-owned skill drift
+  protection.
+- ✅ Update `aix skill deactivate` to refuse skills owned by an active role
+  with a clear message that the owning role controls the lifecycle.
+- ✅ Keep role-owned skill activation, update, diff, and deactivation
+  all-or-nothing with the owning role, or explicitly defer role-owned skill
+  package support if the package shape is not ready for implementation in this
+  phase.
+- ✅ Ensure `aix status`, `aix verify`, and workspace-level `aix update`
+  summarize standalone role sources, active roles, workflow-owned roles,
+  role-owned skills, aliases, source ownership, drift, and update state
+  clearly.
+- ✅ Update README, CLI design, package-management design, and workflow design
+  docs with the final role command surface and ownership rules.
+
+Implementation notes:
+
+- Added `sources.roles` parsing and top-level `roles` manifest intent with
+  compact `source:path` entries and object entries for aliases.
+- Added role source metadata as a separate cache file namespace from skill
+  source metadata so a skill source and role source can share a name such as
+  `aix` without clobbering each other.
+- Added `aix roles add`, `aix roles remove`, `aix roles list`,
+  `aix roles diff`, and `aix roles update`.
+- Expanded `aix role` with `activate`, `deactivate`, `diff`, and `update`.
+  The singular commands operate on one active role or target; the plural
+  diff/update commands operate on all standalone locked roles by default.
+- Added standalone role activation that materializes one role under
+  `.agents/packages/roles/<source>/...`, exposes it under `.agents/roles/`,
+  preserves package role front matter, rewrites only the active alias front
+  matter when needed, records manifest role intent, and records lockfile
+  hashes.
+- Added local `./aix/roles` precedence for activation targets under
+  `aix/roles/...`. Local role entries are locked with `sourceType: "local"`.
+- Added standalone role diff and update with package and active drift refusal.
+  Workflow-owned roles remain managed by workflow lifecycle commands.
+- Added role source removal with active-role blocking, role metadata removal,
+  and empty package-source cleanup.
+- Added lockfile support for `owner.kind: "role"` on skill entries and updated
+  `aix skill deactivate` to refuse role-owned skills.
+- Deferred bundled role-owned skill package installation because current role
+  files only expose `skills` as delegation hints. The all-or-nothing ownership
+  boundary is represented and enforced for lockfile entries that are owned by a
+  role.
+- Added role source and role update visibility to `aix status`, and added
+  standalone role updates to workspace-level `aix update`.
+- Updated README, CLI design, package-management design, and workflow design
+  docs with the final role command surface and ownership model.
+
+Verification:
+
+- Completed: test `aix roles add` for Git URLs, aliases, metadata
+  writes, invalid sources, and no activation side effects.
+- Completed: test `aix roles list` for configured sources, nested role files,
+  install command rendering, and no activation side effects.
+- Completed: test `aix role activate` for standalone role materialization, alias
+  front-matter rewriting, collision refusal before writes, local `./aix/roles`
+  precedence, lockfile writes, and manifest root intent writes.
+- Completed: test `aix role diff` and `aix role update` for source changes,
+  target filtering by active name, package refresh, active refresh, and commit
+  metadata updates.
+- Completed: test `aix role deactivate` for user-owned standalone roles,
+  workflow-owned refusal, package cleanup, manifest cleanup, and local source
+  preservation.
+- Completed: test `aix skill deactivate` refuses role-owned skills and preserves the
+  owning role until role deactivation owns the cleanup.
+- Completed: test status, verify, and workspace update output for standalone
+  roles, workflow-owned roles, local and Git source ownership, drift, and
+  update availability.
+- Completed: `npm run build`.
+- Completed: `npm run typecheck`.
+- Completed: `node --test tests/roles.test.mjs tests/manifest.test.mjs`
+  passed with 45 tests.
+- Completed: `node --test tests/cli.test.mjs tests/sources.test.mjs
+  tests/activation.test.mjs tests/status.test.mjs tests/verify.test.mjs
+  tests/update.test.mjs tests/package-smoke.test.mjs` passed with 66 tests.
+- Completed: `npm test` passed with 187 tests.
+- Completed: `git diff --check`.
+
+Execution notes:
+
+- 2026-08-26: Completed Phase 17 role CLI command surface. Implemented
+  standalone role source add/remove/list, role activate/diff/update/deactivate,
+  manifest role source and root intent parsing, local `./aix/roles` precedence,
+  role-owned skill deactivation refusal, role update/status composition, and
+  stable docs. File-size scan after implementation: `src/roles/activation.ts`
+  528 lines, `src/sources/management.ts` 348 lines,
+  `src/cli/cmds/role/index.ts` 214 lines, and
+  `src/cli/cmds/roles/index.ts` 246 lines. The larger role lifecycle file is
+  cohesive around activation/diff/update/deactivation and can be split later
+  if role-owned bundled skill installation adds more behavior.
+
 ## Open Questions / Decisions
 
-- What exact lockfile shape should represent standalone role packages and
-  workflow-owned roles?
-- What exact manifest shape should represent standalone role sources?
-- Should role `skills` metadata be a hard validation requirement, a warning
-  when missing, or only a delegation hint?
+- Resolved into Phase 17: exact lockfile shape for standalone role packages,
+  role sources, root role intent, and role-owned skill ownership metadata.
+- Resolved into Phase 17: exact manifest shape for standalone role sources and
+  root active role intent.
+- Resolved in Phase 17: role `skills` metadata remains a delegation hint, not
+  a hard dependency or automatic install list.
 - Which host-native compatibility output should be implemented first, if any?
 - Resolved in Phase 16: host-native exposure remains deferred until an
   explicit integration command or configuration is designed.

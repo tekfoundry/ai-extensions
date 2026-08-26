@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { AixError } from "../errors.js";
 import { parseManifest } from "../manifest.js";
 import { MANIFEST_FILE_NAME, type SourceDefinition } from "../schema.js";
-import { getDefaultSources, getDefaultWorkflowSources } from "./defaults.js";
+import { getDefaultRoleSources, getDefaultSources, getDefaultWorkflowSources } from "./defaults.js";
 import { safeCacheName } from "./metadata.js";
 import type { NamedSourceDefinition, ResolvedSource } from "./types.js";
 
@@ -55,8 +55,28 @@ export function loadWorkflowSourceDefinitions(): Record<string, SourceDefinition
   };
 }
 
+export function loadRoleSourceDefinitions(): Record<string, SourceDefinition> {
+  if (!existsSync(MANIFEST_FILE_NAME)) {
+    return getDefaultRoleSources();
+  }
+
+  const manifest = parseManifest(JSON.parse(readFileSync(MANIFEST_FILE_NAME, "utf8")));
+  const manifestSources = (manifest.roleSources || {}) as Record<string, SourceDefinition>;
+
+  return {
+    ...getDefaultRoleSources(),
+    ...manifestSources
+  };
+}
+
 export function listSourceDefinitions(): NamedSourceDefinition[] {
   return Object.entries(loadSourceDefinitions())
+    .map(([name, definition]) => ({ name, definition }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function listRoleSourceDefinitions(): NamedSourceDefinition[] {
+  return Object.entries(loadRoleSourceDefinitions())
     .map(([name, definition]) => ({ name, definition }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }

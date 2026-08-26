@@ -15,6 +15,15 @@ aix workflow update
 aix update
 aix templates list
 aix templates publish
+aix roles add
+aix roles list
+aix roles diff
+aix roles update
+aix roles remove
+aix role activate
+aix role diff
+aix role update
+aix role deactivate
 aix skills add
 aix skills list
 aix skills list --missing-only
@@ -79,6 +88,17 @@ aix templates diff
 aix templates diff <template-name>
 aix templates reset <template-name>
 aix templates reset --all
+aix roles add <git-or-github-tree-url> [alias]
+aix roles remove <source-name>
+aix roles list [source]
+aix role activate <source>/<role-path> [alias]
+aix role deactivate <active-name>
+aix roles update
+aix roles update <active-name>
+aix role update <active-name>
+aix roles diff
+aix roles diff <active-name>
+aix role diff <active-name>
 ```
 
 Later commands can include:
@@ -107,6 +127,37 @@ Workflow-local skills are owned by the workflow, not by user-requested root
 skill activation. `aix skill deactivate <active-name>` should refuse to remove
 a workflow-owned skill and tell the user to uninstall or replace the workflow
 instead.
+
+Role commands mirror the skills command shape. `aix roles add
+<git-or-github-tree-url> [alias]` adds a Git-backed role source under
+`sources.roles`, discovers Markdown role files, and writes role source metadata
+without activating roles or writing `.agents/roles`. `aix roles list [source]`
+lists discoverable role files from a configured role source and includes
+copy/pasteable `aix role activate <source>/<role-path>` commands.
+
+`aix role activate <source>/<role-path> [alias]` materializes one standalone
+role under `.agents/packages/roles/<source>/...`, exposes it through
+`.agents/roles/<active-name>.md`, preserves package front matter, rewrites only
+the active role name when an alias is requested, records top-level `roles`
+intent in `aix.json`, and records package and active hashes in
+`aix.lock.json`. When activating from the default `aix` source, targets under
+`aix/roles/...` prefer editable local `./aix/roles/...` files before falling
+back to the configured or bundled remote source.
+
+`aix roles diff`, `aix roles update`, `aix role diff <active-name|source/path>`,
+and `aix role update <active-name|source/path>` compare and refresh standalone
+roles only. They refuse workflow-owned roles and refuse package or active-file
+drift before writing. `aix role deactivate <active-name>` removes user-owned
+standalone role exposure, package materialization, manifest intent, and
+lockfile state after drift checks pass. Workflow-owned roles remain owned by
+workflow install, update, diff, and uninstall.
+
+Role-owned skills are managed as part of the owning role lifecycle rather than
+as independently removable root skills. `aix skill deactivate` refuses a skill
+whose lockfile owner is a role and tells the user to deactivate or update the
+owning role. This preserves all-or-nothing role package behavior. Role
+`skills` metadata remains a delegation hint until a future package format
+defines bundled role-owned skills.
 
 `aix workflow uninstall` should remove the active workflow docs and workflow-owned
 skills only after local drift checks pass. It should remove only the managed
@@ -222,8 +273,9 @@ as their install command. Missing workflow-owned skills use
 
 `aix update` is the canonical whole-workspace update command. It composes the
 existing update commands in order by running the same behavior as
-`aix workflow update` and then `aix skills update`; it should not duplicate the
-workflow or skill update implementation. After both update steps succeed, it
+`aix workflow update`, `aix skills update`, and `aix roles update`; it should
+not duplicate the workflow, skill, or role update implementation. After update
+steps succeed, it
 prints the same missing-skills output as `aix skills list aix --missing-only`.
 
 Whole-workspace lifecycle commands are intentionally top-level. `aix init`,

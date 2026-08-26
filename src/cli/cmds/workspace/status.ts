@@ -73,6 +73,10 @@ function skillUpdateKey(skill: Pick<StatusSkill, "source" | "sourcePath">): stri
   return `${skill.source}/${skill.sourcePath}`;
 }
 
+function roleUpdateKey(role: Pick<StatusRole, "source" | "sourcePath">): string {
+  return `${role.source}/${role.sourcePath}`;
+}
+
 function skillStatus(status: WorkspaceStatus, skill: StatusSkill, useColor: boolean): string {
   if (!status.update.checked) {
     return warn("unknown", useColor);
@@ -90,6 +94,16 @@ function workflowStatus(status: WorkspaceStatus, useColor: boolean): string {
 
   const workflow = status.activeWorkflow;
   const pending = workflow && status.update.workflowUpdates.some((update) => update.name === workflow.name);
+
+  return pending ? warn("update available", useColor) : good("current", useColor);
+}
+
+function roleStatus(status: WorkspaceStatus, role: StatusRole, useColor: boolean): string {
+  if (!status.update.checked) {
+    return warn("unknown", useColor);
+  }
+
+  const pending = (status.update.roleUpdates || []).some((update) => roleUpdateKey(update) === roleUpdateKey(role));
 
   return pending ? warn("update available", useColor) : good("current", useColor);
 }
@@ -115,7 +129,7 @@ function renderSkillTable(title: string, skills: StatusSkill[], status: Workspac
   );
 }
 
-function renderRoleTable(title: string, roles: StatusRole[] | undefined, options: RenderStatusOptions): string {
+function renderRoleTable(title: string, roles: StatusRole[] | undefined, status: WorkspaceStatus, options: RenderStatusOptions): string {
   const useColor = options.color === true;
   const roleRows = roles || [];
 
@@ -129,7 +143,8 @@ function renderRoleTable(title: string, roles: StatusRole[] | undefined, options
       { header: "Source", value: (role) => `${role.source}/${role.sourcePath}` },
       { header: "Type", value: (role) => valueOrDash(role.sourceType) },
       { header: "Ref", value: (role) => refLabel(role) },
-      { header: "Commit", value: (role) => commitLabel(role) }
+      { header: "Commit", value: (role) => commitLabel(role) },
+      { header: "Status", value: (role) => roleStatus(status, role, useColor) }
     ],
     roleRows,
     { title: statusHeading(title, useColor) }
@@ -137,7 +152,9 @@ function renderRoleTable(title: string, roles: StatusRole[] | undefined, options
 }
 
 function renderSourceTable(title: string, sources: WorkspaceStatus["skillSources"], options: RenderStatusOptions): string {
-  if (sources.length === 0) {
+  const sourceRows = sources || [];
+
+  if (sourceRows.length === 0) {
     return `${statusHeading(title, options.color === true)}\n  ${subtle("none", options.color === true)}`;
   }
 
@@ -149,7 +166,7 @@ function renderSourceTable(title: string, sources: WorkspaceStatus["skillSources
       { header: "Path", value: (source) => valueOrDash(source.path) },
       { header: "URL", value: (source) => valueOrDash(source.url) }
     ],
-    sources,
+    sourceRows,
     { title: statusHeading(title, options.color === true) }
   );
 }
@@ -209,6 +226,7 @@ function renderUpdates(status: WorkspaceStatus, options: RenderStatusOptions): s
   const useColor = options.color === true;
   const workflowCount = status.update.workflowUpdates.length;
   const skillCount = status.update.skillUpdates.length;
+  const roleCount = (status.update.roleUpdates || []).length;
 
   if (!status.update.checked) {
     return [
@@ -217,18 +235,19 @@ function renderUpdates(status: WorkspaceStatus, options: RenderStatusOptions): s
     ].join("\n");
   }
 
-  if (skillCount === 0 && workflowCount === 0) {
+  if (skillCount === 0 && workflowCount === 0 && roleCount === 0) {
     return `${statusHeading("Updates", useColor)}\n  ${good("up to date", useColor)}`;
   }
 
   const parts = [
     workflowCount > 0 ? `${workflowCount} ${workflowCount === 1 ? "workflow" : "workflows"}` : "",
-    skillCount > 0 ? `${skillCount} ${skillCount === 1 ? "skill" : "skills"}` : ""
+    skillCount > 0 ? `${skillCount} ${skillCount === 1 ? "skill" : "skills"}` : "",
+    roleCount > 0 ? `${roleCount} ${roleCount === 1 ? "role" : "roles"}` : ""
   ].filter(Boolean);
 
   return [
     statusHeading("Updates", useColor),
-    `  ${warn(`${parts.join(" and ")} ${workflowCount + skillCount === 1 ? "needs" : "need"} updates`, useColor)}`
+    `  ${warn(`${parts.join(" and ")} ${workflowCount + skillCount + roleCount === 1 ? "needs" : "need"} updates`, useColor)}`
   ].join("\n");
 }
 
@@ -251,15 +270,17 @@ export function renderStatus(status: WorkspaceStatus, options: RenderStatusOptio
     "",
     renderSourceTable("Skill sources", status.skillSources, options),
     "",
+    renderSourceTable("Role sources", status.roleSources, options),
+    "",
     renderSkillTable("Active skills", status.activeSkills, status, options),
     "",
     renderSkillTable("Dependency-only skills", status.dependencySkills, status, options),
     "",
     renderSkillTable("Workflow-owned skills", status.workflowSkills, status, options),
     "",
-    renderRoleTable("Active roles", status.activeRoles, options),
+    renderRoleTable("Active roles", status.activeRoles, status, options),
     "",
-    renderRoleTable("Workflow-owned roles", status.workflowRoles, options),
+    renderRoleTable("Workflow-owned roles", status.workflowRoles, status, options),
     "",
     renderHealth(status, options),
     "",

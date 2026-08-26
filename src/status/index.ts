@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { diffSkills, verifySkills } from "../activation.js";
 import { readLockfileJson } from "../activation/lockfile.js";
 import { parseManifest } from "../manifest.js";
-import { verifyRoles } from "../roles/index.js";
+import { diffRoles, verifyRoles } from "../roles/index.js";
 import { diffWorkflow, verifyWorkflow } from "../workflows/index.js";
 import {
   LOCKFILE_FILE_NAME,
@@ -69,6 +69,13 @@ export interface WorkspaceStatus {
     path?: string;
     ref?: string;
   }>;
+  roleSources: Array<{
+    name: string;
+    type: string;
+    url?: string;
+    path?: string;
+    ref?: string;
+  }>;
   activeSkills: StatusSkill[];
   dependencySkills: StatusSkill[];
   workflowSkills: StatusSkill[];
@@ -85,6 +92,11 @@ export interface WorkspaceStatus {
     }>;
     workflowUpdates: Array<{
       name: string;
+    }>;
+    roleUpdates: Array<{
+      activeName: string;
+      source: string;
+      sourcePath: string;
     }>;
   };
 }
@@ -158,13 +170,15 @@ function collectUpdateStatus(manifestExists: boolean): WorkspaceStatus["update"]
       checked: false,
       unavailableReason: `Missing ${MANIFEST_FILE_NAME}.`,
       skillUpdates: [],
-      workflowUpdates: []
+      workflowUpdates: [],
+      roleUpdates: []
     };
   }
 
   try {
     const skillDiffs = diffSkills().diffs;
     const workflowDiffs = diffWorkflow().diffs;
+    const roleDiffs = diffRoles().diffs;
 
     return {
       checked: true,
@@ -174,6 +188,12 @@ function collectUpdateStatus(manifestExists: boolean): WorkspaceStatus["update"]
         sourcePath: skill.sourcePath
       })),
       workflowUpdates: workflowDiffs.map((workflow) => ({ name: workflow.name }))
+      ,
+      roleUpdates: roleDiffs.map((role) => ({
+        activeName: role.activeName,
+        source: role.source,
+        sourcePath: role.sourcePath
+      }))
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -182,7 +202,8 @@ function collectUpdateStatus(manifestExists: boolean): WorkspaceStatus["update"]
       checked: false,
       unavailableReason: message,
       skillUpdates: [],
-      workflowUpdates: []
+      workflowUpdates: [],
+      roleUpdates: []
     };
   }
 }
@@ -230,6 +251,7 @@ export function collectWorkspaceStatus(): WorkspaceStatus {
       : {}),
     skillSources: sourceRows(manifest?.sources as Record<string, SourceDefinition> | undefined),
     workflowSources: sourceRows(manifest?.workflowSources as Record<string, SourceDefinition> | undefined),
+    roleSources: sourceRows(manifest?.roleSources as Record<string, SourceDefinition> | undefined),
     activeSkills: lockfile.skills.filter((skill) => skill.requested && !skill.owner).map((skill) => statusSkill(skill)),
     dependencySkills: lockfile.skills.filter((skill) => !skill.requested && !skill.owner).map((skill) => statusSkill(skill)),
     workflowSkills: lockfile.skills

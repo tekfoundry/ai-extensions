@@ -20,6 +20,7 @@ import {
 } from "../dist/roles.js";
 import { activeRolePath, bundledAixRolePackPath, packageRolePath, workflowRoleSourcePath } from "../dist/paths/agents.js";
 import { collectWorkspaceStatus } from "../dist/status/index.js";
+import { run } from "../dist/cli.js";
 
 function git(args, cwd) {
   return execFileSync("git", args, {
@@ -501,6 +502,179 @@ test("shipped project development roles can route existing-plan edits through pl
     assert.match(markdown, /Consider `plan-update`/, `${roleName} should explain when plan-update is useful`);
     assert.match(markdown, /without\s+changing lifecycle state/, `${roleName} should preserve plan-update lifecycle boundaries`);
   }
+});
+
+test("role CLI adds, lists, activates, reports, and deactivates standalone roles", async () => {
+  const gitSource = await createRoleGitSource();
+  const cacheRoot = await mkdtemp(join(tmpdir(), "aix-role-cache-"));
+  const previousCache = process.env.AIX_CACHE_DIR;
+
+  process.env.AIX_CACHE_DIR = cacheRoot;
+
+  await withProject(async (projectRoot) => {
+    const add = run(["roles", "add", gitSource.directory, "fixture"]);
+
+    assert.equal(add.exitCode, 0);
+    assert.match(add.stdout, /Added roles source fixture/);
+    assert.match(add.stdout, /Discovered 1 roles/);
+    assert.equal(existsSync(join(cacheRoot, "metadata/roles-fixture.json")), true);
+    assert.equal(existsSync(join(projectRoot, ".agents/roles")), false);
+
+    const list = run(["roles", "list", "fixture"]);
+    const activate = run(["role", "activate", "fixture/roles/aix-dev/quality-engineer", "test-quality-engineer"]);
+    const activatedManifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
+    const status = run(["status"]);
+
+    assert.match(list.stdout, /Roles in fixture:/);
+    assert.match(list.stdout, /roles\/aix-dev\/quality-engineer\.md/);
+    assert.match(list.stdout, /aix role activate fixture\/roles\/aix-dev\/quality-engineer\.md/);
+
+    assert.match(activate.stdout, /Activated role fixture\/roles\/aix-dev\/quality-engineer\.md as test-quality-engineer/);
+    assert.deepEqual(activatedManifest.roles, [
+      {
+        source: "fixture",
+        path: "roles/aix-dev/quality-engineer.md",
+        alias: "test-quality-engineer"
+      }
+    ]);
+    assert.equal(existsSync(join(projectRoot, ".agents/packages/roles/fixture/roles/aix-dev/quality-engineer.md")), true);
+    assert.equal(existsSync(join(projectRoot, ".agents/roles/test-quality-engineer.md")), true);
+    assert.match(status.stdout, /Role sources[\s\S]*fixture/);
+    assert.match(status.stdout, /Active roles[\s\S]*test-quality-engineer/);
+
+    const deactivate = run(["role", "deactivate", "test-quality-engineer"]);
+    const manifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
+    const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
+
+    assert.match(deactivate.stdout, /Deactivated role test-quality-engineer/);
+    assert.deepEqual(manifest.roles, []);
+    assert.deepEqual(lockfile.roles, []);
+    assert.equal(existsSync(join(projectRoot, ".agents/roles/test-quality-engineer.md")), false);
+
+    const remove = run(["roles", "remove", "fixture"]);
+    const removedManifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
+
+    assert.equal(remove.exitCode, 0, remove.stderr);
+    assert.match(remove.stdout, /Removed roles source fixture/);
+    assert.equal(removedManifest.sources.roles.fixture, undefined);
+    assert.equal(existsSync(join(cacheRoot, "metadata/roles-fixture.json")), false);
+  });
+
+  if (previousCache === undefined) {
+    delete process.env.AIX_CACHE_DIR;
+  } else {
+    process.env.AIX_CACHE_DIR = previousCache;
+  }
+});
+
+test("role CLI diffs and updates standalone roles", async () => {
+  const gitSource = await createRoleGitSource();
+  const cacheRoot = await mkdtemp(join(tmpdir(), "aix-role-cache-"));
+  const previousCache = process.env.AIX_CACHE_DIR;
+
+  process.env.AIX_CACHE_DIR = cacheRoot;
+
+  await withProject(async (projectRoot) => {
+    run(["roles", "add", gitSource.directory, "fixture"]);
+    run(["role", "activate", "fixture/roles/aix-dev/quality-engineer"]);
+
+    writeFileSync(
+      join(gitSource.directory, "roles/aix-dev/quality-engineer.md"),
+      validRoleMarkdown().replace("Return commands, evidence, gaps, and risk.", "Return updated evidence and risk."),
+      "utf8"
+    );
+    git(["add", "."], gitSource.directory);
+    git(["commit", "-m", "update role"], gitSource.directory);
+
+    const diff = run(["role", "diff", "quality-engineer"]);
+    const update = run(["roles", "update"]);
+    const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
+
+    assert.match(diff.stdout, /Diff for fixture\/roles\/aix-dev\/quality-engineer\.md as quality-engineer/);
+    assert.match(diff.stdout, /Return updated evidence and risk/);
+    assert.equal(update.exitCode, 0, update.stderr);
+    assert.match(update.stdout, /Updated locked roles/);
+    assert.match(readFileSync(join(projectRoot, ".agents/roles/quality-engineer.md"), "utf8"), /Return updated evidence and risk/);
+    assert.equal(lockfile.roles[0].resolvedCommit, git(["rev-parse", "HEAD"], gitSource.directory));
+  });
+
+  if (previousCache === undefined) {
+    delete process.env.AIX_CACHE_DIR;
+  } else {
+    process.env.AIX_CACHE_DIR = previousCache;
+  }
+});
+
+test("role activation resolves aix/roles paths from local project source first", async () => {
+  await withProject(async (projectRoot) => {
+    mkdirSync(join(projectRoot, "aix/roles/local-pack"), { recursive: true });
+    writeFileSync(join(projectRoot, "aix/roles/local-pack/quality-engineer.md"), validRoleMarkdown(), "utf8");
+    writeFileSync(
+      join(projectRoot, "aix.json"),
+      JSON.stringify({ sources: { roles: {} }, skills: [], roles: [] }, null, 2) + "\n",
+      "utf8"
+    );
+
+    const result = run(["role", "activate", "aix/roles/local-pack/quality-engineer"]);
+    const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
+
+    assert.equal(result.exitCode, 0);
+    assert.match(result.stdout, /Activated role aix\/roles\/local-pack\/quality-engineer\.md as quality-engineer/);
+    assert.equal(lockfile.roles[0].sourceType, "local");
+    assert.equal(lockfile.roles[0].sourcePath, "roles/local-pack/quality-engineer.md");
+    assert.equal(existsSync(join(projectRoot, "aix/roles/local-pack/quality-engineer.md")), true);
+  });
+});
+
+test("skill deactivation refuses role-owned skills", async () => {
+  await withProject(async (projectRoot) => {
+    mkdirSync(join(projectRoot, ".agents/packages/skills/fixture/skills/helper"), { recursive: true });
+    mkdirSync(join(projectRoot, ".agents/skills/helper"), { recursive: true });
+    writeFileSync(join(projectRoot, ".agents/packages/skills/fixture/skills/helper/SKILL.md"), "---\nname: helper\n---\n", "utf8");
+    writeFileSync(join(projectRoot, ".agents/skills/helper/SKILL.md"), "---\nname: helper\n---\n", "utf8");
+    writeFileSync(
+      join(projectRoot, "aix.json"),
+      JSON.stringify({ skills: [] }, null, 2) + "\n",
+      "utf8"
+    );
+    writeFileSync(
+      join(projectRoot, "aix.lock.json"),
+      JSON.stringify(
+        {
+          lockfileVersion: 1,
+          skills: [
+            {
+              kind: "skill",
+              source: "fixture",
+              sourceType: "git",
+              sourcePath: "skills/helper",
+              packagePath: ".agents/packages/skills/fixture/skills/helper",
+              activationPath: ".agents/skills/helper",
+              originalName: "helper",
+              activeName: "helper",
+              requested: false,
+              owner: {
+                kind: "role",
+                name: "quality-engineer"
+              },
+              packageFiles: [],
+              activeFiles: []
+            }
+          ],
+          roles: [],
+          workflows: []
+        },
+        null,
+        2
+      ) + "\n",
+      "utf8"
+    );
+
+    const result = run(["skill", "deactivate", "helper"]);
+
+    assert.equal(result.exitCode, 2);
+    assert.match(result.stderr, /Cannot deactivate helper directly because it is owned by role quality-engineer/);
+  });
 });
 
 test("activateRoleFromDefinitions materializes active role files and lockfile hashes", async () => {

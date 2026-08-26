@@ -1,5 +1,5 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { basename, dirname } from "node:path";
+import { existsSync, mkdirSync, readFileSync, rmSync, rmdirSync, writeFileSync } from "node:fs";
+import { basename, dirname, relative } from "node:path";
 import { AixError } from "../errors.js";
 import { hashFile } from "../fs/hashing.js";
 import type { FileHash, LockfileRoleEntry } from "../schema.js";
@@ -64,4 +64,19 @@ export function writeActiveRoleFile(sourcePath: string, targetPath: string, acti
 
 export function removeRoleFile(path: string): void {
   rmSync(path, { force: true });
+}
+
+export function removeRolePackageFile(path: string, stopDirectory = ".agents/packages/roles"): void {
+  removeRoleFile(path);
+
+  let current = dirname(path);
+  while (relative(stopDirectory, current) && !relative(stopDirectory, current).startsWith("..")) {
+    try {
+      rmdirSync(current);
+    } catch {
+      break;
+    }
+
+    current = dirname(current);
+  }
 }

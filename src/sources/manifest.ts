@@ -41,6 +41,24 @@ export function skillSourceEntries(manifest: Record<string, unknown>): Record<st
   return legacySources;
 }
 
+export function roleSourceEntries(manifest: Record<string, unknown>): Record<string, unknown> {
+  if (!isRecord(manifest.sources)) {
+    manifest.sources = {
+      skills: {},
+      roles: {},
+      workflows: {}
+    };
+  }
+
+  const sources = manifest.sources as Record<string, unknown>;
+
+  if (!isRecord(sources.roles)) {
+    sources.roles = {};
+  }
+
+  return sources.roles as Record<string, unknown>;
+}
+
 export function writeSourceManifestJson(manifest: Record<string, unknown>): void {
   writeJsonObjectAtomic(MANIFEST_FILE_NAME, manifest);
 }

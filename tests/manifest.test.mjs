@@ -68,6 +68,49 @@ test("parseManifest accepts GitHub tree source strings", () => {
   );
 });
 
+test("parseManifest accepts role sources and compact role requests", () => {
+  assert.deepEqual(
+    parseManifest({
+      sources: {
+        roles: {
+          team: "https://github.com/example/roles/tree/main/roles"
+        }
+      },
+      skills: [],
+      roles: [
+        "team:quality-engineer.md",
+        {
+          source: "team",
+          path: "documentation-specialist.md",
+          alias: "docs-reviewer"
+        }
+      ]
+    }),
+    {
+      roleSources: {
+        team: {
+          type: "git",
+          url: "https://github.com/example/roles.git",
+          ref: "main",
+          path: "roles"
+        }
+      },
+      skills: [],
+      roles: [
+        {
+          source: "team",
+          path: "quality-engineer.md"
+        },
+        {
+          source: "team",
+          path: "documentation-specialist.md",
+          alias: "docs-reviewer"
+        }
+      ]
+    }
+  );
+});
+
 test("parseManifest accepts legacy flat skill sources", () => {
   assert.deepEqual(
     parseManifest({

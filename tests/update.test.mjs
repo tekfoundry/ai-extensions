@@ -206,7 +206,10 @@ test("run update composes workflow update and skills update", async () => {
       const result = run(["update"]);
 
       assert.equal(result.exitCode, 0);
-      assert.equal(result.stdout, "No active workflow to update.\n\nNo locked skills to update.\n\nNo missing skills found in source: aix");
+      assert.equal(
+        result.stdout,
+        "No active workflow to update.\n\nNo locked skills to update.\n\nNo locked roles to update.\n\nNo missing skills found in source: aix"
+      );
     } finally {
       if (previousUrl === undefined) {
         delete process.env.AIX_SOURCE_AIX_URL;

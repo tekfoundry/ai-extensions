@@ -326,9 +326,31 @@ can be top-level project roles or workflow-owned roles. If a role depends on a
 workflow's skills, it belongs inside that workflow. If it does not depend on
 workflow-owned skills, it can live as a top-level role.
 
-AIX materializes active roles under `.agents/roles/<name>.md`. Public role
-commands are still being added, but the packaged roles already define the
-contracts AIX will install and verify.
+AIX materializes active roles under `.agents/roles/<name>.md`. Standalone role
+sources use the same plural/source and singular/activation split as skills:
+
+```bash
+aix roles add <git-or-github-tree-url> [alias]
+aix roles list [source]
+aix roles diff [active-name|source/path]
+aix roles update [active-name|source/path]
+aix roles remove <source-name>
+aix role activate <source>/<role-path> [alias]
+aix role diff <active-name|source/path>
+aix role update <active-name|source/path>
+aix role deactivate <active-name>
+```
+
+`aix roles add` discovers role files and writes source metadata without
+activating them. `aix role activate` materializes one role package, exposes it
+under `.agents/roles/`, and records root role intent in `aix.json`. Diff,
+update, and deactivate refuse local drift before writing or removing files.
+Workflow-owned roles remain owned by the workflow lifecycle.
+
+Role-owned skills are all-or-nothing with their owning role. If a future role
+package installs role-owned skills, `aix skill deactivate` refuses to remove
+those skills directly and tells the user to deactivate or update the owning
+role instead.
 
 Delegation is explicit and bounded. Ask for a named role, such as
 `Use quality-engineer to plan verification` or

@@ -19,9 +19,11 @@ test("run renders a splash screen with a zero exit code", () => {
   assert.match(result.stdout, /^  init\s+Initialize AI Extensions/m);
   assert.match(result.stdout, /^  verify\s+Check installed AI Extension state/m);
   assert.match(result.stdout, /^  status\s+Show workspace, workflow, and skill status/m);
-  assert.match(result.stdout, /^  update\s+Refresh the active workflow and locked skills/m);
+  assert.match(result.stdout, /^  update\s+Refresh the active workflow, locked skills, and locked roles/m);
   assert.match(result.stdout, /workflow install \[url\] \[alias\]\s+Install an AI workflow/);
   assert.match(result.stdout, /workflow uninstall\s+Uninstall an AI workflow/);
+  assert.match(result.stdout, /roles add <url> \[alias\]\s+Add a Git role source/);
+  assert.match(result.stdout, /role activate \[source\/path\]\s+Activate a role/);
   assert.match(result.stdout, /skills add <url> \[alias\]\s+Add a Git skill source/);
   assert.match(result.stdout, /skill activate \[source\/path\]\s+Activate a skill/);
   assert.doesNotMatch(result.stdout, /workspace init/);
@@ -41,7 +43,7 @@ test("run renders help with a zero exit code", () => {
 test("command registry owns splash command metadata", () => {
   assert.deepEqual(
     commands.map((command) => command.name),
-    ["init", "verify", "status", "update", "workflow", "templates", "role", "skills", "skill"]
+    ["init", "verify", "status", "update", "workflow", "templates", "roles", "role", "skills", "skill"]
   );
 
   const result = run([]);

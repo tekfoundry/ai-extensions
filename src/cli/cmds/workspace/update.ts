@@ -1,4 +1,5 @@
 import { skillsCommand } from "../skills/index.js";
+import { rolesCommand } from "../roles/index.js";
 import { workflowCommand } from "../workflow/index.js";
 import { CliError, EXIT_USAGE, toCliError } from "../../errors.js";
 import type { CliResult, Command } from "../../types.js";
@@ -42,11 +43,22 @@ function runWorkspaceUpdate(argv: string[]): CliResult {
     };
   }
 
+  const rolesResult = rolesCommand.run(["roles", "update"]);
+
+  if (rolesResult.exitCode !== 0) {
+    return {
+      exitCode: rolesResult.exitCode,
+      stdout: combineStdout(workflowResult.stdout, skillsResult.stdout, rolesResult.stdout),
+      stderr: rolesResult.stderr
+    };
+  }
+
   return {
     exitCode: 0,
     stdout: combineStdout(
       workflowResult.stdout,
       skillsResult.stdout,
+      rolesResult.stdout,
       renderMissingSkillsList()
     )
   };
@@ -55,9 +67,9 @@ function runWorkspaceUpdate(argv: string[]): CliResult {
 export const updateCommand: Command = {
   name: "update",
   usage: "update",
-  summary: "Refresh the active workflow and locked skills",
+  summary: "Refresh the active workflow, locked skills, and locked roles",
   splash: [
-    { usage: "update", summary: "Refresh the active workflow and locked skills" }
+    { usage: "update", summary: "Refresh the active workflow, locked skills, and locked roles" }
   ],
   run: runWorkspaceUpdate
 };

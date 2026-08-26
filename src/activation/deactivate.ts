@@ -66,6 +66,12 @@ export function deactivateSkill(activeName: string | undefined): DeactivateSkill
     );
   }
 
+  if (entry.owner?.kind === "role") {
+    throw new AixError(
+      `Cannot deactivate ${activeName} directly because it is owned by role ${entry.owner.name}. Use aix role deactivate ${entry.owner.name} instead.`
+    );
+  }
+
   const dependents = skillsDependingOn(lockfile, entry.source, entry.sourcePath)
     .filter((skill) => skill.activeName !== entry.activeName);
 

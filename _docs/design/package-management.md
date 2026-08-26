@@ -35,6 +35,10 @@ The manifest represents root user intent. The lockfile represents the exact
 fetched and active state, including dependency-only active skills and the
 active workflow. Local project extension source is represented in the lockfile
 with `sourceType: "local"` and no Git URL, requested ref, or resolved commit.
+Standalone role sources are declared under `sources.roles`, and root active
+role intent is declared under a top-level `roles` list. Role entries mirror
+skill entries: compact `source:path` strings for normal activation and object
+entries when alias metadata is needed.
 
 `aix status` should read both files and summarize the installed state without
 changing project files. It should report missing manifest or lockfile files as
@@ -45,6 +49,9 @@ The initial manifest schema is:
 ```json
 {
   "sources": {
+    "roles": {
+      "team-roles": "https://github.com/example/roles/tree/main/roles"
+    },
     "workflows": {
       "aix": "https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute"
     },
@@ -61,6 +68,14 @@ The initial manifest schema is:
   "workflow": "aix:aix/workflows/design-plan-execute",
   "skills": [
     "source-name:path/to/skill"
+  ],
+  "roles": [
+    "team-roles:quality-engineer.md",
+    {
+      "source": "team-roles",
+      "path": "documentation-specialist.md",
+      "alias": "docs-reviewer"
+    }
   ]
 }
 ```
@@ -194,6 +209,23 @@ workflow uninstall can detect missing files, drift, collisions, and ownership.
 Role metadata such as `tools`, `model`, and `skills` is a runtime hint, not the
 only safety boundary. AIX still enforces lockfile integrity, overwrite
 protection, and package ownership around the role files it manages.
+
+Standalone roles are materialized under `.agents/packages/roles/<source>/...`
+and exposed through `.agents/roles/<active-name>.md`. `aix roles add` records
+role source metadata without activation, `aix roles list` reads discoverable
+role files without mutation, `aix role activate` records root `roles` intent
+and lockfile hashes, and `aix role diff`, `aix role update`, and
+`aix role deactivate` operate only after package and active role drift checks
+pass. When the source is `aix`, activation targets under `aix/roles/...` prefer
+editable local `./aix/roles/...` files before falling back to the configured or
+bundled remote `aix` role source.
+
+Role-owned skills are owned by the role lifecycle. A lockfile skill entry may
+use `owner: { "kind": "role", "name": "<active-role>" }`; direct
+`aix skill deactivate` refuses those entries and points the user to the owning
+role. Role package support for installing bundled role-owned skills remains
+explicit: role front matter `skills` is still a delegation hint, not an
+automatic dependency install list.
 
 Host-native agent directories are compatibility outputs, not the package
 source of truth. Role activation, verification, delegation, update, and removal

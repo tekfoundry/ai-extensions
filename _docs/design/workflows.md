@@ -298,6 +298,18 @@ Cannot deactivate task-execute because it is owned by workflow design-plan-execu
 Remove or replace the workflow instead.
 ```
 
+Workflow-owned roles follow the same ownership rule. They are activated,
+updated, diffed, and removed by workflow install/update/diff/uninstall, not by
+standalone `aix role` lifecycle commands. Standalone role commands such as
+`aix roles add`, `aix roles list`, `aix role activate`, `aix role diff`,
+`aix role update`, and `aix role deactivate` manage user-owned role sources and
+root active role intent only.
+
+If a role package eventually installs role-owned skills, those skills are
+all-or-nothing with the owning role. Direct `aix skill deactivate` refuses
+role-owned skills so a role cannot be silently broken by removing one of its
+procedural pieces.
+
 Users can still edit workflow docs or workflow-owned skills locally, but those
 edits become drift. `aix verify` and `aix status` should report the drift, and
 workflow updates should refuse to overwrite it. The healthy team path is to

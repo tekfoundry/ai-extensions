@@ -1,10 +1,13 @@
-import { existsSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { AixError } from "../errors.js";
 import { writeJsonObjectAtomic } from "../activation/json.js";
+import { readJsonObject } from "../activation/json.js";
 import { readLockfileJson } from "../activation/lockfile.js";
-import { LOCKFILE_FILE_NAME, type LockfileRoleEntry, type SourceDefinition } from "../schema.js";
-import { defaultCacheRoot, getDefaultRoleSources, resolveSourceFromDefinitions } from "../sources/index.js";
+import { manifestRoleSourceDefinitions, removeManifestRole, updateManifestRoles } from "../activation/manifest.js";
+import { LOCKFILE_FILE_NAME, MANIFEST_FILE_NAME, type LockfileRoleEntry, type SourceDefinition, type SourceType } from "../schema.js";
+import { defaultCacheRoot, getDefaultRoleSources, loadRoleSourceDefinitions, resolveSourceFromDefinitions } from "../sources/index.js";
 import { activeRolePath, packageRolePath } from "../paths/agents.js";
 import { assertNoActiveRoleNameCollision } from "./lockfile.js";
 import { discoverRoles, parseRoleFileFromPath } from "./discovery.js";
@@ -13,6 +16,7 @@ import {
   assertRolePackageFilesMatchLockfile,
   copyRoleFileSafely,
   removeRoleFile,
+  removeRolePackageFile,
   roleFileHashes,
   writeActiveRoleFile
 } from "./files.js";
@@ -23,6 +27,7 @@ export interface RoleActivationResult {
   sourcePath: string;
   originalName: string;
   activeName: string;
+  manifestPath: string;
   lockfilePath: string;
   packagePath: string;
   activationPath: string;
@@ -30,9 +35,39 @@ export interface RoleActivationResult {
 
 export interface DeactivateRoleResult {
   activeName: string;
+  manifestPath: string;
   lockfilePath: string;
   activationPath: string;
   packagePath: string;
+}
+
+export interface UpdatedRole {
+  source: string;
+  sourcePath: string;
+  activeName: string;
+  previousResolvedCommit?: string;
+  resolvedCommit?: string;
+  packagePath: string;
+  activationPath: string;
+}
+
+export interface UpdateRolesResult {
+  lockfilePath: string;
+  updatedRoles: UpdatedRole[];
+}
+
+export interface RoleDiff {
+  source: string;
+  sourcePath: string;
+  activeName: string;
+  packagePath: string;
+  sourceRolePath: string;
+  diff: string;
+}
+
+export interface DiffRolesResult {
+  lockfilePath: string;
+  diffs: RoleDiff[];
 }
 
 export function roleTargetFromInput(target: string): { source: string; sourcePath: string } {
@@ -59,6 +94,7 @@ export function discoverRolePack(root: string) {
 function roleLockfileEntry(
   source: string,
   definition: SourceDefinition,
+  sourceType: SourceType,
   sourcePath: string,
   sourceRolePath: string,
   resolvedCommit: string | undefined,
@@ -74,10 +110,10 @@ function roleLockfileEntry(
   return {
     kind: "role",
     source,
-    sourceType: "git",
-    sourceUrl: definition.url,
-    requestedRef: definition.ref,
-    resolvedCommit,
+    sourceType,
+    ...(sourceType === "git" ? { sourceUrl: definition.url } : {}),
+    ...(sourceType === "git" && definition.ref ? { requestedRef: definition.ref } : {}),
+    ...(sourceType === "git" && resolvedCommit ? { resolvedCommit } : {}),
     sourcePath,
     packagePath,
     activationPath,
@@ -140,7 +176,21 @@ export function activateRoleFromDefinitions(
   cacheRoot = defaultCacheRoot()
 ): RoleActivationResult {
   const { source, sourcePath } = roleTargetFromInput(target);
-  const definition = sourceDefinitions[source];
+  const manifestJson = existsSync(MANIFEST_FILE_NAME)
+    ? readJsonObject(MANIFEST_FILE_NAME)
+    : { sources: { skills: {}, roles: {}, workflows: {} }, skills: [], roles: [] };
+  const definitions = {
+    ...sourceDefinitions,
+    ...manifestRoleSourceDefinitions(manifestJson)
+  };
+  const localPath = localAixRolePath(source, sourcePath);
+  const definition = localPath
+    ? {
+        type: "git" as const,
+        url: ".",
+        path: "aix"
+      }
+    : definitions[source];
 
   if (!definition) {
     throw new AixError(`Unknown role source: ${source}`);
@@ -150,25 +200,34 @@ export function activateRoleFromDefinitions(
     assertRoleName(alias, "role alias");
   }
 
-  const resolved = resolveSourceFromDefinitions(source, sourceDefinitions, cacheRoot);
-  const sourceRolePath = join(resolved.rootPath, sourcePath);
+  const resolved = localPath
+    ? {
+        name: source,
+        definition,
+        rootPath: "aix",
+        resolvedCommit: undefined
+      }
+    : resolveSourceFromDefinitions(source, definitions, cacheRoot);
+  const resolvedSourcePath = localPath ? sourcePath : remoteAixRolePath(source, sourcePath);
+  const sourceRolePath = join(resolved.rootPath, resolvedSourcePath);
   const role = parseRoleFileFromPath(sourceRolePath, { requireContract: true });
   const activeName = alias || role.name;
-  const expectedFileName = basename(sourcePath, ".md");
+  const expectedFileName = basename(resolvedSourcePath, ".md");
 
   if (role.name !== expectedFileName) {
-    throw new AixError(`Invalid role source: ${source}/${sourcePath} name ${role.name} must match source filename ${expectedFileName}.`);
+    throw new AixError(`Invalid role source: ${source}/${resolvedSourcePath} name ${role.name} must match source filename ${expectedFileName}.`);
   }
 
   assertRoleName(activeName, "active role name");
 
   const lockfile = readLockfileJson();
-  assertRoleActivationSafe(lockfile, source, sourcePath, sourceRolePath, activeName);
+  assertRoleActivationSafe(lockfile, source, resolvedSourcePath, sourceRolePath, activeName);
 
   const entry = roleLockfileEntry(
     source,
     definition,
-    sourcePath,
+    localPath ? "local" : "git",
+    resolvedSourcePath,
     sourceRolePath,
     resolved.resolvedCommit,
     activeName,
@@ -177,16 +236,249 @@ export function activateRoleFromDefinitions(
   );
 
   upsertRoleEntry(lockfile, entry);
+  updateManifestRoles(manifestJson, source, resolvedSourcePath, alias);
+  writeJsonObjectAtomic(MANIFEST_FILE_NAME, manifestJson);
   writeJsonObjectAtomic(LOCKFILE_FILE_NAME, lockfile);
 
   return {
     source,
-    sourcePath,
+    sourcePath: resolvedSourcePath,
     originalName: role.name,
     activeName,
+    manifestPath: MANIFEST_FILE_NAME,
     lockfilePath: LOCKFILE_FILE_NAME,
     packagePath: entry.packagePath,
     activationPath: entry.activationPath
+  };
+}
+
+function localAixRolePath(source: string, sourcePath: string): string | undefined {
+  if (source !== "aix" || !sourcePath.startsWith("roles/")) {
+    return undefined;
+  }
+
+  const path = join("aix", sourcePath);
+
+  return existsSync(path) ? path : undefined;
+}
+
+function remoteAixRolePath(source: string, sourcePath: string): string {
+  if (source === "aix" && sourcePath.startsWith("roles/")) {
+    return sourcePath.slice("roles/".length);
+  }
+
+  return sourcePath;
+}
+
+function roleEntryKey(entry: Pick<LockfileRoleEntry, "source" | "sourcePath">): string {
+  return `${entry.source}:${entry.sourcePath}`;
+}
+
+function roleTargetFromActiveName(target?: string): { source: string; sourcePath: string } | undefined {
+  if (!target) {
+    return undefined;
+  }
+
+  if (target.includes("/")) {
+    return roleTargetFromInput(target);
+  }
+
+  assertRoleName(target, "active role name");
+  const lockfile = readLockfileJson();
+  const entry = (lockfile.roles || []).find((role) => role.activeName === target);
+
+  if (!entry) {
+    throw new AixError(`Unknown active role: ${target}`);
+  }
+
+  return {
+    source: entry.source,
+    sourcePath: entry.sourcePath
+  };
+}
+
+function assertRoleNoLocalDrift(entry: LockfileRoleEntry, action: string): void {
+  assertRolePackageFilesMatchLockfile(entry, action);
+  assertActiveRoleFilesMatchLockfile(entry, action);
+}
+
+function localRoleSourcePath(entry: LockfileRoleEntry): string {
+  const sourcePath = entry.source === "aix" ? join("aix", entry.sourcePath) : entry.sourcePath;
+
+  if (!existsSync(sourcePath)) {
+    throw new AixError(`Local role source is missing: ${sourcePath}`);
+  }
+
+  return sourcePath;
+}
+
+function gitNoIndexDiff(fromPath: string, toPath: string): string {
+  try {
+    return execFileSync("git", ["diff", "--no-index", "--", fromPath, toPath], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"]
+    });
+  } catch (error) {
+    if (typeof error === "object" && error !== null && "status" in error && error.status === 1 && "stdout" in error) {
+      return String(error.stdout);
+    }
+
+    const message = error instanceof Error ? error.message : String(error);
+
+    throw new AixError(`Git diff failed for ${fromPath} and ${toPath}.\n${message}`);
+  }
+}
+
+function sourcePathForRole(entry: LockfileRoleEntry, resolvedSources: Map<string, ReturnType<typeof resolveSourceFromDefinitions>>): string {
+  if (entry.sourceType === "local") {
+    return localRoleSourcePath(entry);
+  }
+
+  const resolvedSource = resolvedSources.get(entry.source);
+
+  if (!resolvedSource) {
+    throw new AixError(`Unknown role source: ${entry.source}`);
+  }
+
+  return join(resolvedSource.rootPath, entry.source === "aix" && entry.sourcePath.startsWith("roles/")
+    ? entry.sourcePath.slice("roles/".length)
+    : entry.sourcePath);
+}
+
+function standaloneRoleEntries(target?: string, cacheRoot = defaultCacheRoot()): {
+  entries: LockfileRoleEntry[];
+  resolvedSources: Map<string, ReturnType<typeof resolveSourceFromDefinitions>>;
+} {
+  const lockfile = readLockfileJson();
+  const requestedTarget = roleTargetFromActiveName(target);
+  const entries = requestedTarget
+    ? (lockfile.roles || []).filter((role) => role.source === requestedTarget.source && role.sourcePath === requestedTarget.sourcePath)
+    : (lockfile.roles || []).filter((role) => !role.owner);
+
+  if (requestedTarget && entries.length === 0) {
+    throw new AixError(`Unknown locked role: ${requestedTarget.source}/${requestedTarget.sourcePath}`);
+  }
+
+  if (entries.some((role) => role.owner?.kind === "workflow")) {
+    throw new AixError(`Cannot manage workflow-owned role directly: ${entries[0].source}/${entries[0].sourcePath}`);
+  }
+
+  const gitEntries = entries.filter((entry) => entry.sourceType !== "local");
+  const sourceDefinitions = loadRoleSourceDefinitions();
+  const resolvedSources = new Map<string, ReturnType<typeof resolveSourceFromDefinitions>>();
+
+  for (const entry of gitEntries) {
+    if (!sourceDefinitions[entry.source]) {
+      throw new AixError(`Unknown role source: ${entry.source}`);
+    }
+
+    if (!resolvedSources.has(entry.source)) {
+      resolvedSources.set(entry.source, resolveSourceFromDefinitions(entry.source, sourceDefinitions, cacheRoot));
+    }
+  }
+
+  return { entries, resolvedSources };
+}
+
+export function diffRoles(target?: string, cacheRoot = defaultCacheRoot()): DiffRolesResult {
+  if (existsSync(MANIFEST_FILE_NAME)) {
+    readJsonObject(MANIFEST_FILE_NAME);
+  }
+
+  const { entries, resolvedSources } = standaloneRoleEntries(target, cacheRoot);
+
+  return {
+    lockfilePath: LOCKFILE_FILE_NAME,
+    diffs: entries
+      .map((entry) => {
+        const sourceRolePath = sourcePathForRole(entry, resolvedSources);
+
+        return {
+          source: entry.source,
+          sourcePath: entry.sourcePath,
+          activeName: entry.activeName,
+          packagePath: entry.packagePath,
+          sourceRolePath,
+          diff: gitNoIndexDiff(entry.packagePath, sourceRolePath)
+        };
+      })
+      .filter((item) => item.diff.trim() !== "")
+  };
+}
+
+export function updateRoles(target?: string, cacheRoot = defaultCacheRoot()): UpdateRolesResult {
+  const lockfile = readLockfileJson();
+  const { entries, resolvedSources } = standaloneRoleEntries(target, cacheRoot);
+
+  if (entries.length === 0) {
+    return {
+      lockfilePath: LOCKFILE_FILE_NAME,
+      updatedRoles: []
+    };
+  }
+
+  for (const entry of entries) {
+    assertRoleNoLocalDrift(entry, "update");
+  }
+
+  const updatePlans = entries.map((entry) => {
+    const sourceRolePath = sourcePathForRole(entry, resolvedSources);
+    const role = parseRoleFileFromPath(sourceRolePath, { requireContract: true });
+
+    return {
+      entry,
+      sourceRolePath,
+      role,
+      resolvedSource: resolvedSources.get(entry.source)
+    };
+  });
+  const plansByKey = new Map(updatePlans.map((plan) => [roleEntryKey(plan.entry), plan]));
+  const updatedRoles: UpdatedRole[] = [];
+
+  lockfile.roles = (lockfile.roles || []).map((entry) => {
+    const plan = plansByKey.get(roleEntryKey(entry));
+
+    if (!plan) {
+      return entry;
+    }
+
+    writeFileSync(entry.packagePath, readFileSync(plan.sourceRolePath));
+    const packageFiles = roleFileHashes(entry.packagePath);
+    const activeContents = readFileSync(entry.packagePath, "utf8").replace(/^name:\s*.+$/m, `name: ${entry.activeName}`);
+    writeFileSync(entry.activationPath, activeContents, "utf8");
+    const activeFiles = roleFileHashes(entry.activationPath);
+    const updatedEntry: LockfileRoleEntry = {
+      ...entry,
+      ...(entry.sourceType === "git" && plan.resolvedSource
+        ? {
+            sourceUrl: plan.resolvedSource.definition.url,
+            requestedRef: plan.resolvedSource.definition.ref,
+            resolvedCommit: plan.resolvedSource.resolvedCommit
+          }
+        : {}),
+      originalName: plan.role.name,
+      packageFiles,
+      activeFiles
+    };
+
+    updatedRoles.push({
+      source: updatedEntry.source,
+      sourcePath: updatedEntry.sourcePath,
+      activeName: updatedEntry.activeName,
+      previousResolvedCommit: entry.resolvedCommit,
+      resolvedCommit: updatedEntry.resolvedCommit,
+      packagePath: updatedEntry.packagePath,
+      activationPath: updatedEntry.activationPath
+    });
+
+    return updatedEntry;
+  });
+
+  writeJsonObjectAtomic(LOCKFILE_FILE_NAME, lockfile);
+
+  return {
+    lockfilePath: LOCKFILE_FILE_NAME,
+    updatedRoles
   };
 }
 
@@ -197,6 +489,7 @@ export function deactivateRole(activeName: string | undefined): DeactivateRoleRe
 
   assertRoleName(activeName, "active role name");
 
+  const manifestJson = readJsonObject(MANIFEST_FILE_NAME);
   const lockfile = readLockfileJson();
   const roles = lockfile.roles || [];
   const entryIndex = roles.findIndex((role) => role.activeName === activeName);
@@ -218,13 +511,16 @@ export function deactivateRole(activeName: string | undefined): DeactivateRoleRe
 
   roles.splice(entryIndex, 1);
   lockfile.roles = roles;
+  removeManifestRole(manifestJson, entry.source, entry.sourcePath);
 
   removeRoleFile(entry.activationPath);
-  removeRoleFile(entry.packagePath);
+  removeRolePackageFile(entry.packagePath);
+  writeJsonObjectAtomic(MANIFEST_FILE_NAME, manifestJson);
   writeJsonObjectAtomic(LOCKFILE_FILE_NAME, lockfile);
 
   return {
     activeName,
+    manifestPath: MANIFEST_FILE_NAME,
     lockfilePath: LOCKFILE_FILE_NAME,
     activationPath: entry.activationPath,
     packagePath: entry.packagePath

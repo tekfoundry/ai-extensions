@@ -81,8 +81,8 @@ function parseSkillOwner(value: unknown, path: string): LockfileSkillEntry["owne
   }
 
   const kind = requireString(value.kind, `${path}.kind`);
-  if (kind !== "workflow") {
-    throw new LockfileError(`${path}.kind must be "workflow".`);
+  if (kind !== "workflow" && kind !== "role") {
+    throw new LockfileError(`${path}.kind must be "workflow" or "role".`);
   }
 
   return {

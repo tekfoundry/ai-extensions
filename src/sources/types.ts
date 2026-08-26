@@ -17,7 +17,13 @@ export interface SourceMetadataSkill {
   name: string;
 }
 
-export interface SourceMetadata {
+export interface SourceMetadataRole {
+  path: string;
+  name: string;
+  description: string;
+}
+
+export interface SkillSourceMetadata {
   source: string;
   kind: "skill";
   sourceType: "git";
@@ -27,3 +33,16 @@ export interface SourceMetadata {
   sourcePath?: string;
   skills: SourceMetadataSkill[];
 }
+
+export interface RoleSourceMetadata {
+  source: string;
+  kind: "role";
+  sourceType: "git";
+  sourceUrl: string;
+  requestedRef?: string;
+  resolvedCommit?: string;
+  sourcePath?: string;
+  roles: SourceMetadataRole[];
+}
+
+export type SourceMetadata = SkillSourceMetadata | RoleSourceMetadata;

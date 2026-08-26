@@ -28,6 +28,14 @@ export interface SkillRequest {
 
 export type SkillManifestEntry = string | SkillRequest;
 
+export interface RoleRequest {
+  source: string;
+  path: string;
+  alias?: string;
+}
+
+export type RoleManifestEntry = string | RoleRequest;
+
 export interface WorkflowRequest {
   source: string;
   path: string;
@@ -38,9 +46,11 @@ export type WorkflowManifestEntry = string | WorkflowRequest;
 
 export interface SkillsManifest {
   sources?: Record<string, SourceManifestEntry>;
+  roleSources?: Record<string, SourceManifestEntry>;
   workflowSources?: Record<string, SourceManifestEntry>;
   workflow?: WorkflowManifestEntry;
   skills: SkillManifestEntry[];
+  roles?: RoleManifestEntry[];
 }
 
 export interface FileHash {
@@ -73,7 +83,7 @@ export interface LockfileSkillEntry {
   alias?: string;
   requested: boolean;
   owner?: {
-    kind: "workflow";
+    kind: "workflow" | "role";
     name: string;
   };
   dependencies?: LockfileSkillDependency[];
