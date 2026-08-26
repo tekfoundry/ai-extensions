@@ -2,7 +2,7 @@
 
 ## Status
 
-🟨 Active
+✅ Completed
 
 This plan was activated by user request on 2026-08-25. It is now the active
 implementation record for improving documentation features in the
@@ -700,33 +700,53 @@ None.
 ## Risks
 
 - The knowledge base could become too ceremonial if every small change requires
-  heavy documentation.
+  heavy documentation. Residual risk accepted; workflow guidance now asks for
+  right-sized documentation impact analysis instead of heavyweight docs for
+  every micro-fix.
 - Role ownership could blur if documentation-specialist is treated as the sole
-  owner of all docs instead of the coordinator.
+  owner of all docs instead of the coordinator. Residual risk accepted; role
+  docs now assign discipline-owned KB areas while documentation-specialist
+  coordinates structure and freshness.
 - New `_docs/kb` links could be incomplete or hard to navigate if migration
-  does not build fresh indexes and cross-links deliberately.
+  does not build fresh indexes and cross-links deliberately. Final link scans
+  found no deprecated live links; remaining link-quality work should be handled
+  by routine `review-and-refresh-docs` passes.
 - Technical docs could still remain superficial if templates ask for headings
-  but not contracts, state, diagrams, invariants, and failure modes.
+  but not contracts, state, diagrams, invariants, and failure modes. Residual
+  risk accepted; templates and role docs now name deeper documentation
+  expectations, and AIX's own KB was backfilled as the first validation case.
 - Workflow changes may need updates in package-managed workflow source,
   installed `.agents/` files, templates, roles, and project docs at the same
-  time, increasing migration risk.
+  time, increasing migration risk. Residual risk accepted; source and installed
+  workflow files were synchronized and `aix.lock.json` was refreshed.
 - Removing the retired docs gate could break prompts, plans, or workflow
   instructions that still reference it unless the removal path is explicit.
+  Final scans found no `documentation-review`, `security-reviewer`, or
+  deprecated design-directory references in live/current surfaces or
+  non-completed plans.
 
 ## Security Review
 
-- Status: planned
+- Status: completed
 - Scope reviewed: Documentation workflow changes that affect project-owned docs,
   workflow-owned templates and role guidance, local file migration, destructive
   file operations, trust-boundary documentation, and security review ownership.
-- Findings: No blocking findings identified during planning. Implementation
-  should treat any file moves or path rewrites as safety-sensitive and preserve
-  local edits.
-- Blocking findings converted to plan tasks: None yet.
+- Findings: No blocking findings identified during final closeout. The work
+  affected local documentation files, workflow package content, active workflow
+  files, installed roles and skills, scaffolding behavior, and lockfile hashes.
+  The destructive portions were explicitly developer-authorized: deleting the
+  legacy design baseline and removing the temporary migration decision record.
+  Final scans confirmed no live/current docs or non-completed plans still point
+  agents at the removed design baseline. `node bin/aix.js verify`,
+  `npm run release:verify`, and `git diff --check` passed after lockfile and
+  stale-test cleanup.
+- Blocking findings converted to plan tasks: None.
 - Residual risk: Migration from a legacy design baseline to `_docs/kb` may lose
-  accepted intent unless backed by an explicit inventory and review step. The
-  final review should confirm no live docs or active plans still link to the
-  removed baseline.
+  accepted intent unless backed by an explicit inventory and review step. For
+  this migration, the developer reviewed the resulting KB, requested targeted
+  refinements by area, approved removal of the legacy baseline, and requested
+  plan completion. Completed plan archives still contain historical references
+  to old paths; those are retained as execution history, not live guidance.
 
 ## Lessons To Carry Forward
 
@@ -739,15 +759,51 @@ None.
 - Plans are temporary work records. The knowledge base is the durable
   understanding that should survive after work is accepted.
 
+## Final Closeout Summary
+
+The plan replaced the old shallow design-doc model with a current-state
+knowledge base under `_docs/kb/`, organized by product, requirements,
+architecture, security, quality, operations, decisions, and glossary areas. It
+updated `design-plan-execute` so scaffolding, workflow guidance, skills,
+templates, and role duties route durable knowledge to `_docs/kb` and leave
+execution history in `_docs/plans`.
+
+The migration backfilled AIX's own KB from implementation reality and the
+legacy design baseline, then removed the baseline after developer review. The
+main boundaries are unchanged: `_docs/` remains project-owned documentation,
+`.agents/` remains package-managed workflow content, and plan records remain
+historical execution evidence rather than current design truth.
+
+Important failure modes covered by the completed work include stale docs gates,
+stale role names, workflow source versus installed package drift, local file
+overwrite/delete risk, lockfile hash drift, and future plans routing durable
+behavior to the wrong documentation area. Remaining historical references to
+the legacy design baseline are confined to completed plan archives.
+
+Final verification evidence reviewed:
+
+- `node bin/aix.js verify` passed.
+- `node --test tests/skill-instructions.test.mjs` passed after replacing the
+  stale `_docs/design` assertion with the new KB contract.
+- `npm run release:verify` passed.
+- `git diff --check` passed.
+- Live/current and non-completed-plan scans found no deprecated
+  design-directory references.
+
 ## Completion Checklist
 
-- ⬜️ Confirm every task and success goal is complete or explicitly deferred.
-- ⬜️ Human validation: developer evaluated the completed phased work and accepted it, or explicitly waived manual validation with a recorded reason.
-- ⬜️ Run or review required targeted and repository verification.
-- ⬜️ Complete Security Review after all implementation phases; record findings, convert blocking findings into normal plan tasks, and document residual risk.
-- ⬜️ Review the codebase using `$code-review-refactor`; refactor or record follow-up work if needed.
-- ⬜️ Promote accepted durable behavior into `_docs/kb` using `$design-promote`.
-- ⬜️ Review documentation structure, formatting, and links using `$review-and-refresh-docs`; fix issues or record follow-up work.
-- ⬜️ Record final risks, follow-on work, and documentation impact.
-- ⬜️ Harvest reusable lessons and update workflow guidance when appropriate.
-- ⬜️ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
+- ✅ Confirm every task and success goal is complete or explicitly deferred.
+- ✅ Human validation: developer evaluated the completed phased work and
+      accepted it by requesting plan completion on 2026-08-26.
+- ✅ Run or review required targeted and repository verification.
+- ✅ Complete Security Review after all implementation phases; record findings,
+      convert blocking findings into normal plan tasks, and document residual
+      risk.
+- ✅ Review the codebase using `$code-review-refactor`; refactor or record
+      follow-up work if needed.
+- ✅ Promote accepted durable behavior into `_docs/kb` using `$design-promote`.
+- ✅ Review documentation structure, formatting, and links using
+      `$review-and-refresh-docs`; fix issues or record follow-up work.
+- ✅ Record final risks, follow-on work, and documentation impact.
+- ✅ Harvest reusable lessons and update workflow guidance when appropriate.
+- ✅ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
