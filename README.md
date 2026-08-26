@@ -330,6 +330,21 @@ AIX materializes active roles under `.agents/roles/<name>.md`. Public role
 commands are still being added, but the packaged roles already define the
 contracts AIX will install and verify.
 
+Delegation is explicit and bounded. Ask for a named role, such as
+`Use quality-engineer to plan verification` or
+`Delegate to documentation-specialist for docs impact`. The workflow-owned
+`delegate-to-role` skill resolves only that explicit role intent, uses a
+host-native subagent handoff only when the current host exposes a clear bounded
+handoff mechanism, and otherwise builds a prompt-overlay fallback for the
+current agent to use. In both modes, the parent context still owns plan state,
+worktree safety, verification review, final decisions, and user-facing
+reporting.
+
+Host-native agent directories are compatibility outputs, not AIX's canonical
+role storage. AIX does not write `.claude/agents`, `.codex/agents`,
+`.agents/agents`, or similar host-specific files unless a future explicit
+integration command or configuration owns that behavior.
+
 ### Bundled roles
 
 AIX includes development roles for building and reviewing AIX itself. These are

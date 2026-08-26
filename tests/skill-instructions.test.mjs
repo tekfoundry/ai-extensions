@@ -76,11 +76,13 @@ test("delegate-to-role declares bounded role delegation contract", () => {
   assert.match(skill, /If the named role does not exist under `.agents\/roles\/`, stop/);
   assert.match(skill, /If role intent is only implied, do not guess/);
   assert.match(skill, /Prefer native subagent handoff only when the current host has a clear,\s+available mechanism/);
+  assert.match(skill, /Do not write host-native agent files as part of routine\s+delegation/);
   assert.match(skill, /Use prompt-overlay fallback when native handoff is unavailable/);
   assert.match(skill, /The parent context owns plan state,\s+worktree safety, verification review, final decisions/);
   assert.match(skill, /Do Not Delegate When/);
   assert.match(skill, /Prompt-Overlay Shape/);
   assert.match(skill, /Required Return Evidence/);
+  assert.match(skill, /without an explicit\s+integration command or configuration/);
 });
 
 test("brainstorming-skill declares durable idea discovery workflow", () => {

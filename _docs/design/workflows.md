@@ -243,6 +243,27 @@ verification, task execution, phase execution, plan execution, and completion sk
 directly runnable without role context, but use the matching role when
 installed and when the role's specialty materially affects the outcome.
 
+The workflow-owned `delegate-to-role` skill is the bounded delegation entrypoint
+for explicit prompts such as `use quality-engineer` or
+`delegate to documentation-specialist`. The skill resolves only explicit role
+intent, stops on missing or ambiguous named roles, and keeps implicit routing
+conservative when a prompt merely resembles a role's specialty. Native subagent
+handoff is allowed only when the current host has a clear bounded mechanism and
+the selected role file can be provided to that mechanism. Otherwise the skill
+uses a prompt-overlay fallback that includes the selected role name,
+description, role operating prompt, bounded task, parent-owned boundaries, and
+required return evidence.
+
+Delegation never transfers workflow authority. The parent context owns active
+plan state, worktree safety, verification review, final decisions, and
+user-facing reporting. Delegation should stop instead of guessing when product
+intent, authorization, safety-sensitive operations, relevant worktree changes,
+or the requested role are unclear. Host-native agent directories are explicit
+compatibility outputs, not canonical storage: the workflow manages roles under
+`.agents/roles/` and does not write `.claude/agents`, `.codex/agents`,
+`.agents/agents`, or similar host-specific paths unless a future command or
+configuration explicitly owns that integration.
+
 Plan completion should include a human validation gate before the completion
 checklist is finished. In the normal case, the developer evaluates the completed
 phased work and accepts it before closeout proceeds. When manual validation is

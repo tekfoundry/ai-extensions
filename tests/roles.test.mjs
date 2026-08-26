@@ -163,6 +163,25 @@ test("resolveRoleDelegation keeps implicit routing conservative", () => {
   assert.equal(resolveRoleDelegation("please review the verification plan", [role]), undefined);
 });
 
+test("prompt-overlay delegation does not write host-native agent files", async () => {
+  const projectRoot = await mkdtemp(join(tmpdir(), "aix-role-host-compat-"));
+  const originalCwd = process.cwd();
+  const role = parseRoleFile(validRoleMarkdown(), "quality-engineer.md");
+
+  try {
+    process.chdir(projectRoot);
+
+    const prompt = buildPromptOverlayDelegation(role, "Review verification without exposing host-native agents.");
+
+    assert.match(prompt, /Mode: prompt-overlay fallback/);
+    assert.equal(existsSync(join(projectRoot, ".claude/agents/quality-engineer.md")), false);
+    assert.equal(existsSync(join(projectRoot, ".codex/agents/quality-engineer.md")), false);
+    assert.equal(existsSync(join(projectRoot, ".agents/agents/quality-engineer.md")), false);
+  } finally {
+    process.chdir(originalCwd);
+  }
+});
+
 test("parseRoleFile rejects missing front matter", () => {
   assert.throws(
     () => parseRoleFile("# Purpose\n\nNo front matter.", "missing.md"),

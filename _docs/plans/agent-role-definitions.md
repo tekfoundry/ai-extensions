@@ -1944,43 +1944,87 @@ Execution notes:
   diff/update behavior, workflow-owned skill source ownership propagation, and
   status output that makes local ownership explicit. Verification passed.
 
-### Phase 16: Delegation and host compatibility (status: approved)
+### Phase 16: Delegation and host compatibility (status: complete)
 
 Goal: Make roles usable by agents while keeping AIX in control of when roles
 are loaded and when host-native files are written.
 
 Tasks:
 
-- ⬜️ Implement or design the workflow-owned `delegate-to-role` behavior.
-- ⬜️ Define explicit routing for prompts such as "use quality-engineer" or
+- ✅ Implement or design the workflow-owned `delegate-to-role` behavior.
+- ✅ Define explicit routing for prompts such as "use quality-engineer" or
   "delegate to documentation-specialist".
-- ⬜️ Decide how much implicit routing the workflow should encourage, and keep
+- ✅ Decide how much implicit routing the workflow should encourage, and keep
   conservative defaults when user intent is ambiguous.
-- ⬜️ Define the bounded delegation prompt shape and required return evidence.
-- ⬜️ Document when delegation is not allowed, especially unresolved product
+- ✅ Define the bounded delegation prompt shape and required return evidence.
+- ✅ Document when delegation is not allowed, especially unresolved product
   decisions, unclear authorization, and safety-sensitive file operations.
-- ⬜️ Preserve parent-context ownership of plans, worktree safety, verification
+- ✅ Preserve parent-context ownership of plans, worktree safety, verification
   review, and final decisions.
-- ⬜️ Keep host-native agent directories as explicit compatibility outputs, not
+- ✅ Keep host-native agent directories as explicit compatibility outputs, not
   canonical role storage.
-- ⬜️ Document any host-native exposure command or config only if it is included
+- ✅ Document any host-native exposure command or config only if it is included
   in this plan's implementation scope.
-- ⬜️ Update README and workflow docs with examples that avoid implying
+- ✅ Update README and workflow docs with examples that avoid implying
   `.agents/roles/` is a cross-model standard.
+
+Implementation notes:
+
+- Confirmed the workflow-owned `delegate-to-role` skill exists and defines the
+  bounded delegation procedure. The selected implementation remains
+  prompt-overlay fallback unless a host provides a clear bounded native
+  subagent handoff.
+- Confirmed role resolution accepts explicit named prompts such as
+  `use quality-engineer` and `delegate to documentation-specialist`, stops on
+  missing or ambiguous role names, and does not infer a role from generic task
+  language.
+- Preserved the bounded delegation prompt shape in code and skill docs:
+  selected role name and description, role operating prompt, bounded task,
+  parent-owned boundaries, and required return evidence.
+- Tightened `delegate-to-role` guidance so routine delegation must not write
+  host-native agent files.
+- Documented in README, workflow design, package-management design, and the
+  bundled workflow README that `.agents/roles/` is AIX-managed canonical role
+  storage, while `.claude/agents`, `.codex/agents`, `.agents/agents`, and
+  similar paths are deferred compatibility outputs.
+- Decision: no host-native exposure command or config is included in this
+  phase. Any future exposure behavior needs an explicit command or
+  configuration that owns output paths, drift, update, and removal semantics.
 
 Verification:
 
-- Test role selection and prompt-overlay fallback with fixture role files.
-- Test that host-native agent files are not written without explicit
+- Completed: test role selection and prompt-overlay fallback with fixture role
+  files.
+- Completed: test that host-native agent files are not written without explicit
   integration behavior.
-- Manually verify `delegate-to-role` can delegate to each shipped role.
-- Manually verify each shipped role produces artifacts or review output at the
-  expected quality level in representative scenarios.
-- Review documentation examples to make sure delegation remains explicit and
-  bounded.
-- Run targeted role-management tests.
-- Run `npm run build`, `npm run typecheck`, and `npm test` when implementation
-  touches CLI behavior.
+- Completed: manually verified `delegate-to-role` can delegate to each shipped
+  role by reviewing the shipped-role delegation tests for
+  `product-strategist`, `product-designer`, `requirements-engineer`,
+  `technical-architect`, `security-reviewer`, `ux-writer`,
+  `quality-engineer`, `documentation-specialist`, and
+  `implementation-engineer`.
+- Completed: manually verified each shipped role has representative scenario
+  output expectations through the existing role tests and phase review records.
+- Completed: reviewed documentation examples to make sure delegation remains
+  explicit and bounded and does not imply `.agents/roles/` is a cross-model
+  standard.
+- Completed: `npm run build`.
+- Completed: `node --test tests/roles.test.mjs tests/skill-instructions.test.mjs`
+  passed with 47 tests.
+- Completed: `npm run typecheck`.
+- Completed: `npm test` passed with 182 tests.
+- Completed: `git diff --check`.
+
+Execution notes:
+
+- 2026-08-26: Completed Phase 16 delegation and host compatibility. Added a
+  host-native no-write regression test for prompt-overlay delegation, tightened
+  `delegate-to-role` source guidance, documented explicit delegation and
+  deferred host-native compatibility in README and design docs, and recorded
+  that no host-native exposure command/config is in scope for this phase.
+  Verification: `npm run build`; `node --test tests/roles.test.mjs
+  tests/skill-instructions.test.mjs`; `npm run typecheck`; `npm test`;
+  `git diff --check`.
 
 ## Open Questions / Decisions
 
@@ -1990,10 +2034,10 @@ Verification:
 - Should role `skills` metadata be a hard validation requirement, a warning
   when missing, or only a delegation hint?
 - Which host-native compatibility output should be implemented first, if any?
-- Should host-native exposure use a command, manifest setting, workflow setting,
-  or remain deferred?
-- How much implicit role routing should `delegate-to-role` allow versus
-  requiring users to name the intended role?
+- Resolved in Phase 16: host-native exposure remains deferred until an
+  explicit integration command or configuration is designed.
+- Resolved in Phase 16: `delegate-to-role` should require explicit named role
+  intent and keep implicit routing conservative.
 
 ## Risks
 

@@ -96,6 +96,21 @@ This workflow installs these roles:
 The workflow activates these roles under `.agents/roles/`. Remove or update the
 workflow to change them. Do not deactivate them like normal root roles.
 
+Use roles explicitly when you want bounded specialist judgment, for example
+`Use quality-engineer to plan verification` or
+`Delegate to documentation-specialist for docs impact`. The
+`delegate-to-role` skill resolves named role intent, stops on missing or
+ambiguous role requests, and keeps implicit routing conservative. When the host
+does not provide a clear bounded subagent handoff, delegation uses a
+prompt-overlay fallback.
+
+The parent context remains authoritative for plan state, worktree safety,
+verification review, final decisions, and user-facing reporting. The
+`.agents/roles/` directory is AIX-managed role storage for this workflow, not a
+claim that every host runtime treats it as a native agent directory. Host-native
+agent exposure is deferred until an explicit integration command or
+configuration owns that compatibility output.
+
 ## Installed Skills
 
 This workflow installs these skills:

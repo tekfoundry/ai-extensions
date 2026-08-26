@@ -27,6 +27,9 @@ including:
 - active workflow name, source, resolved commit, installed docs, workflow-owned
   skills, workflow template hashes, and workflow file hashes when a workflow is
   installed
+- active role entries and workflow-owned role summaries, including active role
+  paths under `.agents/roles/`, package hashes, active-file hashes, aliases,
+  source ownership, and local or Git provenance
 
 The manifest represents root user intent. The lockfile represents the exact
 fetched and active state, including dependency-only active skills and the
@@ -182,6 +185,22 @@ Workflow-owned skills should be materialized under
 `.agents/packages/workflows/<source>/<workflow>/skills/...` and exposed through
 `.agents/skills/<active-name>`. They should not be added to the manifest
 `skills` list, because the root user intent is the active workflow.
+
+Workflow-owned roles should be materialized under
+`.agents/packages/workflows/<source>/<workflow>/roles/...` and exposed through
+`.agents/roles/<active-name>.md`. The lockfile records their package and active
+hashes so `aix verify`, `aix status`, workflow update, workflow diff, and
+workflow uninstall can detect missing files, drift, collisions, and ownership.
+Role metadata such as `tools`, `model`, and `skills` is a runtime hint, not the
+only safety boundary. AIX still enforces lockfile integrity, overwrite
+protection, and package ownership around the role files it manages.
+
+Host-native agent directories are compatibility outputs, not the package
+source of truth. Role activation, verification, delegation, update, and removal
+operate on `.agents/roles/` and `.agents/packages/...`. AIX should not write
+`.claude/agents`, `.codex/agents`, `.agents/agents`, or similar host-specific
+agent paths unless a future explicit integration command or configuration owns
+the export and its drift behavior.
 
 Workflow origin templates should be materialized under
 `.agents/packages/workflows/<source>/<workflow>/templates/...`. Their hashes are

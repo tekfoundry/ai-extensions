@@ -27,7 +27,8 @@ authoritative over the task, plan, worktree, verification, or final decision.
      or ask one concise question when delegation is necessary.
 3. Prefer native subagent handoff only when the current host has a clear,
    available mechanism for bounded subagents and the role file can be provided
-   to that mechanism.
+   to that mechanism. Do not write host-native agent files as part of routine
+   delegation.
 4. Use prompt-overlay fallback when native handoff is unavailable. In fallback
    mode, load the role file and construct a bounded prompt containing:
    - selected role name and description
@@ -52,6 +53,9 @@ authoritative over the task, plan, worktree, verification, or final decision.
 - The worktree has relevant unrelated changes that the delegated task could
   overwrite.
 - The role request is ambiguous or the named role is missing.
+- Delegation would require writing `.claude/agents`, `.codex/agents`,
+  `.agents/agents`, or another host-native agent directory without an explicit
+  integration command or configuration that owns that compatibility output.
 
 ## Prompt-Overlay Shape
 
