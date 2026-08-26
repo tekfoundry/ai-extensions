@@ -64,8 +64,7 @@ operating model for whatever agent host they use.
 - Require explicit activation, update, removal, and reset actions for
   safety-sensitive agent behavior.
 - Keep package-managed workflow content separate from project-owned knowledge.
-- Treat `_docs/kb` as current implemented truth and `_docs/design` as a
-  preserved migration baseline when it exists.
+- Treat `_docs/kb` as current implemented project truth.
 
 ## UX Principles
 
@@ -87,5 +86,4 @@ operating model for whatever agent host they use.
 - Workflow-owned skills and roles are protected from direct standalone
   deactivation.
 - Default workflow documentation routes current implemented knowledge to
-  `_docs/kb` while preserving `_docs/design` as a migration baseline when it
-  exists.
+  `_docs/kb`.

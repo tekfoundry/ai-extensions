@@ -26,9 +26,20 @@ different default paths depending on package kind:
 - workflows: `aix/workflows/design-plan-execute`
 - roles: `aix/roles`
 
-The implementation also includes default external skill sources. Environment
-variables can override default source URLs, paths, and refs for tests or local
-development.
+The implemented default skill source set is:
+
+| Source | URL | Path | Ref | Current role |
+| --- | --- | --- | --- | --- |
+| `aix` | `https://github.com/tekfoundry/ai-extensions.git` | `aix/skills` | `master` | Standalone bundled AIX skills such as `discover-skill`. |
+| `mattpocock` | `https://github.com/mattpocock/skills.git` | `skills` | `main` | External skill collection available for discovery and explicit activation. |
+| `cursor-pstack` | `https://github.com/cursor/plugins.git` | `pstack/skills` | `main` | External skill collection available for discovery and explicit activation. |
+
+The implemented default workflow source set contains `aix`, pointing at the
+`design-plan-execute` workflow path above. The implemented default role source
+set contains `aix`, pointing at `aix/roles`.
+
+Environment variables can override default source URLs, paths, and refs for
+tests or local development.
 
 ## Manifest Source Loading
 

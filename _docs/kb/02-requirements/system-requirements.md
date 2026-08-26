@@ -43,6 +43,9 @@ Bundled workflow and skill requirements are organized separately:
 - AIX must use Git-backed and local `./aix/...` sources for implemented source
   resolution; registry and global project state are not part of the current
   system.
+- AIX must provide default source definitions for the bundled `aix` skill,
+  workflow, and role sources plus the external `mattpocock` and
+  `cursor-pstack` skill sources.
 
 ## Actor User Stories
 
@@ -247,8 +250,7 @@ Bundled workflow and skill requirements are organized separately:
   and project-owned current knowledge in `_docs/kb/` so that reusable workflow
   instructions and project facts are not conflated.
   Acceptance signals: workflow installation scaffolds `_docs/kb` when missing,
-  preserves `_docs/design` as read-only migration baseline when present, and
-  does not rewrite project-owned docs during routine workflow updates.
+  and does not rewrite project-owned docs during routine workflow updates.
 
 ### Reviewer
 
@@ -333,6 +335,7 @@ Bundled workflow and skill requirements are organized separately:
 
 - No registry-backed package format.
 - No automatic installation from role `skills` metadata.
+- No automatic activation of every configured default external skill source.
 - No host-native agent directory export unless a future explicit integration
   owns it.
 - No global install state inside a consuming project.

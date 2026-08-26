@@ -14,8 +14,6 @@ or workflow guidance.
   knowledge.
 - `_docs/plans/`: Project-owned lifecycle area for backlog plans, active
   execution records, and completed implementation history.
-- `_docs/design/`: Preserved migration review baseline. Agents may read these
-  files during migration but must not edit, move, delete, or rewrite them.
 - Knowledge-base impact check: A review of whether a change affects durable
   product, requirements, architecture, security, quality, operations,
   decisions, or terminology documentation.

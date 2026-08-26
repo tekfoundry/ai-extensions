@@ -1059,7 +1059,7 @@
       "agentsMd": {
         "path": "AGENTS.md",
         "marker": "aix:workflow design-plan-execute",
-        "sha256": "37a3efd834826b06b97ec2d83721b0b70b08cb9253016698fa90269284cae18d"
+        "sha256": "06d4490008a72035d96970dbba630538e589b3fa5dc405ee67cc77d484117a40"
       },
       "skills": [
         {
@@ -1262,7 +1262,7 @@
       "packageFiles": [
         {
           "path": "AGENTS.append.md",
-          "sha256": "5e12ae93cbbf5dcc37127ad4b3f807cd6174b55f767cc765f4d7d89f7500d4c2"
+          "sha256": "a80d997269ce3a63b04e0fd95824537551467e15ee3e599dccadaf7d34428383"
         },
         {
           "path": "engineering-best-practices.md",

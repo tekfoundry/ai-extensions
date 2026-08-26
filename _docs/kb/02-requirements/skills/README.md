@@ -14,3 +14,15 @@ outputs, safety boundaries, artifact ownership, stop conditions, and acceptance
 signals for bundled skills that are installed independently of a workflow.
 Keep core packaging, activation, lockfile, and drift requirements in
 [system requirements](../system-requirements.md).
+
+## Standalone Bundled Skill Boundaries
+
+Standalone bundled skills should stay project-agnostic. The current bundled
+standalone skill set contains `discover-skill`; workflow lifecycle skills live
+under their owning workflow, not under `aix/skills`.
+
+Skills that depend on a specific application's build scripts, release flow,
+runtime stack, deployment target, or operational policy are intentionally not
+part of the default standalone skill set. For example, a generic
+`release-build` skill is not bundled as a default AIX skill because release
+processes vary by project.

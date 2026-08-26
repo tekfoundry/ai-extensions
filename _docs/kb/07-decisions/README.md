@@ -8,9 +8,9 @@ discipline. The documentation specialist owns cross-links and placement.
 
 ## Documents
 
-- [Design baseline migration](design-baseline-migration.md): migration map from
-  preserved `_docs/design` documents into `_docs/kb`, human review checklist,
-  and deferred documentation debt.
+No standalone decision records are currently required. Add new records here
+when a decision needs to explain an accepted current tradeoff across product,
+requirements, architecture, security, quality, or operations.
 
 Use this area for:
 

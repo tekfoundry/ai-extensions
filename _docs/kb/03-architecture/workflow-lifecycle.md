@@ -188,10 +188,6 @@ _docs/
 The scaffolder writes only missing files and directories. Existing project
 docs remain project-owned.
 
-If `_docs/design/` exists, workflow guidance treats it as a preserved migration
-review baseline. Agents may read it for comparison, but must not edit, move,
-delete, or rewrite its files.
-
 ## Architectural Invariants
 
 - Only one workflow may be active at a time.

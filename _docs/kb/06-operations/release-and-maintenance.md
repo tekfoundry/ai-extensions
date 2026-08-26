@@ -47,8 +47,6 @@ Operationally, this means:
 - Git-backed sources are the current source-resolution model. Registry,
   plugin-package, global-install, or marketplace behavior is not part of the
   current operational surface unless a future accepted plan adds it.
-- `_docs/design/` is a preserved migration review baseline and is not changed
-  by operational workflows.
 
 ## Release Checks
 

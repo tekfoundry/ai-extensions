@@ -35,8 +35,7 @@ promotion.
   `_docs/plans`, `_docs/plans/backlog`, and `_docs/plans/completed` when they
   are missing.
 - Installing or updating the workflow must preserve existing project-owned
-  `_docs` content and treat `_docs/design` as a preserved migration baseline
-  when it exists.
+  `_docs` content.
 
 ## User Stories
 
@@ -151,9 +150,6 @@ promotion.
 ## Non-Goals
 
 - The workflow must not authorize implementation from backlog-only plans.
-- The workflow must not use `_docs/design` as current-state truth.
-- The workflow must not edit, move, delete, or rewrite existing `_docs/design`
-  files during migration.
 - The workflow must not replace explicit lifecycle gates with hidden automatic
   execution.
 - The workflow must not create host-native agent directories unless a future

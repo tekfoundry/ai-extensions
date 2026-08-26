@@ -43,19 +43,6 @@ record unresolved conflicts as decisions, risks, or follow-up plan candidates.
 - [Trust boundaries](04-security/trust-boundaries.md)
 - [Verification strategy](05-quality/verification-strategy.md)
 - [Release and maintenance](06-operations/release-and-maintenance.md)
-- [Design baseline migration](07-decisions/design-baseline-migration.md)
-
-## Migration rule
-
-The existing `_docs/design/` directory is a preserved migration review
-baseline. Agents may read it when creating or refreshing `_docs/kb/`, but must
-not edit, move, delete, or rewrite its files. A developer will delete the old
-directory manually after confirming the knowledge base covers the required
-current-state information.
-
-Migration is not a file-to-file copy. Existing design content should be read,
-classified by the kind of truth it contains, split into the right knowledge
-area, and deepened where the old docs are too shallow.
 
 ## Plans and history
 

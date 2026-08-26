@@ -12,9 +12,6 @@ building and why.
 - [Knowledge base](kb/README.md): current implemented project knowledge for
   the `aix` CLI, package-management model, workflows, bundled skills,
   requirements, architecture, security, quality, operations, and decisions.
-- [Design baseline](design/README.md): preserved migration review baseline.
-  Agents may read this directory while creating or refreshing `_docs/kb/`, but
-  must not edit, move, delete, or rewrite files under `_docs/design/`.
 - [Active plans](plans/): authorized implementation plans and execution
   records. Start with active plans before changing product behavior.
 - [Backlog plans](plans/backlog/): approved or proposed work that has not been
@@ -28,9 +25,6 @@ The knowledge base describes accepted current implemented behavior and
 architecture. Update it when implementation changes durable product,
 requirements, architecture, security, quality, operations, decisions, or
 terminology knowledge.
-
-The design baseline is preserved so the migration to `_docs/kb/` can be
-reviewed by a human before the old directory is deleted.
 
 The plan docs describe work in flight or work reserved for later. Active plans
 should track task status, verification evidence, risks, and documentation
