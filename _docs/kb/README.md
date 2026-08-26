@@ -36,7 +36,7 @@ record unresolved conflicts as decisions, risks, or follow-up plan candidates.
 ## Key documents
 
 - [Product overview](01-product/product-overview.md)
-- [Current requirements](02-requirements/current-requirements.md)
+- [System requirements](02-requirements/system-requirements.md)
 - [System architecture](03-architecture/system-architecture.md)
 - [Package management](03-architecture/package-management.md)
 - [Workflow lifecycle](03-architecture/workflow-lifecycle.md)

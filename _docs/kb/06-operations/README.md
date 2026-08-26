@@ -11,6 +11,9 @@ expectations, incident validation, and regression gates.
 
 - [Release and maintenance](release-and-maintenance.md): build, test, package,
   smoke, update, rollback, and maintenance expectations for AIX.
+- [GitHub release process](github-release-process.md): current Release Please,
+  GitHub Release artifact, npm publish, environment, and post-release
+  validation process.
 
 Use this area for:
 
@@ -23,3 +26,21 @@ Use this area for:
 - operational runbooks
 
 Keep execution notes in plans. Promote only durable operating knowledge here.
+
+## Operational Surfaces
+
+AIX has three operational surfaces:
+
+- Maintainer repository operations: build, typecheck, tests, release scripts,
+  GitHub Actions workflows, Release Please configuration, changelog ownership,
+  npm package metadata, and local release artifacts.
+- Published package operations: the scoped `@tekfoundry/aix` npm package, the
+  short `aix` binary, compiled `dist/` output, and bundled `aix/` workflow,
+  skill, role, and template assets.
+- Project workspace operations: project-local `aix.json`, `aix.lock.json`,
+  `.agents/` package-managed assets, `_docs/` project-owned knowledge, and
+  verification commands such as `aix status` and `aix verify`.
+
+Operational docs should distinguish those surfaces so release work does not
+accidentally rewrite project-owned documentation, mutate a developer's global
+state, or publish an unverified artifact.
