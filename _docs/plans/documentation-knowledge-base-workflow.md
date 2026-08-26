@@ -179,11 +179,14 @@ where relevant:
 - verification matrices
 - operational runbooks or release notes
 
-The current `_docs/design` content should not be moved wholesale without
-review. Conceptually, much of it is product or feature intent, but some content
-belongs in architecture, security, quality, or operations. Migration should
-classify each current document by the kind of truth it contains, then split or
-rewrite it at the proper depth.
+The current `_docs/design` content should not be moved, deleted, or edited
+during migration. The old directory remains as a human-review baseline until a
+developer manually deletes it. Migration means reading the existing
+`_docs/design` content, classifying the kind of truth it contains, creating the
+appropriate new `_docs/kb` documents, and adding deeper missing content where
+the old docs are too shallow. This may not be a file-to-file copy. Content may
+be split across product, requirements, architecture, security, quality,
+operations, decisions, and glossary areas as needed.
 
 The workflow should preserve a clean visual split:
 
@@ -204,6 +207,8 @@ The workflow should preserve a clean visual split:
   docs.
 - No host-specific agent integration changes unless a later plan explicitly
   owns them.
+- No edits, deletes, moves, or rewrites of existing `_docs/design` files during
+  migration. A developer will delete the old directory manually after review.
 
 ## Boundaries And Invariants
 
@@ -230,6 +235,13 @@ The workflow should preserve a clean visual split:
   verify that new `_docs/kb/` content replaces and contains the information
   from the old design docs. Human review owns any later deletion of
   `_docs/design/`.
+- The no-rewrite rule applies to the existing `_docs/design` files themselves.
+  Agents may and should rewrite, split, deepen, and reorganize that knowledge
+  into new `_docs/kb` content.
+- Every implementation change, including a micro-fix, should include a
+  regression analysis for knowledge-base impact. Most micro-fixes may need
+  little or no documentation change, but the agent should decide that from the
+  affected behavior instead of assuming docs are unaffected.
 - Diagrams may start as Mermaid or diagram-friendly Markdown text. The workflow
   should value clarity over visual polish.
 
@@ -247,14 +259,20 @@ Tasks:
 - ⬜️ Define the initial ordered `_docs/kb/` directory structure:
       `01-product`, `02-requirements`, `03-architecture`, `04-security`,
       `05-quality`, `06-operations`, and `07-decisions`.
-- ⬜️ Decide whether `_docs/design/` remains as a compatibility alias,
-      transitional folder, or deprecated path during migration.
+- ⬜️ Scaffold `_docs/kb/README.md`, area directories, area owner README files,
+      and `_docs/kb/glossary.md` as the Phase 1 deliverable structure.
+- ⬜️ Document `_docs/design/` as a preserved migration review baseline: agents
+      may read it but must not edit, move, delete, or rewrite its files.
 - ⬜️ Document the migration safety rule: existing `_docs/design/` files remain
       untouched until a human verifies `_docs/kb/` coverage and deletes the old
       directory manually.
 - ⬜️ Define what belongs in product, requirements, architecture, security,
       quality, operations, decisions, and glossary docs.
 - ⬜️ Define required owner README content for each knowledge base area.
+- ⬜️ Update `_docs/README.md`, `_docs/design/README.md`, and workflow
+      documentation routing language so agents start from `_docs/kb/` for
+      current implemented knowledge while preserving `_docs/design/` as a
+      migration comparison source.
 - ⬜️ Update the workflow's documentation guidance to route current implemented
       knowledge through `_docs/kb/`.
 - ⬜️ Document that `_docs/kb/` represents current implemented state, while
@@ -264,9 +282,16 @@ Tasks:
 
 Verification:
 
-- Review-and-refresh documentation work confirms the taxonomy is clear,
-  non-overlapping, and compatible with the current workflow lifecycle.
+- `_docs/kb/README.md`, area directories, area owner README files, and
+  `_docs/kb/glossary.md` exist.
+- `_docs/README.md`, `_docs/design/README.md`, and workflow routing guidance
+  point current implemented knowledge to `_docs/kb/` while preserving
+  `_docs/design/` as a review baseline.
+- Document review confirms the taxonomy is clear, non-overlapping, and
+  compatible with the current workflow lifecycle.
 - Plan review confirms `_docs/kb/` and `_docs/plans/` have distinct purposes.
+- Git diff review confirms no existing `_docs/design` file was edited, moved,
+  deleted, or rewritten.
 
 ### Phase 2: `review-and-refresh-docs` Skill And Replacement Path (status: accepted)
 
@@ -293,9 +318,9 @@ Tasks:
 - ⬜️ Define expected delegated-role return evidence: implementation facts
       inspected, docs updated, current-state gaps found, conflicts, unresolved
       questions, and risks that need a plan.
-- ⬜️ Decide and implement the transition path for the old
-      `documentation-review` skill: remove it, deprecate it, or keep it as a
-      temporary compatibility wrapper around `review-and-refresh-docs`.
+- ⬜️ Migrate from the old `documentation-review` skill to the new
+      `review-and-refresh-docs` skill by finding existing workflow callers and
+      updating them to call the new skill instead.
 - ⬜️ Update workflow callers such as plan closeout, design promotion, and docs
       catch-up prompts to use `review-and-refresh-docs` instead of
       `documentation-review`.
@@ -397,6 +422,9 @@ Tasks:
       checked.
 - ⬜️ Define how the workflow records unresolved implementation-vs-intent
       conflicts without pretending the docs are acceptable.
+- ⬜️ Define the micro-fix documentation impact rule: every change gets a
+      regression analysis for knowledge-base impact, while tiny focused fixes
+      may explicitly record that no `_docs/kb` update is needed.
 
 Verification:
 
@@ -464,8 +492,9 @@ Tasks:
       role files.
 - ⬜️ Record examples that show how a future plan should route knowledge-base
       updates by role.
-- ⬜️ Decide whether `aix init` should scaffold `_docs/kb/` immediately or only
-      after the knowledge-base workflow is accepted for the default workflow.
+- ⬜️ Update the `design-plan-execute` workflow scaffolding so `aix init`
+      creates the new `_docs/kb` structure instead of the old `_docs/design`
+      structure.
 
 Verification:
 
@@ -479,10 +508,6 @@ Verification:
 
 ## Open Questions / Decisions
 
-- Should `_docs/design/` be removed, kept as a transitional compatibility
-  folder, or kept as a narrowly scoped product-design folder?
-- Should `aix init` scaffold the full `_docs/kb/` directory tree by default, or
-  create only `_docs/kb/README.md` plus folders as they become needed?
 - Should role-owned documentation templates be part of the workflow origin
   templates, or should roles describe structure in their role prompts only?
 - Should diagrams be required for specific document types, or should the
@@ -491,9 +516,6 @@ Verification:
   existing `security-reviewer` role continue to own security documentation?
 - Should the workflow include a learning-mode versus delivery-mode distinction
   for operator understanding gates?
-- Should the old `documentation-review` skill be removed immediately, kept as a
-  temporary compatibility wrapper around `review-and-refresh-docs`, or
-  deprecated for one workflow update before removal?
 
 ## Risks
 
