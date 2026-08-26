@@ -43,27 +43,27 @@ skills:
   - work-verify
 ---
 
-# Purpose
+## Purpose
 
 Provide specialist workflow role guidance.
 
-# When To Use
+## When To Use
 
 Use when delegated work needs this role's judgment.
 
-# Context To Inspect
+## Context To Inspect
 
 Read the active plan, design docs, changed files, and relevant workflow assets.
 
-# Skills To Consider
+## Skills To Consider
 
 Consider workflow-owned skills only as optional procedural guidance.
 
-# Stop Conditions
+## Stop Conditions
 
 Stop on unclear authorization, unsafe file operations, or scope expansion.
 
-# Expected Output
+## Expected Output
 
 Return findings, decisions, evidence, gaps, and residual risk.
 `;
@@ -145,7 +145,10 @@ test("run workflow install installs docs, managed AGENTS block, and workflow-own
     assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/fixture/fixture-workflow/skills/alpha/SKILL.md")));
     assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/fixture/fixture-workflow/templates/plan.md")));
     assert.ok(existsSync(join(projectPath, ".agents/skills/alpha/SKILL.md")));
-    assert.ok(existsSync(join(projectPath, "_docs/design")));
+    assert.ok(existsSync(join(projectPath, "_docs/kb/README.md")));
+    assert.ok(existsSync(join(projectPath, "_docs/kb/01-product/README.md")));
+    assert.ok(existsSync(join(projectPath, "_docs/kb/07-decisions/README.md")));
+    assert.equal(existsSync(join(projectPath, "_docs/design")), false);
     assert.ok(existsSync(join(projectPath, "_docs/plans/backlog")));
     assert.match(agents, /Keep this project text/);
     assert.match(agents, /<!-- aix:workflow fixture-workflow start -->/);

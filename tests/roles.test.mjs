@@ -323,7 +323,7 @@ test("discoverRoles reports shipped workflow-owned project development roles", (
       "product-strategist",
       "quality-engineer",
       "requirements-engineer",
-      "security-reviewer",
+      "security-engineer",
       "technical-architect",
       "ux-writer"
     ]
@@ -362,12 +362,12 @@ test("resolveRoleDelegation delegates to the shipped documentation specialist ro
   assert.equal(resolution.role.name, "documentation-specialist");
   assert.equal(resolution.mode, "prompt-overlay");
   assert.match(prompt, /Name: documentation-specialist/);
-  assert.match(prompt, /Review plans, design docs, README text, workflow docs/);
+  assert.match(prompt, /Review plans, knowledge-base docs, README text, workflow docs/);
   assert.match(prompt, /Suggested `_docs` placement, index-link changes/);
-  assert.match(prompt, /Current-state accuracy risks, stale claims, missing design truth/);
+  assert.match(prompt, /Current-state accuracy risks, stale claims, missing knowledge-base truth/);
   assert.match(prompt, /Implementation-to-intent findings/);
-  assert.match(prompt, /implementation that appears contrary to accepted design intent/);
-  assert.match(prompt, /Consider `documentation-review` when the main need is checking or fixing/);
+  assert.match(prompt, /implementation that appears contrary to accepted current-state docs/);
+  assert.match(prompt, /Consider `review-and-refresh-docs` when the main need is checking or fixing/);
   assert.match(prompt, /Do not claim documentation readiness unless current-state behavior/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
@@ -429,14 +429,14 @@ test("resolveRoleDelegation delegates to the shipped requirements engineer role"
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
-test("resolveRoleDelegation delegates to the shipped security reviewer role", () => {
-  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/security-reviewer.md");
-  const resolution = resolveRoleDelegation("use security-reviewer to review this plan", [role]);
+test("resolveRoleDelegation delegates to the shipped security engineer role", () => {
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/security-engineer.md");
+  const resolution = resolveRoleDelegation("use security-engineer to review this plan", [role]);
   const prompt = buildPromptOverlayDelegation(role, "Review trust boundaries and no-write guarantees before closeout.");
 
-  assert.equal(resolution.role.name, "security-reviewer");
+  assert.equal(resolution.role.name, "security-engineer");
   assert.equal(resolution.mode, "prompt-overlay");
-  assert.match(prompt, /Name: security-reviewer/);
+  assert.match(prompt, /Name: security-engineer/);
   assert.match(prompt, /Review plans, design intent, verification evidence, and completed phased work/);
   assert.match(prompt, /Trust-boundary and authorization assessment/);
   assert.match(prompt, /Blocking findings that should become normal plan tasks before closeout/);
@@ -488,7 +488,7 @@ test("shipped project development roles can route existing-plan edits through pl
     "product-strategist",
     "quality-engineer",
     "requirements-engineer",
-    "security-reviewer",
+    "security-engineer",
     "technical-architect",
     "ux-writer"
   ];

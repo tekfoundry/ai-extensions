@@ -35,8 +35,8 @@ update, or cleanup behavior.
 # Skills To Consider
 
 If the host project has applicable plan-review, design-promotion, or
-documentation-review skills active, consider using them for readiness, durable
-behavior, and workflow documentation consistency.
+review-and-refresh-docs skills active, consider using them for readiness,
+durable behavior, and workflow documentation consistency.
 
 # Stop Conditions
 

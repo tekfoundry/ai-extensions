@@ -23,7 +23,8 @@ Dependencies:
 - `AGENTS.md`
 - `.agents/workflow.md`
 - `_docs/README.md`
-- Relevant `_docs/design/` documents
+- Relevant `_docs/kb/` documents
+- `_docs/design/` only as a read-only migration comparison source when present
 - Related active or backlog plans, when relevant
 - `.agents/templates/plan.md`, when published
 - `.agents/packages/workflows/<source>/<workflow>/templates/plan.md`, as the
@@ -65,7 +66,7 @@ workflow-owned `technical-architect` role is installed, the skill can use it
 for bounded boundary, contract, integration, maintainability, and
 implementation-phase sequencing review while still asking those questions
 itself when the role is unavailable. When the workflow-owned
-`security-reviewer` role is installed, the skill can use it for bounded trust
+`security-engineer` role is installed, the skill can use it for bounded trust
 boundary, credential, authorization, destructive-operation, dependency, and
 safety-verification review while still asking those questions itself when the
 role is unavailable. When the workflow-owned `ux-writer` role is installed,

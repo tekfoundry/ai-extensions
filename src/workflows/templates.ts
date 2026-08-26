@@ -35,19 +35,39 @@ export function workflowTemplateName(template: Pick<WorkflowTemplate, "kind" | "
 }
 
 function assertTemplateNameSafe(name: string, path: string): void {
-  if (!/^[a-zA-Z0-9._-]+$/.test(name)) {
+  const segments = name.split("/");
+  if (segments.some((segment) => !/^[a-zA-Z0-9._-]+$/.test(segment))) {
     throw new AixError(`Workflow template name contains unsafe characters at ${path}: ${name}`);
   }
 }
 
-function listTemplateFiles(directory: string): string[] {
+function listTemplateFiles(directory: string, options: { excludeDirectories?: Set<string> } = {}): string[] {
   if (!existsSync(directory)) {
     return [];
   }
 
-  return readdirSync(directory, { withFileTypes: true })
-    .filter((entry) => entry.isFile() && entry.name.endsWith(TEMPLATE_EXTENSION))
-    .map((entry) => entry.name)
+  const files: string[] = [];
+
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      if (options.excludeDirectories?.has(entry.name)) {
+        continue;
+      }
+
+      const childDirectory = join(directory, entry.name);
+      for (const child of listTemplateFiles(childDirectory, options)) {
+        files.push(join(entry.name, child));
+      }
+      continue;
+    }
+
+    if (entry.isFile() && entry.name.endsWith(TEMPLATE_EXTENSION)) {
+      files.push(entry.name);
+    }
+  }
+
+  return files
+    .map((file) => file.split("\\").join("/"))
     .sort((a, b) => a.localeCompare(b));
 }
 
@@ -76,7 +96,8 @@ export function discoverWorkflowTemplates(workflow: WorkflowManifestFile, packag
     throw new AixError(`Workflow templates directory is missing from package: ${templatesRoot}`);
   }
 
-  const documents = listTemplateFiles(templatesRoot).map((file) => readTemplate("document", templatesRoot, workflow.templatesDir!, file));
+  const documents = listTemplateFiles(templatesRoot, { excludeDirectories: new Set(["sections"]) })
+    .map((file) => readTemplate("document", templatesRoot, workflow.templatesDir!, file));
   const sectionsRoot = join(templatesRoot, "sections");
   const sections = listTemplateFiles(sectionsRoot).map((file) => readTemplate("section", templatesRoot, workflow.templatesDir!, join("sections", file)));
 

@@ -3,13 +3,18 @@
 This directory contains project-owned documentation for AI Extensions.
 
 Use this file as the starting point when you need product intent, current
-design, or implementation plan context. Workflow instructions for agents live
-under `.agents/`; this directory records what this project is building and why.
+implemented knowledge, or implementation plan context. Workflow instructions
+for agents live under `.agents/`; this directory records what this project is
+building and why.
 
 ## Start here
 
-- [Design index](design/README.md): stable current design intent for the
-  `aix` CLI, package-management model, workflows, and bundled skills.
+- [Knowledge base](kb/README.md): current implemented project knowledge for
+  the `aix` CLI, package-management model, workflows, bundled skills,
+  requirements, architecture, security, quality, operations, and decisions.
+- [Design baseline](design/README.md): preserved migration review baseline.
+  Agents may read this directory while creating or refreshing `_docs/kb/`, but
+  must not edit, move, delete, or rewrite files under `_docs/design/`.
 - [Active plans](plans/): authorized implementation plans and execution
   records. Start with active plans before changing product behavior.
 - [Backlog plans](plans/backlog/): approved or proposed work that has not been
@@ -19,8 +24,13 @@ under `.agents/`; this directory records what this project is building and why.
 
 ## Documentation roles
 
-The design docs describe accepted project behavior and architecture. Update
-them when implementation changes durable product intent.
+The knowledge base describes accepted current implemented behavior and
+architecture. Update it when implementation changes durable product,
+requirements, architecture, security, quality, operations, decisions, or
+terminology knowledge.
+
+The design baseline is preserved so the migration to `_docs/kb/` can be
+reviewed by a human before the old directory is deleted.
 
 The plan docs describe work in flight or work reserved for later. Active plans
 should track task status, verification evidence, risks, and documentation

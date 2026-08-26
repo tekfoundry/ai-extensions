@@ -161,6 +161,29 @@ test("bundled plan template renders expected Markdown without agent notes", () =
     decision: {
       item: "None."
     },
+    docs_impact: {
+      product: "None.",
+      requirements: "None.",
+      architecture: "Template resolution behavior.",
+      security: "Local edit safety.",
+      quality: "Template verification coverage.",
+      operations: "Template publish/reset commands.",
+      decisions: "Template ownership boundary.",
+      glossary: "None."
+    },
+    readiness: {
+      category: "internal-use-ready",
+      evidence: "Template commands render and verify locally."
+    },
+    closeout: {
+      changed: "Workflow templates can be published and reset.",
+      boundaries: "Published overrides remain project-owned.",
+      data: "Template Markdown files only.",
+      failure_modes: "Missing sections or stale placeholders fail verification.",
+      evidence: "`node --test tests/templates.test.mjs` passed.",
+      unverified: "Manual workflow update review.",
+      manual: "Developer review before archive."
+    },
     risk: {
       item: "Template drift must be visible during review."
     },
@@ -175,7 +198,7 @@ test("bundled plan template renders expected Markdown without agent notes", () =
       item: "Shared workflow artifacts are the right template boundary."
     },
     promotion: {
-      path: "_docs/design/workflows.md"
+      path: "_docs/kb/03-architecture/workflow-lifecycle.md"
     },
     phases: [
       {
@@ -185,6 +208,7 @@ test("bundled plan template renders expected Markdown without agent notes", () =
           status: "completed",
           goal: "Define workflow-owned artifact templates.",
           verification: "`npm run build` passed.",
+          docs_impact: "Architecture and decisions docs may need template coverage.",
           tasks: [
             {
               task: {
@@ -217,6 +241,7 @@ test("bundled plan template renders expected Markdown without agent notes", () =
           status: "completed",
           goal: "Expose editable workflow templates.",
           verification: "`node --test tests/templates.test.mjs` passed.",
+          docs_impact: "Operations docs should mention template commands.",
           tasks: [
             {
               task: {
@@ -263,8 +288,8 @@ test("bundled plan template renders expected Markdown without agent notes", () =
   assert.match(rendered, /- ⬜️ Human validation: developer evaluated the completed phased work and accepted it, or explicitly waived manual validation with a recorded reason\./);
   assert.match(rendered, /- ⬜️ Complete Security Review after all implementation phases; record findings, convert blocking findings into normal plan tasks, and document residual risk\./);
   assert.match(rendered, /- ⬜️ Review the codebase using `\$code-review-refactor`; refactor or record follow-up work if needed\./);
-  assert.match(rendered, /- ⬜️ Promote accepted durable behavior into design docs using `\$design-promote`\./);
-  assert.match(rendered, /- ⬜️ Review documentation structure, formatting, and links using `\$documentation-review`; fix issues or record follow-up work\./);
+  assert.match(rendered, /- ⬜️ Promote accepted durable behavior into `_docs\/kb` using `\$design-promote`\./);
+  assert.match(rendered, /- ⬜️ Review documentation structure, formatting, and links using `\$review-and-refresh-docs`; fix issues or record follow-up work\./);
   assert.doesNotMatch(rendered, /## Promotion To Design/);
 });
 
@@ -368,7 +393,7 @@ test("published bundled templates preserve output guardrails", async () => {
 
   const publish = runCli(projectPath, ["templates", "publish"]);
   assert.equal(publish.exitCode, 0);
-  assert.match(publish.stdout, /Published 15 templates/);
+  assert.match(publish.stdout, /Published 22 templates/);
 
   const planTemplate = readFileSync(join(projectPath, ".agents/templates/plan.md"), "utf8");
   const taskTemplate = readFileSync(join(projectPath, ".agents/templates/sections/task.md"), "utf8");

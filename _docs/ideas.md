@@ -48,7 +48,7 @@ None yet.
    - Source links:
      - [AIX workflow design](design/workflows.md)
      - [plan-complete](../aix/workflows/design-plan-execute/skills/plan-complete/SKILL.md)
-     - [documentation-review](../aix/workflows/design-plan-execute/skills/documentation-review/SKILL.md)
+     - [review-and-refresh-docs](../aix/workflows/design-plan-execute/skills/review-and-refresh-docs/SKILL.md)
 
 6. **release-readiness-review**
    - Summary: A standalone or optional workflow skill that reviews whether a package is ready to release without owning the release itself. It would inspect versioning, changelog or release notes, package contents, install docs, smoke checks, and publish warnings. This avoids the project-specific `release-build` trap while still creating value.

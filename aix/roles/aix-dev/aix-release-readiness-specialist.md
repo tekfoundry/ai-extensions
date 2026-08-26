@@ -26,9 +26,9 @@ changed bundled assets, and the latest build/test output.
 
 # Skills To Consider
 
-If the host project has applicable verification or documentation-review skills
-active, consider using them for release checks, public docs, and generated
-artifact notes.
+If the host project has applicable verification or review-and-refresh-docs
+skills active, consider using them for release checks, public docs, and
+generated artifact notes.
 
 # Stop Conditions
 

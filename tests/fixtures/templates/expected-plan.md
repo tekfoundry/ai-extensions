@@ -15,7 +15,7 @@ Reviewed context:
 - `.agents/README.md`
 - `.agents/workflow.md`
 - `_docs/README.md`
-- `_docs/design/README.md`
+- `_docs/kb/README.md`
 
 ## High-Level Goal (status: accepted)
 
@@ -50,6 +50,10 @@ Verification:
 
 - `npm run build` passed.
 
+Documentation impact:
+
+- Architecture and decisions docs may need template coverage.
+
 Execution notes:
 
 - 2026-08-23: Added document and section templates.
@@ -68,6 +72,10 @@ Verification:
 
 - `node --test tests/templates.test.mjs` passed.
 
+Documentation impact:
+
+- Operations docs should mention template commands.
+
 Execution notes:
 
 - 2026-08-23: Added list, publish, diff, and reset commands.
@@ -76,6 +84,32 @@ Execution notes:
 ## Open Questions / Decisions
 
 - None.
+
+## Documentation Impact
+
+- Product: None.
+- Requirements: None.
+- Architecture: Template resolution behavior.
+- Security: Local edit safety.
+- Quality: Template verification coverage.
+- Operations: Template publish/reset commands.
+- Decisions: Template ownership boundary.
+- Glossary: None.
+
+## Product Readiness
+
+- Readiness: internal-use-ready
+- Evidence needed: Template commands render and verify locally.
+
+## Operator Closeout Summary
+
+- What changed: Workflow templates can be published and reset.
+- Important boundaries: Published overrides remain project-owned.
+- Data touched: Template Markdown files only.
+- Failure modes: Missing sections or stale placeholders fail verification.
+- Evidence: `node --test tests/templates.test.mjs` passed.
+- Unverified areas: Manual workflow update review.
+- Manual inspection needs: Developer review before archive.
 
 ## Risks
 
@@ -100,8 +134,8 @@ Execution notes:
 - ⬜️ Run or review required targeted and repository verification.
 - ⬜️ Complete Security Review after all implementation phases; record findings, convert blocking findings into normal plan tasks, and document residual risk.
 - ⬜️ Review the codebase using `$code-review-refactor`; refactor or record follow-up work if needed.
-- ⬜️ Promote accepted durable behavior into design docs using `$design-promote`.
-- ⬜️ Review documentation structure, formatting, and links using `$documentation-review`; fix issues or record follow-up work.
+- ⬜️ Promote accepted durable behavior into `_docs/kb` using `$design-promote`.
+- ⬜️ Review documentation structure, formatting, and links using `$review-and-refresh-docs`; fix issues or record follow-up work.
 - ⬜️ Record final risks, follow-on work, and documentation impact.
 - ⬜️ Harvest reusable lessons and update workflow guidance when appropriate.
 - ⬜️ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.

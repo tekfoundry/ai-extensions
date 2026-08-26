@@ -67,7 +67,8 @@ concerns.
    unless the user explicitly identified that exact single aggregate item as the
    task.
 3. Read `AGENTS.md`, `.agents/workflow.md`, `_docs/README.md`, the relevant
-   design docs, and the containing plan section.
+   `_docs/kb` docs, and the containing plan section. Read `_docs/design` only
+   as a preserved migration comparison source when it exists and is relevant.
 4. Read nearby task status, dependencies, success goals, verification
    requirements, risks, and promotion-to-design guidance from the plan. Use the
    active workflow `plan.md` template as a consistency reference for task and
