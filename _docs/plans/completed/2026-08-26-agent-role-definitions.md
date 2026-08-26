@@ -2,9 +2,11 @@
 
 ## Status
 
-🟨 Active
+✅ Complete
 
 Activation note: Human activation requested on 2026-08-24.
+Completion note: Closeout requested by the developer on 2026-08-26 after the
+final host-native compatibility decision was recorded.
 
 ## Context
 
@@ -1768,7 +1770,7 @@ Execution notes:
   identified stale stable-design and plan text, confirmed no contrary
   implementation behavior, and those documentation findings were fixed.
 
-### Phase 14: Project-dev role: implementation-engineer (status: approved)
+### Phase 14: Project-dev role: implementation-engineer (status: complete)
 
 Goal: Add the workflow-owned `implementation-engineer` role while preserving
 direct task execution quality.
@@ -2210,11 +2212,34 @@ Execution notes:
   root active role intent.
 - Resolved in Phase 17: role `skills` metadata remains a delegation hint, not
   a hard dependency or automatic install list.
-- Which host-native compatibility output should be implemented first, if any?
+- Resolved: no host-native compatibility output should be implemented by
+  default. Role activation should not symlink or copy active roles into
+  `.claude/agents`, `.codex/agents`, `.agents/agents`, or similar
+  host-specific paths. Future Claude Code compatibility may be designed first
+  because the role file shape intentionally matches Claude subagents where
+  practical, but it should be explicit, opt-in, copy-based rather than
+  symlink-based, drift-aware, and removable through a command or configuration
+  that owns the integration.
 - Resolved in Phase 16: host-native exposure remains deferred until an
   explicit integration command or configuration is designed.
 - Resolved in Phase 16: `delegate-to-role` should require explicit named role
   intent and keep implicit routing conservative.
+
+## Security Review
+
+- Completed on 2026-08-26 during plan closeout.
+- Reviewed trust-boundary and safety-sensitive behavior for role activation,
+  standalone role source management, workflow-owned role lifecycle,
+  delegation, local `./aix/` source precedence, and host-native compatibility.
+- No blocking findings remain. Role files are managed under `.agents/roles/`
+  and package copies under `.agents/packages/...`; activation does not write
+  host-native agent directories. Future host-native exposure must be explicit,
+  opt-in, copy-based rather than symlink-based, drift-aware, and removable.
+- Residual risk: `src/roles/activation.ts` is large and cohesive but should be
+  split later if role-owned bundled skill installation adds more behavior.
+- Verification evidence reviewed: `npm run verify`, `node bin/aix.js verify`,
+  `git diff --check`, role lifecycle tests, workflow role lifecycle tests,
+  delegation no-write tests, and role-owned skill deactivation tests.
 
 ## Risks
 
@@ -2253,14 +2278,48 @@ Execution notes:
 - A small role catalog is more useful than a broad catalog with vague
   responsibilities.
 
+## Closeout Record
+
+- Task and goal completion: all phases are complete. The remaining host-native
+  compatibility question is resolved with no default output and future explicit
+  Claude Code compatibility as the likely first follow-up.
+- Human validation: developer asked to execute the completion checklist on
+  2026-08-26 after reviewing the final open-question direction.
+- Code review/refactor: ran `$code-review-refactor` closeout review using
+  `.agents/engineering-best-practices.md`. File-size scan found
+  `src/roles/activation.ts` at 528 lines, `src/sources/management.ts` at 348
+  lines, `src/workflows/install.ts` at 340 lines, and `src/status/index.ts` at
+  267 lines. No blocking correctness issue was found. The larger role lifecycle
+  file remains a recorded maintainability follow-up if role-owned bundled skill
+  installation expands it.
+- Design promotion: promoted the accepted role ownership model, standalone
+  role package storage, active `.agents/roles/` exposure, local `./aix/roles`
+  source precedence, and host-native compatibility boundary into
+  `_docs/design/overview.md`. Existing design docs already covered the detailed
+  package-management, workflow, CLI, and bundled-skill behavior.
+- Documentation review: reviewed `_docs/README.md`, `_docs/design/README.md`,
+  the touched design docs, and this plan. Local documentation link check
+  passed for the routed docs. No structural split or index update was needed.
+- Verification:
+  - Completed: `npm run verify` passed with build, typecheck, and 187 tests.
+  - Completed: `node bin/aix.js verify` passed.
+  - Completed: `node bin/aix.js status` reported workspace health ok; update
+    checks were unavailable in this local state.
+  - Completed: `git diff --check` passed.
+- Documentation impact: stable docs now carry the current role behavior; this
+  plan remains historical implementation evidence after archive.
+- Follow-on work: design a future explicit host-native compatibility command
+  or configuration only when needed. Claude Code compatibility is the likely
+  first candidate, but normal role activation should stay AIX-local.
+
 ## Completion Checklist
 
-- ⬜️ Confirm every task and success goal is complete or explicitly deferred.
-- ⬜️ Human validation: developer evaluated the completed phased work and accepted it, or explicitly waived manual validation with a recorded reason.
-- ⬜️ Run or review required targeted and repository verification.
-- ⬜️ Review the codebase using `$code-review-refactor`; refactor or record follow-up work if needed.
-- ⬜️ Promote accepted durable behavior into design docs using `$design-promote`.
-- ⬜️ Review documentation structure, formatting, and links using `$documentation-review`; fix issues or record follow-up work.
-- ⬜️ Record final risks, follow-on work, and documentation impact.
-- ⬜️ Harvest reusable lessons and update workflow guidance when appropriate.
-- ⬜️ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
+- ✅ Confirm every task and success goal is complete or explicitly deferred.
+- ✅ Human validation: developer evaluated the completed phased work and accepted it, or explicitly waived manual validation with a recorded reason.
+- ✅ Run or review required targeted and repository verification.
+- ✅ Review the codebase using `$code-review-refactor`; refactor or record follow-up work if needed.
+- ✅ Promote accepted durable behavior into design docs using `$design-promote`.
+- ✅ Review documentation structure, formatting, and links using `$documentation-review`; fix issues or record follow-up work.
+- ✅ Record final risks, follow-on work, and documentation impact.
+- ✅ Harvest reusable lessons and update workflow guidance when appropriate.
+- ✅ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.

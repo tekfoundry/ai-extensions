@@ -17,20 +17,26 @@ files, and project-owned documentation:
 
 - `aix/workflows/` is the bundled workflow package source shipped by this
   repository. The default workflow owns reusable `.agents` process docs and
-  workflow-local templates and skills.
+  workflow-local templates, skills, and roles.
 - `aix/skills/` is reserved for default bundled skills that are not owned by a
   workflow.
-- In a consuming project, `./aix/skills` and `./aix/workflows` are editable
-  project-local extension source directories. When a user activates
-  `aix/skills/<name>` or installs `aix/workflows/<name>`, AIX checks the local
-  `./aix/` path before falling back to configured or bundled/default `aix`
-  sources.
+- `aix/roles/` is reserved for default bundled role definitions that are not
+  owned by a workflow.
+- In a consuming project, `./aix/skills`, `./aix/roles`, and `./aix/workflows`
+  are editable project-local extension source directories. When a user
+  activates `aix/skills/<name>` or `aix/roles/<path>` or installs
+  `aix/workflows/<name>`, AIX checks the local `./aix/` path before falling
+  back to configured or bundled/default `aix` sources.
 - `.agents/` is managed by the skills package manager in consuming projects.
 - `.agents/packages/` contains project-local package copies, organized first by
   extension kind. The MVP uses `.agents/packages/skills/<source>/...` for
-  active skill packages and should use `.agents/packages/workflows/...` for
-  workflow-owned docs, templates, and skills.
+  active skill packages, `.agents/packages/roles/<source>/...` for standalone
+  role packages, and `.agents/packages/workflows/...` for workflow-owned docs,
+  templates, skills, and roles.
 - `.agents/skills/` contains the active skill set exposed to agents.
+- `.agents/roles/` contains active role definitions exposed to agents through
+  AIX-managed delegation. Host-native agent directories are compatibility
+  outputs and should be written only by an explicit future integration.
 - In this repository, `.agents/skills/` remains the local working skill set
   exposed to agents.
 - Tool-specific directories such as `.codex/skills` and `.claude/skills` should
