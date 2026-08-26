@@ -2,6 +2,11 @@
 
 Release Please owns this file after the first release PR.
 
+## 0.1.4
+
+- Fix `aix update` missing-skill output so workflow-owned skills that moved out
+  of the standalone `aix` skill source are not advertised as missing.
+
 ## 0.1.3
 
 - Add first-class project-local agent roles under `.agents/roles/`.
