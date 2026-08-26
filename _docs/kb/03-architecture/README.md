@@ -12,8 +12,14 @@ states that matter before changing code.
   ownership boundaries, and invariants.
 - [Package management](package-management.md): manifest, lockfile, source,
   package, activation, drift, and update model.
+- [Source resolution](source-resolution.md): default sources, Git cache
+  resolution, GitHub tree normalization, local bundled source precedence, and
+  source metadata.
 - [Workflow lifecycle](workflow-lifecycle.md): workflow install/update/remove,
   workflow-owned skills, roles, templates, and project docs scaffolding.
+- [Roles and templates](roles-and-templates.md): role package shape,
+  delegation runtime, workflow template syntax, published overrides, and
+  template lifecycle.
 
 Use this area for:
 
