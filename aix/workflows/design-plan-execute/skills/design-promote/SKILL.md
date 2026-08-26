@@ -87,5 +87,3 @@ concerns. Do not use the role to promote unimplemented behavior or bypass
 - Do not duplicate an entire plan in the knowledge base.
 - Keep execution status, migration history, and lessons in the plan or
   workflow guidance where they belong.
-- Do not edit, move, delete, or rewrite existing `_docs/design` files during
-  migration. Treat that directory as a preserved review baseline.

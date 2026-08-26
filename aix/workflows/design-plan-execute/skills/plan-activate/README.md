@@ -25,7 +25,6 @@ Dependencies:
 - `_docs/README.md`
 - The referenced backlog plan under `_docs/plans/backlog/`
 - Relevant `_docs/kb/` documents
-- `_docs/design/` only as a read-only migration comparison source when present
 - The active workflow `plan.md` template, when available
 
 ## How to use it

@@ -71,8 +71,7 @@ Inspect only the context needed for the requirements decision:
 - `AGENTS.md` and `.agents/workflow.md` for lifecycle gates and authorization
   boundaries.
 - `_docs/README.md`, relevant `_docs/kb/02-requirements/` documents, and
-  `_docs/design/` only as a read-only migration comparison source when it
-  exists.
+  related current-state knowledge-base documents.
 - The active or backlog plan, especially `Context`, `High-Level Goal`,
   `Design Intent`, `Non-Goals`, `Boundaries And Invariants`, open questions,
   risks, verification, Security Review, and promotion notes.

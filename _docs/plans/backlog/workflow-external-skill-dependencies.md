@@ -13,12 +13,14 @@ The `design-plan-execute` workflow is the default `aix` workflow. It installs
 process docs under `.agents/`, manages a root `AGENTS.md` block, and exposes
 workflow-owned skills under `.agents/skills/`.
 
-Current design docs intentionally deferred external workflow skill dependencies
-in `_docs/design/workflows.md`, noting that workflow-local skills should be
-self-contained for the MVP and third-party skills could be documented as
-recommendations. At the same time, `_docs/design/bundled-skills.md`,
-`_docs/design/package-management.md`, and the active MVP plan already describe
-`aix init` activating `cursor-pstack/unslop` from the `cursor-pstack` source.
+Current KB docs intentionally defer external workflow skill dependencies in
+`_docs/kb/03-architecture/workflow-lifecycle.md`, noting that workflow-local
+skills should be self-contained for the MVP and third-party skills could be
+documented as recommendations. At the same time,
+`_docs/kb/02-requirements/skills/README.md`,
+`_docs/kb/03-architecture/package-management.md`, and the active MVP plan
+already describe `aix init` activating `cursor-pstack/unslop` from the
+`cursor-pstack` source.
 
 This plan resolves that mismatch by making external skill inclusion an explicit
 workflow capability instead of a one-off init special case.
@@ -29,10 +31,10 @@ Reviewed context:
 - `.agents/README.md`
 - `.agents/workflow.md`
 - `_docs/README.md` was expected by the workflow router but does not exist.
-- `_docs/design/README.md`
-- `_docs/design/workflows.md`
-- `_docs/design/bundled-skills.md`
-- `_docs/design/package-management.md`
+- `_docs/kb/README.md`
+- `_docs/kb/03-architecture/workflow-lifecycle.md`
+- `_docs/kb/02-requirements/skills/README.md`
+- `_docs/kb/03-architecture/package-management.md`
 - `_docs/plans/mvp-release.md`
 - `aix/workflows/design-plan-execute/workflow.json`
 - `aix/workflows/design-plan-execute/README.md`
@@ -167,8 +169,9 @@ Tasks:
 
 Verification:
 
-- Documentation review against `_docs/design/workflows.md`,
-  `_docs/design/bundled-skills.md`, and `_docs/design/package-management.md`.
+- Documentation review against `_docs/kb/03-architecture/workflow-lifecycle.md`,
+  `_docs/kb/02-requirements/skills/README.md`, and
+  `_docs/kb/03-architecture/package-management.md`.
 - Plan review confirms the docs no longer contradict each other about
   `unslop`.
 
@@ -332,9 +335,9 @@ Verification:
 
 If implemented, promote the accepted behavior into:
 
-- `_docs/design/workflows.md`
-- `_docs/design/bundled-skills.md`
-- `_docs/design/package-management.md`
+- `_docs/kb/03-architecture/workflow-lifecycle.md`
+- `_docs/kb/02-requirements/skills/README.md`
+- `_docs/kb/03-architecture/package-management.md`
 
 The promoted docs should describe workflow-required external skills as a
 first-class workflow capability and remove the stale statement that external

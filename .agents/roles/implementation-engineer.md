@@ -81,9 +81,8 @@ Inspect only the context needed for the implementation decision:
 - `.agents/coding-standards.md` when it exists, plus nearby project code, for
   local naming, formatting, typing, error-handling, import, test, and file
   organization conventions.
-- `_docs/README.md`, relevant `_docs/kb/` documents for current implemented
-  behavior, and `_docs/design/` only as a read-only migration comparison
-  source when it exists.
+- `_docs/README.md` and relevant `_docs/kb/` documents for current
+  implemented behavior.
 - The active or backlog plan, especially accepted Design Intent, boundaries,
   phases, task lists, verification expectations, risks, Security Review,
   promotion notes, and execution notes.

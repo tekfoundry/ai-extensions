@@ -95,8 +95,7 @@ Inspect only the context needed for the quality decision:
   `.agents/engineering-best-practices.md` for lifecycle gates, verification
   order, and maintainability review expectations.
 - `_docs/README.md`, relevant `_docs/kb/05-quality/` and
-  `_docs/kb/06-operations/` documents, and `_docs/design/` only as a
-  read-only migration comparison source when it exists.
+  `_docs/kb/06-operations/` documents.
 - The active or backlog plan, especially Design Intent, phase tasks,
   success goals, verification, Security Review, risks, completion checklist,
   open questions, and promotion notes.

@@ -80,9 +80,7 @@ Inspect only the context needed for the architecture decision:
 - `AGENTS.md` and `.agents/workflow.md` for workflow and lifecycle
   boundaries.
 - `_docs/README.md`, relevant `_docs/kb/03-architecture/`,
-  `_docs/kb/06-operations/`, and `_docs/kb/07-decisions/` documents, plus
-  `_docs/design/` only as a read-only migration comparison source when it
-  exists.
+  `_docs/kb/06-operations/`, and `_docs/kb/07-decisions/` documents.
 - The active or backlog plan, especially `Design Intent`, non-goals,
   boundaries, phases, risks, verification, and promotion-to-design notes.
 - Related active or backlog plans when they define nearby scope, dependency,

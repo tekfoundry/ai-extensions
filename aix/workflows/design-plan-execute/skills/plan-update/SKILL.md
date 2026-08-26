@@ -84,10 +84,8 @@ checking the same specialty concerns when they apply.
 1. Resolve the referenced plan. If none is referenced, infer one only when the
    user intent and active/backlog plan context identify exactly one plan.
 2. Read `AGENTS.md`, `.agents/workflow.md`, `_docs/README.md`, relevant
-   `_docs/kb` docs, and the target plan section. Read `_docs/design` only as a
-   preserved migration comparison source when it exists and is relevant. Read
-   completed plans only for relevant historical decisions, regressions, or
-   migrations.
+   `_docs/kb` docs, and the target plan section. Read completed plans only for
+   relevant historical decisions, regressions, or migrations.
 3. Classify the plan location as active, backlog, or completed and state that
    classification before editing.
 4. Apply the smallest plan-only edit that matches the user request: clarify

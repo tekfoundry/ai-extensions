@@ -10,9 +10,6 @@ building and why.
 ## Start here
 
 - [Knowledge base](kb/README.md): current implemented project knowledge.
-- [Design baseline](design/README.md): preserved migration review baseline
-  when present. Agents may read it for comparison but must not edit, move,
-  delete, or rewrite it during migration.
 - [Active plans](plans/): authorized implementation plans and execution
   records.
 - [Backlog plans](plans/backlog/): planned work that has not been activated.

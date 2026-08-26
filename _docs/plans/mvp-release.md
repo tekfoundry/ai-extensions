@@ -11,7 +11,7 @@ implementation record for the MVP release.
 
 AI Extensions is a small package-manager-style CLI for managing AI assets
 inside software projects. The MVP starts with skills and one installable agent
-workflow. The accepted design lives in `_docs/design/` and defines the MVP
+workflow. The accepted current-state design lives in `_docs/kb/` and defines the MVP
 around:
 
 - a TypeScript and Node.js CLI distributed as a scoped npm package that exposes
@@ -38,16 +38,16 @@ Reviewed context:
 - `AGENTS.md`
 - `.agents/workflow.md`
 - `.agents/README.md`
-- `_docs/design/README.md`
-- `_docs/design/overview.md`
-- `_docs/design/cli.md`
-- `_docs/design/package-management.md`
-- `_docs/design/workflows.md`
-- `_docs/design/bundled-skills.md`
+- `_docs/kb/README.md`
+- `_docs/kb/01-product/product-overview.md`
+- `_docs/kb/02-requirements/system-requirements.md`
+- `_docs/kb/03-architecture/package-management.md`
+- `_docs/kb/03-architecture/workflow-lifecycle.md`
+- `_docs/kb/02-requirements/workflows/README.md`
 - `README.md`
 
-`_docs/README.md` does not exist yet. For now, `_docs/design/README.md` is the
-project documentation router.
+`_docs/README.md` now routes project documentation to the current-state
+knowledge base and plan records.
 
 ## High-Level Goal (status: accepted)
 
@@ -931,10 +931,10 @@ Completion evidence:
   --json`, and `git diff --check`.
 - 2026-08-20: Completed the Phase 6 review and refactor pass. No code
   refactor was needed after diff review. Promoted the package metadata decision
-  to `_docs/design/cli.md`, including the scoped package name, `aix` binary
-  mapping, and public scoped-package publish config. The license decision
-  remains intentionally unresolved because the plan does not authorize choosing
-  one.
+  into the project documentation, including the scoped package name, `aix`
+  binary mapping, and public scoped-package publish config. The license
+  decision remains intentionally unresolved because the plan does not authorize
+  choosing one.
 
 ### Phase 7: Pragmatic command interface migration and status (status: completed)
 
@@ -980,7 +980,7 @@ Tasks:
       verify behavior so internal names, tests, and user-facing messages no
       longer teach the old verb-first grammar.
 - ✅ Update `README.md`, root `AGENTS.md` command examples if appropriate,
-      `_docs/design/`, active plan current-state sections, bundled workflow
+      `_docs/kb/`, active plan current-state sections, bundled workflow
       README/agent instructions, package smoke expectations, and any other
       tracked reference to old command syntax.
 - ✅ Search tracked source, docs, tests, package assets, and built output for
@@ -1073,13 +1073,12 @@ Completion evidence:
   every accepted verb in the command list. Updated usage errors, workflow
   replacement guidance, activation/deactivation diagnostics, and skill-list
   hints to use the new syntax.
-- 2026-08-20: Updated `README.md`, `AGENTS.md`, `_docs/design/cli.md`,
-  `_docs/design/package-management.md`, `_docs/design/workflows.md`,
-  `_docs/design/bundled-skills.md`, bundled workflow docs, source code,
+- 2026-08-20: Updated `README.md`, `AGENTS.md`, then-current design docs,
+  bundled workflow docs, source code,
   generated `dist`, and tests so tracked release-facing references use only
   object-first syntax. A stale-syntax scan across `AGENTS.md`, `README.md`,
-  `_docs/design`, `aix`, `src`, `dist`, and `tests` returned no old advertised
-  command forms.
+  then-current project docs, `aix`, `src`, `dist`, and `tests` returned no old
+  advertised command forms.
 - 2026-08-20: Added regression coverage for help/splash output, unsupported
   old verb-first commands, object-directory command module organization, and
   package docs avoiding old command syntax. Interactive no-target coverage now
@@ -1108,7 +1107,7 @@ Completion evidence:
   `AGENTS.md`, stable design docs, tests, and generated output for the
   pragmatic grammar: top-level `init`, `verify`, `status`, plus object-first
   asset commands. Stale-syntax scans across `README.md`, `AGENTS.md`,
-  `_docs/design`, `aix`, `src`, and `dist` found no advertised
+  current project docs, `aix`, `src`, and `dist` found no advertised
   `aix workspace init`, `aix workspace verify`, or reversed asset command
   syntax.
 - 2026-08-20: Added status coverage for uninitialized workspaces, initialized
@@ -1170,7 +1169,7 @@ Tasks:
       and expose them through `.agents/skills`.
 - ✅ Mark workflow-owned skills so `aix deactivate skill <active-name>` refuses
       to remove them directly.
-- ✅ Scaffold missing `_docs/design`, `_docs/plans`, `_docs/plans/backlog`,
+- ✅ Scaffold missing project documentation, `_docs/plans`, `_docs/plans/backlog`,
       and `_docs/plans/completed` directories during workflow install without
       overwriting project-owned docs.
 - ✅ Update `aix init` to install the default workflow instead of activating
@@ -1560,7 +1559,7 @@ Completion evidence:
 
 ## Promotion To Design
 
-After this plan is done, promote durable decisions into `_docs/design/`,
+After this plan is done, promote durable decisions into `_docs/kb/`,
 especially:
 
 - the exact manifest schema

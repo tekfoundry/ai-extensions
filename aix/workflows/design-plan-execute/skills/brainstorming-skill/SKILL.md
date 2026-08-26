@@ -53,8 +53,6 @@ implementation plan.
 2. Review the project before generating ideas.
    - Read `AGENTS.md` when present.
    - Read `_docs/README.md` when present, then relevant `_docs/kb` docs.
-     Read `_docs/design` only as a preserved migration comparison source when
-     it exists and is relevant.
    - Read active and backlog plans that may affect the focus area.
    - Read `_docs/ideas.md` when it exists.
    - Inspect relevant source layout and marketing artifacts such as README

@@ -65,8 +65,7 @@ Inspect only the context needed for the writing decision:
 
 - `AGENTS.md` and `.agents/workflow.md` for workflow boundaries and tone.
 - `_docs/README.md`, relevant `_docs/kb/01-product/` documents,
-  `_docs/kb/glossary.md`, and `_docs/design/` only as a read-only migration
-  comparison source when it exists.
+  `_docs/kb/glossary.md`, and related current-state knowledge-base documents.
 - The active or backlog plan when reviewing planned work.
 - `README.md`, workflow README files, skill README files, command help, plan
   templates, and existing prompts or error strings for comparable wording.

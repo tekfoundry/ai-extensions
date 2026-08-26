@@ -25,7 +25,6 @@ Dependencies:
 - `.agents/workflow.md`
 - `_docs/README.md`
 - Relevant `_docs/kb/` documents
-- `_docs/design/` only as a read-only migration comparison source when present
 - The active workflow `plan.md` template, when available
 
 ## How to use it

@@ -77,9 +77,8 @@ Inspect only the context needed for the security decision:
 
 - `AGENTS.md` and `.agents/workflow.md` for repository safety rules,
   lifecycle gates, and authorization boundaries.
-- `_docs/README.md`, relevant `_docs/kb/04-security/` documents, and
-  `_docs/design/` only as a read-only migration comparison source when it
-  exists.
+- `_docs/README.md`, relevant `_docs/kb/04-security/` documents, and related
+  current-state knowledge-base documents.
 - The active or backlog plan, especially Design Intent, non-goals,
   boundaries, risks, verification, Security Review, completion checklist, and
   promotion-to-design notes.

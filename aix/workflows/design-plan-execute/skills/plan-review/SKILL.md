@@ -118,9 +118,8 @@ by checking the same verification-readiness concerns.
    sections are workflow defects.
 2. Read the repository instructions, documentation router, relevant `_docs/kb`
    docs, related active or backlog plans, and current worktree state. Read
-   `_docs/design` only as a preserved migration comparison source when it
-   exists and is relevant. Read completed plans only when specific historical
-   decisions, regressions, or migrations are relevant to the review.
+   completed plans only when specific historical decisions, regressions, or
+   migrations are relevant to the review.
 3. Check work classification and whether the requested phase is authorized.
 4. Flag a missing `Completion Checklist` as a required-section defect that
    must be repaired before the plan is treated as ready or complete.

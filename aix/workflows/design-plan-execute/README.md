@@ -65,7 +65,6 @@ After initialization or workflow installation, `aix` updates the project:
 4. `_docs/` gets the standard project documentation structure when directories
    are missing. These files belong to the project:
    - `_docs/kb/` holds current implemented project knowledge.
-   - `_docs/design/` is a preserved migration review baseline when present.
    - `_docs/plans/` holds active in-progress implementation plans.
    - `_docs/plans/backlog/` holds planned but intentionally not started work.
    - `_docs/plans/completed/` holds archived plans after completion and design
@@ -655,7 +654,6 @@ Root integration:
 Project documentation:
 
 - `_docs/kb/`: current implemented project knowledge.
-- `_docs/design/`: preserved migration review baseline when present.
 - `_docs/plans/`: active in-progress implementation plans.
 - `_docs/plans/backlog/`: planned but intentionally not started work.
 - `_docs/plans/completed/`: archived plans after completion and design

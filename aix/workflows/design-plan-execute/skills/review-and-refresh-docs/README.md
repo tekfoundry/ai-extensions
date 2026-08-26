@@ -26,7 +26,6 @@ Dependencies:
 - `_docs/kb/README.md`
 - Relevant `_docs/kb/` area indexes
 - Relevant plans, implementation files, tests, and verification evidence
-- `_docs/design/` as a read-only migration comparison source when present
 
 ## How to use it
 
@@ -50,9 +49,6 @@ docs. It checks whether current-state knowledge lives in the right `_docs/kb`
 area, whether links and indexes are clear, whether docs are deep enough to
 support future changes, and whether the implementation contradicts accepted
 intent.
-
-When `_docs/design/` exists, the skill may read it as migration comparison
-input. It must not edit, move, delete, or rewrite those files.
 
 When specialist roles are installed, the skill uses `documentation-specialist`
 to coordinate domain-specific review-and-refresh passes. Each role returns the

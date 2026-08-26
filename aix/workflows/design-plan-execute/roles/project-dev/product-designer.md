@@ -66,9 +66,8 @@ parent context and human reviewer.
 Inspect only the context needed for the design decision:
 
 - `AGENTS.md` and `.agents/workflow.md` for workflow boundaries.
-- `_docs/README.md`, relevant `_docs/kb/01-product/` documents, and
-  `_docs/design/` only as a read-only migration comparison source when it
-  exists.
+- `_docs/README.md`, relevant `_docs/kb/01-product/` documents, and related
+  current-state knowledge-base documents.
 - The active or backlog plan when reviewing planned work.
 - Existing README, CLI help text, templates, prompts, or user-facing docs for
   comparable language and interaction patterns.

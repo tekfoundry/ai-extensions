@@ -21,9 +21,9 @@ that tells agents which instructions to read first.
 # Context To Inspect
 
 Read `AGENTS.md`, `.agents/README.md`, `.agents/workflow.md`,
-`_docs/design/overview.md`, `_docs/design/workflows.md`, changed instruction
-files, and package-management code that writes managed blocks or compatibility
-paths.
+`_docs/kb/01-product/product-overview.md`,
+`_docs/kb/03-architecture/workflow-lifecycle.md`, changed instruction files,
+and package-management code that writes managed blocks or compatibility paths.
 
 # Skills To Consider
 

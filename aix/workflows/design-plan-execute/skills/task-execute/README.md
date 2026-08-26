@@ -27,7 +27,6 @@ Dependencies:
 - The active implementation plan under `_docs/plans/`, except for approved
   micro-fixes
 - Relevant `_docs/kb/` documents
-- `_docs/design/` only as a read-only migration comparison source when present
 - The active workflow `plan.md` template, when available
 
 ## How to use it

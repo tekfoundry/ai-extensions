@@ -53,9 +53,8 @@ procedure and preserve accepted or in-flight ideas.
 Inspect only the context needed for the product decision:
 
 - `AGENTS.md` and `.agents/workflow.md` for workflow boundaries.
-- `_docs/README.md`, relevant `_docs/kb/01-product/` documents, and
-  `_docs/design/` only as a read-only migration comparison source when it
-  exists.
+- `_docs/README.md`, relevant `_docs/kb/01-product/` documents, and related
+  current-state knowledge-base documents.
 - `_docs/ideas.md` when evaluating or comparing ideas.
 - The active or backlog plan when reviewing planned work.
 - The top-level `README.md` or package docs when positioning, adoption, or

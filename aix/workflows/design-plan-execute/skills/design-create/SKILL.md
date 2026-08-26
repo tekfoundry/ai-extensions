@@ -99,7 +99,5 @@ update to an existing doc is clearer.
 - Do not promote speculative, rejected, or unimplemented behavior as current
   knowledge.
 - Do not copy an implementation plan into `_docs/kb/`.
-- Do not edit, move, delete, or rewrite existing `_docs/design` files during
-  migration.
 - Keep one document responsible for one coherent topic.
 - Preserve project-owned documentation and unrelated edits.

@@ -18,8 +18,6 @@ Use this document as the default process contract for the repo.
 - Use `.agents/README.md` as the reusable process router when it exists.
 - Use `_docs/README.md` as the project documentation router when it exists.
 - Use `_docs/kb` for current implemented project knowledge.
-- Treat `_docs/design` as a preserved migration review baseline when it exists.
-  Read it for comparison, but do not edit, move, delete, or rewrite its files.
 - Use active plans in `_docs/plans` for implementation work and execution records.
 - Use `_docs/plans/backlog` for planned work that has not been activated.
 - Use completed plans only for relevant historical context.
@@ -244,9 +242,6 @@ Projects may also include these optional supporting files or directories:
 - object-verb workflow skills such as `project-init`, `plan-create`,
   `plan-activate`, `plan-execute`, `task-execute`, and `work-verify`
 - `_docs/competitive-analysis.md`: market and landscape analysis used before or during product shaping
-- `_docs/design/`: preserved migration review baseline when an older project
-  still has design docs. Agents may read these files for comparison, but must
-  not edit, move, delete, or rewrite them during migration.
 - `_docs/kb/01-product/`: product intent, user workflows, interaction
   behavior, UX principles, and user-facing acceptance signals
 - `_docs/kb/02-requirements/`: requirements, use cases, user stories,
@@ -469,16 +464,6 @@ and active execution.
   little or no docs update, but the decision should follow from the behavior
   touched.
 
-### `_docs/design`
-
-- This directory is a preserved migration review baseline when it exists.
-- Agents may read these files as input when creating or refreshing
-  `_docs/kb/`.
-- Agents must not edit, move, delete, or rewrite existing `_docs/design` files
-  during migration.
-- A developer owns manual deletion after confirming `_docs/kb/` covers the
-  required current-state information.
-
 ### `_docs/plans`
 
 - This directory is the working space for planning and execution records.
@@ -516,7 +501,6 @@ and active execution.
 
 - Code is the implemented behavior.
 - `_docs/kb` is the current implemented knowledge for the system.
-- `_docs/design` is a preserved migration comparison source when it exists.
 - `_docs/plans` is the temporary and evolving design space for active work.
 - `_docs/plans/backlog` captures planned-but-not-started work.
 - This document captures reusable workflow guidance learned across efforts.
@@ -690,8 +674,6 @@ prototype-ready, internal-use-ready, beta-ready, or production-ready.
 
 - Read the relevant code, tests, and documentation before editing
 - Check `_docs/kb` for current implemented behavior
-- Read `_docs/design` only as a preserved migration comparison source when it
-  exists, and do not edit, move, delete, or rewrite it
 - Check `_docs/plans` for active related implementation work
 - Check `_docs/plans/backlog` for future work that may overlap or should be promoted to active
 - Read `_docs/plans/completed` only when relevant historical context is needed

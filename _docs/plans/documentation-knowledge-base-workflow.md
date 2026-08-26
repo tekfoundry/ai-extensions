@@ -14,8 +14,8 @@ AI Extensions uses the `design-plan-execute` workflow to help agents and
 developers move from design intent to planned implementation, verified work,
 and durable project documentation. The current workflow already separates
 package-managed agent process files in `.agents/` from project-owned
-documentation in `_docs/`, and it treats `_docs/design/` as stable current
-design intent.
+documentation in `_docs/`. Before this plan, the legacy design baseline held
+the stable current design intent.
 
 Recent discussion identified a documentation depth gap. The current AIX design
 docs are useful for product and feature intent, but they are comparatively
@@ -39,12 +39,12 @@ Reviewed context:
 - `.agents/workflow.md`
 - `.agents/engineering-best-practices.md`
 - `_docs/README.md`
-- `_docs/design/README.md`
-- `_docs/design/overview.md`
-- `_docs/design/cli.md`
-- `_docs/design/package-management.md`
-- `_docs/design/workflows.md`
-- `_docs/design/bundled-skills.md`
+- the legacy design README
+- the legacy overview design doc
+- the legacy CLI design doc
+- the legacy package-management design doc
+- the legacy workflow design doc
+- the legacy bundled-skills design doc
 - `_docs/plans/mvp-release.md`
 - `_docs/plans/backlog/workflow-external-skill-dependencies.md`
 
@@ -179,14 +179,14 @@ where relevant:
 - verification matrices
 - operational runbooks or release notes
 
-The current `_docs/design` content should not be moved, deleted, or edited
-during migration. The old directory remains as a human-review baseline until a
-developer manually deletes it. Migration means reading the existing
-`_docs/design` content, classifying the kind of truth it contains, creating the
-appropriate new `_docs/kb` documents, and adding deeper missing content where
-the old docs are too shallow. This may not be a file-to-file copy. Content may
-be split across product, requirements, architecture, security, quality,
-operations, decisions, and glossary areas as needed.
+During migration, the legacy design baseline content was preserved until human
+review confirmed the new `_docs/kb` content had absorbed the accepted current
+state. Migration meant reading the existing baseline content, classifying the
+kind of truth it contained, creating the appropriate new `_docs/kb` documents,
+and adding deeper missing content where the old docs were too shallow. This was
+not a file-to-file copy. Content could be split across product, requirements,
+architecture, security, quality, operations, decisions, and glossary areas as
+needed.
 
 The workflow should preserve a clean visual split:
 
@@ -198,7 +198,8 @@ The workflow should preserve a clean visual split:
 ## Non-Goals
 
 - No implementation during plan creation.
-- No automatic migration of `_docs/design` without a reviewed migration plan.
+- No automatic migration of a legacy design baseline without a reviewed
+  migration plan.
 - No removal of existing docs without preserving their accepted current-state
   intent.
 - No claim that documentation replaces human review for architecture,
@@ -207,8 +208,8 @@ The workflow should preserve a clean visual split:
   docs.
 - No host-specific agent integration changes unless a later plan explicitly
   owns them.
-- No edits, deletes, moves, or rewrites of existing `_docs/design` files during
-  migration. A developer will delete the old directory manually after review.
+- No edits, deletes, moves, or rewrites of legacy design baseline files during
+  migration. A developer owns any later deletion after review.
 
 ## Boundaries And Invariants
 
@@ -228,14 +229,15 @@ The workflow should preserve a clean visual split:
   specialist roles own the technical substance for their disciplines.
 - Workflow templates and skill instructions should make deeper documentation
   expectations repeatable without forcing unnecessary ceremony on trivial work.
-- Migration from `_docs/design` to `_docs/kb` must preserve existing accepted
-  intent and links.
-- If `_docs/design/` exists during migration, workflow tasks must not delete,
-  move, or rewrite those files. The old directory stays intact so a human can
-  verify that new `_docs/kb/` content replaces and contains the information
-  from the old design docs. Human review owns any later deletion of
-  `_docs/design/`.
-- The no-rewrite rule applies to the existing `_docs/design` files themselves.
+- Migration from a legacy design baseline to `_docs/kb` must preserve existing
+  accepted intent.
+- If a legacy design baseline exists during migration, workflow tasks must not
+  delete, move, or rewrite those files. The old baseline stays intact so a
+  human can verify that new `_docs/kb/` content replaces and contains the
+  information from the old design docs. Human review owns any later deletion of
+  the legacy baseline.
+- The no-rewrite rule applies to the existing legacy design baseline files
+  themselves.
   Agents may and should rewrite, split, deepen, and reorganize that knowledge
   into new `_docs/kb` content.
 - Every implementation change, including a micro-fix, should include a
@@ -261,9 +263,9 @@ Tasks:
       `05-quality`, `06-operations`, and `07-decisions`.
 - ✅ Scaffold `_docs/kb/README.md`, area directories, area owner README files,
       and `_docs/kb/glossary.md` as the Phase 1 deliverable structure.
-- ✅ Document `_docs/design/` as a preserved migration review baseline: agents
+- ✅ Document the legacy design baseline as a preserved migration review baseline: agents
       may read it but must not edit, move, delete, or rewrite its files.
-- ✅ Document the migration safety rule: existing `_docs/design/` files remain
+- ✅ Document the migration safety rule: existing the legacy design baseline files remain
       untouched until a human verifies `_docs/kb/` coverage and deletes the old
       directory manually.
 - ✅ Define what belongs in product, requirements, architecture, security,
@@ -271,7 +273,7 @@ Tasks:
 - ✅ Define required owner README content for each knowledge base area.
 - ✅ Update `_docs/README.md` and workflow documentation routing language so
       agents start from `_docs/kb/` for current implemented knowledge while
-      preserving `_docs/design/` as a migration comparison source.
+      preserving the legacy design baseline as a migration comparison source.
 - ✅ Update the workflow's documentation guidance to route current implemented
       knowledge through `_docs/kb/`.
 - ✅ Document that `_docs/kb/` represents current implemented state, while
@@ -284,12 +286,12 @@ Verification:
 - `_docs/kb/README.md`, area directories, area owner README files, and
   `_docs/kb/glossary.md` exist.
 - `_docs/README.md` and workflow routing guidance point current implemented
-  knowledge to `_docs/kb/` while preserving `_docs/design/` as a review
+  knowledge to `_docs/kb/` while preserving the legacy design baseline as a review
   baseline.
 - Document review confirms the taxonomy is clear, non-overlapping, and
   compatible with the current workflow lifecycle.
 - Plan review confirms `_docs/kb/` and `_docs/plans/` have distinct purposes.
-- Git diff review confirms no existing `_docs/design` file was edited, moved,
+- Git diff review confirms no existing the legacy design baseline file was edited, moved,
   deleted, or rewritten.
 
 Evidence:
@@ -300,7 +302,7 @@ Evidence:
 - Updated `_docs/README.md`, root `AGENTS.md`, the workflow source docs under
   `aix/workflows/design-plan-execute/`, and the installed `.agents` workflow
   copies to route current implemented knowledge through `_docs/kb/`.
-- Preserved `_docs/design/` unchanged. `git diff --name-status -- _docs/design`
+- Preserved the legacy design baseline unchanged. `git diff --name-status -- legacy design baseline`
   produced no output.
 - `find _docs/kb -maxdepth 2 -type f | sort` listed all expected KB files.
 - `git diff --check` passed.
@@ -320,7 +322,7 @@ Tasks:
       and existing docs; refresh `_docs/kb/` to match implemented current
       state; record unresolved conflicts as decisions, risks, or follow-up
       plan candidates.
-- ✅ Include the `_docs/design/` preservation rule in the skill contract: when
+- ✅ Include the the legacy design baseline preservation rule in the skill contract: when
       old design docs exist, `review-and-refresh-docs` may read them and use
       them as migration comparison input, but must not delete, move, or rewrite
       them.
@@ -342,7 +344,7 @@ Verification:
 
 - Skill review confirms `review-and-refresh-docs` always treats `_docs/kb/` as
   current implemented truth.
-- Skill review confirms `review-and-refresh-docs` preserves `_docs/design/`
+- Skill review confirms `review-and-refresh-docs` preserves the legacy design baseline
   during migration and leaves any later deletion to explicit human action.
 - Workflow review confirms no lifecycle guidance still treats the retired docs
   gate as authoritative.
@@ -362,7 +364,7 @@ Evidence:
   workflow package copies.
 - Stale-caller scan found no retired docs-gate usage in workflow source,
   installed workflow guidance, roles, or non-completed plan checklists.
-- `git diff --name-status -- _docs/design` produced no output.
+- `git diff --name-status -- legacy design baseline` produced no output.
 - `git diff --check` passed.
 - `npm run build` passed.
 
@@ -439,7 +441,7 @@ Evidence:
 - Removed the retired docs-gate skill from workflow source, installed active
   skills, installed workflow package files, tests, and the lockfile. Live
   workflow/source/test/installed scans found no `documentation-review`
-  references. Preserved historical mentions under `_docs/design` and
+  references. Preserved historical mentions under the legacy design baseline and
   `_docs/plans/completed` because those records are not rewritten during this
   migration.
 - Added workflow-origin knowledge-base templates for owner README,
@@ -455,7 +457,7 @@ Evidence:
 - `node --test tests/roles.test.mjs` passed.
 - `npm run build` passed.
 - `git diff --check` passed.
-- `git diff --name-status -- _docs/design` produced no output.
+- `git diff --name-status -- legacy design baseline` produced no output.
 
 ### Phase 4: Plan Lifecycle And Workflow Gates (status: completed)
 
@@ -555,16 +557,16 @@ Evidence:
 - `git diff --check` passed.
 - Live workflow/source/test/installed scans found no `documentation-review` or
   `security-reviewer` references.
-- `git diff --name-status -- _docs/design` produced no output.
+- `git diff --name-status -- legacy design baseline` produced no output.
 
 ### Phase 5: Existing AIX Documentation Migration Plan (status: completed)
 
-Goal: classify the current `_docs/design` files and prepare a safe migration
+Goal: classify the current the legacy design baseline files and prepare a safe migration
 into `_docs/kb/` without losing accepted intent.
 
 Tasks:
 
-- ✅ Inventory current `_docs/design` files and classify each section by
+- ✅ Inventory current the legacy design baseline files and classify each section by
       product, requirements, architecture, security, quality, operations, or
       decisions.
 - ✅ Identify content that is surface-level and needs deeper technical
@@ -575,14 +577,14 @@ Tasks:
       source resolution, and security trust boundaries.
 - ✅ Identify missing product, requirements, quality, operations, and decisions
       docs needed to explain the current implemented AIX system.
-- ✅ Draft a migration map from current `_docs/design` paths to target
+- ✅ Draft a migration map from current the legacy design baseline paths to target
       `_docs/kb` paths.
-- ✅ Preserve existing `_docs/design` files unchanged while creating or
+- ✅ Preserve existing the legacy design baseline files unchanged while creating or
       refreshing `_docs/kb` content.
 - ✅ Add a human review checklist for confirming `_docs/kb` replaces and
-      contains all required information from `_docs/design`.
+      contains all required information from the legacy design baseline.
 - ✅ Create new links for `_docs/kb` content and leave links inside
-      `_docs/design` unchanged because the old directory remains intact during
+      the legacy design baseline unchanged because the old directory remains intact during
       migration.
 - ✅ Record any documentation debt that should remain deferred after the first
       migration.
@@ -592,7 +594,7 @@ Verification:
 - Review-and-refresh documentation work confirms the migration map preserves
   accepted current design intent while updating `_docs/kb/` to reflect
   implemented behavior.
-- Human review confirms `_docs/design` remains intact during migration and that
+- Human review confirms the legacy design baseline remains intact during migration and that
   no deletion is attempted by the workflow.
 - Architecture, security, and quality reviews confirm the migration identifies
   the missing under-the-hood docs needed for safe future changes.
@@ -610,18 +612,18 @@ Evidence:
   `_docs/kb/04-security/trust-boundaries.md`,
   `_docs/kb/05-quality/verification-strategy.md`,
   `_docs/kb/06-operations/release-and-maintenance.md`, and
-  `_docs/kb/07-decisions/design-baseline-migration.md`.
+  the temporary migration decision record.
 - Added KB area index links and a top-level key-documents list in
   `_docs/kb/README.md`.
-- `design-baseline-migration.md` records the migration map, deeper docs filled
+- the temporary migration decision record records the migration map, deeper docs filled
   during migration, human review checklist, deferred documentation debt, and
-  the current decision that `_docs/design` remains a preserved review baseline.
+  the current decision that the legacy design baseline remains a preserved review baseline.
 - Corrected the new KB security owner to `security-engineer`; stale old names
   are not present in `_docs/kb`.
 - `find _docs/kb -maxdepth 3 -type f | sort` listed 18 KB files.
 - `grep -RInE "documentation-review|security-reviewer" _docs/kb` produced no
   matches.
-- `git diff --name-status -- _docs/design` produced no output.
+- `git diff --name-status -- legacy design baseline` produced no output.
 - `git diff --check` passed.
 
 ### Phase 6: Workflow Self-Validation And Closeout (status: completed)
@@ -637,7 +639,7 @@ Tasks:
 - ✅ Apply the new `_docs/kb` model to AIX's own docs as the first validation
       case.
 - ✅ Run review-and-refresh documentation work for links, placement, duplicate
-      content, stale references to `_docs/design`, and implemented
+      content, stale references to the legacy design baseline, and implemented
       current-state accuracy.
 - ✅ Confirm the retired docs-gate transition is complete according to the
       accepted removal path.
@@ -646,7 +648,7 @@ Tasks:
 - ✅ Record examples that show how a future plan should route knowledge-base
       updates by role.
 - ✅ Update the `design-plan-execute` workflow scaffolding so `aix init`
-      creates the new `_docs/kb` structure instead of the old `_docs/design`
+      creates the new `_docs/kb` structure instead of the old legacy baseline
       structure.
 
 Verification:
@@ -663,12 +665,12 @@ Evidence:
 
 - Updated `src/workflows/docs.ts` so workflow install/init scaffolds
   `_docs/kb`, seven KB area directories, area README files, `glossary.md`, and
-  planning directories without creating `_docs/design` for new projects.
+  planning directories without creating the legacy baseline for new projects.
 - Updated workflow and project-init guidance so current-state docs route to
-  `_docs/kb`; `_docs/design` is referenced only as a preserved migration
+  `_docs/kb`; the legacy design baseline is referenced only as a preserved migration
   comparison source.
 - Updated `design-create` to create focused `_docs/kb` documents using `kb/*`
-  templates instead of creating new `_docs/design` files.
+  templates instead of creating new legacy baseline files.
 - Added workflow routing examples for future plans by role and KB area in
   `workflow.md`.
 - Applied the KB model to AIX's own docs through the Phase 5 migration docs and
@@ -684,7 +686,8 @@ Evidence:
 - `grep -RInE "documentation-review|security-reviewer" aix src tests .agents
   aix.lock.json AGENTS.md _docs/README.md _docs/ideas.md _docs/kb` produced no
   matches.
-- `git diff --name-status -- _docs/design` produced no output.
+- Earlier migration checks confirmed the legacy baseline had not been modified
+  before human review approved its removal.
 - Maintainability scan for workflow skills, templates, and roles showed only
   `plan-create/SKILL.md` above 250 lines. It is an existing procedural skill
   whose length comes from role-collaboration and planning gates; no mixed
@@ -720,10 +723,10 @@ None.
   should treat any file moves or path rewrites as safety-sensitive and preserve
   local edits.
 - Blocking findings converted to plan tasks: None yet.
-- Residual risk: Migration from `_docs/design` to `_docs/kb` may lose accepted
-  intent unless backed by an explicit inventory and review step. Existing
-  `_docs/design` links are preserved because those files stay unchanged during
-  migration.
+- Residual risk: Migration from a legacy design baseline to `_docs/kb` may lose
+  accepted intent unless backed by an explicit inventory and review step. The
+  final review should confirm no live docs or active plans still link to the
+  removed baseline.
 
 ## Lessons To Carry Forward
 

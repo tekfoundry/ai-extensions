@@ -38,8 +38,7 @@ separately.
 6. Never overwrite or replace existing project-owned documentation. If a file
    exists but appears stale or incomplete, report the issue and ask before
    rewriting substantial content.
-7. If `_docs/design/` already exists, leave it untouched as a preserved
-   migration review baseline. Do not create it for new projects.
+7. Create only the standard knowledge-base and planning directories.
 8. Report created paths, existing paths left untouched, and any follow-up
    documentation questions.
 

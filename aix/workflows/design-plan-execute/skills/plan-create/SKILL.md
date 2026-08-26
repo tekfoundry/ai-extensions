@@ -163,10 +163,9 @@ Intent is accepted.
 ## Workflow
 
 1. Read `AGENTS.md`, `.agents/workflow.md`, `_docs/README.md`, relevant
-   `_docs/kb` docs, and related active or backlog plans. Read `_docs/design`
-   only as a preserved migration comparison source when it exists and is
-   relevant. Read completed plans only when specific historical decisions,
-   regressions, or migrations are relevant to the requested plan.
+   `_docs/kb` docs, and related active or backlog plans. Read completed plans
+   only when specific historical decisions, regressions, or migrations are
+   relevant to the requested plan.
 2. Classify the work as backlog planning unless it is clearly a micro-fix.
    Do not promote backlog work autonomously.
 3. If the user has not already provided a high-level goal, ask them to

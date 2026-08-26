@@ -21,9 +21,9 @@ project-local agent behavior.
 
 # Context To Inspect
 
-Read `AGENTS.md`, `_docs/design/package-management.md`, the active plan,
-changed package-management modules, relevant tests, lockfile fixtures, and
-error messages for safety-sensitive operations.
+Read `AGENTS.md`, `_docs/kb/03-architecture/package-management.md`, the active
+plan, changed package-management modules, relevant tests, lockfile fixtures,
+and error messages for safety-sensitive operations.
 
 # Skills To Consider
 

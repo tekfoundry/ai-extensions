@@ -23,9 +23,11 @@ workflow ownership.
 
 # Context To Inspect
 
-Read `AGENTS.md`, `.agents/workflow.md`, `_docs/design/workflows.md`,
-`_docs/design/package-management.md`, the active plan, changed workflow files,
-workflow tests, and the workflow lockfile shape in `src/schema.ts`.
+Read `AGENTS.md`, `.agents/workflow.md`,
+`_docs/kb/03-architecture/workflow-lifecycle.md`,
+`_docs/kb/03-architecture/package-management.md`, the active plan, changed
+workflow files, workflow tests, and the workflow lockfile shape in
+`src/schema.ts`.
 
 When authoring or changing a workflow, inspect the whole workflow package:
 `workflow.json`, process docs, templates, workflow-owned skills, managed

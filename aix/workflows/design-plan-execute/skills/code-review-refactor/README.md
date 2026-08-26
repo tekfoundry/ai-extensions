@@ -26,7 +26,6 @@ Dependencies:
 - `.agents/engineering-best-practices.md`
 - `_docs/README.md`
 - Relevant `_docs/kb/` documents for the reviewed code area
-- `_docs/design/` only as a read-only migration comparison source when present
 - `plan-create`, when selected refactors need a backlog implementation plan
 
 ## How to use it

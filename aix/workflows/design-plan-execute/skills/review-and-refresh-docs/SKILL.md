@@ -24,9 +24,8 @@ or lifecycle decisions.
 When `.agents/roles/documentation-specialist.md` exists, use
 `delegate-to-role` or a prompt-overlay delegation for documentation-system
 judgment. Good triggers include `_docs/kb` placement, area ownership,
-cross-links, freshness, duplication, stale references, migration from
-`_docs/design`, implementation-to-plan conflicts, and whether a documentation
-gap should become follow-up plan work.
+cross-links, freshness, duplication, stale references, implementation-to-plan
+conflicts, and whether a documentation gap should become follow-up plan work.
 
 When domain-specific knowledge is material, use the documentation specialist
 to route bounded review-and-refresh passes to the relevant roles:
@@ -63,9 +62,7 @@ concerns yourself.
 2. Inspect the active or completed plan, accepted design intent, changed
    implementation files, tests, verification evidence, and existing docs
    needed to determine current behavior.
-3. Read `_docs/design/` only as a preserved migration comparison source when
-   it exists. Do not edit, move, delete, or rewrite existing `_docs/design`
-   files.
+3. Read current `_docs/kb` docs and relevant implementation evidence.
 4. Review structure and placement. Decide which `_docs/kb` area owns each
    current-state fact and whether new or updated index links are needed.
 5. Review documentation depth. Confirm the affected knowledge includes
@@ -88,8 +85,6 @@ concerns yourself.
 - Do not invent design truth to make docs look complete.
 - Do not promote future intent, rejected behavior, or historical execution
   notes into `_docs/kb/` as if they are current.
-- Do not edit, move, delete, or rewrite existing `_docs/design` files during
-  migration.
 - Do not reorganize large documentation trees without clear benefit or user
   authorization.
 - Prefer relative links inside `_docs/`.

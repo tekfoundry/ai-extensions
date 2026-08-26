@@ -75,8 +75,7 @@ Good fits include:
   placeholders, and formatting when documentation changes are substantial.
 - Checking whether completed work left stable design truth, developer-facing
   instructions, command examples, or recovery guidance stale.
-- Comparing current implementation against `_docs/kb`, read-only
-  `_docs/design` migration baseline content, and in-progress plans to identify
+- Comparing current implementation against `_docs/kb` and in-progress plans to identify
   undocumented current-state knowledge, stale claims, or code
   behavior that is contrary to accepted or planned intent.
 - Separating durable current-state documentation from implementation history
@@ -101,9 +100,7 @@ Inspect only the context needed for the documentation decision:
 
 - `AGENTS.md`, `.agents/workflow.md`, and `_docs/README.md` for workflow
   boundaries, project-owned documentation rules, and closeout expectations.
-- `_docs/kb/README.md`, relevant `_docs/kb/` area indexes, and
-  `_docs/design/` only as a read-only migration comparison source when it
-  exists.
+- `_docs/kb/README.md` and relevant `_docs/kb/` area indexes.
 - The active or backlog plan, especially Design Intent, implementation phases,
   documentation impact, promotion-to-design notes, verification evidence,
   completion checklist, open questions, risks, and closeout records.
@@ -117,7 +114,7 @@ Inspect only the context needed for the documentation decision:
   instructions or examples.
 - Source files, tests, CLI help, or command output only when needed to compare
   implemented current behavior against `_docs/kb`, current in-progress plans,
-  read-only `_docs/design` migration baseline content, or developer-facing
+  current `_docs/kb` knowledge, or developer-facing
   documentation.
 - Relevant workflow skills such as `plan-create`, `plan-update`,
   `design-create`, `design-promote`, `review-and-refresh-docs`, and

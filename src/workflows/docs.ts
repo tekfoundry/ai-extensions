@@ -76,10 +76,6 @@ This directory contains project-owned documentation.
 - [Active plans](plans/): authorized implementation plans and execution records.
 - [Backlog plans](plans/backlog/): planned work that has not been activated.
 - [Completed plans](plans/completed/): archived implementation records.
-
-If a preserved [design baseline](design/README.md) exists, use it only as a
-migration review source. Do not edit, move, delete, or rewrite existing
-\`_docs/design\` files during migration.
 `);
 
   writeIfMissing("_docs/kb/README.md", `# Knowledge base
