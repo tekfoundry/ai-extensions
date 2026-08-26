@@ -69,9 +69,11 @@ function installedWorkflowSkillRows(sourceName: string): SkillListCandidate[] {
 function renderListedSkills(candidates: SkillListCandidate[], options: ListSourceSkillsOptions): ListedSkill[] {
   const lockfile = readLockfileJson();
   const rows = options.missingOnly
-    ? candidates.filter((candidate) => !lockfile.skills.some(
-      (skill) => skill.source === candidate.lockSource && skill.sourcePath === candidate.lockSourcePath
-    ))
+    ? candidates.filter((candidate) => !lockfile.skills.some((skill) => (
+      (skill.source === candidate.lockSource && skill.sourcePath === candidate.lockSourcePath) ||
+      skill.originalName === candidate.name ||
+      skill.activeName === candidate.name
+    )))
     : candidates;
 
   return rows.map(({ path, name, installCommand }) => ({ path, name, installCommand }));

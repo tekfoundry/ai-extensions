@@ -321,6 +321,27 @@ test("run skills list can report only missing aix and installed workflow skills"
       ) + "\n",
       "utf8"
     );
+    mkdirSync(join(cacheRoot, "metadata"), { recursive: true });
+    writeFileSync(
+      join(cacheRoot, "metadata/aix.json"),
+      JSON.stringify(
+        {
+          source: "aix",
+          kind: "skill",
+          sourceType: "git",
+          sourceUrl: gitSource,
+          requestedRef: "master",
+          sourcePath: "aix/skills",
+          skills: [
+            { path: "discover-skill", name: "discover-skill" },
+            { path: "existing-workflow-skill", name: "existing-workflow-skill" }
+          ]
+        },
+        null,
+        2
+      ) + "\n",
+      "utf8"
+    );
 
     const all = run(["skills", "list", "aix"]);
     assert.equal(all.exitCode, 0);
