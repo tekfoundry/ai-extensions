@@ -8,12 +8,14 @@ user-facing acceptance signals here when they describe implemented behavior.
 
 ## Documents
 
-- [Product overview](product-overview.md): current product purpose, audiences,
-  workflows, and acceptance signals.
+- [Product overview](product-overview.md): current product purpose,
+  positioning, audiences, workflows, strategic boundaries, and acceptance
+  signals.
 
 Use this area for:
 
 - product goals that are true of the current system
+- strategic positioning grounded in implemented behavior
 - primary users and jobs to be done
 - user workflows and interaction states
 - UX principles that should guide future changes
