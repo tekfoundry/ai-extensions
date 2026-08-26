@@ -3,56 +3,89 @@
 ## Boundary Map
 
 ```text
-remote or local extension source
-  -> AIX source resolution and validation
-  -> .agents/packages package copy
+Git or local extension source
+  -> source resolver and cache
+  -> package validation and staging
+  -> .agents/packages package-managed copy
   -> .agents active exposure
-  -> agent runtime reads active files
+  -> agent runtime reads active skills, roles, workflow docs, and templates
 ```
 
-Trust increases only after validation, materialization, hashing, and drift
-checks. AIX does not certify third-party sources; it records provenance and
-prevents silent local overwrite.
+Trust does not come from the source itself. Trust increases only after the user
+chooses a source, AIX resolves provenance, validates package shape, writes a
+package-managed copy, records hashes in `aix.lock.json`, and later checks those
+hashes before update or removal.
 
-## Local Filesystem Safety
+AIX does not certify third-party skills, roles, or workflows. It provides
+provenance, review points, local drift detection, and no-silent-overwrite
+behavior.
 
-Package-managed writes are safety-sensitive. AIX must preserve:
+## Trust Zones
 
-- project-owned files outside managed blocks
-- `_docs` content
-- local `.agents` files that drift from lockfile hashes
-- published template overrides
-- editable local `./aix/...` extension source
+- Remote Git sources: untrusted instructions and files until reviewed and
+  installed.
+- Git cache under `AIX_CACHE_DIR` or the OS temp directory: mutable resolver
+  cache, not accepted package state.
+- Local `./aix/...` bundled source paths: editable developer source, trusted
+  only as local project input and recorded as `sourceType: "local"` when used.
+- `.agents/packages/`: package-managed accepted copies guarded by lockfile
+  hashes.
+- `.agents/skills/` and `.agents/roles/`: agent-facing active exposure guarded
+  by lockfile hashes.
+- `.agents/templates/`: project-owned template overrides, not package-managed
+  workflow origin files.
+- `_docs/`: project-owned knowledge and plan records, not routine workflow
+  update targets.
+- Root `AGENTS.md`: mixed ownership; only marker-delimited workflow blocks are
+  package-managed.
 
-Root `AGENTS.md` is mixed ownership. Only the marker-delimited workflow block
-is package-managed. Everything outside that block is project-owned.
+## Actor Permissions
 
-## Source And Supply-Chain Risk
+- The CLI has the local filesystem permissions of the user running `aix`.
+- There is no AIX authentication, authorization service, or multi-user
+  permission model.
+- Authorization is command intent plus local file safety checks. A mutating
+  command is allowed to touch only the files its lifecycle owns.
+- Agent runtimes are outside AIX's enforcement boundary. AIX controls which
+  files it exposes under `.agents/`; it does not sandbox how an agent runtime
+  interprets those files.
 
-Git-backed sources can be public, private, or local. GitHub tree URLs are
-normalized into Git source metadata, but normalization does not imply trust.
-`discover-skill` remains advisory and must route installation through normal
-review and package-management commands.
+## Critical Boundaries
 
-## Destructive Operations
+- Source to package: source files become accepted package state only after AIX
+  copies them into `.agents/packages/` and records hashes.
+- Package to active exposure: active skills and roles become runtime-visible
+  only through `.agents/skills/` and `.agents/roles/`.
+- Workflow package to project docs: workflow install may scaffold missing
+  `_docs` routers and directories, but existing project-owned docs stay
+  outside routine workflow mutation.
+- Workflow package to `AGENTS.md`: only the workflow's marker-delimited block
+  is owned by AIX.
+- Workflow origin templates to published overrides: origin templates are
+  package-managed; published overrides are project-owned and must not be
+  overwritten by workflow updates.
 
-Remove, reset, deactivate, uninstall, and update flows must verify hashes
-before deleting or overwriting package-managed files. If package or active
-files drift, the command stops.
+## Security Invariants
 
-`aix templates reset` deletes only selected published overrides that belong to
-the active workflow template set. It does not copy origin content over local
-files.
+- Mutating commands must preflight package-managed drift before overwrite,
+  update, removal, reset, or uninstall.
+- Direct standalone commands must reject workflow-owned skills and roles.
+- Direct skill commands must reject role-owned skills.
+- Source removal must be blocked while manifest or lockfile entries still
+  depend on that source.
+- Diff and status commands are read-oriented and must not mutate package or
+  active state.
+- The lockfile is the integrity record for accepted package and active files,
+  not a trust endorsement of source content.
 
-## Secrets Posture
+## Known Residual Risk
 
-AIX stores source URLs, refs, paths, lockfile hashes, and package metadata. It
-does not intentionally store secret tokens. CLI output and errors should not
-log raw credentials from Git URLs, environment variables, or external tools.
-
-## Auditability
-
-The manifest and lockfile provide the audit trail for what was requested,
-resolved, packaged, and exposed. Completed plans and `_docs/kb` explain why
-durable workflow or product behavior exists, but implementation and lockfile
-state remain the evidence for current package state.
+- Git source URLs may contain credentials. Current errors can include Git
+  command failure text, so callers should avoid embedding secrets in source
+  URLs.
+- AIX executes the local `git` binary for source resolution and diffs. It does
+  not verify Git binary provenance.
+- AIX does not cryptographically verify upstream releases or signed commits.
+  It pins resolved commits and file hashes after resolution.
+- AIX does not sandbox installed agent instructions. A malicious skill or role
+  can still influence any agent runtime that reads it.

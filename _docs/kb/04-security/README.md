@@ -5,7 +5,16 @@ Owner: `security-engineer`
 ## Documents
 
 - [Trust boundaries](trust-boundaries.md): local filesystem, Git source,
-  package store, lockfile, overwrite, and destructive-operation safety model.
+  package store, lockfile, active exposure, and runtime trust zones.
+- [Local file safety](local-file-safety.md): managed/project-owned file
+  boundaries, no-overwrite rules, destructive-operation guards, atomic writes,
+  and residual local risks.
+- [Source and package trust](source-and-package-trust.md): Git source
+  resolution, package acceptance, instruction trust, workflow trust, and
+  supply-chain non-goals.
+- [Auditability and verification](auditability-and-verification.md): manifest
+  and lockfile audit records, verify/status/diff coverage, test evidence, and
+  residual verification gaps.
 
 This area records the current security and safety posture for AI Extensions.
 Treat local file writes, overwrites, deletes, source resolution, lockfile
