@@ -1,6 +1,6 @@
 {
   "name": "@tekfoundry/aix",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "AI Extensions: a package-manager-style CLI for project-local AI-agent extensions.",
   "license": "MIT",
   "type": "module",
