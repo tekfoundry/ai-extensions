@@ -1,6 +1,9 @@
 name: Publish npm package
 
 on:
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
     inputs:
       tag:
@@ -9,7 +12,7 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 concurrency:
@@ -26,7 +29,7 @@ jobs:
       - name: Checkout selected tag
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag }}
+          ref: ${{ inputs.tag || github.ref_name }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -42,3 +45,11 @@ jobs:
 
       - name: Publish to npm
         run: npm publish
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          gh release view "$RELEASE_TAG" >/dev/null 2>&1 || \
+            gh release create "$RELEASE_TAG" --title "$RELEASE_TAG" --generate-notes
