@@ -15,7 +15,7 @@ This skill is workflow-owned. `aix init` installs the default
 workflow explicitly, run:
 
 ```bash
-aix workflow install https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute aix
+aix workflow install aix/workflows/design-plan-execute
 ```
 
 Dependencies:

@@ -23,7 +23,7 @@ Use a direct workflow install when a project was not initialized with the
 default workflow, or when you need to install it from a specific source:
 
 ```bash
-aix workflow install https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute aix
+aix workflow install aix/workflows/design-plan-execute
 ```
 
 Check whether your installed workflow has pending upstream changes:

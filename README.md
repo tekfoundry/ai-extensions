@@ -33,7 +33,7 @@ See the project promotion page at [tekfoundry.com/aix](https://tekfoundry.com/ai
 ## Try it in 60 seconds
 
 ```bash
-npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.2.1/tekfoundry-aix-0.2.1.tgz
+npm install -g @tekfoundry/aix
 aix init
 aix status
 aix verify
@@ -68,20 +68,11 @@ Common cases:
 
 ## Install
 
-The package is prepared for scoped npm distribution. Once it is published, the
-install path will be:
+Install the scoped npm package:
 
 ```bash
 npm install -g @tekfoundry/aix
 ```
-
-> [!WARNING]
-> **Temporary install path:** The `@tekfoundry/aix` npm package is not published yet.
-> Until scoped npm publishing is complete, install the packed build from the GitHub Release artifact:
->
-> ```bash
-> npm install -g https://github.com/tekfoundry/ai-extensions/releases/download/v0.2.1/tekfoundry-aix-0.2.1.tgz
-> ```
 
 A quick verification test after installation:
 
@@ -188,7 +179,7 @@ This workflow is installed by default when AIX initializes a project.
 Install it directly:
 
 ```bash
-aix workflow install https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute aix
+aix workflow install aix/workflows/design-plan-execute
 ```
 
 It includes:
@@ -216,7 +207,7 @@ requiring Jira, Trello, GitHub Projects, Linear, or another external service.
 Install it directly:
 
 ```bash
-aix workflow install https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/agile-kanban aix
+aix workflow install aix/workflows/agile-kanban
 ```
 
 See [the Agile Kanban workflow details](aix/workflows/agile-kanban/README.md)
