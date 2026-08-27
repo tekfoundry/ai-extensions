@@ -1399,9 +1399,10 @@ Completion evidence:
 - Interactive activation behavior: decided on 2026-08-20. No-argument
   `aix skill activate` ships with an interactive source/skill picker in the
   MVP.
-- Git cache location: decide before Phase 2 whether the cache lives under a
-  project-local path, an OS cache directory, or a temporary test-controlled
-  location.
+- Git cache location: decided on 2026-08-27. By default, the shared Git cache
+  lives under the platform user cache directory so the path is recognizable as
+  AIX-owned and not anonymous OS temporary data. `AIX_CACHE_DIR` remains the
+  supported override for tests, CI, and users who want a different cache root.
 - Built-in `aix` source packaging: keep `aix/skills` as the source path inside
   `https://github.com/tekfoundry/ai-extensions.git` at ref `master`.
   Superseded for the default workflow on 2026-08-20: restructure the built-in

@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const testsDirectory = join(process.cwd(), "tests");
@@ -19,5 +20,9 @@ if (testFiles.length === 0) {
 
 execFileSync(process.execPath, ["--test", "--test-concurrency=1", ...testFiles], {
   cwd: process.cwd(),
+  env: {
+    ...process.env,
+    AIX_CACHE_DIR: process.env.AIX_CACHE_DIR || mkdtempSync(join(tmpdir(), "aix-test-cache-"))
+  },
   stdio: "inherit"
 });

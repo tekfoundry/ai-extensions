@@ -67,7 +67,10 @@ shape. New writes use nested source groups.
 Git source resolution uses a deterministic cache root:
 
 ```text
-AIX_CACHE_DIR or <os tmpdir>/aix-cache
+AIX_CACHE_DIR or the platform user cache directory:
+  macOS: ~/Library/Caches/aix
+  Linux/Unix: $XDG_CACHE_HOME/aix or ~/.cache/aix
+  Windows: %LOCALAPPDATA%\aix\Cache
 ```
 
 Resolution flow:
@@ -114,6 +117,12 @@ tree without fetching the published repository snapshot.
 Adding a skill or role source resolves the source and writes cache metadata for
 discovered package candidates. Listing commands read that metadata so listing a
 source does not need to re-resolve the repository every time.
+
+The default cache is deliberately user-scoped rather than project-local or
+temporary. It is still rebuildable resolver state, but its path is recognizable
+as AIX-owned and is less likely to become anonymous abandoned data under the OS
+temporary directory. `AIX_CACHE_DIR` remains the supported override for tests,
+CI, and users who want a different cache location.
 
 Source removal deletes manifest source entries and cached metadata only when no
 manifest or lockfile entries still depend on the source.

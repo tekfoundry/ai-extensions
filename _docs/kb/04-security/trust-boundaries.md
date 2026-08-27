@@ -24,8 +24,8 @@ behavior.
 
 - Remote Git sources: untrusted instructions and files until reviewed and
   installed.
-- Git cache under `AIX_CACHE_DIR` or the OS temp directory: mutable resolver
-  cache, not accepted package state.
+- Git cache under `AIX_CACHE_DIR` or the platform user cache directory:
+  mutable resolver cache, not accepted package state.
 - Local `./aix/...` bundled source paths: editable developer source, trusted
   only as local project input and recorded as `sourceType: "local"` when used.
 - `.agents/packages/`: package-managed accepted copies guarded by lockfile

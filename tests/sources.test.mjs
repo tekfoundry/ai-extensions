@@ -2,11 +2,11 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { mkdtemp } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { homedir, platform, tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { run } from "../dist/cli.js";
-import { getDefaultSources, resolveSource } from "../dist/sources/index.js";
+import { defaultCacheRoot, getDefaultSources, resolveSource } from "../dist/sources/index.js";
 
 function git(args, cwd) {
   return execFileSync("git", args, {
@@ -20,6 +20,23 @@ function git(args, cwd) {
       GIT_COMMITTER_EMAIL: "aix@example.test"
     }
   }).trim();
+}
+
+function expectedDefaultCacheRoot() {
+  const home = homedir();
+
+  if (!home) {
+    return join(tmpdir(), "aix-cache");
+  }
+
+  switch (platform()) {
+    case "darwin":
+      return join(home, "Library", "Caches", "aix");
+    case "win32":
+      return join(process.env.LOCALAPPDATA || join(home, "AppData", "Local"), "aix", "Cache");
+    default:
+      return join(process.env.XDG_CACHE_HOME || join(home, ".cache"), "aix");
+  }
 }
 
 async function createGitSource() {
@@ -61,6 +78,24 @@ test("getDefaultSources defines aix as a remote git source", () => {
     path: "aix/skills",
     ref: "master"
   });
+});
+
+test("defaultCacheRoot uses a user cache directory and supports AIX_CACHE_DIR override", async () => {
+  const previousCache = process.env.AIX_CACHE_DIR;
+
+  try {
+    delete process.env.AIX_CACHE_DIR;
+    assert.equal(defaultCacheRoot(), expectedDefaultCacheRoot());
+
+    process.env.AIX_CACHE_DIR = join(tmpdir(), "aix-explicit-cache");
+    assert.equal(defaultCacheRoot(), process.env.AIX_CACHE_DIR);
+  } finally {
+    if (previousCache === undefined) {
+      delete process.env.AIX_CACHE_DIR;
+    } else {
+      process.env.AIX_CACHE_DIR = previousCache;
+    }
+  }
 });
 
 test("resolveSource clones and resolves git sources into a deterministic cache", async () => {
@@ -169,6 +204,50 @@ test("resolveSource reclones a cached repo with no origin remote", async () => {
 
   mkdirSync(cachedSource, { recursive: true });
   git(["init", "-b", "main"], cachedSource);
+  writeFileSync(join(cachedSource, "stale.txt"), "stale cache\n", "utf8");
+  process.chdir(projectRoot);
+
+  try {
+    writeFileSync(
+      "aix.json",
+      JSON.stringify(
+        {
+          sources: {
+            fixture: {
+              type: "git",
+              url: gitSource.directory,
+              path: "skills",
+              ref: "main"
+            }
+          },
+          skills: []
+        },
+        null,
+        2
+      ) + "\n",
+      "utf8"
+    );
+
+    const resolved = resolveSource("fixture", cacheRoot);
+
+    assert.equal(resolved.name, "fixture");
+    assert.equal(resolved.rootPath, join(cacheRoot, "fixture", "skills"));
+    assert.equal(resolved.resolvedCommit, gitSource.commit);
+    assert.equal(existsSync(join(cachedSource, "stale.txt")), false);
+    assert.equal(git(["remote", "get-url", "origin"], cachedSource), gitSource.directory);
+  } finally {
+    process.chdir(previousCwd);
+  }
+});
+
+test("resolveSource reclones a cached repo that is not usable by git", async () => {
+  const gitSource = await createGitSource();
+  const cacheRoot = await mkdtemp(join(tmpdir(), "aix-cache-test-"));
+  const projectRoot = await mkdtemp(join(tmpdir(), "aix-source-project-"));
+  const cachedSource = join(cacheRoot, "fixture");
+  const previousCwd = process.cwd();
+
+  mkdirSync(join(cachedSource, ".git"), { recursive: true });
   writeFileSync(join(cachedSource, "stale.txt"), "stale cache\n", "utf8");
   process.chdir(projectRoot);
 

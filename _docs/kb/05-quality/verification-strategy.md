@@ -90,9 +90,11 @@ git diff --check
 
 `npm test` runs `node scripts/run-tests.mjs`, which discovers
 `tests/*.test.mjs`, sorts them, and runs Node's test runner with
-`--test-concurrency=1`. Serial execution is intentional because many tests
-change the current working directory, build temporary projects, create local
-Git repositories, and exercise filesystem package state.
+`--test-concurrency=1`. The test runner sets a temporary `AIX_CACHE_DIR` when
+the caller has not provided one, so full-suite runs do not touch the user's
+real AIX cache. Serial execution is intentional because many tests change the
+current working directory, build temporary projects, create local Git
+repositories, and exercise filesystem package state.
 
 ## Regression Matrix
 

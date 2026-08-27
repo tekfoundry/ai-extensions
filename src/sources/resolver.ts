@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { homedir, platform, tmpdir } from "node:os";
 import { join } from "node:path";
 import { AixError } from "../errors.js";
 import { parseManifest } from "../manifest.js";
@@ -23,8 +23,29 @@ function runGit(args: string[], cwd?: string): string {
   }
 }
 
+function isRecoverableCachedGitError(message: string): boolean {
+  return message.includes("No such remote") || message.includes("not a git repository");
+}
+
+function defaultUserCacheRoot(): string {
+  const home = homedir();
+
+  if (!home) {
+    return join(tmpdir(), "aix-cache");
+  }
+
+  switch (platform()) {
+    case "darwin":
+      return join(home, "Library", "Caches", "aix");
+    case "win32":
+      return join(process.env.LOCALAPPDATA || join(home, "AppData", "Local"), "aix", "Cache");
+    default:
+      return join(process.env.XDG_CACHE_HOME || join(home, ".cache"), "aix");
+  }
+}
+
 export function defaultCacheRoot(): string {
-  return process.env.AIX_CACHE_DIR || join(tmpdir(), "aix-cache");
+  return process.env.AIX_CACHE_DIR || defaultUserCacheRoot();
 }
 
 export function loadSourceDefinitions(): Record<string, SourceDefinition> {
@@ -96,7 +117,7 @@ function cloneOrFetchGitSource(name: string, definition: SourceDefinition, cache
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
 
-      if (!message.includes("No such remote")) {
+      if (!isRecoverableCachedGitError(message)) {
         throw error;
       }
 
