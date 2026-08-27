@@ -2,6 +2,14 @@
 
 Release Please owns this file after the first release PR.
 
+## [0.2.2](https://github.com/tekfoundry/ai-extensions/compare/v0.2.1...v0.2.2) (2026-08-27)
+
+
+### Bug Fixes
+
+* remove stale workflow-owned skills on update ([2fbe929](https://github.com/tekfoundry/ai-extensions/commit/2fbe929bf2ef88e5b71d1030d9f48cdb6a561da8))
+* update npm package installation docs ([27c1fc0](https://github.com/tekfoundry/ai-extensions/commit/27c1fc00a0b45f147ee9aa28b699eabfdeedc662))
+
 ## 0.2.1
 
 - Publish the KB workflow release with matching package metadata and GitHub
