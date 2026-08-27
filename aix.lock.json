@@ -707,6 +707,319 @@
           "sha256": "c252b159f4cb1d849d79e005815af3f04bb16edff61739a7334cd39c92146cb0"
         }
       ]
+    },
+    {
+      "kind": "skill",
+      "source": "aix",
+      "sourceType": "git",
+      "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
+      "requestedRef": "master",
+      "resolvedCommit": "14706a27aa3f609dfb233fe0092da6fb74af6c13",
+      "sourcePath": "discover-skill",
+      "packagePath": ".agents/packages/skills/aix/discover-skill",
+      "activationPath": ".agents/skills/discover-skill",
+      "originalName": "discover-skill",
+      "activeName": "discover-skill",
+      "requested": true,
+      "packageFiles": [
+        {
+          "path": "known-sources.json",
+          "sha256": "526e87ca945f5e7d91b4589bfd38d46ebe35b66a2c75b00d20ab14a58a1fee5c"
+        },
+        {
+          "path": "README.md",
+          "sha256": "dbcb43fdd8ba8c0e26fadc100fe5a7d4d109bf05783b6d08eb3968a6f94b8d49"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "942377aed594797204dc3a0a679419650f2af3bc5effc1023141e64ca4a11104"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "known-sources.json",
+          "sha256": "526e87ca945f5e7d91b4589bfd38d46ebe35b66a2c75b00d20ab14a58a1fee5c"
+        },
+        {
+          "path": "README.md",
+          "sha256": "dbcb43fdd8ba8c0e26fadc100fe5a7d4d109bf05783b6d08eb3968a6f94b8d49"
+        },
+        {
+          "path": "SKILL.md",
+          "sha256": "942377aed594797204dc3a0a679419650f2af3bc5effc1023141e64ca4a11104"
+        }
+      ]
+    },
+    {
+      "kind": "skill",
+      "source": "cursor-pstack",
+      "sourceType": "git",
+      "sourceUrl": "https://github.com/cursor/plugins.git",
+      "requestedRef": "main",
+      "resolvedCommit": "fdf357fae76feff7e5f2e5aaff57f99f644b55f8",
+      "sourcePath": "unslop",
+      "packagePath": ".agents/packages/skills/cursor-pstack/unslop",
+      "activationPath": ".agents/skills/unslop",
+      "originalName": "unslop",
+      "activeName": "unslop",
+      "requested": true,
+      "packageFiles": [
+        {
+          "path": "SKILL.md",
+          "sha256": "181883e539caec8258ec9129e3ba5f133409144a2cbf2aa361158ab94cfc3441"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "SKILL.md",
+          "sha256": "181883e539caec8258ec9129e3ba5f133409144a2cbf2aa361158ab94cfc3441"
+        }
+      ]
+    }
+  ],
+  "roles": [
+    {
+      "kind": "role",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "roles/project-dev/documentation-specialist.md",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/documentation-specialist.md",
+      "activationPath": ".agents/roles/documentation-specialist.md",
+      "originalName": "documentation-specialist",
+      "activeName": "documentation-specialist",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "documentation-specialist.md",
+          "sha256": "7d5dec9908903050362b58dc5dca37796e6bf4257d0123557a0cb2586139a471"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "documentation-specialist.md",
+          "sha256": "7d5dec9908903050362b58dc5dca37796e6bf4257d0123557a0cb2586139a471"
+        }
+      ]
+    },
+    {
+      "kind": "role",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "roles/project-dev/implementation-engineer.md",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/implementation-engineer.md",
+      "activationPath": ".agents/roles/implementation-engineer.md",
+      "originalName": "implementation-engineer",
+      "activeName": "implementation-engineer",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "implementation-engineer.md",
+          "sha256": "1bd2c0d775b94dba1ffdc0ea7d13abe0159035b851e41b10dad6b88031bbc2d2"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "implementation-engineer.md",
+          "sha256": "1bd2c0d775b94dba1ffdc0ea7d13abe0159035b851e41b10dad6b88031bbc2d2"
+        }
+      ]
+    },
+    {
+      "kind": "role",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "roles/project-dev/product-designer.md",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/product-designer.md",
+      "activationPath": ".agents/roles/product-designer.md",
+      "originalName": "product-designer",
+      "activeName": "product-designer",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "product-designer.md",
+          "sha256": "ff8477b48882c998dabe4ffe4414e24a87d76cd43302032d6167a6ff840fb64e"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "product-designer.md",
+          "sha256": "ff8477b48882c998dabe4ffe4414e24a87d76cd43302032d6167a6ff840fb64e"
+        }
+      ]
+    },
+    {
+      "kind": "role",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "roles/project-dev/product-strategist.md",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/product-strategist.md",
+      "activationPath": ".agents/roles/product-strategist.md",
+      "originalName": "product-strategist",
+      "activeName": "product-strategist",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "product-strategist.md",
+          "sha256": "b511131188e61b569778d628e96ce3a66228a36d605c8c681a0f4ddd55612bc0"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "product-strategist.md",
+          "sha256": "b511131188e61b569778d628e96ce3a66228a36d605c8c681a0f4ddd55612bc0"
+        }
+      ]
+    },
+    {
+      "kind": "role",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "roles/project-dev/quality-engineer.md",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/quality-engineer.md",
+      "activationPath": ".agents/roles/quality-engineer.md",
+      "originalName": "quality-engineer",
+      "activeName": "quality-engineer",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "quality-engineer.md",
+          "sha256": "1ff38ddc921e1c61bcf73fb345e4691581fde21e1c3a05e365f75c751508ee62"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "quality-engineer.md",
+          "sha256": "1ff38ddc921e1c61bcf73fb345e4691581fde21e1c3a05e365f75c751508ee62"
+        }
+      ]
+    },
+    {
+      "kind": "role",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "roles/project-dev/requirements-engineer.md",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/requirements-engineer.md",
+      "activationPath": ".agents/roles/requirements-engineer.md",
+      "originalName": "requirements-engineer",
+      "activeName": "requirements-engineer",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "requirements-engineer.md",
+          "sha256": "661ef92fa4279fa3eb9732dd4ec3c00eb8e4aeae6125f1b2f12642a7aa521d93"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "requirements-engineer.md",
+          "sha256": "661ef92fa4279fa3eb9732dd4ec3c00eb8e4aeae6125f1b2f12642a7aa521d93"
+        }
+      ]
+    },
+    {
+      "kind": "role",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "roles/project-dev/security-engineer.md",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/security-engineer.md",
+      "activationPath": ".agents/roles/security-engineer.md",
+      "originalName": "security-engineer",
+      "activeName": "security-engineer",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "security-engineer.md",
+          "sha256": "3ddc95b5dfebfabc268c376cc0a5c40e4651fa847855addb7bd1aa99bca25184"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "security-engineer.md",
+          "sha256": "3ddc95b5dfebfabc268c376cc0a5c40e4651fa847855addb7bd1aa99bca25184"
+        }
+      ]
+    },
+    {
+      "kind": "role",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "roles/project-dev/technical-architect.md",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/technical-architect.md",
+      "activationPath": ".agents/roles/technical-architect.md",
+      "originalName": "technical-architect",
+      "activeName": "technical-architect",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "technical-architect.md",
+          "sha256": "0cf62419eb903d146a7fe31231a47d9adc49214b3e7d50f7ca96b9d45777d25f"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "technical-architect.md",
+          "sha256": "0cf62419eb903d146a7fe31231a47d9adc49214b3e7d50f7ca96b9d45777d25f"
+        }
+      ]
+    },
+    {
+      "kind": "role",
+      "source": "aix",
+      "sourceType": "git",
+      "sourcePath": "roles/project-dev/ux-writer.md",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/ux-writer.md",
+      "activationPath": ".agents/roles/ux-writer.md",
+      "originalName": "ux-writer",
+      "activeName": "ux-writer",
+      "requested": false,
+      "owner": {
+        "kind": "workflow",
+        "name": "design-plan-execute"
+      },
+      "packageFiles": [
+        {
+          "path": "ux-writer.md",
+          "sha256": "d5fa3718d3e1915c08306db74f1f4244eebf5f7abd09802b8405ce7e0a942d49"
+        }
+      ],
+      "activeFiles": [
+        {
+          "path": "ux-writer.md",
+          "sha256": "d5fa3718d3e1915c08306db74f1f4244eebf5f7abd09802b8405ce7e0a942d49"
+        }
+      ]
     }
   ],
   "workflows": [
@@ -716,7 +1029,7 @@
       "sourceType": "git",
       "sourceUrl": "https://github.com/tekfoundry/ai-extensions.git",
       "requestedRef": "master",
-      "resolvedCommit": "a9a93dbb23c503a979f58a4b691a2689726692b1",
+      "resolvedCommit": "14706a27aa3f609dfb233fe0092da6fb74af6c13",
       "sourcePath": "aix/workflows/design-plan-execute",
       "packagePath": ".agents/packages/workflows/aix/design-plan-execute",
       "name": "design-plan-execute",
@@ -1286,251 +1599,6 @@
         {
           "path": "workflow.md",
           "sha256": "f1b766fdc7a777a4bc7415abad2be7e03c25dc071858eff7f894f3c43dd3d815"
-        }
-      ]
-    }
-  ],
-  "roles": [
-    {
-      "kind": "role",
-      "source": "aix",
-      "sourceType": "git",
-      "sourcePath": "roles/project-dev/documentation-specialist.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/documentation-specialist.md",
-      "activationPath": ".agents/roles/documentation-specialist.md",
-      "originalName": "documentation-specialist",
-      "activeName": "documentation-specialist",
-      "requested": false,
-      "owner": {
-        "kind": "workflow",
-        "name": "design-plan-execute"
-      },
-      "packageFiles": [
-        {
-          "path": "documentation-specialist.md",
-          "sha256": "7d5dec9908903050362b58dc5dca37796e6bf4257d0123557a0cb2586139a471"
-        }
-      ],
-      "activeFiles": [
-        {
-          "path": "documentation-specialist.md",
-          "sha256": "7d5dec9908903050362b58dc5dca37796e6bf4257d0123557a0cb2586139a471"
-        }
-      ]
-    },
-    {
-      "kind": "role",
-      "source": "aix",
-      "sourceType": "git",
-      "sourcePath": "roles/project-dev/implementation-engineer.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/implementation-engineer.md",
-      "activationPath": ".agents/roles/implementation-engineer.md",
-      "originalName": "implementation-engineer",
-      "activeName": "implementation-engineer",
-      "requested": false,
-      "owner": {
-        "kind": "workflow",
-        "name": "design-plan-execute"
-      },
-      "packageFiles": [
-        {
-          "path": "implementation-engineer.md",
-          "sha256": "1bd2c0d775b94dba1ffdc0ea7d13abe0159035b851e41b10dad6b88031bbc2d2"
-        }
-      ],
-      "activeFiles": [
-        {
-          "path": "implementation-engineer.md",
-          "sha256": "1bd2c0d775b94dba1ffdc0ea7d13abe0159035b851e41b10dad6b88031bbc2d2"
-        }
-      ]
-    },
-    {
-      "kind": "role",
-      "source": "aix",
-      "sourceType": "git",
-      "sourcePath": "roles/project-dev/product-designer.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/product-designer.md",
-      "activationPath": ".agents/roles/product-designer.md",
-      "originalName": "product-designer",
-      "activeName": "product-designer",
-      "requested": false,
-      "owner": {
-        "kind": "workflow",
-        "name": "design-plan-execute"
-      },
-      "packageFiles": [
-        {
-          "path": "product-designer.md",
-          "sha256": "ff8477b48882c998dabe4ffe4414e24a87d76cd43302032d6167a6ff840fb64e"
-        }
-      ],
-      "activeFiles": [
-        {
-          "path": "product-designer.md",
-          "sha256": "ff8477b48882c998dabe4ffe4414e24a87d76cd43302032d6167a6ff840fb64e"
-        }
-      ]
-    },
-    {
-      "kind": "role",
-      "source": "aix",
-      "sourceType": "git",
-      "sourcePath": "roles/project-dev/product-strategist.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/product-strategist.md",
-      "activationPath": ".agents/roles/product-strategist.md",
-      "originalName": "product-strategist",
-      "activeName": "product-strategist",
-      "requested": false,
-      "owner": {
-        "kind": "workflow",
-        "name": "design-plan-execute"
-      },
-      "packageFiles": [
-        {
-          "path": "product-strategist.md",
-          "sha256": "b511131188e61b569778d628e96ce3a66228a36d605c8c681a0f4ddd55612bc0"
-        }
-      ],
-      "activeFiles": [
-        {
-          "path": "product-strategist.md",
-          "sha256": "b511131188e61b569778d628e96ce3a66228a36d605c8c681a0f4ddd55612bc0"
-        }
-      ]
-    },
-    {
-      "kind": "role",
-      "source": "aix",
-      "sourceType": "git",
-      "sourcePath": "roles/project-dev/quality-engineer.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/quality-engineer.md",
-      "activationPath": ".agents/roles/quality-engineer.md",
-      "originalName": "quality-engineer",
-      "activeName": "quality-engineer",
-      "requested": false,
-      "owner": {
-        "kind": "workflow",
-        "name": "design-plan-execute"
-      },
-      "packageFiles": [
-        {
-          "path": "quality-engineer.md",
-          "sha256": "1ff38ddc921e1c61bcf73fb345e4691581fde21e1c3a05e365f75c751508ee62"
-        }
-      ],
-      "activeFiles": [
-        {
-          "path": "quality-engineer.md",
-          "sha256": "1ff38ddc921e1c61bcf73fb345e4691581fde21e1c3a05e365f75c751508ee62"
-        }
-      ]
-    },
-    {
-      "kind": "role",
-      "source": "aix",
-      "sourceType": "git",
-      "sourcePath": "roles/project-dev/requirements-engineer.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/requirements-engineer.md",
-      "activationPath": ".agents/roles/requirements-engineer.md",
-      "originalName": "requirements-engineer",
-      "activeName": "requirements-engineer",
-      "requested": false,
-      "owner": {
-        "kind": "workflow",
-        "name": "design-plan-execute"
-      },
-      "packageFiles": [
-        {
-          "path": "requirements-engineer.md",
-          "sha256": "661ef92fa4279fa3eb9732dd4ec3c00eb8e4aeae6125f1b2f12642a7aa521d93"
-        }
-      ],
-      "activeFiles": [
-        {
-          "path": "requirements-engineer.md",
-          "sha256": "661ef92fa4279fa3eb9732dd4ec3c00eb8e4aeae6125f1b2f12642a7aa521d93"
-        }
-      ]
-    },
-    {
-      "kind": "role",
-      "source": "aix",
-      "sourceType": "git",
-      "sourcePath": "roles/project-dev/security-engineer.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/security-engineer.md",
-      "activationPath": ".agents/roles/security-engineer.md",
-      "originalName": "security-engineer",
-      "activeName": "security-engineer",
-      "requested": false,
-      "owner": {
-        "kind": "workflow",
-        "name": "design-plan-execute"
-      },
-      "packageFiles": [
-        {
-          "path": "security-engineer.md",
-          "sha256": "3ddc95b5dfebfabc268c376cc0a5c40e4651fa847855addb7bd1aa99bca25184"
-        }
-      ],
-      "activeFiles": [
-        {
-          "path": "security-engineer.md",
-          "sha256": "3ddc95b5dfebfabc268c376cc0a5c40e4651fa847855addb7bd1aa99bca25184"
-        }
-      ]
-    },
-    {
-      "kind": "role",
-      "source": "aix",
-      "sourceType": "git",
-      "sourcePath": "roles/project-dev/technical-architect.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/technical-architect.md",
-      "activationPath": ".agents/roles/technical-architect.md",
-      "originalName": "technical-architect",
-      "activeName": "technical-architect",
-      "requested": false,
-      "owner": {
-        "kind": "workflow",
-        "name": "design-plan-execute"
-      },
-      "packageFiles": [
-        {
-          "path": "technical-architect.md",
-          "sha256": "0cf62419eb903d146a7fe31231a47d9adc49214b3e7d50f7ca96b9d45777d25f"
-        }
-      ],
-      "activeFiles": [
-        {
-          "path": "technical-architect.md",
-          "sha256": "0cf62419eb903d146a7fe31231a47d9adc49214b3e7d50f7ca96b9d45777d25f"
-        }
-      ]
-    },
-    {
-      "kind": "role",
-      "source": "aix",
-      "sourceType": "git",
-      "sourcePath": "roles/project-dev/ux-writer.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/ux-writer.md",
-      "activationPath": ".agents/roles/ux-writer.md",
-      "originalName": "ux-writer",
-      "activeName": "ux-writer",
-      "requested": false,
-      "owner": {
-        "kind": "workflow",
-        "name": "design-plan-execute"
-      },
-      "packageFiles": [
-        {
-          "path": "ux-writer.md",
-          "sha256": "d5fa3718d3e1915c08306db74f1f4244eebf5f7abd09802b8405ce7e0a942d49"
-        }
-      ],
-      "activeFiles": [
-        {
-          "path": "ux-writer.md",
-          "sha256": "d5fa3718d3e1915c08306db74f1f4244eebf5f7abd09802b8405ce7e0a942d49"
         }
       ]
     }
