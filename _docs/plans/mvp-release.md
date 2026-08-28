@@ -1252,7 +1252,7 @@ Completion evidence:
   `npm_config_cache=/private/tmp/aix-npm-cache npm test` with 92 passing tests,
   and `git diff --check`.
 
-### Phase 9: Repeatable versioning and publishing (status: accepted)
+### Phase 9: Repeatable versioning and publishing (status: active closeout)
 
 Goal: publish AI Extensions as a versioned package and make future releases
 repeatable.
@@ -1279,18 +1279,18 @@ Tasks:
 - ✅ Create or confirm the `tekfoundry` npm organization before first publish
       so `@tekfoundry/aix` is owned by the organization scope rather than a
       personal npm scope.
-- 🟨 Confirm the publishing npm account is a member of the `tekfoundry`
+- ✅ Confirm the publishing npm account is a member of the `tekfoundry`
       organization with permission to publish public packages under the
       `@tekfoundry` scope.
-- 🟨 Create the `@tekfoundry/aix` package record on npmjs.com through the first
+- ✅ Create the `@tekfoundry/aix` package record on npmjs.com through the first
       publish path, or confirm it already exists and is owned by the
       `tekfoundry` organization before wiring trusted publishing.
-- 🟨 Configure package access on npmjs.com as public and verify the package page
+- ✅ Configure package access on npmjs.com as public and verify the package page
       shows the expected package name, visibility, repository, README, and
       maintainers after publish.
 - ✅ Add an npm publish workflow for `@tekfoundry/aix` with provenance when
       supported.
-- ⬜️ Configure npm trusted publishing for the package from the selected GitHub
+- ✅ Configure npm trusted publishing for the package from the selected GitHub
       Actions workflow when npm supports it for the chosen trigger. Prefer
       trusted publishing over a long-lived publish token.
 - ✅ Document required npm token setup without committing credentials.
@@ -1306,12 +1306,12 @@ Tasks:
       explicit human action.
 - ✅ Prove the workflow can run a publish dry run or complete every step up to
       the final npm publish gate.
-- ⬜️ Publish the first MVP version once credentials and package ownership are
+- ✅ Publish the first MVP version once credentials and package ownership are
       confirmed.
-- ⬜️ Verify the package can be installed by another project and that the
+- ✅ Verify the package can be installed by another project and that the
       installed `aix` binary runs.
 - ✅ Record any deferred behavior that should become a later plan.
-- ⬜️ Review & Refactor
+- ✅ Review & Refactor
 
 Verification:
 
@@ -1387,6 +1387,17 @@ Completion evidence:
   first release proves out, adding post-publish npm install verification, and
   considering provenance or artifact attestation checks when the trusted
   publishing path exposes a stable verification command.
+- 2026-08-27: Reviewed the previously blocked npm publishing tasks after npm
+  account access was restored. `npm view @tekfoundry/aix@0.3.0 --json`
+  confirmed the public package record, latest dist tag, repository metadata,
+  maintainer, public tarball, and npm provenance attestation from GitHub
+  Actions. `npm run release:publish-dry-run`, `npm run release:verify`, and
+  `git diff --check` passed. A clean install of `@tekfoundry/aix@0.3.0` passed,
+  and the installed binary ran `aix --help` and `aix status` under Node 24.
+  The developer also verified the package can be installed by another project
+  and that the installed `aix` binary runs. The Phase 9 review and refactor
+  task is complete based on the review and refactor sessions completed since
+  this plan was drafted.
 
 ## Open Questions / Decisions
 
