@@ -57,9 +57,9 @@ After initialization or workflow installation, `aix` updates the project:
 
 1. `AGENTS.md` gets a managed block marked
    `aix:workflow design-plan-execute`.
-2. `.agents/` gets the workflow router, lifecycle rules, engineering guidance,
-   and workflow skills. These are reusable process files for agent-assisted
-   development.
+2. `.agents/` gets the workflow router, lifecycle rules, focused guidance
+   origins, role guidance, and workflow skills. These are reusable process
+   files for agent-assisted development.
 3. The workflow installs the reusable files listed in
    [Included Files](#included-files).
 4. `_docs/` gets the standard project documentation structure when directories
@@ -498,10 +498,10 @@ and completed states. Plan updates usually touch sections like
 </blockquote>
 </td>
 <td>
-The agent reads repository instructions, <code>.agents/engineering-best-practices.md</code>,
-relevant knowledge-base docs, and the current worktree. It inspects the requested code
-against the workflow's engineering guidance, reports findings first, then asks
-which findings you want to refactor.
+The agent reads repository instructions, focused role or activity guidance,
+relevant knowledge-base docs, and the current worktree. It inspects the
+requested code against the workflow's review guidance, reports findings first,
+then asks which findings you want to refactor.
 
 Small behavior-preserving fixes can proceed inline after confirmation. Larger
 or cross-cutting refactors are routed into a backlog plan with
@@ -630,7 +630,10 @@ Workflow package files:
 - `workflow.md`: reusable workflow lifecycle, work classification, planning,
   verification, and completion rules.
 - `engineering-best-practices.md`: reusable engineering guidance for
-  agent-assisted development.
+  agent-assisted development, retained during migration to focused guidance.
+- `guidance/README.md`, `guidance/shared.md`, and `guidance/activities/*.md`:
+  workflow-owned shared and activity guidance for planning, implementation,
+  verification, review, and documentation.
 - `templates/*.md`: default document templates for workflow artifacts.
 - `templates/sections/*.md`: reusable section templates used inside document
   templates and lifecycle records.
@@ -644,7 +647,11 @@ Installed workflow docs:
   typical structure, section depth, task markers, verification, risks, and
   promotion notes.
 - [Engineering best practices](engineering-best-practices.md): reusable
-  engineering guidance for agent-assisted development.
+  engineering guidance for agent-assisted development. This file remains
+  available until the developer verifies the focused guidance library preserves
+  what matters.
+- [Guidance](guidance/README.md): workflow-owned shared and activity guidance
+  used as package origins for `aix guidance` commands.
 - [Skills](skills/): reusable workflow skills for plan and task lifecycle work.
 
 Root integration:

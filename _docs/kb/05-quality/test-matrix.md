@@ -110,6 +110,35 @@ Targeted check:
 node --test tests/roles.test.mjs
 ```
 
+## Guidance
+
+Tests in `tests/guidance.test.mjs` cover workflow guidance discovery, metadata
+parsing, list/publish/diff/reset behavior, role guidance reset, no-overwrite
+guards, reset-all preview and confirmation, and preservation of unrelated
+files.
+
+Tests in `tests/skill-instructions.test.mjs` cover the optional
+`get-guidance` skill contract, including required caller context, bounded
+reading lists, unknown activity handling, conflict reporting, no file mutation,
+and legacy fallback behavior.
+
+Quality risks:
+
+- treating guidance metadata as automatic dependency or routing behavior
+- overwriting project-owned workflow guidance overrides
+- losing active role guidance edits during role or workflow updates
+- resetting more guidance than the user targeted
+- making `get-guidance` load broad or unrelated instruction context
+- accidentally wiring default request startup to guidance before the
+  project-manager design owns that decision
+
+Targeted checks:
+
+```bash
+node --test tests/guidance.test.mjs
+node --test tests/skill-instructions.test.mjs
+```
+
 ## Workflows And Init
 
 Tests in `tests/workflow.test.mjs` and `tests/init.test.mjs` cover default

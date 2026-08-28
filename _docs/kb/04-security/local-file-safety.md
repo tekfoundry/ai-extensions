@@ -21,6 +21,8 @@ Project-owned:
   _docs/
   AGENTS.md text outside workflow markers
   .agents/templates/ published overrides
+  .agents/guidance/ published workflow guidance overrides
+  .agents/roles/<name>/GUIDANCE.md active role guidance
   editable local ./aix/... source files
   unrelated files under .agents/
 ```
@@ -55,6 +57,10 @@ managed files no longer match the accepted lockfile state.
 - Workflow `AGENTS.md` install refuses modified managed blocks and unmanaged
   conflicting blocks.
 - Template publishing refuses to overwrite locally edited published templates.
+- Guidance publishing refuses to overwrite locally edited workflow guidance
+  overrides.
+- Role updates preserve edited active `GUIDANCE.md` files and expose upstream
+  changes through diff or reset behavior.
 
 ## Delete And Reset Guards
 
@@ -68,10 +74,19 @@ Destructive commands are scoped to lockfile-derived or workflow-derived paths:
   package files, and managed `AGENTS.md` block after drift checks pass.
 - `aix templates reset` removes only published overrides belonging to the
   active workflow template set.
+- `aix guidance reset <workflow-guidance>` removes only the selected published
+  workflow guidance override.
+- `aix guidance reset <role-guidance>` restores only the selected active role
+  `GUIDANCE.md` from its package origin.
+- `aix guidance reset --all` previews modified guidance grouped by kind and
+  origin, then requires confirmation before removing workflow overrides or
+  restoring role guidance.
 - source removal deletes source metadata and an empty package source directory
   only after manifest, lockfile, and package-directory dependency checks pass.
 
 Published template reset preserves unrelated files under `.agents/templates/`.
+Guidance reset preserves unrelated files under `.agents/guidance/` and
+unrelated role files.
 Workflow uninstall preserves project-owned `_docs` content and unrelated root
 `AGENTS.md` text.
 
@@ -108,8 +123,11 @@ Security-sensitive refusal behavior is covered by tests for:
 - dependency deactivation blockers
 - workflow-owned skill and role deactivation blockers
 - workflow package, doc, role, and template drift
+- workflow guidance and role guidance drift
 - template publish overwrite refusal
 - template reset preserving unrelated files
+- guidance publish overwrite refusal
+- guidance reset preserving unrelated files
 - source removal blocked by manifest, lockfile, or non-empty package dirs
 
 ## Known Residual Risk

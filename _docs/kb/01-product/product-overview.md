@@ -53,9 +53,31 @@ operating model for whatever agent host they use.
 - Install, diff, update, or uninstall the active workflow.
 - Add, list, activate, update, diff, and deactivate skills.
 - Add, list, activate, update, diff, and deactivate standalone roles.
+- List, publish, diff, and reset reusable guidance for active workflows and
+  roles.
 - Publish, diff, and reset editable workflow templates.
 - Use `discover-skill` to review installable skill candidates before running
   normal package-management commands.
+
+## Guidance Model
+
+Guidance is a first-class AIX asset for reusable best-practice judgment. It is
+separate from skills, roles, templates, workflows, and `_docs/kb` current-state
+knowledge.
+
+Role guidance travels with role bundles. Bundled AIX roles and workflow-owned
+roles include `GUIDANCE.md`; external standalone role bundles may omit it.
+Activity guidance travels with the workflow because workflows define the
+lifecycle activities that guidance describes. The default
+`design-plan-execute` workflow ships shared guidance plus planning,
+implementation, verification, review, and documentation activity guidance.
+
+Projects can inspect the active guidance set with `aix guidance list`, publish
+editable workflow guidance overrides with `aix guidance publish`, compare local
+customizations with `aix guidance diff`, and reset selected guidance with
+`aix guidance reset`. The `get-guidance` skill is available as an optional
+read-only resolver, but default request-entry routing is deferred to the
+project-manager plan.
 
 ## Strategic Boundaries
 
@@ -85,5 +107,7 @@ operating model for whatever agent host they use.
   without silently changing user-authored files.
 - Workflow-owned skills and roles are protected from direct standalone
   deactivation.
+- Role and workflow guidance can be inspected, customized, compared, and reset
+  without silently overwriting local edits.
 - Default workflow documentation routes current implemented knowledge to
   `_docs/kb`.

@@ -8,6 +8,8 @@ Workflow-owned skill requirements live with their workflow requirements under
 
 - [Discover skill](discover-skill.md): requirements for the standalone bundled
   `discover-skill` activated by default during `aix init`.
+- [Get guidance](get-guidance.md): requirements for the optional standalone
+  bundled `get-guidance` resolver skill.
 
 Use this area for skill-level requirements: trigger behavior, required inputs,
 outputs, safety boundaries, artifact ownership, stop conditions, and acceptance
@@ -18,8 +20,8 @@ Keep core packaging, activation, lockfile, and drift requirements in
 ## Standalone Bundled Skill Boundaries
 
 Standalone bundled skills should stay project-agnostic. The current bundled
-standalone skill set contains `discover-skill`; workflow lifecycle skills live
-under their owning workflow, not under `aix/skills`.
+standalone skill set contains `discover-skill` and `get-guidance`; workflow
+lifecycle skills live under their owning workflow, not under `aix/skills`.
 
 Skills that depend on a specific application's build scripts, release flow,
 runtime stack, deployment target, or operational policy are intentionally not

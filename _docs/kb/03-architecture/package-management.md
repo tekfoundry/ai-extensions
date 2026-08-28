@@ -31,9 +31,11 @@ copying package files, exposing active files, and hashing the result.
   activation uses a symlink to the package when no alias is needed. Aliased
   activation creates a managed wrapper copy with rewritten `name` front matter.
 - Role packages are directory bundles with a `ROLE.md` entrypoint copied under
-  `.agents/packages/roles/<source>/<source-path>`.
+  `.agents/packages/roles/<source>/<source-path>`. Bundled AIX roles include
+  `GUIDANCE.md`; external standalone role bundles may omit it.
 - Active roles are directory bundles exposed under
-  `.agents/roles/<active-name>/ROLE.md`.
+  `.agents/roles/<active-name>/ROLE.md`, with editable active role guidance at
+  `.agents/roles/<active-name>/GUIDANCE.md` when the role provides guidance.
 - Workflow packages are directory trees copied under
   `.agents/packages/workflows/<source>/<workflow-name>/`.
 - Workflow docs are installed into `.agents/`.
@@ -41,6 +43,8 @@ copying package files, exposing active files, and hashing the result.
   metadata.
 - Workflow templates remain in the workflow package unless the project
   publishes overrides under `.agents/templates/`.
+- Workflow shared and activity guidance remain in the workflow package unless
+  the project publishes overrides under `.agents/guidance/`.
 
 ## Skill Activation Flow
 
@@ -148,10 +152,13 @@ The lockfile records:
 - owner metadata for workflow-owned or role-owned assets
 - dependency edges for inferred skill dependencies
 - package and active file hashes
-- workflow docs, templates, package files, active skills, and active roles
+- workflow docs, templates, guidance, package files, active skills, and active
+  roles
 
 Workflow template hashes are stored both in the workflow package file list and
 in the workflow `templates` list so template drift can be reported directly.
+Workflow guidance hashes are stored with workflow lockfile state so status and
+verification can report missing or drifted guidance origins.
 
 ## Drift And No-Overwrite Rules
 
@@ -167,7 +174,9 @@ Drift checks apply to:
 - workflow docs
 - managed `AGENTS.md` blocks
 - workflow templates
+- workflow guidance origins
 - published template publishing and reset
+- guidance publishing and reset
 
 `copyFilesSafely` refuses to overwrite a target file when the existing bytes do
 not equal the source bytes. Hash comparison then records accepted state after

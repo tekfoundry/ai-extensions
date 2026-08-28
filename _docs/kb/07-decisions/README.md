@@ -8,9 +8,13 @@ discipline. The documentation specialist owns cross-links and placement.
 
 ## Documents
 
-No standalone decision records are currently required. Add new records here
-when a decision needs to explain an accepted current tradeoff across product,
-requirements, architecture, security, quality, or operations.
+- [Guidance ownership model](guidance-ownership-model.md): guidance is a
+  first-class asset with role-owned guidance, workflow-owned activity guidance,
+  project-owned overrides, and deferred default routing.
+
+Add new records here when a decision needs to explain an accepted current
+tradeoff across product, requirements, architecture, security, quality, or
+operations.
 
 Use this area for:
 

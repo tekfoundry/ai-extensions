@@ -32,8 +32,8 @@ Bundled workflow and skill requirements are organized separately:
 - AIX must expose the executable command `aix`.
 - AIX must support top-level workspace commands for `init`, `status`,
   `verify`, and `update`.
-- AIX must support object-verb command groups for workflow, templates, skills,
-  skill activation, roles, and role activation work.
+- AIX must support object-verb command groups for workflow, templates,
+  guidance, skills, skill activation, roles, and role activation work.
 - AIX must reject old verb-first command forms instead of maintaining them as
   compatibility aliases.
 - AIX must store user intent in `aix.json` and exact resolved state in
@@ -184,11 +184,14 @@ Bundled workflow and skill requirements are organized separately:
   excludes installed roles.
 
 - As a role consumer, I can run `aix role activate <source/path> [alias]` so
-  that one role Markdown file is materialized under `.agents/packages/roles/`,
-  exposed under `.agents/roles/`, and recorded in manifest and lockfile.
-  Acceptance signals: the role file must have valid front matter, a valid role
-  name, a description, and filename/name agreement; aliases change only the
-  active role name, not the package role name.
+  that one role bundle is materialized under `.agents/packages/roles/`,
+  exposed under `.agents/roles/<active-name>/`, and recorded in manifest and
+  lockfile.
+  Acceptance signals: the role bundle must contain `ROLE.md` with valid front
+  matter, a valid role name, a description, and bundle/name agreement; bundled
+  AIX roles must include `GUIDANCE.md`; external standalone roles may omit
+  `GUIDANCE.md`; aliases change only the active role name, not the package role
+  name.
 
 - As a role consumer, I can run `aix role deactivate <active-name>` so that a
   user-owned active role and package copy are removed when safe.
@@ -208,6 +211,13 @@ Bundled workflow and skill requirements are organized separately:
   that the agent runtime can treat it as a hint.
   Acceptance signals: AIX validates metadata shape but does not automatically
   install skills from role metadata.
+
+- As a role author, I can include optional `uses_guidance` metadata in
+  `GUIDANCE.md` so that guidance readers can see which workflow activities the
+  role normally uses.
+  Acceptance signals: AIX parses the metadata as advisory routing information;
+  it does not install skills, mutate files, or make hidden runtime decisions
+  from the metadata.
 
 ### Workflow Maintainer
 
@@ -234,6 +244,24 @@ Bundled workflow and skill requirements are organized separately:
   overrides while preserving unrelated files and cleaning empty template
   directories when appropriate.
 
+- As a workflow maintainer, I can ship workflow shared and activity guidance so
+  that reusable work-type judgment travels with the workflow package.
+  Acceptance signals: the active workflow package contains `guidance/README.md`,
+  `guidance/shared.md`, and workflow activity guidance; install and update
+  hash-check guidance origins without materializing project-owned overrides
+  under `.agents/guidance/`.
+
+- As a workflow maintainer or project developer, I can run `aix guidance list`,
+  `aix guidance publish`, `aix guidance diff [guidance-name]`, and
+  `aix guidance reset <guidance-name|--all>` so that active workflow and role
+  guidance can be inspected, customized, compared, and restored.
+  Acceptance signals: guidance names are command-ready paths such as `shared`,
+  `activities/verification`, and `roles/quality-engineer`; publish refuses
+  targeted arguments and refuses to overwrite edited workflow guidance
+  overrides; role guidance publish is reported as already editable; targeted
+  reset affects only the selected guidance; reset-all previews modified
+  guidance and requires explicit confirmation.
+
 ### Agent Runtime
 
 - As an agent runtime, I can read active skills from `.agents/skills/` so that
@@ -243,14 +271,26 @@ Bundled workflow and skill requirements are organized separately:
 
 - As an agent runtime, I can read active roles from `.agents/roles/` so that
   delegated perspectives are exposed through stable project-local files.
-  Acceptance signals: active role files preserve runtime front matter and body
-  content while AIX tracks package and active hashes separately.
+  Acceptance signals: active role bundles expose `ROLE.md` and optional
+  `GUIDANCE.md`; AIX tracks role contract hashes while preserving
+  project-editable role guidance.
 
-- As an agent runtime, I can follow installed workflow guidance in `.agents/`
-  and project-owned current knowledge in `_docs/kb/` so that reusable workflow
-  instructions and project facts are not conflated.
-  Acceptance signals: workflow installation scaffolds `_docs/kb` when missing,
-  and does not rewrite project-owned docs during routine workflow updates.
+- As an agent runtime, I can follow installed workflow instructions,
+  workflow-owned activity guidance, active role guidance, and project-owned
+  current knowledge without conflating their ownership.
+  Acceptance signals: workflow package guidance is read from
+  `.agents/packages/workflows/.../guidance/` until a project publishes
+  overrides under `.agents/guidance/`; workflow installation scaffolds
+  `_docs/kb` when missing and does not rewrite project-owned docs during
+  routine workflow updates.
+
+- As an agent runtime, I can use the optional `get-guidance` skill to resolve a
+  bounded reading list for a requesting role, requesting skill, activity, and
+  task context.
+  Acceptance signals: `get-guidance` is read-only, requires all caller context
+  fields, reports missing or conflicting guidance, uses metadata as advisory
+  hints, and does not participate in default routing until a later
+  project-manager design adopts it.
 
 ### Reviewer
 
@@ -309,7 +349,8 @@ Bundled workflow and skill requirements are organized separately:
 - Lockfile workflow entries must record source, source type, optional source
   URL, requested ref, resolved commit, source path, package path, workflow name,
   title when present, docs, managed `AGENTS.md` block, workflow-owned skills,
-  workflow-owned roles, template hashes, and package hashes.
+  workflow-owned roles, template hashes, workflow guidance hashes, and package
+  hashes.
 
 ## Safety Requirements
 
@@ -330,11 +371,20 @@ Bundled workflow and skill requirements are organized separately:
   remote default `aix` sources when the matching local source path exists.
 - Workflow install and update must stage and validate a workflow package before
   replacing the final package.
+- Guidance publish and reset commands must preserve unrelated files and refuse
+  unsafe overwrites. `aix guidance reset --all` must preview the affected
+  guidance before changing files.
+- `get-guidance` must remain read-only and lower priority than user requests,
+  repository instructions, workflow lifecycle rules, skill procedures, role
+  contracts, and safety boundaries.
 
 ## Non-Goals In The Current System
 
 - No registry-backed package format.
 - No automatic installation from role `skills` metadata.
+- No automatic installation, activation, or routing from guidance metadata.
+- No default request-entry routing through `get-guidance` in the current
+  system.
 - No automatic activation of every configured default external skill source.
 - No host-native agent directory export unless a future explicit integration
   owns it.

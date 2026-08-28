@@ -112,10 +112,13 @@ aix.lock.json
   agent-facing active skill directories
 
 .agents/roles/
-  agent-facing active role Markdown files
+  agent-facing active role bundles
 
 .agents/templates/
   project-owned workflow template overrides
+
+.agents/guidance/
+  project-owned workflow guidance overrides
 
 _docs/
   project-owned documentation and plan state

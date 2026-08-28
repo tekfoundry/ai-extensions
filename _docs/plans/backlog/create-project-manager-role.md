@@ -36,10 +36,17 @@ Reviewed context:
 - Thread discussion on 2026-08-28 about deferring workflow guidance routing out
   of `_docs/plans/workflow-guidance-library.md` while keeping the optional
   `get-guidance` skill.
+- `_docs/plans/workflow-guidance-library.md` built the root AIX
+  `get-guidance` skill as a read-only guidance resolver and deferred default
+  request-entry routing to this plan.
 - Thread discussion on 2026-08-28 about replacing `requesting_role` and
   `requesting_skill` bootstrap variables with an ordered, minimal role list and
   activity list. The project-manager role should resolve guidance for each role
   and delegate in sequence.
+- Bounded sidecar review on 2026-08-28 from `technical-architect`,
+  `security-engineer`, `quality-engineer`, and `documentation-specialist` for
+  phase sequencing, append safety, verification gates, and documentation
+  promotion scope.
 - Current implemented append behavior is workflow-owned through each
   workflow's `AGENTS.append.md`; AIX does not yet have a global
   `AGENTS.append.md` source for instructions that should apply across
@@ -64,7 +71,7 @@ This matters because the desired operating model is role-centered:
 The entry process should help agents start quickly without loading every role,
 skill, or guidance file.
 
-## Design Intent (status: draft)
+## Design Intent (status: accepted)
 
 Add a top-level `project-manager` role with a focused `ROLE.md` contract and a
 `GUIDANCE.md` document that defines request routing behavior.
@@ -154,22 +161,33 @@ The role should distinguish between role execution and role review:
   advice without taking over the work.
 
 For very small requests, the project-manager role may answer directly when no
-specialist role, workflow state, file inspection, or delegation is needed.
+specialist role, workflow state, file inspection, or delegation is needed. If
+the request does not belong to the project-manager role's managed team and
+cannot be delegated to a suitable role, the project-manager should return a
+status summary to the calling context instead of completing the work itself.
+The calling context remains responsible for handling work outside the
+project-manager role's team.
 
-The `AGENTS.md` integration should stay small. The likely future shape is a
-short instruction such as: start each request through the active
-`project-manager` role, which resolves the smallest useful context and
-delegation path before work begins.
+The `AGENTS.md` integration should stay small and activation-owned. Skills,
+roles, and workflows should be able to include an optional `AGENTS.append.md`
+file whose content is injected into the project `AGENTS.md` file when that
+extension is activated. The project-manager entry instruction should appear
+only when the project-manager role is active, through that role's append
+content or an equivalent workflow-owned append that activates the role.
 
-This plan should own any global AIX `AGENTS.append.md` behavior needed to make
-the entry role reliable across workflows. A global append source would be for
-AIX-level request-entry instructions, such as how to find the active
-`project-manager` role, when to answer directly, and how to preserve workflow
-lifecycle gates. It should not replace workflow-owned `AGENTS.append.md`
-content. If both global AIX append content and workflow append content are
-installed, the plan must define ordering, marker ownership, update behavior,
-uninstall behavior, drift checks, and instruction precedence before
-implementation.
+This plan should own any activation-owned append behavior needed to make the
+entry role reliable across workflows. Append content may come from skills,
+roles, or workflows. The plan must define ordering, marker ownership, update
+behavior, uninstall behavior, drift checks, and instruction precedence before
+implementation. Append content should not blur ownership between skills,
+roles, and workflows, and it must not let one extension silently overwrite
+another extension's managed instructions.
+
+The append mechanism is part of this plan's design scope, not a separate
+follow-up. When implementation phases are drafted, they must include the
+storage, activation, update, deactivation, uninstall, verification, and
+documentation work needed for optional `AGENTS.append.md` files on supported
+extension types.
 
 The project-manager role guidance should not depend on
 `.agents/engineering-best-practices.md`. Any reusable guardrails needed for
@@ -185,8 +203,8 @@ guidance.
 - Do not use the project-manager role to bypass active-plan, backlog,
   verification, security, or documentation lifecycle gates.
 - Do not make skills the primary worker identity when a suitable role exists.
-- Do not let global AIX append behavior overwrite, blur, or replace
-  workflow-owned append instructions.
+- Do not let activation-owned append behavior overwrite, blur, or replace
+  instructions owned by another skill, role, or workflow.
 
 ## Boundaries And Invariants
 
@@ -206,30 +224,269 @@ guidance.
 - The parent context remains responsible for final user-facing reporting and
   for preserving worktree safety.
 - Backlog work remains unimplemented until explicitly activated.
-- Global AIX append content, if added, must be marker-delimited,
-  package-managed, drift-checked, and clearly ordered relative to
-  workflow-owned append content.
+- Activation-owned append content, if added, must be marker-delimited,
+  package-managed, drift-checked, and clearly ordered across skills, roles, and
+  workflows.
+- Activating, updating, deactivating, or uninstalling an extension must manage
+  only that extension's append block and must refuse silent overwrite when a
+  managed block has local edits.
 - Workflow-owned `AGENTS.append.md` remains the workflow's place for
-  workflow-specific lifecycle instructions.
+  workflow-specific lifecycle instructions. Role-owned append content remains
+  the role's place for role activation instructions.
 
 ## Implementation Phases
 
-Not drafted until Design Intent is accepted.
+### Phase 1: Define Extension Append Contract (status: draft)
+
+Goal: replace the workflow-only `AGENTS.md` append implementation with a shared
+extension-owned append contract before wiring new lifecycle behavior.
+
+Tasks:
+
+- ⬜️ Inspect current workflow append behavior in `src/workflows/agents-md.ts`,
+      workflow install/update/remove paths, lockfile schema, and existing
+      workflow append tests.
+- ⬜️ Define a shared append block model for skills, roles, and workflows,
+      including owner kind, owner name, source, source path, marker, target
+      path, source hash, rendered block hash, and installed block hash.
+- ⬜️ Define deterministic composition order for managed blocks. Workflow blocks
+      should frame role blocks, and role blocks should frame skill blocks,
+      with stable ordering inside each extension type.
+- ⬜️ Define marker collision behavior. Duplicate managed markers, orphan
+      markers, nested managed blocks, malformed managed blocks, and unknown
+      owner blocks should fail closed instead of being rewritten silently.
+- ⬜️ Extract or replace workflow-specific append helpers with shared helpers
+      that can render, find, insert, replace, remove, and verify owned blocks
+      without changing unrelated `AGENTS.md` content.
+- ⬜️ Add focused tests for shared append rendering, deterministic ordering,
+      marker collision refusal, malformed marker refusal, drift refusal,
+      missing optional append files, and byte-preserving removal.
+- ⬜️ Run targeted append/workflow tests and record verification evidence.
+
+Success criteria:
+
+- AIX has one shared append contract that can represent skill, role, and
+  workflow append blocks.
+- Existing workflow append behavior still passes through the shared contract.
+- Unsafe marker states and local edits fail closed.
+
+### Phase 2: Wire Append Lifecycle Into Extensions (status: draft)
+
+Goal: make activation, update, deactivation, uninstall, verification, and
+status behavior manage optional `AGENTS.append.md` files for all supported
+extension types.
+
+Tasks:
+
+- ⬜️ Extend package discovery, parsing, and lockfile handling so skills, roles,
+      and workflows may declare or carry optional `AGENTS.append.md` content.
+- ⬜️ Wire role activation and update to install or replace only the owned role
+      append block when no drift exists.
+- ⬜️ Wire role deactivation and removal to remove only the owned role append
+      block and preserve surrounding user content byte-for-byte.
+- ⬜️ Wire skill activation and update to install or replace only the owned
+      skill append block when no drift exists.
+- ⬜️ Wire skill deactivation and removal to remove only the owned skill append
+      block and preserve surrounding user content byte-for-byte.
+- ⬜️ Keep workflow install, update, and uninstall behavior compatible while
+      moving it onto the shared append lifecycle.
+- ⬜️ Update `aix verify` and `aix status` behavior so missing, changed,
+      malformed, duplicate, or conflicting managed append blocks are reported
+      clearly.
+- ⬜️ Add integration tests that activate a workflow, role, and skill with
+      append content into one `AGENTS.md`, then update and remove each owner
+      independently.
+- ⬜️ Run targeted lifecycle tests for skills, roles, workflows, status, and
+      verify; record verification evidence.
+
+Success criteria:
+
+- Skills, roles, and workflows all support optional activation-owned
+  `AGENTS.append.md` content.
+- Each lifecycle command manages only its own extension's managed block.
+- Existing workflow append tests continue to pass.
+
+### Phase 3: Add Bundled Project-Manager Role (status: draft)
+
+Goal: ship a top-level default `project-manager` role with activation-owned
+entry instructions and focused routing guidance.
+
+Tasks:
+
+- ⬜️ Add bundled role assets under the top-level AIX role source, including
+      `ROLE.md`, `GUIDANCE.md`, and `AGENTS.append.md`.
+- ⬜️ Write `ROLE.md` so `project-manager` owns request triage, ordered minimal
+      role selection, sequencing, scope control, delegation choice, result
+      aggregation, and handback when work does not belong to its managed team.
+- ⬜️ Write `GUIDANCE.md` so startup classification produces `roles`,
+      `activities`, `task_context`, and `sequencing_notes`.
+- ⬜️ Document that each delegated role receives the original prompt for intent
+      and traceability, while `bounded_task`, supplied guidance, lifecycle
+      rules, and repository instructions govern scope.
+- ⬜️ Document the controlled delegation payload:
+      `original_prompt`, `role_assignment`, `bounded_task`, `activities`,
+      `guidance`, `sequencing_notes`, and `return_requirements`.
+- ⬜️ Document per-role `get-guidance` use. For each selected role,
+      `project-manager` calls the existing root AIX `get-guidance` skill with
+      that role and the shared activity list, then passes only that role's
+      tailored guidance into the delegation payload.
+- ⬜️ Document direct-answer limits and the handback rule for work that cannot
+      be delegated to a suitable managed role.
+- ⬜️ Add tests that confirm bundled project-manager role assets are discoverable
+      and activation injects/removes only the project-manager append block.
+- ⬜️ Run targeted role activation and package tests; record verification
+      evidence.
+
+Success criteria:
+
+- The default top-level `project-manager` role can be activated like other AIX
+  roles.
+- `AGENTS.md` points to `project-manager` only when the role is active.
+- The project-manager role remains a manager and does not become a broad
+  executor.
+
+### Phase 4: Support Workflow Overrides And Routing Examples (status: draft)
+
+Goal: define how workflow-owned project-manager roles compose with the
+top-level default and provide reviewable examples for routing behavior.
+
+Tasks:
+
+- ⬜️ Define workflow override behavior for `project-manager`, including how an
+      active workflow-provided role may replace or coexist with the top-level
+      default without bypassing lifecycle gates.
+- ⬜️ Add tests or fixtures proving workflow overrides preserve the ordered
+      minimal role-list model and do not install unconditional root
+      `AGENTS.md` routing.
+- ⬜️ Add routing examples for a small informational request, implementation
+      request, documentation request, security-sensitive request, mixed
+      architecture plus implementation request, and out-of-team request.
+- ⬜️ Verify examples show per-role guidance tailoring, no broad role fan-out,
+      dependency-preserving role order, controlled delegation payloads, and
+      handback behavior.
+- ⬜️ Review existing `get-guidance` terminology for `requesting_role` and
+      `requesting_skill`; update examples or add compatibility notes if the
+      project-manager caller model needs different vocabulary.
+- ⬜️ Run targeted role, guidance, and workflow override tests; record
+      verification evidence.
+
+Success criteria:
+
+- Workflow overrides are explicit, tested, and do not weaken the default role's
+  safety or lifecycle rules.
+- Example prompts make the routing contract testable by human review even
+  where behavior is instruction-level rather than code-level.
+
+### Phase 5: Promote Documentation And Product Knowledge (status: draft)
+
+Goal: update current-state docs only after implementation evidence exists, so
+the knowledge base does not claim request-entry behavior early.
+
+Tasks:
+
+- ⬜️ Update product docs to describe activation-owned project-manager entry
+      routing after the role can be activated.
+- ⬜️ Update requirements docs for startup classification, ordered minimal role
+      lists, per-role guidance tailoring, controlled delegation payloads,
+      direct-answer limits, and handback behavior.
+- ⬜️ Update architecture docs for skill, role, and workflow package shapes;
+      managed `AGENTS.md` composition; append lifecycle; top-level default
+      roles; workflow overrides; and role-first request routing.
+- ⬜️ Update security docs for instruction-trust boundaries, append precedence,
+      marker ownership, local-edit refusal, malformed block refusal, and
+      lifecycle operations that only touch owned blocks.
+- ⬜️ Update quality docs and test matrix for append lifecycle, no silent
+      overwrite, no broad role fan-out, per-role `get-guidance`, delegation
+      payloads, and direct-answer/handback behavior.
+- ⬜️ Update operations docs and release notes for install, activation, update,
+      deactivation, uninstall, verification, and status behavior.
+- ⬜️ Add or update a decision record covering role-first request routing,
+      top-level default plus workflow override, active-only `AGENTS.md`
+      pointer, cross-extension `AGENTS.append.md`, per-role `get-guidance`, and
+      project-manager handback behavior.
+- ⬜️ Update glossary and documentation indexes for project manager, entry role,
+      startup classification, ordered role list, activity list,
+      activation-owned append content, managed append block, role execution,
+      and role review.
+- ⬜️ Run documentation link/format checks available in the repo and
+      `git diff --check`; record verification evidence.
+
+Success criteria:
+
+- Current-state docs match implemented behavior and do not describe planned
+  behavior as shipped before the relevant phase is complete.
+- Security, quality, and operations docs cover the new instruction-sensitive
+  append behavior.
+
+### Phase 6: Final Verification, Review, And Closeout (status: draft)
+
+Goal: prove the whole plan works end to end and complete the lifecycle gates
+before archive.
+
+Tasks:
+
+- ⬜️ Run targeted tests for append helpers, skill lifecycle, role lifecycle,
+      workflow lifecycle, guidance integration, status, and verify.
+- ⬜️ Run `npm run build` and `npm test`; record exact outcomes.
+- ⬜️ Manually inspect generated `AGENTS.md` content with workflow, role, and
+      skill append blocks active together.
+- ⬜️ Manually review project-manager `ROLE.md`, `GUIDANCE.md`, append content,
+      and routing examples for clear role boundaries and no hidden broad
+      delegation.
+- ⬜️ Complete Security Review after implementation, convert blocking findings
+      into normal plan tasks, and record residual risk.
+- ⬜️ Run `$code-review-refactor`; refactor or record follow-up work for
+      maintainability issues.
+- ⬜️ Run `$review-and-refresh-docs`; fix documentation drift or record
+      follow-up work.
+- ⬜️ Confirm every success criterion, task, documentation impact item, and
+      accepted decision has been implemented, verified, or explicitly deferred.
+- ⬜️ Complete the final checklist and archive the plan only after human
+      validation accepts the completed work or explicitly waives it.
+
+Success criteria:
+
+- Repository verification passes or any skipped/failed checks have explicit
+  recorded rationale and residual risk.
+- Human validation accepts the completed phased work before archive.
+
+## Accepted Decisions
+
+- `project-manager` should be available both as a top-level AIX role and as a
+  workflow override point. AIX should ship a default top-level
+  `project-manager` role so request entry is reliable across projects.
+  Workflows may provide a more specific project-manager role when they need
+  different routing behavior, but workflow overrides must preserve lifecycle
+  gates and the ordered, minimal role-list model.
+- `AGENTS.md` should point to `project-manager` only when the project-manager
+  role is active. This should be handled through activation-owned append
+  content, not an unconditional root `AGENTS.md` instruction.
+- Skills, roles, and workflows should all support optional
+  `AGENTS.append.md` content. AIX should compose those blocks as managed,
+  marker-delimited content in the project `AGENTS.md` file. Each block must
+  remain owned by its source extension, and activation, update, deactivation,
+  or uninstall operations must only manage that extension's block. Composition
+  order, marker ownership, drift checks, local-edit refusal, and instruction
+  precedence must be defined before implementation.
+- `get-guidance` should remain a separate root AIX skill. The
+  `_docs/plans/workflow-guidance-library.md` plan already built it as a
+  read-only guidance resolver. This plan should use that skill from
+  `project-manager` rather than duplicating guidance resolution inside
+  `project-manager/GUIDANCE.md`.
+- `project-manager` should resolve guidance separately for each selected role.
+  For each role in the ordered role list, it should call `get-guidance` with
+  that role and the shared activity list, then pass only that role's tailored
+  guidance set into the delegation payload.
+- `project-manager` may answer directly only when the request is small,
+  informational or conversational, needs no file inspection or edits, touches
+  no workflow lifecycle state, and requires no specialist judgment. If the
+  request cannot be delegated to a suitable managed role, `project-manager`
+  should return status and hand the work back to the calling context rather
+  than completing out-of-team work itself.
 
 ## Open Questions / Decisions
 
-- Should `project-manager` be bundled as a top-level AIX role, a
-  workflow-owned role, or both?
-- Should `AGENTS.md` always point to `project-manager`, or should the workflow
-  append point to it only when the role is active?
-- Should AIX add a global `AGENTS.append.md` source for cross-workflow
-  request-entry behavior, and how should it compose with workflow-owned
-  `AGENTS.append.md` blocks?
-- Should `get-guidance` be a separate skill, or should the first version use a
-  guidance-resolution section inside `project-manager/GUIDANCE.md`?
-- Should `get-guidance` return separate guidance sets per role, or a shared
-  guidance set annotated by role relevance?
-- When can `project-manager` answer directly instead of delegating?
+Resolved.
 
 ## Documentation Impact
 
@@ -237,15 +494,16 @@ Not drafted until Design Intent is accepted.
   way requests enter AIX-assisted work.
 - Requirements: Document the entry routing expectations and acceptance signals.
 - Architecture: Update workflow lifecycle and roles architecture docs for the
-  project-manager entry role, role-first execution model, and any global
-  AIX append behavior.
+  project-manager entry role, role-first execution model, and any
+  activation-owned append behavior.
 - Security: Review delegation, local file safety, authorization, and
-  instruction-trust implications, including global append precedence and
+  instruction-trust implications, including append precedence and
   overwrite protection.
 - Quality: Add verification expectations for routing, minimal context,
   delegation behavior, no broad role fan-out, and managed append composition.
 - Operations: Update install, workflow update, and release notes if bundled
-  role defaults, global append behavior, or managed `AGENTS.md` text change.
+  role defaults, activation-owned append behavior, or managed `AGENTS.md` text
+  change.
 - Decisions: Consider a decision record for adopting role-first request
   routing.
 - Glossary: Add or update terms for project manager, entry role, startup
@@ -254,9 +512,10 @@ Not drafted until Design Intent is accepted.
 
 ## Product Readiness
 
-- Readiness: Planning draft.
-- Evidence needed: Developer review and acceptance of Design Intent before
-  phases and tasks are generated.
+- Readiness: Design Intent accepted on 2026-08-28. Open questions are
+  resolved, and implementation phases are drafted for developer review.
+- Evidence needed: Developer review and acceptance of Implementation Phases
+  before backlog activation.
 
 ## Risks
 
@@ -268,9 +527,8 @@ Not drafted until Design Intent is accepted.
   the direct-answer path is too strict.
 - Changing `AGENTS.md` entry behavior could affect all future agent work and
   needs careful review.
-- A global AIX append source could conflict with workflow-owned
-  `AGENTS.append.md` behavior unless ownership, ordering, and uninstall rules
-  are explicit.
+- Activation-owned append content from skills, roles, and workflows could
+  conflict unless ownership, ordering, and uninstall rules are explicit.
 - Role-first execution may require updates to existing lifecycle skills so they
   are clearly procedures used by roles rather than standalone worker identities.
 - A separate `get-guidance` skill could become another large context source if
@@ -278,18 +536,26 @@ Not drafted until Design Intent is accepted.
 
 ## Security Review
 
-- Status: Planning draft.
-- Scope reviewed: Initial discussion only.
+- Status: Planning draft with security-sensitive phase tasks identified.
+- Scope reviewed: Initial discussion, accepted design decisions, and bounded
+  `security-engineer` sidecar review on 2026-08-28.
 - Findings: The role would shape agent routing and delegation behavior, so it
-  is instruction-sensitive. Any global AIX append behavior would also affect
-  future agent startup instructions. The implementation must preserve lifecycle
-  authorization, avoid broad hidden delegation, keep file-operation and
-  trust-boundary checks explicit, avoid loading unrelated guidance that could
-  alter task behavior, and prevent global append text from silently
-  overwriting or outranking workflow-owned instructions.
-- Blocking findings converted to plan tasks: Not drafted yet.
-- Residual risk: Security review is required after Design Intent acceptance and
-  before implementation phases are approved.
+  is instruction-sensitive. Activation-owned append content from skills, roles,
+  and workflows would also affect future agent startup instructions. The
+  implementation must preserve lifecycle authorization, avoid broad hidden
+  delegation, keep file-operation and trust-boundary checks explicit, avoid
+  loading unrelated guidance that could alter task behavior, and prevent append
+  text from silently overwriting or outranking instructions owned by another
+  skill, role, or workflow.
+- Blocking findings converted to plan tasks: Phase 1 and Phase 2 include append
+  ownership, marker collision refusal, malformed marker refusal, drift checks,
+  local-edit refusal, owned-block-only lifecycle behavior, and verification.
+  Phase 3 and Phase 4 include delegation-safety and routing-safety tasks.
+- Residual risk: Any extension that can inject startup instructions expands the
+  instruction-trust surface. The planned mitigations are ownership metadata,
+  deterministic precedence, fail-closed parsing, drift refusal, owned-block-only
+  lifecycle operations, and lifecycle tests. Security review is required again
+  after implementation and before closeout.
 
 ## Completion Checklist
 

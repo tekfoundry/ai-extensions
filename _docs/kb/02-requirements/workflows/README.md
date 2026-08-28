@@ -15,8 +15,9 @@ This directory records requirements for workflows bundled with AIX.
 
 Use this area for workflow-level requirements: installed shape, lifecycle
 states, required skills, required roles, workflow-owned skill behavior,
-template behavior, documentation expectations, and acceptance signals that
-belong to a workflow package rather than the core AIX CLI.
+guidance behavior, template behavior, documentation expectations, and
+acceptance signals that belong to a workflow package rather than the core AIX
+CLI.
 
 Do not put workflow implementation mechanics here when they are really core AIX
 package-management requirements. Keep those in

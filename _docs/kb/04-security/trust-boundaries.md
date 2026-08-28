@@ -31,9 +31,12 @@ behavior.
 - `.agents/packages/`: package-managed accepted copies guarded by lockfile
   hashes.
 - `.agents/skills/` and `.agents/roles/`: agent-facing active exposure guarded
-  by lockfile hashes.
+  by lockfile hashes. Active role `GUIDANCE.md` files are project-editable
+  guidance and must be reviewed as instructions before agents rely on them.
 - `.agents/templates/`: project-owned template overrides, not package-managed
   workflow origin files.
+- `.agents/guidance/`: project-owned workflow guidance overrides, not
+  package-managed workflow origin files.
 - `_docs/`: project-owned knowledge and plan records, not routine workflow
   update targets.
 - Root `AGENTS.md`: mixed ownership; only marker-delimited workflow blocks are
@@ -64,6 +67,15 @@ behavior.
 - Workflow origin templates to published overrides: origin templates are
   package-managed; published overrides are project-owned and must not be
   overwritten by workflow updates.
+- Workflow origin guidance to published overrides: origin guidance is
+  package-managed; published guidance is project-owned and must not be
+  overwritten by workflow updates.
+- Role package guidance to active role guidance: active role guidance is
+  editable after activation, so update paths must preserve local edits and
+  expose upstream changes for review.
+- Guidance to runtime behavior: guidance can influence agent behavior, but it
+  is lower priority than user requests, repository instructions, workflow
+  rules, skill procedures, role contracts, and safety boundaries.
 
 ## Security Invariants
 
@@ -75,6 +87,12 @@ behavior.
   depend on that source.
 - Diff and status commands are read-oriented and must not mutate package or
   active state.
+- `get-guidance` is read-only and must not install, activate, update, publish,
+  reset, or edit guidance.
+- Guidance metadata is advisory and must not create hidden dependency,
+  activation, or routing behavior.
+- Default request-entry routing through guidance is deferred to the
+  project-manager plan.
 - The lockfile is the integrity record for accepted package and active files,
   not a trust endorsement of source content.
 
@@ -89,3 +107,5 @@ behavior.
   It pins resolved commits and file hashes after resolution.
 - AIX does not sandbox installed agent instructions. A malicious skill or role
   can still influence any agent runtime that reads it.
+- Project-edited guidance can also influence agent behavior. AIX can show
+  provenance and drift, but humans still need to review instruction changes.

@@ -11,6 +11,7 @@ AGENTS.append.md
 README.md
 workflow.md
 engineering-best-practices.md
+guidance/
 templates/
 skills/
 roles/project-dev/
@@ -21,6 +22,7 @@ roles/project-dev/
 - workflow `name` and optional `title`
 - managed `AGENTS.md` integration
 - installed workflow docs
+- `guidanceDir`
 - `templatesDir`
 - `skillsDir`
 - workflow-owned role location, currently discovered from `roles/project-dev`
@@ -47,6 +49,7 @@ aix workflow install [source] [alias]
   -> insert or replace managed AGENTS.md block
   -> expose workflow-owned skills under .agents/skills/
   -> expose workflow-owned roles under .agents/roles/
+  -> record workflow guidance origins without publishing overrides
   -> scaffold missing _docs routers and directories
   -> replace workflow-owned lockfile skill and role entries
   -> replace the single workflow lockfile entry
@@ -122,7 +125,8 @@ aix workflow uninstall
 ```
 
 Project-owned `_docs` content and published template overrides are not removed
-as part of workflow uninstall.
+as part of workflow uninstall. Project-owned guidance overrides under
+`.agents/guidance/` are not removed by workflow uninstall.
 
 ## Workflow-Owned Assets
 
@@ -165,6 +169,48 @@ harder to reason about.
 Reset removes published overrides and lets normal resolution fall back to the
 workflow origin. Reset does not rewrite local files with origin contents.
 
+## Guidance Lifecycle
+
+Workflow guidance origins live in the workflow package and are hash-tracked in
+the lockfile. The default workflow guidance shape is:
+
+```text
+guidance/
+  README.md
+  shared.md
+  activities/
+    planning.md
+    implementation.md
+    verification.md
+    review.md
+    documentation.md
+```
+
+Workflow install and update copy those origins into
+`.agents/packages/workflows/<source>/<workflow>/guidance/`. They do not create
+`.agents/guidance/`; that directory is project-owned override space.
+
+Workflow guidance resolution is published-first:
+
+```text
+.agents/guidance/<guidance>.md when present
+  -> workflow package guidance origin otherwise
+```
+
+`aix guidance publish` copies workflow shared and activity guidance into
+`.agents/guidance/` for editing and reports active role guidance as already
+editable. `aix guidance diff` compares project-owned guidance with package
+origins. `aix guidance reset` removes workflow guidance overrides or restores
+active role guidance from role package origins. `aix guidance reset --all`
+previews affected guidance and requires confirmation before changing files.
+
+The optional `get-guidance` skill resolves guidance for a supplied role, skill,
+activity, and task context. This workflow does not route startup through that
+skill by default, and it does not declare automatic activation for it. Request
+entry and default guidance payloads are deferred to the project-manager plan.
+If a future workflow chooses to require automatic activation of `get-guidance`,
+that design depends on external workflow skill dependency support.
+
 ## Documentation Scaffolding
 
 Workflow install creates missing project documentation routers and directories:
@@ -199,5 +245,7 @@ docs remain project-owned.
   not direct standalone commands.
 - Published templates are local overrides and must survive routine workflow
   updates.
+- Published guidance overrides are local overrides and must survive routine
+  workflow updates.
 - Project-owned `_docs` content must not be rewritten by routine workflow
   install/update/remove after it exists.

@@ -52,6 +52,9 @@ Use these levels when selecting checks and recording verification evidence:
 - Workflow contract tests: tests that lock down bundled workflow skills, roles,
   templates, plan sections, lifecycle gates, security-review requirements, and
   completion checklist expectations.
+- Guidance lifecycle tests: tests that lock down workflow guidance origin
+  discovery, role guidance editability, metadata parsing, guidance commands,
+  reset safeguards, and optional `get-guidance` resolver behavior.
 - Package smoke tests: tests that pack the npm artifact, unpack it in a
   temporary install shape, verify bundled runtime assets, and run the packaged
   `aix` binary.
@@ -71,6 +74,7 @@ npm run build
 node --test tests/activation.test.mjs
 node --test tests/workflow.test.mjs
 node --test tests/roles.test.mjs
+node --test tests/guidance.test.mjs
 node --test tests/templates.test.mjs
 node --test tests/sources.test.mjs
 node --test tests/skill-instructions.test.mjs
@@ -108,11 +112,12 @@ repositories, and exercise filesystem package state.
 | Skill activation/deactivation/dependencies | `tests/activation.test.mjs` |
 | Skill diff/update | `tests/diff.test.mjs`, `tests/update.test.mjs` |
 | Role parsing/delegation/lifecycle | `tests/roles.test.mjs` |
+| Guidance discovery, commands, metadata, and reset behavior | `tests/guidance.test.mjs` |
 | Workflow install/update/diff/uninstall | `tests/workflow.test.mjs`, `tests/init.test.mjs` |
 | Templates | `tests/templates.test.mjs` |
 | Status and verification output | `tests/status.test.mjs`, `tests/verify.test.mjs` |
 | Interactive prompts and tables | `tests/ui-selection-prompt.test.mjs` |
-| Workflow skill/role instruction contracts | `tests/skill-instructions.test.mjs`, `tests/roles.test.mjs` |
+| Workflow skill/role instruction contracts and `get-guidance` | `tests/skill-instructions.test.mjs`, `tests/roles.test.mjs` |
 | Package artifact | `tests/package-smoke.test.mjs` |
 
 ## Test Isolation
@@ -162,6 +167,9 @@ raise a percentage.
   Git repositories.
 - Host-native agent integrations are intentionally deferred and are not tested
   beyond canonical `.agents/skills` and `.agents/roles` storage.
+- Default request-entry routing through `get-guidance` is intentionally
+  deferred and is not covered beyond checks that this plan did not add managed
+  workflow, role, skill, delegation, or manifest wiring.
 - There is no persistent code coverage report or threshold.
 - There is no concurrency test for simultaneous commands mutating manifest,
   lockfile, package, or active files.

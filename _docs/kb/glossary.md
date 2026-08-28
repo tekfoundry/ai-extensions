@@ -17,3 +17,12 @@ or workflow guidance.
 - Knowledge-base impact check: A review of whether a change affects durable
   product, requirements, architecture, security, quality, operations,
   decisions, or terminology documentation.
+- Guidance: Reusable best-practice judgment that agents can read while they
+  follow roles, skills, or workflow activities.
+- Role guidance: Guidance that travels with a role bundle in `GUIDANCE.md` and
+  is editable in the active role directory after activation.
+- Activity guidance: Workflow-owned guidance for a lifecycle activity such as
+  planning, implementation, verification, review, or documentation.
+- Guidance metadata: Advisory front matter, such as `applies_to` or
+  `uses_guidance`, that helps route guidance without installing dependencies
+  or making hidden runtime decisions.

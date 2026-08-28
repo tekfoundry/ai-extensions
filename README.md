@@ -181,7 +181,9 @@ It includes:
 
 - `.agents/README.md`, the process router
 - `.agents/workflow.md`, the agent lifecycle and planning contract
-- `.agents/engineering-best-practices.md`, reusable engineering guidance
+- workflow-owned shared and activity guidance
+- `.agents/engineering-best-practices.md`, legacy reusable engineering
+  guidance retained during migration
 - workflow-owned skills for project setup, plan lifecycle work, implementation,
   verification, maintainability review, and design promotion
 - a managed block in root `AGENTS.md` that tells agents where to start
@@ -223,6 +225,10 @@ workflows/team-flow/
   README.md
   workflow.md
   engineering-best-practices.md
+  guidance/
+    shared.md
+    activities/
+      planning.md
   skills/
     project-init/
       SKILL.md
@@ -249,6 +255,7 @@ Example `workflow.json`:
     "workflow.md",
     "engineering-best-practices.md"
   ],
+  "guidanceDir": "guidance",
   "skillsDir": "skills"
 }
 ```
@@ -259,6 +266,8 @@ Rules to keep in mind:
 - `docs` are copied into `.agents/`.
 - `AGENTS.append.md` is inserted into root `AGENTS.md` inside a managed block.
 - Skills under `skills/<name>/SKILL.md` are activated as workflow-owned skills.
+- Guidance under `guidance/` stays package-owned until a project publishes
+  editable overrides with `aix guidance publish`.
 - Workflow-owned skills cannot be removed with `aix skill deactivate`; uninstall
   or update the workflow instead.
 
@@ -413,10 +422,12 @@ should return.
 aix/
   roles/
     project-dev/
-      quality-engineer.md
+      quality-engineer/
+        ROLE.md
+        GUIDANCE.md
 ```
 
-Example role file:
+Example `ROLE.md`:
 
 ```md
 ---
@@ -550,6 +561,7 @@ uninstalled.
 | --- | --- | --- |
 | [`brainstorming-skill`](aix/workflows/design-plan-execute/skills/brainstorming-skill/README.md) | "Use brainstorming-skill. Let's brainstorm."<br>"Brainstorm new skills."<br>"Review our ideas and help prioritize what should come next." | Workflow-owned. Runs project-grounded brainstorming before implementation planning. It reviews docs, plans, code shape, existing ideas, and marketing artifacts such as README files; researches comparable products or projects when useful; and maintains approved plus in-flight ideas in `_docs/ideas.md` with dependencies, difficulty, and source links. |
 | [`discover-skill`](aix/skills/discover-skill/README.md) | "Use discover-skill. Find a skill for accessibility-focused code reviews."<br>"Find an installable skill for TDD."<br>"I need a skill that helps with secure code review." | Finds installable software-development skills from natural-language requests. It searches configured sources and `known-sources.json` first, asks before broadening to unreviewed GitHub or internet results, presents review links and unsafe-flag notes, and uses a two-step `install #` / `confirm install #` flow before running `aix skills add` or `aix skill activate`. |
+| [`get-guidance`](aix/skills/get-guidance/README.md) | "Use get-guidance for quality-engineer, plan-review, verification."<br>"Resolve guidance for this implementation task." | Optional read-only resolver. Returns a bounded guidance reading list from active role guidance, workflow guidance overrides, workflow guidance origins, shared guidance, and legacy fallback when the caller supplies role, skill, activity, and task context. It is not wired into default workflow startup. |
 
 ### Custom skill
 

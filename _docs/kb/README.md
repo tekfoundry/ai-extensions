@@ -43,6 +43,7 @@ record unresolved conflicts as decisions, risks, or follow-up plan candidates.
 - [Trust boundaries](04-security/trust-boundaries.md)
 - [Verification strategy](05-quality/verification-strategy.md)
 - [Release and maintenance](06-operations/release-and-maintenance.md)
+- [Guidance ownership model](07-decisions/guidance-ownership-model.md)
 
 ## Plans and history
 

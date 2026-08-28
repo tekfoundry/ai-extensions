@@ -904,26 +904,24 @@ Execution note (2026-08-28, completed):
   tests/init.test.mjs tests/package-smoke.test.mjs`; `node bin/aix.js
   verify`; `git diff --check`; `npm test` passed with 208 tests.
 
-### Phase 6: Defer Routing Adoption (status: accepted)
+### Phase 6: Defer Routing Adoption (status: completed)
 
-Goal: close the guidance plan's routing scope cleanly and hand default
+Goal: confirm this plan does not implement default guidance routing, and hand
 request-entry behavior to the project-manager plan.
 
 Tasks:
 
-- ⬜️ Record that this plan intentionally does not add AIX-level
-      `AGENTS.append.md`, skill-level append files, managed `AGENTS.md`
-      guidance routing, or `delegate-to-role` guidance payload changes.
-- ⬜️ Update `_docs/plans/backlog/create-project-manager-role.md`, or record a
-      required follow-up for that plan, so it owns request startup, guidance
-      resolution payloads, and any future default use of `get-guidance`.
-- ⬜️ Record that future automatic activation of `get-guidance` by
-      `design-plan-execute` depends on the external workflow skill dependency
-      plan, unless the project-manager plan chooses a different design.
-- ⬜️ Preserve existing workflow-owned `AGENTS.append.md` behavior and do not
-      change marker-delimited managed block composition in this plan.
-- ⬜️ Add closeout notes that distinguish the shipped guidance library and
-      optional resolver skill from unresolved project-manager routing behavior.
+- ✅ Record a plan-only execution note confirming no default guidance routing is
+      being implemented here. `get-guidance` remains optional, and this plan
+      does not change managed `AGENTS.md`, workflow `AGENTS.append.md`,
+      skill-level append files, `delegate-to-role`, role contracts, skill
+      contracts, workflow manifests, or default workflow startup.
+- ✅ Confirm that `_docs/plans/backlog/create-project-manager-role.md` owns
+      future request-entry routing, guidance payload design, and any default
+      use of `get-guidance`.
+- ✅ Confirm that automatic workflow activation of `get-guidance`, if later
+      needed, depends on the external workflow skill dependency plan unless the
+      project-manager plan chooses a different design.
 
 Verification:
 
@@ -931,7 +929,20 @@ Verification:
   claimed by this plan.
 - `git diff --check` confirms the plan-only edit is clean.
 
-### Phase 7: Documentation, Migration Review, And Closeout (status: accepted)
+Execution note (2026-08-28, completed):
+
+- Completed Phase 6 as a documentation-only routing boundary checkpoint. No
+  code, workflow manifest, managed `AGENTS.md`, workflow `AGENTS.append.md`,
+  skill append, role contract, skill contract, default startup, or
+  `delegate-to-role` behavior changed.
+- Confirmed that request-entry routing, guidance payload design, and any
+  default use of `get-guidance` remain owned by the project-manager backlog
+  plan.
+- Confirmed that automatic workflow activation of `get-guidance`, if later
+  needed, remains dependent on the external workflow skill dependency plan
+  unless the project-manager plan chooses a different design.
+
+### Phase 7: Documentation, Migration Review, And Closeout (status: blocked)
 
 Goal: align product, requirements, architecture, security, quality,
 operations, and README docs with the accepted guidance model before the plan is
@@ -939,27 +950,27 @@ completed.
 
 Tasks:
 
-- ⬜️ Update product docs to describe guidance as a first-class AIX concept
+- ✅ Update product docs to describe guidance as a first-class AIX concept
       across role packages and workflow activity guidance.
-- ⬜️ Update requirements docs for role bundles, workflow guidance, guidance
+- ✅ Update requirements docs for role bundles, workflow guidance, guidance
       commands, `get-guidance`, metadata, validation, and customization.
-- ⬜️ Update architecture docs for role bundle package shape, workflow guidance
+- ✅ Update architecture docs for role bundle package shape, workflow guidance
       package shape, command behavior, optional `get-guidance` behavior, and
       lifecycle ownership.
-- ⬜️ Update security docs for role guidance instruction trust, project-owned
+- ✅ Update security docs for role guidance instruction trust, project-owned
       guidance edits, reset behavior, drift checks, and deferred routing
       adoption.
-- ⬜️ Update quality docs and test matrix for role bundles, guidance commands,
+- ✅ Update quality docs and test matrix for role bundles, guidance commands,
       metadata validation, optional `get-guidance`, and deferred routing
       behavior.
-- ⬜️ Update README and workflow docs with command examples and migration notes.
-- ⬜️ Review `.agents/engineering-best-practices.md` against the new guidance
+- ✅ Update README and workflow docs with command examples and migration notes.
+- ✅ Review `.agents/engineering-best-practices.md` against the new guidance
       files and record whether any content still needs migration, without
       editing or deleting the original file.
-- ⬜️ Ask the developer to verify whether `.agents/engineering-best-practices.md`
+- ⚠️ Ask the developer to verify whether `.agents/engineering-best-practices.md`
       can be deleted; do not delete it unless the developer explicitly says it
       is safe to remove.
-- ⬜️ Run final verification and complete plan closeout requirements.
+- ⚠️ Run final verification and complete plan closeout requirements.
 
 Verification:
 
@@ -970,40 +981,72 @@ Verification:
   `engineering-best-practices.md` is intentionally retained until developer
   approval for removal.
 
+Execution note (2026-08-28, blocked):
+
+- Updated current-state product, requirements, architecture, security, quality,
+  operations, decision, glossary, README, and workflow documentation for the
+  shipped guidance model.
+- Added `_docs/kb/02-requirements/skills/get-guidance.md` for the optional
+  read-only resolver skill.
+- Added `_docs/kb/07-decisions/guidance-ownership-model.md` and linked it from
+  the decision index and top-level KB index.
+- Reviewed `.agents/engineering-best-practices.md` against focused role and
+  activity guidance. Its maintainability, ownership-boundary, refactoring,
+  testing, error-handling, state, security, performance, and code-review themes
+  are represented across workflow activity guidance and technical,
+  implementation, quality, security, package-safety, and workflow-architecture
+  role guidance. No remaining content gap was found that blocks retiring the
+  file after developer approval.
+- Kept `.agents/engineering-best-practices.md` unchanged and did not delete it.
+  Developer approval is still required before deletion.
+- Verification passed: `npm run build`, `npm test` with 208 tests,
+  `git diff --check`, and a stale role-path scan over `README.md`,
+  `aix/workflows/design-plan-execute`, `_docs/kb`, and this active plan.
+- Verification blocked: `node bin/aix.js verify` fails because the installed
+  `.agents` workflow package and active workflow-owned skill files have drifted
+  from `aix.lock.json`. A broad `aix workflow update` would reconcile the
+  lockfile and installed workflow state, but approval was not granted for that
+  broader package-managed refresh during this documentation phase.
+
 ## Open Questions / Decisions
 
-None.
+- Developer must decide whether `.agents/engineering-best-practices.md` can be
+  deleted now that its reusable guidance has been migrated into focused
+  guidance files.
+- Developer must decide whether to approve a workflow-state reconciliation for
+  the installed `.agents` package drift reported by `node bin/aix.js verify`,
+  or leave the verification gap recorded for later maintenance.
 
 ## Documentation Impact
 
-- Product: Update product docs to explain guidance as a first-class AIX concept
-  across role packages and workflow activity guidance once accepted and
-  implemented.
-- Requirements: Add requirements for workflow guidance defaults, project
-  overrides, role bundles, role guidance, `get-guidance`, metadata, and user
-  customization after design acceptance.
-- Architecture: Update workflow lifecycle and roles/templates architecture docs
-  to cover role bundle package shape, activity guidance shape,
-  optional `get-guidance` resolution, guidance publish/diff/reset command
-  behavior, metadata, compatibility behavior, lifecycle behavior, and deferred
-  routing adoption.
-- Security: Review overwrite, drift, package trust, and instruction-risk
-  implications because guidance changes agent behavior.
-- Quality: Add verification expectations for guidance parsing, resolution,
-  `get-guidance` fallback behavior, publishing or override behavior, and
-  workflow update safety once phases are drafted.
-- Operations: Release and maintenance docs may need guidance update and
-  migration notes, including guidance command examples.
-- Decisions: A decision record may be useful if the project commits to guidance
-  as a distinct workflow asset and chooses a publish/override model.
-- Glossary: Add or update terms for guidance, role guidance, activity guidance,
-  and guidance metadata.
+- Product: Updated to describe guidance as a first-class AIX concept across
+  role packages and workflow activity guidance.
+- Requirements: Updated for workflow guidance defaults, project overrides, role
+  bundles, role guidance, `get-guidance`, metadata, customization, and deferred
+  default routing.
+- Architecture: Updated workflow lifecycle, package-management, system
+  architecture, and roles/templates architecture docs for role bundles,
+  guidance origins and overrides, command behavior, metadata, optional
+  `get-guidance`, and lifecycle ownership.
+- Security: Updated trust-boundary and local-file-safety docs for guidance
+  instruction trust, overwrite and reset behavior, drift checks, read-only
+  resolver behavior, metadata limits, and deferred routing adoption.
+- Quality: Updated verification strategy and test matrix for guidance parsing,
+  commands, `get-guidance`, reset safeguards, and deferred request-entry
+  routing.
+- Operations: Updated release and maintenance docs with guidance package,
+  maintenance, incident, and safety-sensitive reset notes.
+- Decisions: Added an accepted guidance ownership decision record.
+- Glossary: Added guidance, role guidance, activity guidance, and guidance
+  metadata terms.
 
 ## Product Readiness
 
-- Readiness: Active implementation plan.
-- Evidence needed: Execute accepted phases through bounded tasks with targeted
-  verification and plan evidence.
+- Readiness: Blocked pending developer decisions.
+- Evidence needed: Developer review of focused guidance migration and
+  `.agents/engineering-best-practices.md` deletion readiness; decision on
+  whether to reconcile installed `.agents` workflow drift or carry that
+  verification gap forward.
 
 ## Risks
 
@@ -1037,29 +1080,32 @@ None.
 
 ## Security Review
 
-- Status: Planning draft.
+- Status: Completed for implemented guidance-library work.
 - Scope reviewed: Instruction trust, package-managed workflow defaults,
   package-managed role guidance, project-owned guidance overrides, local file
   overwrite risk, and guidance metadata boundaries.
 - Findings: Guidance is security-sensitive because it shapes agent behavior.
   Role `GUIDANCE.md` files are also security-sensitive because standalone
-  external roles can bring their own instructions. The implementation plan
-  must preserve drift checks, avoid silent overwrites, keep source ownership
-  clear, keep metadata from triggering hidden file or dependency changes, and
-  keep `get-guidance` read-only.
-- Blocking findings converted to plan tasks: Not drafted yet.
-- Residual risk: Detailed security review is required after Design Intent is
-  accepted and before implementation phases are approved.
+  external roles can bring their own instructions. Implemented behavior keeps
+  source ownership visible, preserves project-owned workflow guidance
+  overrides, keeps active role guidance editable without silent overwrite,
+  requires explicit reset behavior, treats guidance metadata as advisory, and
+  keeps `get-guidance` read-only.
+- Blocking findings converted to plan tasks: none.
+- Residual risk: Default request-entry routing through guidance is still
+  unresolved and remains owned by the project-manager plan. The legacy
+  `.agents/engineering-best-practices.md` file remains until the developer
+  approves deletion.
 
 ## Completion Checklist
 
-- ⬜️ Confirm every task and success goal is complete or explicitly deferred.
+- ⚠️ Confirm every task and success goal is complete or explicitly deferred.
 - ⬜️ Human validation: developer evaluated the completed phased work and accepted it, or explicitly waived manual validation with a recorded reason.
-- ⬜️ Run or review required targeted and repository verification.
-- ⬜️ Complete Security Review after all implementation phases; record findings, convert blocking findings into normal plan tasks, and document residual risk.
+- ⚠️ Run or review required targeted and repository verification.
+- ✅ Complete Security Review after all implementation phases; record findings, convert blocking findings into normal plan tasks, and document residual risk.
 - ⬜️ Review the codebase using `$code-review-refactor`; refactor or record follow-up work if needed.
-- ⬜️ Promote accepted durable behavior into `_docs/kb` using `$design-promote`.
-- ⬜️ Review documentation structure, formatting, and links using `$review-and-refresh-docs`; fix issues or record follow-up work.
-- ⬜️ Record final risks, follow-on work, and documentation impact.
+- ✅ Promote accepted durable behavior into `_docs/kb` using `$design-promote`.
+- ✅ Review documentation structure, formatting, and links using `$review-and-refresh-docs`; fix issues or record follow-up work.
+- ⚠️ Record final risks, follow-on work, and documentation impact.
 - ⬜️ Harvest reusable lessons and update workflow guidance when appropriate.
 - ⬜️ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.

@@ -19,7 +19,7 @@ payload roots:
 
 That package shape means operational release checks must verify compiled
 runtime code, the executable binary mapping, and bundled workflow, skill, role,
-and template assets.
+guidance, and template assets.
 
 ## Runtime Topology
 
@@ -100,11 +100,13 @@ Publishing must stay separated from ordinary push CI.
   drift does not need preservation.
 - Use `aix templates publish`, `aix templates diff`, and `aix templates reset`
   to manage project-owned template overrides.
+- Use `aix guidance list`, `aix guidance publish`, `aix guidance diff`, and
+  `aix guidance reset` to manage active workflow and role guidance.
 - Use role, skill, workflow, source, and template diff commands before updating
   package-managed assets in a project that may contain local edits.
 - Treat lockfile writes, active-file updates, workflow install/update/remove,
-  skill activation/deactivation, role activation/deactivation, and template
-  reset as operationally safety-sensitive.
+  skill activation/deactivation, role activation/deactivation, template reset,
+  and guidance reset as operationally safety-sensitive.
 
 ## Operational Monitoring
 
@@ -116,7 +118,7 @@ Operational health is assessed through:
 - package smoke and local install smoke output.
 - `aix status` and `aix verify` in affected workspaces.
 - GitHub Issues for user-reported install, release, command, source-resolution,
-  or local-file safety problems.
+  guidance, or local-file safety problems.
 - manual README, changelog, and release note review before publishing.
 
 When an incident is reported, start with the exact package version, install

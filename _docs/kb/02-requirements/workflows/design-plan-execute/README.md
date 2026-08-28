@@ -9,13 +9,13 @@ promotion.
 
 - Project developer: asks agents to create, activate, execute, update, verify,
   defer, or complete implementation plans.
-- Agent runtime: follows installed workflow docs, skills, roles, and templates
-  from `.agents/`.
+- Agent runtime: follows installed workflow docs, skills, roles, guidance, and
+  templates from `.agents/`.
 - Planning reviewer: reviews backlog plan readiness before implementation.
 - Implementation reviewer: checks task execution, verification evidence,
   maintainability, security, and documentation impact.
-- Workflow maintainer: ships the workflow docs, skills, roles, templates, and
-  managed `AGENTS.md` guidance as one package.
+- Workflow maintainer: ships the workflow docs, skills, roles, guidance,
+  templates, and managed `AGENTS.md` block as one package.
 
 ## Installed Shape Requirements
 
@@ -28,6 +28,9 @@ promotion.
 - The workflow must install workflow-owned skills from its `skills/` directory.
 - The workflow must install workflow-owned project-development roles under
   `.agents/roles/`.
+- The workflow must include workflow-owned guidance under `guidance/`, including
+  shared guidance and activity guidance for planning, implementation,
+  verification, review, and documentation.
 - The workflow must expose templates from its `templates/` directory for plan,
   documentation, design, competitive-analysis, product-summary, section, and
   knowledge-base artifacts.
@@ -89,6 +92,13 @@ promotion.
   roles stop delegation, prompt-overlay fallback does not write host-native
   agent directories, and the parent owns final decisions.
 
+- As a project developer, I can use workflow guidance and role guidance without
+  making guidance part of default startup routing.
+  Acceptance signals: workflow activity guidance stays in the active workflow
+  package until published, role guidance is editable in active role bundles,
+  `get-guidance` can be used as an optional resolver, and request-entry routing
+  remains deferred to the project-manager plan.
+
 ## Required Skills
 
 - `project-init` must initialize or repair project docs without overwriting
@@ -131,6 +141,24 @@ promotion.
 - `implementation-engineer` must review task boundaries, sequencing, likely
   changed areas, verification handoff, and documentation impact.
 
+## Guidance Requirements
+
+- The workflow must provide `guidance/README.md`, `guidance/shared.md`, and
+  activity guidance for planning, implementation, verification, review, and
+  documentation.
+- Activity guidance may declare `applies_to` metadata for roles and skills.
+  That metadata is advisory and must not install dependencies, activate skills,
+  or route requests automatically.
+- Workflow install must copy guidance origins into the workflow package but not
+  materialize `.agents/guidance/`.
+- Project-owned workflow guidance overrides must be created only by explicit
+  publishing or direct project edits.
+- Guidance must stay lower priority than user requests, repository
+  instructions, workflow rules, skill procedures, role contracts, and safety
+  boundaries.
+- Default guidance routing is not part of this workflow. The project-manager
+  plan owns future request-entry routing and guidance payload design.
+
 ## Template Requirements
 
 - The workflow must provide reusable document templates for plans,
@@ -152,6 +180,8 @@ promotion.
 - The workflow must not authorize implementation from backlog-only plans.
 - The workflow must not replace explicit lifecycle gates with hidden automatic
   execution.
+- The workflow must not automatically route request startup through
+  `get-guidance`.
 - The workflow must not create host-native agent directories unless a future
   explicit integration command owns that compatibility output.
 
@@ -161,6 +191,7 @@ promotion.
 - `aix workflow install aix/workflows/design-plan-execute` installs the local
   bundled workflow when run from the AIX source tree.
 - `aix workflow diff`, `aix workflow update`, `aix status`, and `aix verify`
-  report workflow docs, templates, skills, roles, and drift correctly.
+  report workflow docs, guidance, templates, skills, roles, and drift
+  correctly.
 - Workflow skill instruction tests verify that lifecycle skills declare the
   required routing, review, verification, and closeout contracts.
