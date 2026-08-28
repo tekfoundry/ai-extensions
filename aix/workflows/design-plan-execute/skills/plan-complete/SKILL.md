@@ -15,7 +15,7 @@ promotion, documentation review, and archive placement. Roles can supply
 bounded specialist judgment, but they do not own completion approval,
 developer acceptance, lifecycle state, or final residual-risk decisions.
 
-When `.agents/roles/security-engineer.md` exists and the plan includes
+When `.agents/roles/security-engineer/ROLE.md` exists and the plan includes
 security-sensitive behavior, use `delegate-to-role` or a prompt-overlay
 delegation to request the required post-phase security review before
 completion. Good triggers include trust boundaries, secrets, authentication,
@@ -30,7 +30,7 @@ Do not require `security-engineer` for direct use. If the role is unavailable
 or the host cannot delegate, continue closeout yourself by checking the same
 security-sensitive behavior and recording the review evidence.
 
-When `.agents/roles/ux-writer.md` exists and the completed work changed
+When `.agents/roles/ux-writer/ROLE.md` exists and the completed work changed
 user-facing or developer-facing copy, use `delegate-to-role` or a
 prompt-overlay delegation to request bounded final copy-readiness input before
 archive. Good triggers include labels, prompts, command help, terminal output,
@@ -46,7 +46,7 @@ Do not use the role to override developer acceptance or approve final wording
 for product claims, security language, legal text, support promises, or release
 commitments.
 
-When `.agents/roles/quality-engineer.md` exists and closeout depends on
+When `.agents/roles/quality-engineer/ROLE.md` exists and closeout depends on
 verification evidence, validation gaps, regression risk, manual validation, or
 residual-risk judgment, use `delegate-to-role` or a prompt-overlay delegation
 to request bounded final quality input before archive.
@@ -60,7 +60,7 @@ coverage, regression, manual-validation, skipped-check, evidence, and
 residual-risk concerns. Do not use the role to override developer acceptance,
 waive checks, or replace `work-verify`.
 
-When `.agents/roles/documentation-specialist.md` exists and closeout depends
+When `.agents/roles/documentation-specialist/ROLE.md` exists and closeout depends
 on documentation impact, design promotion, current-state accuracy,
 documentation structure, README or workflow-doc updates, link/index coverage,
 or documentation follow-up, use `delegate-to-role` or a prompt-overlay

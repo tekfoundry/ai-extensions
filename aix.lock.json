@@ -782,9 +782,9 @@
       "kind": "role",
       "source": "aix",
       "sourceType": "git",
-      "sourcePath": "roles/project-dev/documentation-specialist.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/documentation-specialist.md",
-      "activationPath": ".agents/roles/documentation-specialist.md",
+      "sourcePath": "roles/project-dev/documentation-specialist",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/documentation-specialist",
+      "activationPath": ".agents/roles/documentation-specialist",
       "originalName": "documentation-specialist",
       "activeName": "documentation-specialist",
       "requested": false,
@@ -794,13 +794,13 @@
       },
       "packageFiles": [
         {
-          "path": "documentation-specialist.md",
+          "path": "ROLE.md",
           "sha256": "7d5dec9908903050362b58dc5dca37796e6bf4257d0123557a0cb2586139a471"
         }
       ],
       "activeFiles": [
         {
-          "path": "documentation-specialist.md",
+          "path": "ROLE.md",
           "sha256": "7d5dec9908903050362b58dc5dca37796e6bf4257d0123557a0cb2586139a471"
         }
       ]
@@ -809,9 +809,9 @@
       "kind": "role",
       "source": "aix",
       "sourceType": "git",
-      "sourcePath": "roles/project-dev/implementation-engineer.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/implementation-engineer.md",
-      "activationPath": ".agents/roles/implementation-engineer.md",
+      "sourcePath": "roles/project-dev/implementation-engineer",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/implementation-engineer",
+      "activationPath": ".agents/roles/implementation-engineer",
       "originalName": "implementation-engineer",
       "activeName": "implementation-engineer",
       "requested": false,
@@ -821,13 +821,13 @@
       },
       "packageFiles": [
         {
-          "path": "implementation-engineer.md",
+          "path": "ROLE.md",
           "sha256": "1bd2c0d775b94dba1ffdc0ea7d13abe0159035b851e41b10dad6b88031bbc2d2"
         }
       ],
       "activeFiles": [
         {
-          "path": "implementation-engineer.md",
+          "path": "ROLE.md",
           "sha256": "1bd2c0d775b94dba1ffdc0ea7d13abe0159035b851e41b10dad6b88031bbc2d2"
         }
       ]
@@ -836,9 +836,9 @@
       "kind": "role",
       "source": "aix",
       "sourceType": "git",
-      "sourcePath": "roles/project-dev/product-designer.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/product-designer.md",
-      "activationPath": ".agents/roles/product-designer.md",
+      "sourcePath": "roles/project-dev/product-designer",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/product-designer",
+      "activationPath": ".agents/roles/product-designer",
       "originalName": "product-designer",
       "activeName": "product-designer",
       "requested": false,
@@ -848,13 +848,13 @@
       },
       "packageFiles": [
         {
-          "path": "product-designer.md",
+          "path": "ROLE.md",
           "sha256": "ff8477b48882c998dabe4ffe4414e24a87d76cd43302032d6167a6ff840fb64e"
         }
       ],
       "activeFiles": [
         {
-          "path": "product-designer.md",
+          "path": "ROLE.md",
           "sha256": "ff8477b48882c998dabe4ffe4414e24a87d76cd43302032d6167a6ff840fb64e"
         }
       ]
@@ -863,9 +863,9 @@
       "kind": "role",
       "source": "aix",
       "sourceType": "git",
-      "sourcePath": "roles/project-dev/product-strategist.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/product-strategist.md",
-      "activationPath": ".agents/roles/product-strategist.md",
+      "sourcePath": "roles/project-dev/product-strategist",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/product-strategist",
+      "activationPath": ".agents/roles/product-strategist",
       "originalName": "product-strategist",
       "activeName": "product-strategist",
       "requested": false,
@@ -875,13 +875,13 @@
       },
       "packageFiles": [
         {
-          "path": "product-strategist.md",
+          "path": "ROLE.md",
           "sha256": "b511131188e61b569778d628e96ce3a66228a36d605c8c681a0f4ddd55612bc0"
         }
       ],
       "activeFiles": [
         {
-          "path": "product-strategist.md",
+          "path": "ROLE.md",
           "sha256": "b511131188e61b569778d628e96ce3a66228a36d605c8c681a0f4ddd55612bc0"
         }
       ]
@@ -890,9 +890,9 @@
       "kind": "role",
       "source": "aix",
       "sourceType": "git",
-      "sourcePath": "roles/project-dev/quality-engineer.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/quality-engineer.md",
-      "activationPath": ".agents/roles/quality-engineer.md",
+      "sourcePath": "roles/project-dev/quality-engineer",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/quality-engineer",
+      "activationPath": ".agents/roles/quality-engineer",
       "originalName": "quality-engineer",
       "activeName": "quality-engineer",
       "requested": false,
@@ -902,13 +902,13 @@
       },
       "packageFiles": [
         {
-          "path": "quality-engineer.md",
+          "path": "ROLE.md",
           "sha256": "1ff38ddc921e1c61bcf73fb345e4691581fde21e1c3a05e365f75c751508ee62"
         }
       ],
       "activeFiles": [
         {
-          "path": "quality-engineer.md",
+          "path": "ROLE.md",
           "sha256": "1ff38ddc921e1c61bcf73fb345e4691581fde21e1c3a05e365f75c751508ee62"
         }
       ]
@@ -917,9 +917,9 @@
       "kind": "role",
       "source": "aix",
       "sourceType": "git",
-      "sourcePath": "roles/project-dev/requirements-engineer.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/requirements-engineer.md",
-      "activationPath": ".agents/roles/requirements-engineer.md",
+      "sourcePath": "roles/project-dev/requirements-engineer",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/requirements-engineer",
+      "activationPath": ".agents/roles/requirements-engineer",
       "originalName": "requirements-engineer",
       "activeName": "requirements-engineer",
       "requested": false,
@@ -929,13 +929,13 @@
       },
       "packageFiles": [
         {
-          "path": "requirements-engineer.md",
+          "path": "ROLE.md",
           "sha256": "661ef92fa4279fa3eb9732dd4ec3c00eb8e4aeae6125f1b2f12642a7aa521d93"
         }
       ],
       "activeFiles": [
         {
-          "path": "requirements-engineer.md",
+          "path": "ROLE.md",
           "sha256": "661ef92fa4279fa3eb9732dd4ec3c00eb8e4aeae6125f1b2f12642a7aa521d93"
         }
       ]
@@ -944,9 +944,9 @@
       "kind": "role",
       "source": "aix",
       "sourceType": "git",
-      "sourcePath": "roles/project-dev/security-engineer.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/security-engineer.md",
-      "activationPath": ".agents/roles/security-engineer.md",
+      "sourcePath": "roles/project-dev/security-engineer",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/security-engineer",
+      "activationPath": ".agents/roles/security-engineer",
       "originalName": "security-engineer",
       "activeName": "security-engineer",
       "requested": false,
@@ -956,13 +956,13 @@
       },
       "packageFiles": [
         {
-          "path": "security-engineer.md",
+          "path": "ROLE.md",
           "sha256": "3ddc95b5dfebfabc268c376cc0a5c40e4651fa847855addb7bd1aa99bca25184"
         }
       ],
       "activeFiles": [
         {
-          "path": "security-engineer.md",
+          "path": "ROLE.md",
           "sha256": "3ddc95b5dfebfabc268c376cc0a5c40e4651fa847855addb7bd1aa99bca25184"
         }
       ]
@@ -971,9 +971,9 @@
       "kind": "role",
       "source": "aix",
       "sourceType": "git",
-      "sourcePath": "roles/project-dev/technical-architect.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/technical-architect.md",
-      "activationPath": ".agents/roles/technical-architect.md",
+      "sourcePath": "roles/project-dev/technical-architect",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/technical-architect",
+      "activationPath": ".agents/roles/technical-architect",
       "originalName": "technical-architect",
       "activeName": "technical-architect",
       "requested": false,
@@ -983,13 +983,13 @@
       },
       "packageFiles": [
         {
-          "path": "technical-architect.md",
+          "path": "ROLE.md",
           "sha256": "0cf62419eb903d146a7fe31231a47d9adc49214b3e7d50f7ca96b9d45777d25f"
         }
       ],
       "activeFiles": [
         {
-          "path": "technical-architect.md",
+          "path": "ROLE.md",
           "sha256": "0cf62419eb903d146a7fe31231a47d9adc49214b3e7d50f7ca96b9d45777d25f"
         }
       ]
@@ -998,9 +998,9 @@
       "kind": "role",
       "source": "aix",
       "sourceType": "git",
-      "sourcePath": "roles/project-dev/ux-writer.md",
-      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/ux-writer.md",
-      "activationPath": ".agents/roles/ux-writer.md",
+      "sourcePath": "roles/project-dev/ux-writer",
+      "packagePath": ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/ux-writer",
+      "activationPath": ".agents/roles/ux-writer",
       "originalName": "ux-writer",
       "activeName": "ux-writer",
       "requested": false,
@@ -1010,13 +1010,13 @@
       },
       "packageFiles": [
         {
-          "path": "ux-writer.md",
+          "path": "ROLE.md",
           "sha256": "d5fa3718d3e1915c08306db74f1f4244eebf5f7abd09802b8405ce7e0a942d49"
         }
       ],
       "activeFiles": [
         {
-          "path": "ux-writer.md",
+          "path": "ROLE.md",
           "sha256": "d5fa3718d3e1915c08306db74f1f4244eebf5f7abd09802b8405ce7e0a942d49"
         }
       ]
@@ -1133,39 +1133,39 @@
       ],
       "roles": [
         {
-          "sourcePath": "roles/project-dev/documentation-specialist.md",
+          "sourcePath": "roles/project-dev/documentation-specialist",
           "activeName": "documentation-specialist"
         },
         {
-          "sourcePath": "roles/project-dev/implementation-engineer.md",
+          "sourcePath": "roles/project-dev/implementation-engineer",
           "activeName": "implementation-engineer"
         },
         {
-          "sourcePath": "roles/project-dev/product-designer.md",
+          "sourcePath": "roles/project-dev/product-designer",
           "activeName": "product-designer"
         },
         {
-          "sourcePath": "roles/project-dev/product-strategist.md",
+          "sourcePath": "roles/project-dev/product-strategist",
           "activeName": "product-strategist"
         },
         {
-          "sourcePath": "roles/project-dev/quality-engineer.md",
+          "sourcePath": "roles/project-dev/quality-engineer",
           "activeName": "quality-engineer"
         },
         {
-          "sourcePath": "roles/project-dev/requirements-engineer.md",
+          "sourcePath": "roles/project-dev/requirements-engineer",
           "activeName": "requirements-engineer"
         },
         {
-          "sourcePath": "roles/project-dev/security-engineer.md",
+          "sourcePath": "roles/project-dev/security-engineer",
           "activeName": "security-engineer"
         },
         {
-          "sourcePath": "roles/project-dev/technical-architect.md",
+          "sourcePath": "roles/project-dev/technical-architect",
           "activeName": "technical-architect"
         },
         {
-          "sourcePath": "roles/project-dev/ux-writer.md",
+          "sourcePath": "roles/project-dev/ux-writer",
           "activeName": "ux-writer"
         }
       ],
@@ -1277,39 +1277,39 @@
           "sha256": "6323a57c2fb048e5a3fca18f3b98f09a70aa18d11c0cc9db73a48f8d38c03619"
         },
         {
-          "path": "roles/project-dev/documentation-specialist.md",
+          "path": "roles/project-dev/documentation-specialist/ROLE.md",
           "sha256": "7d5dec9908903050362b58dc5dca37796e6bf4257d0123557a0cb2586139a471"
         },
         {
-          "path": "roles/project-dev/implementation-engineer.md",
+          "path": "roles/project-dev/implementation-engineer/ROLE.md",
           "sha256": "1bd2c0d775b94dba1ffdc0ea7d13abe0159035b851e41b10dad6b88031bbc2d2"
         },
         {
-          "path": "roles/project-dev/product-designer.md",
+          "path": "roles/project-dev/product-designer/ROLE.md",
           "sha256": "ff8477b48882c998dabe4ffe4414e24a87d76cd43302032d6167a6ff840fb64e"
         },
         {
-          "path": "roles/project-dev/product-strategist.md",
+          "path": "roles/project-dev/product-strategist/ROLE.md",
           "sha256": "b511131188e61b569778d628e96ce3a66228a36d605c8c681a0f4ddd55612bc0"
         },
         {
-          "path": "roles/project-dev/quality-engineer.md",
+          "path": "roles/project-dev/quality-engineer/ROLE.md",
           "sha256": "1ff38ddc921e1c61bcf73fb345e4691581fde21e1c3a05e365f75c751508ee62"
         },
         {
-          "path": "roles/project-dev/requirements-engineer.md",
+          "path": "roles/project-dev/requirements-engineer/ROLE.md",
           "sha256": "661ef92fa4279fa3eb9732dd4ec3c00eb8e4aeae6125f1b2f12642a7aa521d93"
         },
         {
-          "path": "roles/project-dev/security-engineer.md",
+          "path": "roles/project-dev/security-engineer/ROLE.md",
           "sha256": "3ddc95b5dfebfabc268c376cc0a5c40e4651fa847855addb7bd1aa99bca25184"
         },
         {
-          "path": "roles/project-dev/technical-architect.md",
+          "path": "roles/project-dev/technical-architect/ROLE.md",
           "sha256": "0cf62419eb903d146a7fe31231a47d9adc49214b3e7d50f7ca96b9d45777d25f"
         },
         {
-          "path": "roles/project-dev/ux-writer.md",
+          "path": "roles/project-dev/ux-writer/ROLE.md",
           "sha256": "d5fa3718d3e1915c08306db74f1f4244eebf5f7abd09802b8405ce7e0a942d49"
         },
         {

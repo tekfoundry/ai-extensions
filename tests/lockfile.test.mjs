@@ -69,22 +69,22 @@ test("parseLockfile supports standalone and workflow-owned roles", () => {
         sourceUrl: "https://example.com/roles.git",
         requestedRef: "main",
         resolvedCommit: "abc123",
-        sourcePath: "roles/quality-engineer.md",
-        packagePath: ".agents/packages/roles/fixture/roles/quality-engineer.md",
-        activationPath: ".agents/roles/quality-engineer.md",
+        sourcePath: "roles/quality-engineer",
+        packagePath: ".agents/packages/roles/fixture/roles/quality-engineer",
+        activationPath: ".agents/roles/quality-engineer",
         originalName: "quality-engineer",
         activeName: "quality-engineer",
         requested: true,
-        packageFiles: [{ path: "quality-engineer.md", sha256: "abc" }],
-        activeFiles: [{ path: "quality-engineer.md", sha256: "abc" }]
+        packageFiles: [{ path: "ROLE.md", sha256: "abc" }],
+        activeFiles: [{ path: "ROLE.md", sha256: "abc" }]
       },
       {
         kind: "role",
         source: "aix",
         sourceType: "git",
-        sourcePath: "roles/project-dev/documentation-specialist.md",
-        packagePath: ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/documentation-specialist.md",
-        activationPath: ".agents/roles/documentation-specialist.md",
+        sourcePath: "roles/project-dev/documentation-specialist",
+        packagePath: ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/documentation-specialist",
+        activationPath: ".agents/roles/documentation-specialist",
         originalName: "documentation-specialist",
         activeName: "documentation-specialist",
         requested: false,
@@ -92,8 +92,8 @@ test("parseLockfile supports standalone and workflow-owned roles", () => {
           kind: "workflow",
           name: "design-plan-execute"
         },
-        packageFiles: [{ path: "documentation-specialist.md", sha256: "def" }],
-        activeFiles: [{ path: "documentation-specialist.md", sha256: "def" }]
+        packageFiles: [{ path: "ROLE.md", sha256: "def" }],
+        activeFiles: [{ path: "ROLE.md", sha256: "def" }]
       }
     ],
     workflows: [
@@ -108,7 +108,7 @@ test("parseLockfile supports standalone and workflow-owned roles", () => {
         skills: [],
         roles: [
           {
-            sourcePath: "roles/project-dev/documentation-specialist.md",
+            sourcePath: "roles/project-dev/documentation-specialist",
             activeName: "documentation-specialist"
           }
         ],
@@ -135,9 +135,9 @@ test("parseLockfile rejects malformed role entries", () => {
             kind: "skill",
             source: "fixture",
             sourceType: "git",
-            sourcePath: "roles/quality-engineer.md",
-            packagePath: ".agents/packages/roles/fixture/roles/quality-engineer.md",
-            activationPath: ".agents/roles/quality-engineer.md",
+            sourcePath: "roles/quality-engineer",
+            packagePath: ".agents/packages/roles/fixture/roles/quality-engineer",
+            activationPath: ".agents/roles/quality-engineer",
             originalName: "quality-engineer",
             activeName: "quality-engineer",
             packageFiles: [],

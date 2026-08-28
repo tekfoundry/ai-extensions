@@ -16,7 +16,7 @@ use, index links, and user-facing handoff. Roles can supply bounded specialist
 judgment, but they do not own final current-state truth or promote speculative
 architecture.
 
-When `.agents/roles/technical-architect.md` exists and the knowledge-base document
+When `.agents/roles/technical-architect/ROLE.md` exists and the knowledge-base document
 concerns system shape, component boundaries, module ownership, runtime
 contracts, integration choices, data flow, persistence, package-management
 behavior, workflow lifecycle behavior, or maintainability tradeoffs, use
@@ -30,7 +30,7 @@ direct use. If the role is unavailable or the host cannot delegate, continue
 the knowledge-base document creation yourself by checking the same architecture
 concerns.
 
-When `.agents/roles/product-designer.md` exists and the knowledge-base document
+When `.agents/roles/product-designer/ROLE.md` exists and the knowledge-base document
 concerns product-facing behavior, user flows, interaction states,
 accessibility, layout hierarchy, prototypes, terminal UX, prompts, or
 design-system fit, use `delegate-to-role` or a prompt-overlay delegation to
@@ -44,7 +44,7 @@ use. If the role is unavailable or the host cannot delegate, continue the
 knowledge-base document creation yourself by checking the same product-design
 concerns.
 
-When `.agents/roles/ux-writer.md` exists and the knowledge-base document records
+When `.agents/roles/ux-writer/ROLE.md` exists and the knowledge-base document records
 durable product or developer-facing language, use `delegate-to-role` or a
 prompt-overlay delegation to request bounded UX writing input. Good triggers
 include terminology, labels, prompts, command help, terminal output, errors,
@@ -58,7 +58,7 @@ human-review notes, or unresolved gaps as appropriate. Do not require
 delegate, continue the knowledge-base document creation yourself by checking the same
 copy, terminology, reader, task, and recovery-path concerns.
 
-When `.agents/roles/documentation-specialist.md` exists and the knowledge-base
+When `.agents/roles/documentation-specialist/ROLE.md` exists and the knowledge-base
 document placement, ownership, index coverage, related-doc links,
 current-state accuracy, or separation between stable truth and plan history is
 material, use `delegate-to-role` or a prompt-overlay delegation to request

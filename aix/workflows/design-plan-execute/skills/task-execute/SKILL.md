@@ -20,7 +20,7 @@ verification, plan status update, and task closeout evidence. Roles can supply
 bounded specialist judgment, but they do not own task selection, file edits,
 command execution, lifecycle state, or final completion decisions.
 
-When `.agents/roles/quality-engineer.md` exists and the task's success depends
+When `.agents/roles/quality-engineer/ROLE.md` exists and the task's success depends
 on choosing or judging targeted checks, use `delegate-to-role` or a
 prompt-overlay delegation to request bounded quality input. Good triggers
 include non-trivial changed behavior, failure paths, regression risk, manual
@@ -32,7 +32,7 @@ appropriate. Do not require `quality-engineer` for direct use. If the role is
 unavailable or the host cannot delegate, continue the task yourself by checking
 the same verification and regression concerns.
 
-When `.agents/roles/implementation-engineer.md` exists and the task's
+When `.agents/roles/implementation-engineer/ROLE.md` exists and the task's
 implementation boundary is non-trivial, use `delegate-to-role` or a
 prompt-overlay delegation to request bounded implementation input before
 editing. Good triggers include unclear task scope, likely changed files, test

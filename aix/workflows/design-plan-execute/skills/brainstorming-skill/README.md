@@ -44,7 +44,7 @@ The skill starts by reading project context. If the prompt has a focus, it uses
 that focus. If the prompt is broad, it runs a general project brainstorming
 session.
 
-When `.agents/roles/product-strategist.md` is installed and the session needs
+When `.agents/roles/product-strategist/ROLE.md` is installed and the session needs
 vision, audience, value, scope, tradeoff, or sequencing judgment, the skill can
 delegate that bounded product-strategy pass through `delegate-to-role` or
 prompt-overlay fallback. The brainstorming skill still owns the session flow,

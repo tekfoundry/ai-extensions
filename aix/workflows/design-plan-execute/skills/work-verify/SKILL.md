@@ -15,7 +15,7 @@ and the final verification report. Roles can supply bounded specialist
 judgment, but they do not own command execution, plan status, or the decision
 to accept residual risk.
 
-When `.agents/roles/security-engineer.md` exists and the changed behavior is
+When `.agents/roles/security-engineer/ROLE.md` exists and the changed behavior is
 security-sensitive, use `delegate-to-role` or a prompt-overlay delegation to
 request a bounded security-verification pass. Good triggers include trust
 boundaries, secrets, authentication, authorization, permissions, dependency or
@@ -29,7 +29,7 @@ require `security-engineer` for direct use. If the role is unavailable or the
 host cannot delegate, continue verification yourself by checking the same
 security-sensitive behavior and failure paths.
 
-When `.agents/roles/quality-engineer.md` exists and the verification choice or
+When `.agents/roles/quality-engineer/ROLE.md` exists and the verification choice or
 evidence has meaningful quality risk, use `delegate-to-role` or a
 prompt-overlay delegation to request a bounded quality pass. Good triggers
 include non-trivial changed behavior, regression risk, failure paths, edge
@@ -43,7 +43,7 @@ unavailable or the host cannot delegate, continue verification yourself by
 checking the same targeted coverage, regression, acceptance, and residual-risk
 concerns.
 
-When `.agents/roles/implementation-engineer.md` exists and selecting checks
+When `.agents/roles/implementation-engineer/ROLE.md` exists and selecting checks
 depends on changed implementation boundaries, likely touched files, dependency
 order, fixtures, compatibility paths, build or package artifacts, or
 documentation impact, use `delegate-to-role` or a prompt-overlay delegation to

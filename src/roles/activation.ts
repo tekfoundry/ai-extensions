@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { basename, join } from "node:path";
+import { existsSync, lstatSync, readFileSync, writeFileSync } from "node:fs";
+import { basename, dirname, join } from "node:path";
 import { AixError } from "../errors.js";
 import { writeJsonObjectAtomic } from "../activation/json.js";
 import { readJsonObject } from "../activation/json.js";
@@ -8,13 +8,16 @@ import { readLockfileJson } from "../activation/lockfile.js";
 import { manifestRoleSourceDefinitions, removeManifestRole, updateManifestRoles } from "../activation/manifest.js";
 import { LOCKFILE_FILE_NAME, MANIFEST_FILE_NAME, type LockfileRoleEntry, type SourceDefinition, type SourceType } from "../schema.js";
 import { defaultCacheRoot, getDefaultRoleSources, loadRoleSourceDefinitions, resolveSourceFromDefinitions } from "../sources/index.js";
-import { activeRolePath, packageRolePath } from "../paths/agents.js";
+import { activeRolePath, packageRolePath, roleEntrypointPath } from "../paths/agents.js";
+import { assertFileHashesMatchLockfile } from "../lockfile/drift.js";
 import { assertNoActiveRoleNameCollision } from "./lockfile.js";
 import { discoverRoles, parseRoleFileFromPath } from "./discovery.js";
 import {
   assertActiveRoleFilesMatchLockfile,
   assertRolePackageFilesMatchLockfile,
   copyRoleFileSafely,
+  replaceActiveRoleFile,
+  replaceRoleDirectory,
   removeRoleFile,
   removeRolePackageFile,
   roleFileHashes,
@@ -80,11 +83,13 @@ export function roleTargetFromInput(target: string): { source: string; sourcePat
   const source = target.slice(0, separatorIndex);
   let sourcePath = target.slice(separatorIndex + 1);
 
-  if (!sourcePath.endsWith(".md")) {
-    sourcePath = `${sourcePath}.md`;
-  }
+  sourcePath = normalizeRoleSourcePath(sourcePath);
 
   return { source, sourcePath };
+}
+
+function normalizeRoleSourcePath(sourcePath: string): string {
+  return sourcePath.endsWith("/ROLE.md") ? dirname(sourcePath) : sourcePath.replace(/\.md$/, "");
 }
 
 export function discoverRolePack(root: string) {
@@ -149,8 +154,16 @@ function assertRoleActivationSafe(
     throw new AixError(`Active role name collision: ${activationPath}`);
   }
 
-  if (existsSync(packagePath) && !readFileSync(packagePath).equals(readFileSync(sourceRolePath))) {
+  if (existsSync(packagePath) && !lstatSync(packagePath).isDirectory()) {
     throw new AixError(
+      `Refusing to activate ${source}/${sourcePath} because an untracked role package has local changes: ${packagePath}`
+    );
+  }
+
+  if (existsSync(packagePath)) {
+    assertFileHashesMatchLockfile(
+      packagePath,
+      roleFileHashes(sourceRolePath),
       `Refusing to activate ${source}/${sourcePath} because an untracked role package has local changes: ${packagePath}`
     );
   }
@@ -210,9 +223,9 @@ export function activateRoleFromDefinitions(
     : resolveSourceFromDefinitions(source, definitions, cacheRoot);
   const resolvedSourcePath = localPath ? sourcePath : remoteAixRolePath(source, sourcePath);
   const sourceRolePath = join(resolved.rootPath, resolvedSourcePath);
-  const role = parseRoleFileFromPath(sourceRolePath, { requireContract: true });
+  const role = parseRoleFileFromPath(roleEntrypointPath(sourceRolePath), { requireContract: true });
   const activeName = alias || role.name;
-  const expectedFileName = basename(resolvedSourcePath, ".md");
+  const expectedFileName = basename(resolvedSourcePath);
 
   if (role.name !== expectedFileName) {
     throw new AixError(`Invalid role source: ${source}/${resolvedSourcePath} name ${role.name} must match source filename ${expectedFileName}.`);
@@ -423,7 +436,7 @@ export function updateRoles(target?: string, cacheRoot = defaultCacheRoot()): Up
 
   const updatePlans = entries.map((entry) => {
     const sourceRolePath = sourcePathForRole(entry, resolvedSources);
-    const role = parseRoleFileFromPath(sourceRolePath, { requireContract: true });
+    const role = parseRoleFileFromPath(roleEntrypointPath(sourceRolePath), { requireContract: true });
 
     return {
       entry,
@@ -442,11 +455,8 @@ export function updateRoles(target?: string, cacheRoot = defaultCacheRoot()): Up
       return entry;
     }
 
-    writeFileSync(entry.packagePath, readFileSync(plan.sourceRolePath));
-    const packageFiles = roleFileHashes(entry.packagePath);
-    const activeContents = readFileSync(entry.packagePath, "utf8").replace(/^name:\s*.+$/m, `name: ${entry.activeName}`);
-    writeFileSync(entry.activationPath, activeContents, "utf8");
-    const activeFiles = roleFileHashes(entry.activationPath);
+    const packageFiles = replaceRoleDirectory(plan.sourceRolePath, entry.packagePath);
+    const activeFiles = replaceActiveRoleFile(entry.packagePath, entry.activationPath, entry.activeName);
     const updatedEntry: LockfileRoleEntry = {
       ...entry,
       ...(entry.sourceType === "git" && plan.resolvedSource

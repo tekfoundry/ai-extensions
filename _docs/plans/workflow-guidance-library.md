@@ -138,7 +138,7 @@ location that keeps the role and its guidance together:
 ```
 
 The active role directory is the only active role exposure in the core model.
-AIX should not also generate `.agents/roles/<role-name>.md` compatibility
+AIX should not also generate `.agents/roles/<role-name>/ROLE.md` compatibility
 files as part of this plan. Host-specific compatibility outputs can be handled
 later by explicit integration commands if needed.
 
@@ -539,28 +539,28 @@ and the file can be deleted.
 
 ## Implementation Phases
 
-### Phase 1: Role Bundle Cutover (status: accepted)
+### Phase 1: Role Bundle Cutover (status: completed)
 
 Goal: move the role model to the new directory bundle shape first, so later
 guidance work can build on the final role package structure.
 
 Tasks:
 
-- ⬜️ Update role package discovery to recognize only role bundles with
+- ✅ Update role package discovery to recognize only role bundles with
       `ROLE.md`.
-- ⬜️ Migrate bundled top-level AIX roles from single Markdown files into
+- ✅ Migrate bundled top-level AIX roles from single Markdown files into
       `roles/<role-name>/ROLE.md` bundles.
-- ⬜️ Migrate workflow-owned `design-plan-execute` roles into
+- ✅ Migrate workflow-owned `design-plan-execute` roles into
       `roles/project-dev/<role-name>/ROLE.md` bundles.
-- ⬜️ Update role activation so active roles are exposed as
+- ✅ Update role activation so active roles are exposed as
       `.agents/roles/<role-name>/ROLE.md` directories instead of
       `.agents/roles/<role-name>.md` files.
-- ⬜️ Update role package, active-file, lockfile, drift, diff, update,
+- ✅ Update role package, active-file, lockfile, drift, diff, update,
       deactivate, status, verify, and workflow lifecycle behavior for bundled
       role directories.
-- ⬜️ Update `delegate-to-role` and role-related tests/docs to resolve active
+- ✅ Update `delegate-to-role` and role-related tests/docs to resolve active
       roles through `ROLE.md`.
-- ⬜️ Confirm old single-file role sources are no longer recognized and produce
+- ✅ Confirm old single-file role sources are no longer recognized and produce
       clear behavior.
 
 Verification:
@@ -570,6 +570,24 @@ Verification:
   bundles.
 - `npm test -- tests/roles.test.mjs tests/workflow.test.mjs`
 - `npm run build`
+
+Execution evidence (2026-08-28):
+
+- Migrated shipped AIX and `design-plan-execute` roles, installed workflow
+  package roles under `.agents/packages/workflows/aix/design-plan-execute/roles`,
+  and active roles under `.agents/roles` to bundle directories with `ROLE.md`
+  entrypoints.
+- Updated role discovery, activation, package copy, active role materialization,
+  lockfile hashing, drift/diff/update/deactivate/status/verify, workflow
+  install/update/uninstall, delegation docs, architecture docs, and tests for
+  role bundles.
+- Added coverage that legacy single-file role sources are ignored by discovery
+  and fail clearly on direct activation.
+- Verification passed:
+  `npm test -- tests/roles.test.mjs tests/workflow.test.mjs`,
+  `npm test -- tests/init.test.mjs tests/package-smoke.test.mjs tests/lockfile.test.mjs`,
+  `npm test -- tests/skill-instructions.test.mjs`,
+  `npm run build`, `node bin/aix.js verify`, and `git diff --check`.
 
 ### Phase 2: Role Guidance Files (status: accepted)
 

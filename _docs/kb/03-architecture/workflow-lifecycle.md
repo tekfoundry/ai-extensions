@@ -143,7 +143,8 @@ used by standalone assets while still blocking direct standalone lifecycle
 commands.
 
 Workflow-owned skills use active skill symlinks when possible. Workflow-owned
-roles are active Markdown files generated from package role files.
+roles are active role directories with `ROLE.md` entrypoints generated from
+package role bundles.
 
 ## Template Lifecycle
 

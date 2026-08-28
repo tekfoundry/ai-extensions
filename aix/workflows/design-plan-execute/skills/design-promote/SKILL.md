@@ -15,7 +15,7 @@ user-facing handoff. Roles can supply bounded specialist judgment, but they do
 not authorize new design truth or promote behavior that has not been
 implemented and accepted.
 
-When `.agents/roles/technical-architect.md` exists and the completed work
+When `.agents/roles/technical-architect/ROLE.md` exists and the completed work
 changed architecture-sensitive behavior, use `delegate-to-role` or a
 prompt-overlay delegation to request bounded architecture-promotion input.
 Good triggers include system shape, component boundaries, module ownership,
@@ -30,7 +30,7 @@ role is unavailable or the host cannot delegate, continue promotion yourself by
 checking the same architecture-sensitive current-state concerns. Do not use the
 role to introduce speculative future behavior into `_docs/kb`.
 
-When `.agents/roles/ux-writer.md` exists and the completed work changed
+When `.agents/roles/ux-writer/ROLE.md` exists and the completed work changed
 durable product or developer-facing language, use `delegate-to-role` or a
 prompt-overlay delegation to request bounded UX writing promotion input. Good
 triggers include terminology, labels, prompts, command help, terminal output,
@@ -45,7 +45,7 @@ checking the same copy, terminology, reader, task, and recovery-path concerns.
 Do not use the role to promote unimplemented wording or final product claims
 that still need developer review.
 
-When `.agents/roles/documentation-specialist.md` exists and promotion depends
+When `.agents/roles/documentation-specialist/ROLE.md` exists and promotion depends
 on `_docs` placement, knowledge-base ownership, current-state accuracy,
 related-doc links, README or workflow-doc impact, or separating plan history
 from durable truth, use `delegate-to-role` or a prompt-overlay delegation to

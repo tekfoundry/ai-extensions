@@ -16,7 +16,7 @@ authoritative over the task, plan, worktree, verification, or final decision.
 
 1. Read `AGENTS.md`, `.agents/workflow.md`, `_docs/README.md`, the active
    plan when the task is plan-related, and the relevant installed role file
-   under `.agents/roles/<role-name>.md`.
+   under `.agents/roles/<role-name>/ROLE.md`.
 2. Resolve the role only from explicit developer intent:
    - Accept prompts such as `use <role-name>` and
      `delegate to <role-name>`.

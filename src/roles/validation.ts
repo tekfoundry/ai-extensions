@@ -1,4 +1,4 @@
-import { basename } from "node:path";
+import { basename, dirname } from "node:path";
 import { AixError } from "../errors.js";
 import type { ParsedRoleFile, RoleMetadataValue, RoleRuntimeHints } from "./types.js";
 
@@ -97,10 +97,12 @@ export function assertRoleName(name: string, label = "role name"): void {
 }
 
 export function assertRoleFileNameMatches(role: ParsedRoleFile, filePath: string): void {
-  const expectedName = basename(filePath, ".md");
+  const expectedName = basename(filePath) === "ROLE.md"
+    ? basename(dirname(filePath))
+    : basename(filePath, ".md");
 
   if (expectedName !== role.name) {
-    throw new AixError(`Invalid role file: ${filePath} name ${role.name} must match filename ${expectedName}.`);
+    throw new AixError(`Invalid role file: ${filePath} name ${role.name} must match role bundle name ${expectedName}.`);
   }
 }
 

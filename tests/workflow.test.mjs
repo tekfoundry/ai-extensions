@@ -107,8 +107,8 @@ function writeWorkflow(directory, title, skillBody, workflowName = "fixture-work
   writeFileSync(join(directory, "skills/alpha/SKILL.md"), `---\nname: alpha\n---\n\n# Alpha\n\n${skillBody}\n`, "utf8");
 
   if (options.roleName) {
-    mkdirSync(join(directory, "roles/project-dev"), { recursive: true });
-    writeFileSync(join(directory, `roles/project-dev/${options.roleName}.md`), validRoleMarkdown(options.roleName), "utf8");
+    mkdirSync(join(directory, `roles/project-dev/${options.roleName}`), { recursive: true });
+    writeFileSync(join(directory, `roles/project-dev/${options.roleName}/ROLE.md`), validRoleMarkdown(options.roleName), "utf8");
   }
 }
 
@@ -175,20 +175,20 @@ test("run workflow install activates workflow-owned roles and reports them in st
     assert.equal(install.exitCode, 0);
     assert.match(install.stdout, /Activated 1 workflow-owned roles/);
     assert.equal(lockfile.workflows[0].roles.length, 1);
-    assert.equal(lockfile.workflows[0].roles[0].sourcePath, "roles/project-dev/quality-engineer.md");
+    assert.equal(lockfile.workflows[0].roles[0].sourcePath, "roles/project-dev/quality-engineer");
     assert.equal(lockfile.roles.length, 1);
     assert.equal(lockfile.roles[0].owner.kind, "workflow");
     assert.equal(lockfile.roles[0].owner.name, "role-workflow");
     assert.equal(lockfile.roles[0].requested, false);
-    assert.equal(lockfile.roles[0].packagePath, ".agents/packages/workflows/fixture/role-workflow/roles/project-dev/quality-engineer.md");
-    assert.equal(lockfile.roles[0].activationPath, ".agents/roles/quality-engineer.md");
-    assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/fixture/role-workflow/roles/project-dev/quality-engineer.md")));
-    assert.ok(existsSync(join(projectPath, ".agents/roles/quality-engineer.md")));
+    assert.equal(lockfile.roles[0].packagePath, ".agents/packages/workflows/fixture/role-workflow/roles/project-dev/quality-engineer");
+    assert.equal(lockfile.roles[0].activationPath, ".agents/roles/quality-engineer");
+    assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/fixture/role-workflow/roles/project-dev/quality-engineer/ROLE.md")));
+    assert.ok(existsSync(join(projectPath, ".agents/roles/quality-engineer/ROLE.md")));
 
     const status = run(["status"]);
     assert.equal(status.exitCode, 0);
     assert.match(status.stdout, /Workflow[\s\S]*Roles[\s\S]*1/);
-    assert.match(status.stdout, /Workflow-owned roles[\s\S]*quality-engineer[\s\S]*fixture\/roles\/project-dev\/quality-engineer\.md/);
+    assert.match(status.stdout, /Workflow-owned roles[\s\S]*quality-engineer[\s\S]*fixture\/roles\/project-dev\/quality-engineer/);
 
     const verify = run(["verify"]);
     assert.equal(verify.exitCode, 0);
@@ -425,7 +425,7 @@ test("run workflow diff reports role source changes and workflow update applies 
       assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
 
       writeFileSync(
-        join(source, "roles/project-dev/quality-engineer.md"),
+        join(source, "roles/project-dev/quality-engineer/ROLE.md"),
         validRoleMarkdown("quality-engineer").replace("Return findings, decisions", "Return updated findings, decisions"),
         "utf8"
       );
@@ -439,7 +439,7 @@ test("run workflow diff reports role source changes and workflow update applies 
       const update = run(["workflow", "update"]);
       assert.equal(update.exitCode, 0);
       assert.match(update.stdout, /Updated workflow/);
-      assert.match(readFileSync(".agents/roles/quality-engineer.md", "utf8"), /updated findings/);
+      assert.match(readFileSync(".agents/roles/quality-engineer/ROLE.md", "utf8"), /updated findings/);
     } finally {
       if (previousCache === undefined) {
         delete process.env.AIX_CACHE_DIR;
@@ -465,9 +465,9 @@ test("run workflow update removes workflow-owned roles deleted from the source",
 
     try {
       assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
-      assert.equal(existsSync(".agents/roles/quality-engineer.md"), true);
+      assert.equal(existsSync(".agents/roles/quality-engineer/ROLE.md"), true);
 
-      rmSync(join(source, "roles/project-dev/quality-engineer.md"));
+      rmSync(join(source, "roles/project-dev/quality-engineer"), { recursive: true });
       git(["add", "."], source);
       git(["commit", "-m", "remove workflow role"], source);
 
@@ -478,7 +478,7 @@ test("run workflow update removes workflow-owned roles deleted from the source",
 
       assert.equal(update.exitCode, 0);
       assert.match(update.stdout, /Updated workflow/);
-      assert.equal(existsSync(".agents/roles/quality-engineer.md"), false);
+      assert.equal(existsSync(".agents/roles/quality-engineer"), false);
       assert.deepEqual(lockfile.roles, []);
       assert.equal(lockfile.workflows[0].roles, undefined);
       assert.match(status.stdout, /Workflow[\s\S]*Roles[\s\S]*0/);
@@ -579,19 +579,19 @@ test("run workflow uninstall removes workflow-owned roles after drift checks", a
 
   await withProject(async () => {
     assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
-    writeFileSync(".agents/roles/quality-engineer.md", "local role edit\n", "utf8");
+    writeFileSync(".agents/roles/quality-engineer/ROLE.md", "local role edit\n", "utf8");
 
     const blockedRemove = run(["workflow", "uninstall"]);
     assert.equal(blockedRemove.exitCode, 2);
     assert.match(blockedRemove.stderr, /Refusing to remove modified active role/);
 
-    writeFileSync(".agents/roles/quality-engineer.md", validRoleMarkdown("quality-engineer"), "utf8");
+    writeFileSync(".agents/roles/quality-engineer/ROLE.md", validRoleMarkdown("quality-engineer"), "utf8");
     const remove = run(["workflow", "uninstall"]);
     const lockfile = JSON.parse(readFileSync("aix.lock.json", "utf8"));
 
     assert.equal(remove.exitCode, 0);
     assert.match(remove.stdout, /Removed 1 workflow-owned roles/);
-    assert.equal(existsSync(".agents/roles/quality-engineer.md"), false);
+    assert.equal(existsSync(".agents/roles/quality-engineer"), false);
     assert.deepEqual(lockfile.roles, []);
   });
 });

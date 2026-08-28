@@ -22,7 +22,7 @@ idea through `plan-create`.
 
 This skill owns the brainstorming procedure and the `_docs/ideas.md`
 checkpoint. Product strategy judgment belongs in a role when the project has
-one installed. If `.agents/roles/product-strategist.md` exists and the session
+one installed. If `.agents/roles/product-strategist/ROLE.md` exists and the session
 needs vision, audience, value, scope, tradeoff, or sequencing judgment, use
 `delegate-to-role` or a bounded prompt-overlay delegation to
 `product-strategist`, then fold the returned evidence into the idea list. If
@@ -58,7 +58,7 @@ implementation plan.
    - Inspect relevant source layout and marketing artifacts such as README
      files when they may reveal gaps or stale messaging.
 3. Bring in product strategy when it would improve the session.
-   - If `.agents/roles/product-strategist.md` is installed, delegate a bounded
+   - If `.agents/roles/product-strategist/ROLE.md` is installed, delegate a bounded
      product-strategy pass for audience, user problem, product value, scope,
      tradeoffs, sequencing, and open questions.
    - Keep the parent brainstorming context responsible for `_docs/ideas.md`,

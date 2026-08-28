@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { AixError } from "../errors.js";
-import { activeRolePath } from "../paths/agents.js";
+import { activeRolePath, roleEntrypointPath } from "../paths/agents.js";
 import type { LockfileRoleEntry, LockfileWorkflowEntry, SourceType } from "../schema.js";
 import { discoverRoles, parseRoleFileFromPath } from "../roles/discovery.js";
 import {
@@ -78,7 +78,7 @@ export function assertWorkflowRolesSafe(
       (role) => role.owner?.kind === "workflow" && role.owner.name === workflow.name && role.sourcePath === plan.sourcePath
     );
 
-    parseRoleFileFromPath(sourceRolePath, { requireContract: true });
+    parseRoleFileFromPath(roleEntrypointPath(sourceRolePath), { requireContract: true });
     assertRoleName(plan.activeName, "active role name");
     assertNoWorkflowRoleCollision(lockfile, workflow.name, workflowSource, plan);
 

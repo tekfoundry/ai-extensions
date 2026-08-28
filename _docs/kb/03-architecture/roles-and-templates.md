@@ -2,17 +2,17 @@
 
 ## Role Package Shape
 
-Roles are single Markdown files with YAML front matter and body instructions.
-Standalone role package files live under:
+Roles are directory bundles with a `ROLE.md` entrypoint containing YAML front
+matter and body instructions. Standalone role package directories live under:
 
 ```text
 .agents/packages/roles/<source>/<source-path>
 ```
 
-Active role files live under:
+Active role entrypoints live under:
 
 ```text
-.agents/roles/<active-name>.md
+.agents/roles/<active-name>/ROLE.md
 ```
 
 Workflow-owned role source files are discovered from `roles/project-dev/`
@@ -24,17 +24,17 @@ Workflow-owned roles are shipped inside a workflow package instead of a
 standalone role source. The current workflow role source convention is:
 
 ```text
-<workflow-package>/roles/project-dev/<role-name>.md
+<workflow-package>/roles/project-dev/<role-name>/ROLE.md
 ```
 
 After workflow install, the same role is represented in three places:
 
 ```text
 package source:
-  .agents/packages/workflows/<workflow-source>/<workflow-name>/roles/project-dev/<role-name>.md
+  .agents/packages/workflows/<workflow-source>/<workflow-name>/roles/project-dev/<role-name>/ROLE.md
 
 active role:
-  .agents/roles/<role-name>.md
+  .agents/roles/<role-name>/ROLE.md
 
 lockfile entry:
   roles[] entry with owner.kind = "workflow" and owner.name = <workflow-name>
@@ -67,12 +67,12 @@ resolver and does not install skills.
 
 ```text
 aix role activate <source/path> [alias]
-  -> parse target and add .md when omitted
+  -> normalize source target to a role bundle directory
   -> resolve local or Git role source
-  -> parse and validate role file
+  -> parse and validate ROLE.md
   -> preflight lockfile collisions and drift
-  -> copy package role file
-  -> write active role file
+  -> copy package role bundle
+  -> write active role bundle
   -> update manifest role request
   -> upsert lockfile role entry
 ```

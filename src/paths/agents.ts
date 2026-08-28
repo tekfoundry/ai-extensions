@@ -21,7 +21,11 @@ export function packageRolePath(source: string, sourcePath: string): string {
 }
 
 export function activeRolePath(activeName: string): string {
-  return join(ACTIVE_ROLES_DIR, `${activeName}.md`);
+  return join(ACTIVE_ROLES_DIR, activeName);
+}
+
+export function roleEntrypointPath(rolePath: string): string {
+  return join(rolePath, "ROLE.md");
 }
 
 export function packageWorkflowPath(source: string, workflowName: string): string {

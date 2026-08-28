@@ -14,7 +14,7 @@ activating backlog work.
 judgment, but they do not own readiness decisions, activation recommendations,
 plan edits, lifecycle state, or user-facing findings.
 
-When `.agents/roles/technical-architect.md` exists and the plan has
+When `.agents/roles/technical-architect/ROLE.md` exists and the plan has
 architecture-sensitive scope, use `delegate-to-role` or a prompt-overlay
 delegation to request a bounded architecture-readiness pass. Good triggers
 include system boundaries, component contracts, module ownership, runtime
@@ -28,7 +28,7 @@ Do not require `technical-architect` for direct use. If the role is unavailable
 or the host cannot delegate, continue the review yourself by checking the same
 architecture-readiness concerns.
 
-When `.agents/roles/product-strategist.md` exists and the plan has
+When `.agents/roles/product-strategist/ROLE.md` exists and the plan has
 product-scope, audience, value, sequencing, prioritization, opportunity-cost,
 or product-fit risk, use `delegate-to-role` or a prompt-overlay delegation to
 request a bounded product-strategy readiness pass.
@@ -39,7 +39,7 @@ as appropriate. Do not require `product-strategist` for direct use. If the
 role is unavailable or the host cannot delegate, continue the review yourself
 by checking the same product-strategy readiness concerns.
 
-When `.agents/roles/product-designer.md` exists and the plan has
+When `.agents/roles/product-designer/ROLE.md` exists and the plan has
 product-facing UX scope, use `delegate-to-role` or a prompt-overlay delegation
 to request a bounded design-readiness pass. Good triggers include user flows,
 interaction design, accessibility, layout hierarchy, prototypes, terminal UX,
@@ -52,7 +52,7 @@ notes as appropriate. Do not require `product-designer` for direct use. If the
 role is unavailable or the host cannot delegate, continue the review yourself
 by checking the same product-design readiness concerns.
 
-When `.agents/roles/requirements-engineer.md` exists and the plan needs
+When `.agents/roles/requirements-engineer/ROLE.md` exists and the plan needs
 requirements-readiness review, use `delegate-to-role` or a prompt-overlay
 delegation to request a bounded requirements pass. Good triggers include
 requirements, actors, workflows, inputs, outputs, constraints, non-goals,
@@ -66,7 +66,7 @@ notes, or readiness notes as appropriate. Do not require
 cannot delegate, continue the review yourself by checking the same
 requirements-readiness concerns.
 
-When `.agents/roles/security-engineer.md` exists and the plan has
+When `.agents/roles/security-engineer/ROLE.md` exists and the plan has
 security-sensitive scope, use `delegate-to-role` or a prompt-overlay delegation
 to request a bounded security-readiness pass. Good triggers include trust
 boundaries, secrets, authentication, authorization, permissions, dependency or
@@ -82,7 +82,7 @@ review notes, or readiness notes as appropriate. Do not require
 cannot delegate, continue the review yourself by checking the same
 security-readiness concerns.
 
-When `.agents/roles/ux-writer.md` exists and the plan has user-facing or
+When `.agents/roles/ux-writer/ROLE.md` exists and the plan has user-facing or
 developer-facing copy scope, use `delegate-to-role` or a prompt-overlay
 delegation to request a bounded UX writing readiness pass. Good triggers
 include labels, prompts, command help, terminal output, errors, empty states,
@@ -96,7 +96,7 @@ is unavailable or the host cannot delegate, continue the review yourself by
 checking the same copy, terminology, message-state, recovery, and user-action
 concerns.
 
-When `.agents/roles/quality-engineer.md` exists and the plan needs
+When `.agents/roles/quality-engineer/ROLE.md` exists and the plan needs
 verification-readiness review, use `delegate-to-role` or a prompt-overlay
 delegation to request a bounded quality pass. Good triggers include acceptance
 checks, targeted verification, regression risk, failure paths, manual

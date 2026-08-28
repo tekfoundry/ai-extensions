@@ -26,7 +26,7 @@ or continue within the selected phase. Roles can supply bounded specialist
 judgment, but they do not own task execution, command execution, plan status,
 or final phase completion decisions.
 
-When `.agents/roles/quality-engineer.md` exists and the phase has meaningful
+When `.agents/roles/quality-engineer/ROLE.md` exists and the phase has meaningful
 verification, regression, manual validation, or residual-risk questions, use
 `delegate-to-role` or a prompt-overlay delegation to request bounded quality
 input. Good triggers include cross-task regression risk, integration checks,
@@ -39,7 +39,7 @@ require `quality-engineer` for direct use. If the role is unavailable or the
 host cannot delegate, continue phase execution yourself by checking the same
 verification and regression concerns.
 
-When `.agents/roles/implementation-engineer.md` exists and phase execution
+When `.agents/roles/implementation-engineer/ROLE.md` exists and phase execution
 depends on task slicing, changed-area ownership, dependency order, integration
 risk, documentation impact, or whether the next task is ready for
 `task-execute`, use `delegate-to-role` or a prompt-overlay delegation to

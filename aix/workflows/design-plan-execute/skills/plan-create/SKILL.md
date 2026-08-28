@@ -21,14 +21,14 @@ can supply bounded specialist judgment, but they do not own template
 resolution, file placement, lifecycle state, accepted gates, final task
 breakdown, or user-facing handoff.
 
-When `.agents/roles/product-strategist.md` exists and the plan needs stronger
+When `.agents/roles/product-strategist/ROLE.md` exists and the plan needs stronger
 vision, audience, value, scope, tradeoff, sequencing, or product-fit judgment,
 use `delegate-to-role` or a prompt-overlay delegation to request a bounded
 product-strategy pass. Fold the returned evidence into `Context`,
 `High-Level Goal`, open questions, risks, and later scope boundaries as
 appropriate.
 
-When `.agents/roles/product-designer.md` exists and the plan involves user
+When `.agents/roles/product-designer/ROLE.md` exists and the plan involves user
 flows, interaction design, accessibility, layout hierarchy, prototypes,
 terminal UX, prompts, or design-system fit, use `delegate-to-role` or a
 prompt-overlay delegation to request a bounded product-design pass. Fold the
@@ -37,7 +37,7 @@ returned evidence into `Design Intent`, `Non-Goals`,
 constraints, open questions, and human review notes as appropriate. Do not use
 the role to finalize product surfaces without developer review.
 
-When `.agents/roles/requirements-engineer.md` exists and the high-level goal
+When `.agents/roles/requirements-engineer/ROLE.md` exists and the high-level goal
 has been accepted, use `delegate-to-role` or a prompt-overlay delegation to
 request a bounded requirements pass for Design Intent. Good triggers include
 requirements, actors, workflows, inputs, outputs, constraints, non-goals,
@@ -49,7 +49,7 @@ questions, and human review notes as appropriate. Do not use the role to
 invent requirements from thin context or to approve implementation phases
 before Design Intent is accepted.
 
-When `.agents/roles/technical-architect.md` exists and the plan involves
+When `.agents/roles/technical-architect/ROLE.md` exists and the plan involves
 system boundaries, component contracts, module ownership, runtime contracts,
 integration choices, data flow, persistence, package-management behavior,
 workflow lifecycle behavior, or maintainability tradeoffs, use
@@ -60,7 +60,7 @@ verification expectations, risks, and promotion-to-design notes as
 appropriate. Use architecture review to shape phases only after Design Intent
 is accepted.
 
-When `.agents/roles/security-engineer.md` exists and the plan involves trust
+When `.agents/roles/security-engineer/ROLE.md` exists and the plan involves trust
 boundaries, secrets, authentication, authorization, permissions, dependency or
 supply-chain risk, local file writes, overwrites, deletes, renames, external
 systems, network access, package trust, workflow installation or updates,
@@ -72,7 +72,7 @@ expectations, implementation-phase constraints, open questions, and human
 review notes as appropriate. Do not use the role to approve unsafe behavior or
 waive security findings.
 
-When `.agents/roles/ux-writer.md` exists and the plan changes user-facing or
+When `.agents/roles/ux-writer/ROLE.md` exists and the plan changes user-facing or
 developer-facing text, use `delegate-to-role` or a prompt-overlay delegation
 to request a bounded UX writing pass. Good triggers include labels, prompts,
 command help, terminal output, errors, empty states, onboarding copy, README
@@ -83,7 +83,7 @@ constraints, open questions, and human review notes as appropriate. Do not use
 the role to finalize product claims, support promises, security language,
 legal text, release commitments, or other wording that needs developer review.
 
-When `.agents/roles/quality-engineer.md` exists and Design Intent has been
+When `.agents/roles/quality-engineer/ROLE.md` exists and Design Intent has been
 accepted, use `delegate-to-role` or a prompt-overlay delegation to request a
 bounded quality pass for acceptance checks, verification strategy, regression
 risk, evidence expectations, skipped-check rationale, manual validation needs,
@@ -93,7 +93,7 @@ notes, open questions, and human review notes as appropriate. Do not use the
 role to run commands, mark phases ready, waive checks, or take over
 `work-verify`.
 
-When `.agents/roles/documentation-specialist.md` exists and the plan changes
+When `.agents/roles/documentation-specialist/ROLE.md` exists and the plan changes
 durable behavior, project-owned docs, README or workflow docs, developer-facing
 instructions, examples, or documentation closeout expectations, use
 `delegate-to-role` or a prompt-overlay delegation to request a bounded
@@ -106,7 +106,7 @@ open questions, risks, and human review notes as appropriate. Do not use the
 role to invent design truth, promote speculative behavior, finalize docs, or
 take over `review-and-refresh-docs`, `design-create`, or `design-promote`.
 
-When `.agents/roles/implementation-engineer.md` exists and Design Intent has
+When `.agents/roles/implementation-engineer/ROLE.md` exists and Design Intent has
 been accepted, use `delegate-to-role` or a prompt-overlay delegation to request
 bounded implementation-readiness input before phases and tasks are finalized.
 Good triggers include scoped task boundaries, phase sequencing, likely changed

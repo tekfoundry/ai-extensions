@@ -18,7 +18,7 @@ decision to stop or continue. Roles can supply bounded specialist judgment,
 but they do not own phase execution, task execution, command execution, plan
 status, or final plan completion decisions.
 
-When `.agents/roles/implementation-engineer.md` exists and whole-plan
+When `.agents/roles/implementation-engineer/ROLE.md` exists and whole-plan
 execution depends on phase order, cross-phase dependencies, changed-area
 ownership, integration risk, documentation impact, or whether the next phase
 is ready for `phase-execute`, use `delegate-to-role` or a prompt-overlay

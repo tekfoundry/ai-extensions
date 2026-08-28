@@ -22,6 +22,8 @@ import { activeRolePath, bundledAixRolePackPath, packageRolePath, workflowRoleSo
 import { collectWorkspaceStatus } from "../dist/status/index.js";
 import { run } from "../dist/cli.js";
 
+const roleEntry = "ROLE.md";
+
 function git(args, cwd) {
   return execFileSync("git", args, {
     cwd,
@@ -77,8 +79,8 @@ Return commands, evidence, gaps, and risk.
 async function createRoleGitSource() {
   const directory = await mkdtemp(join(tmpdir(), "aix-role-source-"));
 
-  mkdirSync(join(directory, "roles/aix-dev"), { recursive: true });
-  writeFileSync(join(directory, "roles/aix-dev/quality-engineer.md"), validRoleMarkdown(), "utf8");
+  mkdirSync(join(directory, "roles/aix-dev/quality-engineer"), { recursive: true });
+  writeFileSync(join(directory, "roles/aix-dev/quality-engineer/ROLE.md"), validRoleMarkdown(), "utf8");
   git(["init", "-b", "main"], directory);
   git(["add", "."], directory);
   git(["commit", "-m", "roles"], directory);
@@ -103,14 +105,14 @@ async function withProject(callback) {
 }
 
 test("role path helpers return canonical package and active paths", () => {
-  assert.equal(packageRolePath("fixture", "roles/quality-engineer.md"), ".agents/packages/roles/fixture/roles/quality-engineer.md");
-  assert.equal(activeRolePath("quality-engineer"), ".agents/roles/quality-engineer.md");
-  assert.equal(workflowRoleSourcePath("project-dev", "quality-engineer.md"), "roles/project-dev/quality-engineer.md");
+  assert.equal(packageRolePath("fixture", "roles/quality-engineer"), ".agents/packages/roles/fixture/roles/quality-engineer");
+  assert.equal(activeRolePath("quality-engineer"), ".agents/roles/quality-engineer");
+  assert.equal(workflowRoleSourcePath("project-dev", "quality-engineer"), "roles/project-dev/quality-engineer");
   assert.equal(bundledAixRolePackPath("aix-dev"), "aix/roles/aix-dev");
 });
 
 test("parseRoleFile preserves front matter hints and body", () => {
-  const role = parseRoleFile(validRoleMarkdown("routing: explicit\n"), "quality-engineer.md");
+  const role = parseRoleFile(validRoleMarkdown("routing: explicit\n"), "quality-engineer/ROLE.md");
 
   assert.equal(role.name, "quality-engineer");
   assert.equal(role.description, "Designs targeted verification and regression coverage for planned work.");
@@ -124,7 +126,7 @@ test("parseRoleFile preserves front matter hints and body", () => {
 });
 
 test("resolveRoleDelegation resolves explicit role prompts and builds prompt-overlay fallback", () => {
-  const role = parseRoleFile(validRoleMarkdown(), "quality-engineer.md");
+  const role = parseRoleFile(validRoleMarkdown(), "quality-engineer/ROLE.md");
   const resolution = resolveRoleDelegation("use quality-engineer to plan verification", [role]);
 
   assert.equal(resolution.mode, "prompt-overlay");
@@ -141,10 +143,10 @@ test("resolveRoleDelegation resolves explicit role prompts and builds prompt-ove
 });
 
 test("resolveRoleDelegation stops on missing and ambiguous role prompts", () => {
-  const qualityEngineer = parseRoleFile(validRoleMarkdown(), "quality-engineer.md");
+  const qualityEngineer = parseRoleFile(validRoleMarkdown(), "quality-engineer/ROLE.md");
   const documentationSpecialist = parseRoleFile(
     validRoleMarkdown().replaceAll("quality-engineer", "documentation-specialist"),
-    "documentation-specialist.md"
+    "documentation-specialist/ROLE.md"
   );
 
   assert.throws(
@@ -159,7 +161,7 @@ test("resolveRoleDelegation stops on missing and ambiguous role prompts", () => 
 });
 
 test("resolveRoleDelegation keeps implicit routing conservative", () => {
-  const role = parseRoleFile(validRoleMarkdown(), "quality-engineer.md");
+  const role = parseRoleFile(validRoleMarkdown(), "quality-engineer/ROLE.md");
 
   assert.equal(resolveRoleDelegation("please review the verification plan", [role]), undefined);
 });
@@ -167,7 +169,7 @@ test("resolveRoleDelegation keeps implicit routing conservative", () => {
 test("prompt-overlay delegation does not write host-native agent files", async () => {
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-role-host-compat-"));
   const originalCwd = process.cwd();
-  const role = parseRoleFile(validRoleMarkdown(), "quality-engineer.md");
+  const role = parseRoleFile(validRoleMarkdown(), "quality-engineer/ROLE.md");
 
   try {
     process.chdir(projectRoot);
@@ -175,9 +177,9 @@ test("prompt-overlay delegation does not write host-native agent files", async (
     const prompt = buildPromptOverlayDelegation(role, "Review verification without exposing host-native agents.");
 
     assert.match(prompt, /Mode: prompt-overlay fallback/);
-    assert.equal(existsSync(join(projectRoot, ".claude/agents/quality-engineer.md")), false);
-    assert.equal(existsSync(join(projectRoot, ".codex/agents/quality-engineer.md")), false);
-    assert.equal(existsSync(join(projectRoot, ".agents/agents/quality-engineer.md")), false);
+    assert.equal(existsSync(join(projectRoot, ".claude/agents/quality-engineer/ROLE.md")), false);
+    assert.equal(existsSync(join(projectRoot, ".codex/agents/quality-engineer/ROLE.md")), false);
+    assert.equal(existsSync(join(projectRoot, ".agents/agents/quality-engineer/ROLE.md")), false);
   } finally {
     process.chdir(originalCwd);
   }
@@ -210,14 +212,14 @@ test("parseRoleFile validates lowercase hyphenated names and rejects colons", ()
 });
 
 test("parseRoleFile treats skills metadata as safe hints, not dependency lookups", () => {
-  const role = parseRoleFile(validRoleMarkdown().replace("work-verify", "missing-but-well-formed"), "quality-engineer.md");
+  const role = parseRoleFile(validRoleMarkdown().replace("work-verify", "missing-but-well-formed"), "quality-engineer/ROLE.md");
 
   assert.deepEqual(role.hints.skills, ["missing-but-well-formed"]);
 });
 
 test("parseRoleFile rejects invalid skill reference shape", () => {
   assert.throws(
-    () => parseRoleFile(validRoleMarkdown().replace("work-verify", "bad:skill"), "quality-engineer.md"),
+    () => parseRoleFile(validRoleMarkdown().replace("work-verify", "bad:skill"), "quality-engineer/ROLE.md"),
     /role skill reference: bad:skill must not contain ":"/
   );
 });
@@ -231,7 +233,7 @@ description: Designs targeted verification.
 # Purpose
 
 Design verification.
-`, "quality-engineer.md");
+`, "quality-engineer/ROLE.md");
 
   assert.deepEqual(roleContractIssues(role), [
     "Role quality-engineer is missing required section: when to use.",
@@ -243,26 +245,28 @@ Design verification.
   assert.throws(() => assertRoleContract(role), /missing required section: when to use/);
 });
 
-test("discoverRoles scans Markdown role files and requires filename/name agreement", async () => {
+test("discoverRoles scans role bundles and requires bundle/name agreement", async () => {
   const directory = await mkdtemp(join(tmpdir(), "aix-roles-"));
 
-  mkdirSync(join(directory, "project-dev"), { recursive: true });
-  writeFileSync(join(directory, "project-dev/quality-engineer.md"), validRoleMarkdown(), "utf8");
+  mkdirSync(join(directory, "project-dev/quality-engineer"), { recursive: true });
+  writeFileSync(join(directory, "project-dev/quality-engineer/ROLE.md"), validRoleMarkdown(), "utf8");
+  writeFileSync(join(directory, "project-dev/legacy.md"), validRoleMarkdown(), "utf8");
   writeFileSync(join(directory, "notes.txt"), "ignored\n", "utf8");
 
   assert.deepEqual(discoverRoles(directory), [
     {
-      path: "project-dev/quality-engineer.md",
+      path: "project-dev/quality-engineer",
       name: "quality-engineer",
       description: "Designs targeted verification and regression coverage for planned work."
     }
   ]);
 
-  writeFileSync(join(directory, "project-dev/wrong.md"), validRoleMarkdown(), "utf8");
+  mkdirSync(join(directory, "project-dev/wrong"), { recursive: true });
+  writeFileSync(join(directory, "project-dev/wrong/ROLE.md"), validRoleMarkdown(), "utf8");
 
   assert.throws(
-    () => parseRoleFileFromPath(join(directory, "project-dev/wrong.md")),
-    /name quality-engineer must match filename wrong/
+    () => parseRoleFileFromPath(join(directory, "project-dev/wrong/ROLE.md")),
+    /name quality-engineer must match role bundle name wrong/
   );
 });
 
@@ -273,9 +277,9 @@ test("assertNoActiveRoleNameCollision permits same role and rejects different so
         kind: "role",
         source: "fixture",
         sourceType: "git",
-        sourcePath: "roles/quality-engineer.md",
-        packagePath: ".agents/packages/roles/fixture/roles/quality-engineer.md",
-        activationPath: ".agents/roles/quality-engineer.md",
+        sourcePath: "roles/quality-engineer",
+        packagePath: ".agents/packages/roles/fixture/roles/quality-engineer",
+        activationPath: ".agents/roles/quality-engineer",
         originalName: "quality-engineer",
         activeName: "quality-engineer",
         requested: true,
@@ -285,9 +289,9 @@ test("assertNoActiveRoleNameCollision permits same role and rejects different so
     ]
   };
 
-  assert.doesNotThrow(() => assertNoActiveRoleNameCollision(lockfile, "quality-engineer", "fixture", "roles/quality-engineer.md"));
+  assert.doesNotThrow(() => assertNoActiveRoleNameCollision(lockfile, "quality-engineer", "fixture", "roles/quality-engineer"));
   assert.throws(
-    () => assertNoActiveRoleNameCollision(lockfile, "quality-engineer", "other", "roles/quality-engineer.md"),
+    () => assertNoActiveRoleNameCollision(lockfile, "quality-engineer", "other", "roles/quality-engineer"),
     /Active role name collision: quality-engineer/
   );
 });
@@ -307,7 +311,7 @@ test("discoverRoles reports the bundled AIX development role pack", () => {
   );
 
   for (const role of roles) {
-    assertRoleContract(parseRoleFileFromPath(join("aix/roles", role.path)));
+    assertRoleContract(parseRoleFileFromPath(join("aix/roles", role.path, roleEntry)));
   }
 });
 
@@ -330,12 +334,12 @@ test("discoverRoles reports shipped workflow-owned project development roles", (
   );
 
   for (const role of roles) {
-    assertRoleContract(parseRoleFileFromPath(join("aix/workflows/design-plan-execute/roles/project-dev", role.path)));
+    assertRoleContract(parseRoleFileFromPath(join("aix/workflows/design-plan-execute/roles/project-dev", role.path, roleEntry)));
   }
 });
 
 test("resolveRoleDelegation delegates to the shipped implementation engineer role", () => {
-  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/implementation-engineer.md");
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/implementation-engineer/ROLE.md");
   const resolution = resolveRoleDelegation("use implementation-engineer to split this phase into tasks", [role]);
   const prompt = buildPromptOverlayDelegation(role, "Review task boundaries, changed files, docs impact, and verification handoff.");
 
@@ -355,7 +359,7 @@ test("resolveRoleDelegation delegates to the shipped implementation engineer rol
 });
 
 test("resolveRoleDelegation delegates to the shipped documentation specialist role", () => {
-  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/documentation-specialist.md");
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/documentation-specialist/ROLE.md");
   const resolution = resolveRoleDelegation("delegate to documentation-specialist for docs impact", [role]);
   const prompt = buildPromptOverlayDelegation(role, "Review documentation impact, design promotion, and current-state accuracy.");
 
@@ -373,7 +377,7 @@ test("resolveRoleDelegation delegates to the shipped documentation specialist ro
 });
 
 test("resolveRoleDelegation delegates to the shipped product strategist role", () => {
-  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/product-strategist.md");
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/product-strategist/ROLE.md");
   const resolution = resolveRoleDelegation("delegate to product-strategist for this feature idea", [role]);
   const prompt = buildPromptOverlayDelegation(role, "Review whether role lifecycle smoke tests should be in Phase 6.");
 
@@ -387,7 +391,7 @@ test("resolveRoleDelegation delegates to the shipped product strategist role", (
 });
 
 test("resolveRoleDelegation delegates to the shipped product designer role", () => {
-  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/product-designer.md");
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/product-designer/ROLE.md");
   const resolution = resolveRoleDelegation("use product-designer to review this plan", [role]);
   const prompt = buildPromptOverlayDelegation(role, "Review the onboarding flow in this backlog plan.");
 
@@ -401,7 +405,7 @@ test("resolveRoleDelegation delegates to the shipped product designer role", () 
 });
 
 test("resolveRoleDelegation delegates to the shipped technical architect role", () => {
-  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/technical-architect.md");
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/technical-architect/ROLE.md");
   const resolution = resolveRoleDelegation("delegate to technical-architect for architecture review", [role]);
   const prompt = buildPromptOverlayDelegation(role, "Review whether the workflow install preview plan has clean module boundaries.");
 
@@ -415,7 +419,7 @@ test("resolveRoleDelegation delegates to the shipped technical architect role", 
 });
 
 test("resolveRoleDelegation delegates to the shipped requirements engineer role", () => {
-  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/requirements-engineer.md");
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/requirements-engineer/ROLE.md");
   const resolution = resolveRoleDelegation("use requirements-engineer to refine this Design Intent", [role]);
   const prompt = buildPromptOverlayDelegation(role, "Review whether requirements are ready before implementation phases are drafted.");
 
@@ -430,7 +434,7 @@ test("resolveRoleDelegation delegates to the shipped requirements engineer role"
 });
 
 test("resolveRoleDelegation delegates to the shipped security engineer role", () => {
-  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/security-engineer.md");
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/security-engineer/ROLE.md");
   const resolution = resolveRoleDelegation("use security-engineer to review this plan", [role]);
   const prompt = buildPromptOverlayDelegation(role, "Review trust boundaries and no-write guarantees before closeout.");
 
@@ -444,7 +448,7 @@ test("resolveRoleDelegation delegates to the shipped security engineer role", ()
 });
 
 test("resolveRoleDelegation delegates to the shipped UX writer role", () => {
-  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/ux-writer.md");
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/ux-writer/ROLE.md");
   const resolution = resolveRoleDelegation("use ux-writer to review this command output", [role]);
   const prompt = buildPromptOverlayDelegation(role, "Review the labels, errors, empty states, and README language in this plan.");
 
@@ -461,7 +465,7 @@ test("resolveRoleDelegation delegates to the shipped UX writer role", () => {
 });
 
 test("resolveRoleDelegation delegates to the shipped quality engineer role", () => {
-  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/quality-engineer.md");
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/quality-engineer/ROLE.md");
   const resolution = resolveRoleDelegation("use quality-engineer to plan verification", [role]);
   const prompt = buildPromptOverlayDelegation(role, "Review targeted checks, regression risk, and validation gaps for this phase.");
 
@@ -494,7 +498,7 @@ test("shipped project development roles can route existing-plan edits through pl
   ];
 
   for (const roleName of roleNames) {
-    const rolePath = `aix/workflows/design-plan-execute/roles/project-dev/${roleName}.md`;
+    const rolePath = `aix/workflows/design-plan-execute/roles/project-dev/${roleName}/ROLE.md`;
     const role = parseRoleFileFromPath(rolePath);
     const markdown = readFileSync(rolePath, "utf8");
 
@@ -526,19 +530,19 @@ test("role CLI adds, lists, activates, reports, and deactivates standalone roles
     const status = run(["status"]);
 
     assert.match(list.stdout, /Roles in fixture:/);
-    assert.match(list.stdout, /roles\/aix-dev\/quality-engineer\.md/);
-    assert.match(list.stdout, /aix role activate fixture\/roles\/aix-dev\/quality-engineer\.md/);
+    assert.match(list.stdout, /roles\/aix-dev\/quality-engineer/);
+    assert.match(list.stdout, /aix role activate fixture\/roles\/aix-dev\/quality-engineer/);
 
-    assert.match(activate.stdout, /Activated role fixture\/roles\/aix-dev\/quality-engineer\.md as test-quality-engineer/);
+    assert.match(activate.stdout, /Activated role fixture\/roles\/aix-dev\/quality-engineer as test-quality-engineer/);
     assert.deepEqual(activatedManifest.roles, [
       {
         source: "fixture",
-        path: "roles/aix-dev/quality-engineer.md",
+        path: "roles/aix-dev/quality-engineer",
         alias: "test-quality-engineer"
       }
     ]);
-    assert.equal(existsSync(join(projectRoot, ".agents/packages/roles/fixture/roles/aix-dev/quality-engineer.md")), true);
-    assert.equal(existsSync(join(projectRoot, ".agents/roles/test-quality-engineer.md")), true);
+    assert.equal(existsSync(join(projectRoot, ".agents/packages/roles/fixture/roles/aix-dev/quality-engineer")), true);
+    assert.equal(existsSync(join(projectRoot, ".agents/roles/test-quality-engineer")), true);
     assert.match(status.stdout, /Role sources[\s\S]*fixture/);
     assert.match(status.stdout, /Active roles[\s\S]*test-quality-engineer/);
 
@@ -549,7 +553,7 @@ test("role CLI adds, lists, activates, reports, and deactivates standalone roles
     assert.match(deactivate.stdout, /Deactivated role test-quality-engineer/);
     assert.deepEqual(manifest.roles, []);
     assert.deepEqual(lockfile.roles, []);
-    assert.equal(existsSync(join(projectRoot, ".agents/roles/test-quality-engineer.md")), false);
+    assert.equal(existsSync(join(projectRoot, ".agents/roles/test-quality-engineer")), false);
 
     const remove = run(["roles", "remove", "fixture"]);
     const removedManifest = JSON.parse(readFileSync(join(projectRoot, "aix.json"), "utf8"));
@@ -558,6 +562,38 @@ test("role CLI adds, lists, activates, reports, and deactivates standalone roles
     assert.match(remove.stdout, /Removed roles source fixture/);
     assert.equal(removedManifest.sources.roles.fixture, undefined);
     assert.equal(existsSync(join(cacheRoot, "metadata/roles-fixture.json")), false);
+  });
+
+  if (previousCache === undefined) {
+    delete process.env.AIX_CACHE_DIR;
+  } else {
+    process.env.AIX_CACHE_DIR = previousCache;
+  }
+});
+
+test("role CLI ignores legacy single-file role sources and fails clearly on activation", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "aix-legacy-role-source-"));
+  const cacheRoot = await mkdtemp(join(tmpdir(), "aix-role-cache-"));
+  const previousCache = process.env.AIX_CACHE_DIR;
+
+  mkdirSync(join(directory, "roles/aix-dev"), { recursive: true });
+  writeFileSync(join(directory, "roles/aix-dev/quality-engineer.md"), validRoleMarkdown(), "utf8");
+  git(["init", "-b", "main"], directory);
+  git(["add", "."], directory);
+  git(["commit", "-m", "legacy role"], directory);
+
+  process.env.AIX_CACHE_DIR = cacheRoot;
+
+  await withProject(async () => {
+    const add = run(["roles", "add", directory, "fixture"]);
+    const list = run(["roles", "list", "fixture"]);
+    const activate = run(["role", "activate", "fixture/roles/aix-dev/quality-engineer"]);
+
+    assert.equal(add.exitCode, 0);
+    assert.match(add.stdout, /Discovered 0 roles/);
+    assert.match(list.stdout, /No roles found in source: fixture/);
+    assert.equal(activate.exitCode, 2);
+    assert.match(activate.stderr, /Missing role file: .*roles\/aix-dev\/quality-engineer\/ROLE\.md/);
   });
 
   if (previousCache === undefined) {
@@ -579,7 +615,7 @@ test("role CLI diffs and updates standalone roles", async () => {
     run(["role", "activate", "fixture/roles/aix-dev/quality-engineer"]);
 
     writeFileSync(
-      join(gitSource.directory, "roles/aix-dev/quality-engineer.md"),
+      join(gitSource.directory, "roles/aix-dev/quality-engineer/ROLE.md"),
       validRoleMarkdown().replace("Return commands, evidence, gaps, and risk.", "Return updated evidence and risk."),
       "utf8"
     );
@@ -590,11 +626,11 @@ test("role CLI diffs and updates standalone roles", async () => {
     const update = run(["roles", "update"]);
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
 
-    assert.match(diff.stdout, /Diff for fixture\/roles\/aix-dev\/quality-engineer\.md as quality-engineer/);
+    assert.match(diff.stdout, /Diff for fixture\/roles\/aix-dev\/quality-engineer as quality-engineer/);
     assert.match(diff.stdout, /Return updated evidence and risk/);
     assert.equal(update.exitCode, 0, update.stderr);
     assert.match(update.stdout, /Updated locked roles/);
-    assert.match(readFileSync(join(projectRoot, ".agents/roles/quality-engineer.md"), "utf8"), /Return updated evidence and risk/);
+    assert.match(readFileSync(join(projectRoot, ".agents/roles/quality-engineer/ROLE.md"), "utf8"), /Return updated evidence and risk/);
     assert.equal(lockfile.roles[0].resolvedCommit, git(["rev-parse", "HEAD"], gitSource.directory));
   });
 
@@ -607,8 +643,8 @@ test("role CLI diffs and updates standalone roles", async () => {
 
 test("role activation resolves aix/roles paths from local project source first", async () => {
   await withProject(async (projectRoot) => {
-    mkdirSync(join(projectRoot, "aix/roles/local-pack"), { recursive: true });
-    writeFileSync(join(projectRoot, "aix/roles/local-pack/quality-engineer.md"), validRoleMarkdown(), "utf8");
+    mkdirSync(join(projectRoot, "aix/roles/local-pack/quality-engineer"), { recursive: true });
+    writeFileSync(join(projectRoot, "aix/roles/local-pack/quality-engineer/ROLE.md"), validRoleMarkdown(), "utf8");
     writeFileSync(
       join(projectRoot, "aix.json"),
       JSON.stringify({ sources: { roles: {} }, skills: [], roles: [] }, null, 2) + "\n",
@@ -619,10 +655,10 @@ test("role activation resolves aix/roles paths from local project source first",
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
 
     assert.equal(result.exitCode, 0);
-    assert.match(result.stdout, /Activated role aix\/roles\/local-pack\/quality-engineer\.md as quality-engineer/);
+    assert.match(result.stdout, /Activated role aix\/roles\/local-pack\/quality-engineer as quality-engineer/);
     assert.equal(lockfile.roles[0].sourceType, "local");
-    assert.equal(lockfile.roles[0].sourcePath, "roles/local-pack/quality-engineer.md");
-    assert.equal(existsSync(join(projectRoot, "aix/roles/local-pack/quality-engineer.md")), true);
+    assert.equal(lockfile.roles[0].sourcePath, "roles/local-pack/quality-engineer");
+    assert.equal(existsSync(join(projectRoot, "aix/roles/local-pack/quality-engineer/ROLE.md")), true);
   });
 });
 
@@ -704,16 +740,16 @@ test("activateRoleFromDefinitions materializes active role files and lockfile ha
     assert.equal(lockfile.roles[0].source, "fixture");
     assert.equal(lockfile.roles[0].sourceUrl, gitSource.directory);
     assert.equal(lockfile.roles[0].resolvedCommit, gitSource.commit);
-    assert.equal(lockfile.roles[0].sourcePath, "aix-dev/quality-engineer.md");
-    assert.equal(lockfile.roles[0].packagePath, ".agents/packages/roles/fixture/aix-dev/quality-engineer.md");
-    assert.equal(lockfile.roles[0].activationPath, ".agents/roles/quality-engineer.md");
+    assert.equal(lockfile.roles[0].sourcePath, "aix-dev/quality-engineer");
+    assert.equal(lockfile.roles[0].packagePath, ".agents/packages/roles/fixture/aix-dev/quality-engineer");
+    assert.equal(lockfile.roles[0].activationPath, ".agents/roles/quality-engineer");
     assert.equal(lockfile.roles[0].originalName, "quality-engineer");
     assert.equal(lockfile.roles[0].activeName, "quality-engineer");
     assert.equal(lockfile.roles[0].requested, true);
-    assert.ok(lockfile.roles[0].packageFiles.some((file) => file.path === "quality-engineer.md"));
-    assert.ok(lockfile.roles[0].activeFiles.some((file) => file.path === "quality-engineer.md"));
-    assert.equal(existsSync(join(projectRoot, ".agents/packages/roles/fixture/aix-dev/quality-engineer.md")), true);
-    assert.equal(existsSync(join(projectRoot, ".agents/roles/quality-engineer.md")), true);
+    assert.ok(lockfile.roles[0].packageFiles.some((file) => file.path === "ROLE.md"));
+    assert.ok(lockfile.roles[0].activeFiles.some((file) => file.path === "ROLE.md"));
+    assert.equal(existsSync(join(projectRoot, ".agents/packages/roles/fixture/aix-dev/quality-engineer")), true);
+    assert.equal(existsSync(join(projectRoot, ".agents/roles/quality-engineer")), true);
   });
 });
 
@@ -723,7 +759,7 @@ test("activateRoleFromDefinitions supports aliases without changing package role
 
   await withProject(async (projectRoot) => {
     activateRoleFromDefinitions(
-      "fixture/aix-dev/quality-engineer.md",
+      "fixture/aix-dev/quality-engineer/ROLE.md",
       "test-quality-engineer",
       {
         fixture: {
@@ -736,8 +772,8 @@ test("activateRoleFromDefinitions supports aliases without changing package role
       cacheRoot
     );
 
-    const packageRole = readFileSync(join(projectRoot, ".agents/packages/roles/fixture/aix-dev/quality-engineer.md"), "utf8");
-    const activeRole = readFileSync(join(projectRoot, ".agents/roles/test-quality-engineer.md"), "utf8");
+    const packageRole = readFileSync(join(projectRoot, ".agents/packages/roles/fixture/aix-dev/quality-engineer/ROLE.md"), "utf8");
+    const activeRole = readFileSync(join(projectRoot, ".agents/roles/test-quality-engineer/ROLE.md"), "utf8");
     const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
 
     assert.match(packageRole, /^name: quality-engineer$/m);
@@ -752,7 +788,7 @@ test("activateRoleFromDefinitions refuses active-name collisions before package 
 
   await withProject(async (projectRoot) => {
     mkdirSync(join(projectRoot, ".agents/roles"), { recursive: true });
-    writeFileSync(join(projectRoot, ".agents/roles/quality-engineer.md"), "local role\n", "utf8");
+    writeFileSync(join(projectRoot, ".agents/roles/quality-engineer"), "local role\n", "utf8");
 
     assert.throws(
       () =>
@@ -769,10 +805,10 @@ test("activateRoleFromDefinitions refuses active-name collisions before package 
           },
           cacheRoot
         ),
-      /Active role name collision: \.agents\/roles\/quality-engineer\.md/
+      /Active role name collision: \.agents\/roles\/quality-engineer/
     );
 
-    assert.equal(existsSync(join(projectRoot, ".agents/packages/roles/fixture/aix-dev/quality-engineer.md")), false);
+    assert.equal(existsSync(join(projectRoot, ".agents/packages/roles/fixture/aix-dev/quality-engineer")), false);
   });
 });
 
@@ -800,8 +836,8 @@ test("deactivateRole removes user-owned role files and refuses workflow-owned ro
 
     assert.equal(result.activeName, "quality-engineer");
     assert.deepEqual(lockfile.roles, []);
-    assert.equal(existsSync(join(projectRoot, ".agents/roles/quality-engineer.md")), false);
-    assert.equal(existsSync(join(projectRoot, ".agents/packages/roles/fixture/aix-dev/quality-engineer.md")), false);
+    assert.equal(existsSync(join(projectRoot, ".agents/roles/quality-engineer")), false);
+    assert.equal(existsSync(join(projectRoot, ".agents/packages/roles/fixture/aix-dev/quality-engineer")), false);
 
     writeFileSync(
       join(projectRoot, "aix.lock.json"),
@@ -814,9 +850,9 @@ test("deactivateRole removes user-owned role files and refuses workflow-owned ro
               kind: "role",
               source: "aix",
               sourceType: "git",
-              sourcePath: "roles/project-dev/documentation-specialist.md",
-              packagePath: ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/documentation-specialist.md",
-              activationPath: ".agents/roles/documentation-specialist.md",
+              sourcePath: "roles/project-dev/documentation-specialist",
+              packagePath: ".agents/packages/workflows/aix/design-plan-execute/roles/project-dev/documentation-specialist",
+              activationPath: ".agents/roles/documentation-specialist",
               originalName: "documentation-specialist",
               activeName: "documentation-specialist",
               requested: false,
@@ -868,7 +904,7 @@ test("verifyRoles and status report active role state and drift", async () => {
     assert.equal(status.activeRoles.length, 1);
     assert.equal(status.activeRoles[0].activeName, "quality-engineer");
 
-    writeFileSync(join(projectRoot, ".agents/roles/quality-engineer.md"), "edited\n", "utf8");
+    writeFileSync(join(projectRoot, ".agents/roles/quality-engineer/ROLE.md"), "edited\n", "utf8");
 
     assert.match(verifyRoles().issues.join("\n"), /Refusing to remove modified active role/);
   });

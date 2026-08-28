@@ -58,7 +58,7 @@ such as `find` when it is not.
 
 Review for correctness and maintainability before style.
 
-When `.agents/roles/technical-architect.md` exists and the requested review
+When `.agents/roles/technical-architect/ROLE.md` exists and the requested review
 involves architectural coupling, module ownership, runtime contracts,
 integration boundaries, data flow, persistence, workflow lifecycle behavior,
 package-management behavior, or large cross-module refactors, use

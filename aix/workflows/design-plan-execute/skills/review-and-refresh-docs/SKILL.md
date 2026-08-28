@@ -21,7 +21,7 @@ evidence, and user-facing handoff. Roles can supply bounded domain judgment,
 but they do not own final docs acceptance, plan state, verification approval,
 or lifecycle decisions.
 
-When `.agents/roles/documentation-specialist.md` exists, use
+When `.agents/roles/documentation-specialist/ROLE.md` exists, use
 `delegate-to-role` or a prompt-overlay delegation for documentation-system
 judgment. Good triggers include `_docs/kb` placement, area ownership,
 cross-links, freshness, duplication, stale references, implementation-to-plan

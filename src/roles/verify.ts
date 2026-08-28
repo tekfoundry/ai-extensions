@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { activeRolePath, packageRolePath } from "../paths/agents.js";
+import { activeRolePath, packageRolePath, roleEntrypointPath } from "../paths/agents.js";
 import { readLockfileJson } from "../activation/lockfile.js";
 import type { LockfileRoleEntry } from "../schema.js";
 import { parseRoleFileFromPath } from "./discovery.js";
@@ -26,7 +26,7 @@ function addRoleFileIssues(issues: string[], label: string, entry: LockfileRoleE
   }
 
   try {
-    const role = parseRoleFileFromPath(path, { requireContract: false });
+    const role = parseRoleFileFromPath(roleEntrypointPath(path), { requireContract: false });
 
     if (role.name !== expectedName) {
       issues.push(`${label} name mismatch for ${entry.activeName}: expected ${expectedName} got ${role.name}`);

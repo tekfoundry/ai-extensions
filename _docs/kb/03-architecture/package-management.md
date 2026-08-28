@@ -30,13 +30,14 @@ copying package files, exposing active files, and hashing the result.
 - Active skills are exposed under `.agents/skills/<active-name>/`. Direct
   activation uses a symlink to the package when no alias is needed. Aliased
   activation creates a managed wrapper copy with rewritten `name` front matter.
-- Role packages are single Markdown files copied under
+- Role packages are directory bundles with a `ROLE.md` entrypoint copied under
   `.agents/packages/roles/<source>/<source-path>`.
-- Active roles are Markdown files under `.agents/roles/<active-name>.md`.
+- Active roles are directory bundles exposed under
+  `.agents/roles/<active-name>/ROLE.md`.
 - Workflow packages are directory trees copied under
   `.agents/packages/workflows/<source>/<workflow-name>/`.
 - Workflow docs are installed into `.agents/`.
-- Workflow-owned skills and roles are active files with lockfile owner
+- Workflow-owned skills and roles are active artifacts with lockfile owner
   metadata.
 - Workflow templates remain in the workflow package unless the project
   publishes overrides under `.agents/templates/`.
@@ -87,22 +88,22 @@ not by directory heuristics.
 
 ```text
 aix role activate <source/path> [alias]
-  -> parse source/path target and add .md when omitted
+  -> normalize source/path target to a role bundle directory
   -> read or initialize manifest shape
   -> merge default and manifest role sources
   -> prefer local aix/roles/... source when present
   -> resolve Git source when not local
-  -> parse role front matter and body
-  -> require role contract and filename/name agreement
+  -> parse ROLE.md front matter and body
+  -> require role contract and bundle/name agreement
   -> validate active role name or alias
   -> preflight active-name collisions and drift
-  -> copy package role file
-  -> write active role file
+  -> copy package role bundle
+  -> write active role bundle
   -> update manifest and lockfile
 ```
 
-Roles use file packages rather than directory packages. A role alias changes
-the active role name and active file path, but not the package role name.
+Role bundles use directory packages. A role alias changes the active role name
+and active bundle path, but not the package role name.
 
 ## Diff And Update
 

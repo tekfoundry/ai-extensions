@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { extname, join, relative } from "node:path";
+import { join, relative } from "node:path";
 import { AixError } from "../errors.js";
+import { roleEntrypointPath } from "../paths/agents.js";
 import { parseRoleFrontMatter } from "./front-matter.js";
 import type { DiscoveredRole, ParsedRoleFile } from "./types.js";
 import { assertRoleContract, assertRoleFileNameMatches, buildParsedRole } from "./validation.js";
@@ -31,20 +32,20 @@ function discoverFromDirectory(root: string, directory: string, roles: Discovere
     const path = join(directory, entry.name);
 
     if (entry.isDirectory()) {
-      discoverFromDirectory(root, path, roles);
+      const entrypointPath = roleEntrypointPath(path);
+
+      if (existsSync(entrypointPath)) {
+        const role = parseRoleFileFromPath(entrypointPath);
+        roles.push({
+          path: relative(root, path),
+          name: role.name,
+          description: role.description
+        });
+      } else {
+        discoverFromDirectory(root, path, roles);
+      }
       continue;
     }
-
-    if (!entry.isFile() || extname(entry.name) !== ".md") {
-      continue;
-    }
-
-    const role = parseRoleFileFromPath(path);
-    roles.push({
-      path: relative(root, path),
-      name: role.name,
-      description: role.description
-    });
   }
 }
 
