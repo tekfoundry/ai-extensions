@@ -28,6 +28,10 @@ export function roleEntrypointPath(rolePath: string): string {
   return join(rolePath, "ROLE.md");
 }
 
+export function roleGuidancePath(rolePath: string): string {
+  return join(rolePath, "GUIDANCE.md");
+}
+
 export function packageWorkflowPath(source: string, workflowName: string): string {
   return join(WORKFLOW_PACKAGES_DIR, source, workflowName);
 }

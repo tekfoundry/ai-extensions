@@ -4,11 +4,24 @@ import { AixError } from "../errors.js";
 import { copyFilesSafely } from "../fs/files.js";
 import { hashFile } from "../fs/hashing.js";
 import { assertFileHashesMatchLockfile, fileHashesForPath } from "../lockfile/drift.js";
-import { roleEntrypointPath } from "../paths/agents.js";
+import { roleEntrypointPath, roleGuidancePath } from "../paths/agents.js";
 import type { FileHash, LockfileRoleEntry } from "../schema.js";
 
 export function roleFileHashes(path: string): FileHash[] {
   return fileHashesForPath(path);
+}
+
+export function activeRoleFileHashes(path: string): FileHash[] {
+  const entrypointPath = roleEntrypointPath(path);
+
+  return existsSync(entrypointPath)
+    ? [
+        {
+          path: "ROLE.md",
+          sha256: hashFile(entrypointPath)
+        }
+      ]
+    : [];
 }
 
 export function assertRoleFileHashesMatch(path: string, expectedFiles: FileHash[], message: string): void {
@@ -20,7 +33,13 @@ export function assertRolePackageFilesMatchLockfile(entry: LockfileRoleEntry, ac
 }
 
 export function assertActiveRoleFilesMatchLockfile(entry: LockfileRoleEntry, action = "remove"): void {
-  assertRoleFileHashesMatch(entry.activationPath, entry.activeFiles, `Refusing to ${action} modified active role: ${entry.activationPath}`);
+  for (const file of entry.activeFiles) {
+    const path = join(entry.activationPath, file.path);
+
+    if (!existsSync(path) || hashFile(path) !== file.sha256) {
+      throw new AixError(`Refusing to ${action} modified active role: ${entry.activationPath}`);
+    }
+  }
 }
 
 export function copyRoleFileSafely(sourcePath: string, targetPath: string): FileHash[] {
@@ -32,9 +51,16 @@ export function replaceRoleDirectory(sourcePath: string, targetPath: string): Fi
   return copyRoleFileSafely(sourcePath, targetPath);
 }
 
-export function writeActiveRoleFile(sourcePath: string, targetPath: string, activeName: string): FileHash[] {
+export function writeActiveRoleFile(
+  sourcePath: string,
+  targetPath: string,
+  activeName: string,
+  options: { overwriteRole?: boolean } = {}
+): FileHash[] {
   const sourceEntrypointPath = roleEntrypointPath(sourcePath);
+  const sourceGuidancePath = roleGuidancePath(sourcePath);
   const targetEntrypointPath = roleEntrypointPath(targetPath);
+  const targetGuidancePath = roleGuidancePath(targetPath);
   const contents = readFileSync(sourceEntrypointPath, "utf8");
   const activeContents = contents.replace(/^name:\s*.+$/m, `name: ${activeName}`);
 
@@ -43,7 +69,7 @@ export function writeActiveRoleFile(sourcePath: string, targetPath: string, acti
       throw new AixError(`Active role name collision: ${targetPath}`);
     }
 
-    if (readFileSync(targetEntrypointPath, "utf8") !== activeContents) {
+    if (!options.overwriteRole && readFileSync(targetEntrypointPath, "utf8") !== activeContents) {
       throw new AixError(`Active role name collision: ${targetPath}`);
     }
   }
@@ -51,12 +77,41 @@ export function writeActiveRoleFile(sourcePath: string, targetPath: string, acti
   mkdirSync(targetPath, { recursive: true });
   writeFileSync(targetEntrypointPath, activeContents, "utf8");
 
-  return roleFileHashes(targetPath);
+  if (existsSync(sourceGuidancePath) && !existsSync(targetGuidancePath)) {
+    writeFileSync(targetGuidancePath, readFileSync(sourceGuidancePath), "utf8");
+  }
+
+  return activeRoleFileHashes(targetPath);
 }
 
-export function replaceActiveRoleFile(sourcePath: string, targetPath: string, activeName: string): FileHash[] {
-  removeRoleFile(targetPath);
-  return writeActiveRoleFile(sourcePath, targetPath, activeName);
+function packageGuidanceHash(entry: LockfileRoleEntry): string | undefined {
+  return entry.packageFiles.find((file) => file.path === "GUIDANCE.md")?.sha256;
+}
+
+function activeGuidanceIsEditableOrMissing(entry: LockfileRoleEntry): boolean {
+  const expectedGuidanceHash = packageGuidanceHash(entry);
+  const activeGuidancePath = roleGuidancePath(entry.activationPath);
+
+  return !expectedGuidanceHash || !existsSync(activeGuidancePath) || hashFile(activeGuidancePath) === expectedGuidanceHash;
+}
+
+export function replaceActiveRoleFile(
+  sourcePath: string,
+  targetPath: string,
+  activeName: string,
+  previousEntry?: LockfileRoleEntry
+): FileHash[] {
+  const targetEntrypointPath = roleEntrypointPath(targetPath);
+  const targetGuidancePath = roleGuidancePath(targetPath);
+  const shouldRefreshGuidance = previousEntry ? activeGuidanceIsEditableOrMissing(previousEntry) : !existsSync(targetGuidancePath);
+
+  const activeFiles = writeActiveRoleFile(sourcePath, targetPath, activeName, { overwriteRole: true });
+
+  if (shouldRefreshGuidance && existsSync(roleGuidancePath(sourcePath))) {
+    writeFileSync(targetGuidancePath, readFileSync(roleGuidancePath(sourcePath)), "utf8");
+  }
+
+  return activeFiles;
 }
 
 export function removeRoleFile(path: string): void {

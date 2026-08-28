@@ -8,12 +8,14 @@ import { test } from "node:test";
 import {
   activateRoleFromDefinitions,
   assertNoActiveRoleNameCollision,
+  assertBundledRoleGuidance,
   assertRoleContract,
   buildPromptOverlayDelegation,
   deactivateRole,
   discoverRoles,
   parseRoleFile,
   parseRoleFileFromPath,
+  parseRoleGuidanceFile,
   resolveRoleDelegation,
   roleContractIssues,
   verifyRoles
@@ -23,6 +25,7 @@ import { collectWorkspaceStatus } from "../dist/status/index.js";
 import { run } from "../dist/cli.js";
 
 const roleEntry = "ROLE.md";
+const guidanceEntry = "GUIDANCE.md";
 
 function git(args, cwd) {
   return execFileSync("git", args, {
@@ -76,11 +79,27 @@ Return commands, evidence, gaps, and risk.
 `;
 }
 
-async function createRoleGitSource() {
+function validRoleGuidanceMarkdown(body = "Use focused verification guidance.") {
+  return `---
+uses_guidance:
+  - activities/verification
+  - activities/review
+---
+
+# Quality Engineer Guidance
+
+${body}
+`;
+}
+
+async function createRoleGitSource(options = {}) {
   const directory = await mkdtemp(join(tmpdir(), "aix-role-source-"));
 
   mkdirSync(join(directory, "roles/aix-dev/quality-engineer"), { recursive: true });
   writeFileSync(join(directory, "roles/aix-dev/quality-engineer/ROLE.md"), validRoleMarkdown(), "utf8");
+  if (options.guidance) {
+    writeFileSync(join(directory, "roles/aix-dev/quality-engineer/GUIDANCE.md"), validRoleGuidanceMarkdown(), "utf8");
+  }
   git(["init", "-b", "main"], directory);
   git(["add", "."], directory);
   git(["commit", "-m", "roles"], directory);
@@ -123,6 +142,13 @@ test("parseRoleFile preserves front matter hints and body", () => {
   assert.equal(role.hints.color, "green");
   assert.equal(role.frontMatter.routing, "explicit");
   assert.match(role.body, /# Purpose/);
+});
+
+test("parseRoleGuidanceFile preserves optional uses_guidance metadata", () => {
+  const guidance = parseRoleGuidanceFile(validRoleGuidanceMarkdown(), "quality-engineer/GUIDANCE.md");
+
+  assert.deepEqual(guidance.usesGuidance, ["activities/verification", "activities/review"]);
+  assert.match(guidance.body, /Use focused verification guidance/);
 });
 
 test("resolveRoleDelegation resolves explicit role prompts and builds prompt-overlay fallback", () => {
@@ -346,15 +372,9 @@ test("resolveRoleDelegation delegates to the shipped implementation engineer rol
   assert.equal(resolution.role.name, "implementation-engineer");
   assert.equal(resolution.mode, "prompt-overlay");
   assert.match(prompt, /Name: implementation-engineer/);
-  assert.match(prompt, /Review accepted design intent, implementation phases, active tasks/);
-  assert.match(prompt, /Treat `.agents\/engineering-best-practices\.md` as binding implementation/);
-  assert.match(prompt, /If\s+`.agents\/coding-standards\.md` exists, treat it as binding local coding/);
-  assert.match(prompt, /apply general best-practice standards for readability, naming/);
-  assert.match(prompt, /Scoped implementation objective and the smallest coherent next slice/);
-  assert.match(prompt, /Likely changed files, tests, fixtures, docs/);
-  assert.match(prompt, /Coding-standard concerns, local convention mismatches/);
-  assert.match(prompt, /Verification handoff with targeted checks/);
-  assert.match(prompt, /Do not claim implementation readiness unless the task is scoped/);
+  assert.match(prompt, /# Purpose/);
+  assert.match(prompt, /GUIDANCE\.md/);
+  assert.match(prompt, /Consider `task-execute`/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
@@ -366,13 +386,9 @@ test("resolveRoleDelegation delegates to the shipped documentation specialist ro
   assert.equal(resolution.role.name, "documentation-specialist");
   assert.equal(resolution.mode, "prompt-overlay");
   assert.match(prompt, /Name: documentation-specialist/);
-  assert.match(prompt, /Review plans, knowledge-base docs, README text, workflow docs/);
-  assert.match(prompt, /Suggested `_docs` placement, index-link changes/);
-  assert.match(prompt, /Current-state accuracy risks, stale claims, missing knowledge-base truth/);
-  assert.match(prompt, /Implementation-to-intent findings/);
-  assert.match(prompt, /implementation that appears contrary to accepted current-state docs/);
-  assert.match(prompt, /Consider `review-and-refresh-docs` when the main need is checking or fixing/);
-  assert.match(prompt, /Do not claim documentation readiness unless current-state behavior/);
+  assert.match(prompt, /# Purpose/);
+  assert.match(prompt, /GUIDANCE\.md/);
+  assert.match(prompt, /Consider `review-and-refresh-docs`/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
@@ -384,9 +400,9 @@ test("resolveRoleDelegation delegates to the shipped product strategist role", (
   assert.equal(resolution.role.name, "product-strategist");
   assert.equal(resolution.mode, "prompt-overlay");
   assert.match(prompt, /Name: product-strategist/);
-  assert.match(prompt, /Generate and evaluate product ideas/);
-  assert.match(prompt, /Candidate ideas when the task is pure brainstorming/);
-  assert.match(prompt, /Product value and why it matters now/);
+  assert.match(prompt, /# Purpose/);
+  assert.match(prompt, /GUIDANCE\.md/);
+  assert.match(prompt, /Consider `brainstorming-skill`/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
@@ -398,9 +414,9 @@ test("resolveRoleDelegation delegates to the shipped product designer role", () 
   assert.equal(resolution.role.name, "product-designer");
   assert.equal(resolution.mode, "prompt-overlay");
   assert.match(prompt, /Name: product-designer/);
-  assert.match(prompt, /Review product-facing plans, workflows, screens, prompts, prototypes/);
-  assert.match(prompt, /Primary user flow and whether it is complete enough to implement/);
-  assert.match(prompt, /Accessibility and usability expectations/);
+  assert.match(prompt, /# Purpose/);
+  assert.match(prompt, /GUIDANCE\.md/);
+  assert.match(prompt, /Consider `plan-create`/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
@@ -412,9 +428,9 @@ test("resolveRoleDelegation delegates to the shipped technical architect role", 
   assert.equal(resolution.role.name, "technical-architect");
   assert.equal(resolution.mode, "prompt-overlay");
   assert.match(prompt, /Name: technical-architect/);
-  assert.match(prompt, /Review technical plans, design intent, architecture notes/);
-  assert.match(prompt, /Boundary assessment for modules, commands, files, persistence, and runtime/);
-  assert.match(prompt, /Suggested implementation phase order and the smallest coherent next slices/);
+  assert.match(prompt, /# Purpose/);
+  assert.match(prompt, /GUIDANCE\.md/);
+  assert.match(prompt, /Consider `plan-update`/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
@@ -426,10 +442,9 @@ test("resolveRoleDelegation delegates to the shipped requirements engineer role"
   assert.equal(resolution.role.name, "requirements-engineer");
   assert.equal(resolution.mode, "prompt-overlay");
   assert.match(prompt, /Name: requirements-engineer/);
-  assert.match(prompt, /Review accepted product vision and turn it into implementation-ready/);
-  assert.match(prompt, /Requirements brief with actors, workflows, inputs, outputs/);
-  assert.match(prompt, /Non-goals and deferred work that prevent scope creep/);
-  assert.match(prompt, /Do not claim implementation readiness unless the requirements/);
+  assert.match(prompt, /# Purpose/);
+  assert.match(prompt, /GUIDANCE\.md/);
+  assert.match(prompt, /Consider `plan-create`/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
@@ -441,9 +456,9 @@ test("resolveRoleDelegation delegates to the shipped security engineer role", ()
   assert.equal(resolution.role.name, "security-engineer");
   assert.equal(resolution.mode, "prompt-overlay");
   assert.match(prompt, /Name: security-engineer/);
-  assert.match(prompt, /Review plans, design intent, verification evidence, and completed phased work/);
-  assert.match(prompt, /Trust-boundary and authorization assessment/);
-  assert.match(prompt, /Blocking findings that should become normal plan tasks before closeout/);
+  assert.match(prompt, /# Purpose/);
+  assert.match(prompt, /GUIDANCE\.md/);
+  assert.match(prompt, /Consider `work-verify`/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
@@ -455,12 +470,9 @@ test("resolveRoleDelegation delegates to the shipped UX writer role", () => {
   assert.equal(resolution.role.name, "ux-writer");
   assert.equal(resolution.mode, "prompt-overlay");
   assert.match(prompt, /Name: ux-writer/);
-  assert.match(prompt, /Review plans, design docs, workflow docs, README text/);
-  assert.match(prompt, /Consider `design-promote` when completed work changed durable copy/);
-  assert.match(prompt, /Consider `plan-complete` when closeout needs a final copy-readiness check/);
-  assert.match(prompt, /Consider `unslop` when it is installed/);
-  assert.match(prompt, /Target reader and task the copy must support/);
-  assert.match(prompt, /Missing copy states, recovery guidance, or user actions/);
+  assert.match(prompt, /# Purpose/);
+  assert.match(prompt, /GUIDANCE\.md/);
+  assert.match(prompt, /Consider `unslop`/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
@@ -472,15 +484,9 @@ test("resolveRoleDelegation delegates to the shipped quality engineer role", () 
   assert.equal(resolution.role.name, "quality-engineer");
   assert.equal(resolution.mode, "prompt-overlay");
   assert.match(prompt, /Name: quality-engineer/);
-  assert.match(prompt, /Review plans, active phase work, changed behavior, verification evidence/);
-  assert.match(prompt, /design intent is locked down by automated tests/);
-  assert.match(prompt, /Targeted automated checks and why each check matches the changed behavior/);
-  assert.match(prompt, /Repeatable unit, integration, and smoke tests that avoid developer-state/);
-  assert.match(prompt, /Coverage metrics or missing coverage-tooling notes/);
-  assert.match(prompt, /Skipped checks, reason, residual risk/);
-  assert.match(prompt, /100% line coverage is not automatically useful/);
-  assert.match(prompt, /developer approval before installing packages/);
-  assert.match(prompt, /Do not claim quality readiness unless accepted Design Intent/);
+  assert.match(prompt, /# Purpose/);
+  assert.match(prompt, /GUIDANCE\.md/);
+  assert.match(prompt, /Consider `work-verify`/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
@@ -603,6 +609,39 @@ test("role CLI ignores legacy single-file role sources and fails clearly on acti
   }
 });
 
+test("bundled role guidance is required and external role guidance remains optional", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "aix-role-guidance-"));
+
+  mkdirSync(join(directory, "quality-engineer"), { recursive: true });
+  writeFileSync(join(directory, "quality-engineer/ROLE.md"), validRoleMarkdown(), "utf8");
+
+  assert.throws(
+    () => assertBundledRoleGuidance(join(directory, "quality-engineer")),
+    /Missing role guidance file:/
+  );
+
+  const gitSource = await createRoleGitSource();
+  const cacheRoot = await mkdtemp(join(tmpdir(), "aix-role-cache-"));
+
+  await withProject(async (projectRoot) => {
+    activateRoleFromDefinitions(
+      "fixture/aix-dev/quality-engineer",
+      undefined,
+      {
+        fixture: {
+          type: "git",
+          url: gitSource.directory,
+          path: "roles",
+          ref: "main"
+        }
+      },
+      cacheRoot
+    );
+
+    assert.equal(existsSync(join(projectRoot, ".agents/roles/quality-engineer/GUIDANCE.md")), false);
+  });
+});
+
 test("role CLI diffs and updates standalone roles", async () => {
   const gitSource = await createRoleGitSource();
   const cacheRoot = await mkdtemp(join(tmpdir(), "aix-role-cache-"));
@@ -641,10 +680,68 @@ test("role CLI diffs and updates standalone roles", async () => {
   }
 });
 
+test("role guidance is editable, diffable, preserved on update, and resettable", async () => {
+  const gitSource = await createRoleGitSource({ guidance: true });
+  const cacheRoot = await mkdtemp(join(tmpdir(), "aix-role-cache-"));
+  const previousCache = process.env.AIX_CACHE_DIR;
+
+  process.env.AIX_CACHE_DIR = cacheRoot;
+
+  await withProject(async (projectRoot) => {
+    run(["roles", "add", gitSource.directory, "fixture"]);
+    run(["role", "activate", "fixture/roles/aix-dev/quality-engineer"]);
+
+    let lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
+
+    assert.ok(lockfile.roles[0].packageFiles.some((file) => file.path === guidanceEntry));
+    assert.deepEqual(lockfile.roles[0].activeFiles.map((file) => file.path), [roleEntry]);
+    assert.match(readFileSync(join(projectRoot, ".agents/roles/quality-engineer/GUIDANCE.md"), "utf8"), /Use focused verification/);
+
+    writeFileSync(
+      join(gitSource.directory, "roles/aix-dev/quality-engineer/GUIDANCE.md"),
+      validRoleGuidanceMarkdown("Use updated upstream verification guidance."),
+      "utf8"
+    );
+    git(["add", "."], gitSource.directory);
+    git(["commit", "-m", "update guidance"], gitSource.directory);
+
+    const diff = run(["role", "diff", "quality-engineer"]);
+
+    assert.equal(diff.exitCode, 0, diff.stderr);
+    assert.match(diff.stdout, /GUIDANCE.md/);
+    assert.match(diff.stdout, /updated upstream verification/);
+
+    writeFileSync(join(projectRoot, ".agents/roles/quality-engineer/GUIDANCE.md"), "project-edited guidance\n", "utf8");
+
+    const update = run(["role", "update", "quality-engineer"]);
+
+    assert.equal(update.exitCode, 0, update.stderr);
+    assert.equal(readFileSync(join(projectRoot, ".agents/roles/quality-engineer/GUIDANCE.md"), "utf8"), "project-edited guidance\n");
+    assert.match(readFileSync(join(projectRoot, ".agents/packages/roles/fixture/roles/aix-dev/quality-engineer/GUIDANCE.md"), "utf8"), /updated upstream/);
+    assert.equal(verifyRoles().issues.length, 0);
+
+    const reset = run(["role", "guidance", "reset", "quality-engineer"]);
+    assert.equal(reset.exitCode, 0, reset.stderr);
+    assert.match(reset.stdout, /Reset role guidance for quality-engineer/);
+
+    lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
+
+    assert.deepEqual(lockfile.roles[0].activeFiles.map((file) => file.path), [roleEntry]);
+    assert.match(readFileSync(join(projectRoot, ".agents/roles/quality-engineer/GUIDANCE.md"), "utf8"), /updated upstream/);
+  });
+
+  if (previousCache === undefined) {
+    delete process.env.AIX_CACHE_DIR;
+  } else {
+    process.env.AIX_CACHE_DIR = previousCache;
+  }
+});
+
 test("role activation resolves aix/roles paths from local project source first", async () => {
   await withProject(async (projectRoot) => {
     mkdirSync(join(projectRoot, "aix/roles/local-pack/quality-engineer"), { recursive: true });
     writeFileSync(join(projectRoot, "aix/roles/local-pack/quality-engineer/ROLE.md"), validRoleMarkdown(), "utf8");
+    writeFileSync(join(projectRoot, "aix/roles/local-pack/quality-engineer/GUIDANCE.md"), validRoleGuidanceMarkdown(), "utf8");
     writeFileSync(
       join(projectRoot, "aix.json"),
       JSON.stringify({ sources: { roles: {} }, skills: [], roles: [] }, null, 2) + "\n",

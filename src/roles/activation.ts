@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, lstatSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { AixError } from "../errors.js";
 import { writeJsonObjectAtomic } from "../activation/json.js";
@@ -8,10 +8,10 @@ import { readLockfileJson } from "../activation/lockfile.js";
 import { manifestRoleSourceDefinitions, removeManifestRole, updateManifestRoles } from "../activation/manifest.js";
 import { LOCKFILE_FILE_NAME, MANIFEST_FILE_NAME, type LockfileRoleEntry, type SourceDefinition, type SourceType } from "../schema.js";
 import { defaultCacheRoot, getDefaultRoleSources, loadRoleSourceDefinitions, resolveSourceFromDefinitions } from "../sources/index.js";
-import { activeRolePath, packageRolePath, roleEntrypointPath } from "../paths/agents.js";
+import { activeRolePath, packageRolePath, roleEntrypointPath, roleGuidancePath } from "../paths/agents.js";
 import { assertFileHashesMatchLockfile } from "../lockfile/drift.js";
 import { assertNoActiveRoleNameCollision } from "./lockfile.js";
-import { discoverRoles, parseRoleFileFromPath } from "./discovery.js";
+import { assertBundledRoleGuidance, discoverRoles, parseRoleFileFromPath } from "./discovery.js";
 import {
   assertActiveRoleFilesMatchLockfile,
   assertRolePackageFilesMatchLockfile,
@@ -71,6 +71,12 @@ export interface RoleDiff {
 export interface DiffRolesResult {
   lockfilePath: string;
   diffs: RoleDiff[];
+}
+
+export interface ResetRoleGuidanceResult {
+  activeName: string;
+  packageGuidancePath: string;
+  activeGuidancePath: string;
 }
 
 export function roleTargetFromInput(target: string): { source: string; sourcePath: string } {
@@ -224,6 +230,11 @@ export function activateRoleFromDefinitions(
   const resolvedSourcePath = localPath ? sourcePath : remoteAixRolePath(source, sourcePath);
   const sourceRolePath = join(resolved.rootPath, resolvedSourcePath);
   const role = parseRoleFileFromPath(roleEntrypointPath(sourceRolePath), { requireContract: true });
+
+  if (source === "aix") {
+    assertBundledRoleGuidance(sourceRolePath);
+  }
+
   const activeName = alias || role.name;
   const expectedFileName = basename(resolvedSourcePath);
 
@@ -456,7 +467,7 @@ export function updateRoles(target?: string, cacheRoot = defaultCacheRoot()): Up
     }
 
     const packageFiles = replaceRoleDirectory(plan.sourceRolePath, entry.packagePath);
-    const activeFiles = replaceActiveRoleFile(entry.packagePath, entry.activationPath, entry.activeName);
+    const activeFiles = replaceActiveRoleFile(entry.packagePath, entry.activationPath, entry.activeName, entry);
     const updatedEntry: LockfileRoleEntry = {
       ...entry,
       ...(entry.sourceType === "git" && plan.resolvedSource
@@ -489,6 +500,37 @@ export function updateRoles(target?: string, cacheRoot = defaultCacheRoot()): Up
   return {
     lockfilePath: LOCKFILE_FILE_NAME,
     updatedRoles
+  };
+}
+
+export function resetRoleGuidance(activeName: string | undefined): ResetRoleGuidanceResult {
+  if (!activeName) {
+    throw new AixError("Usage: aix role guidance reset <active-name>");
+  }
+
+  assertRoleName(activeName, "active role name");
+
+  const lockfile = readLockfileJson();
+  const entry = (lockfile.roles || []).find((role) => role.activeName === activeName);
+
+  if (!entry) {
+    throw new AixError(`Unknown active role: ${activeName}`);
+  }
+
+  const packageGuidancePath = roleGuidancePath(entry.packagePath);
+  const activeGuidancePath = roleGuidancePath(entry.activationPath);
+
+  if (!existsSync(packageGuidancePath)) {
+    throw new AixError(`Role guidance is not available for ${activeName}: ${packageGuidancePath}`);
+  }
+
+  mkdirSync(entry.activationPath, { recursive: true });
+  copyFileSync(packageGuidancePath, activeGuidancePath);
+
+  return {
+    activeName,
+    packageGuidancePath,
+    activeGuidancePath
   };
 }
 

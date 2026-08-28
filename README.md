@@ -306,12 +306,15 @@ Roles give agents a focused point of view for work that needs judgment. A skill
 tells an agent how to repeat a task. A role tells an agent what kind of expert
 to be while choosing, applying, or reviewing those tasks.
 
-A role is a Markdown file with front matter and clear operating guidance. Roles
-can be top-level project roles or workflow-owned roles. If a role depends on a
-workflow's skills, it belongs inside that workflow. If it does not depend on
-workflow-owned skills, it can live as a top-level role.
+A role is a directory bundle with a package-managed `ROLE.md` contract and an
+optional `GUIDANCE.md` file for reusable operating guidance. Bundled AIX and
+workflow-owned roles include `GUIDANCE.md`; external standalone roles may omit
+it. Roles can be top-level project roles or workflow-owned roles. If a role
+depends on a workflow's skills, it belongs inside that workflow. If it does not
+depend on workflow-owned skills, it can live as a top-level role.
 
-AIX materializes active roles under `.agents/roles/<name>.md`. Standalone role
+AIX materializes active roles under `.agents/roles/<name>/ROLE.md`. Active
+`GUIDANCE.md` files are project-editable after activation. Standalone role
 sources use the same plural/source and singular/activation split as skills:
 
 ```bash
@@ -323,6 +326,7 @@ aix roles remove <source-name>
 aix role activate <source>/<role-path> [alias]
 aix role diff <active-name|source/path>
 aix role update <active-name|source/path>
+aix role guidance reset <active-name>
 aix role deactivate <active-name>
 ```
 

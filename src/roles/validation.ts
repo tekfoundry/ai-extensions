@@ -1,6 +1,6 @@
 import { basename, dirname } from "node:path";
 import { AixError } from "../errors.js";
-import type { ParsedRoleFile, RoleMetadataValue, RoleRuntimeHints } from "./types.js";
+import type { ParsedRoleFile, ParsedRoleGuidanceFile, RoleMetadataValue, RoleRuntimeHints } from "./types.js";
 
 const ROLE_NAME_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ROLE_CONTRACT_SECTIONS = [
@@ -150,6 +150,24 @@ export function buildParsedRole(
     body,
     frontMatter: metadata,
     hints: roleRuntimeHints(metadata, path)
+  };
+}
+
+export function parseAndValidateRoleGuidanceFile(
+  metadata: Record<string, RoleMetadataValue>,
+  body: string,
+  path = "role guidance file"
+): ParsedRoleGuidanceFile {
+  const usesGuidance = optionalStringList(metadata, "uses_guidance", path) || [];
+
+  if (body.trim() === "") {
+    throw new AixError(`Invalid role guidance file: ${path} must include guidance content.`);
+  }
+
+  return {
+    body,
+    frontMatter: metadata,
+    usesGuidance
   };
 }
 

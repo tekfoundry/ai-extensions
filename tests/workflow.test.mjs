@@ -74,6 +74,19 @@ Return findings, decisions, evidence, gaps, and residual risk.
 `;
 }
 
+function validRoleGuidanceMarkdown(body = "Use focused workflow role guidance.") {
+  return `---
+uses_guidance:
+  - activities/verification
+  - activities/review
+---
+
+# Workflow Role Guidance
+
+${body}
+`;
+}
+
 function writeWorkflow(directory, title, skillBody, workflowName = "fixture-workflow", options = {}) {
   mkdirSync(join(directory, "skills/alpha"), { recursive: true });
   mkdirSync(join(directory, "templates/sections"), { recursive: true });
@@ -109,6 +122,7 @@ function writeWorkflow(directory, title, skillBody, workflowName = "fixture-work
   if (options.roleName) {
     mkdirSync(join(directory, `roles/project-dev/${options.roleName}`), { recursive: true });
     writeFileSync(join(directory, `roles/project-dev/${options.roleName}/ROLE.md`), validRoleMarkdown(options.roleName), "utf8");
+    writeFileSync(join(directory, `roles/project-dev/${options.roleName}/GUIDANCE.md`), validRoleGuidanceMarkdown(), "utf8");
   }
 }
 
@@ -429,17 +443,31 @@ test("run workflow diff reports role source changes and workflow update applies 
         validRoleMarkdown("quality-engineer").replace("Return findings, decisions", "Return updated findings, decisions"),
         "utf8"
       );
+      writeFileSync(
+        join(source, "roles/project-dev/quality-engineer/GUIDANCE.md"),
+        validRoleGuidanceMarkdown("Use updated upstream workflow guidance."),
+        "utf8"
+      );
       git(["add", "."], source);
       git(["commit", "-m", "update workflow role"], source);
+
+      writeFileSync(".agents/roles/quality-engineer/GUIDANCE.md", "project workflow guidance edit\n", "utf8");
 
       const diff = run(["workflow", "diff"]);
       assert.equal(diff.exitCode, 0);
       assert.match(diff.stdout, /updated findings/);
+      assert.match(diff.stdout, /GUIDANCE.md/);
+      assert.match(diff.stdout, /updated upstream workflow guidance/);
 
       const update = run(["workflow", "update"]);
       assert.equal(update.exitCode, 0);
       assert.match(update.stdout, /Updated workflow/);
       assert.match(readFileSync(".agents/roles/quality-engineer/ROLE.md", "utf8"), /updated findings/);
+      assert.equal(readFileSync(".agents/roles/quality-engineer/GUIDANCE.md", "utf8"), "project workflow guidance edit\n");
+      assert.match(
+        readFileSync(".agents/packages/workflows/fixture/role-workflow/roles/project-dev/quality-engineer/GUIDANCE.md", "utf8"),
+        /updated upstream workflow guidance/
+      );
     } finally {
       if (previousCache === undefined) {
         delete process.env.AIX_CACHE_DIR;

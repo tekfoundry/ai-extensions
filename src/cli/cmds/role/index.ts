@@ -4,10 +4,12 @@ import {
   deactivateRole,
   diffRoles,
   listSourceRoles,
+  resetRoleGuidance,
   updateRoles,
   type DeactivateRoleResult,
   type DiffRolesResult,
   type RoleActivationResult,
+  type ResetRoleGuidanceResult,
   type UpdateRolesResult
 } from "../../../roles.js";
 import { readLockfileJson } from "../../../activation/lockfile.js";
@@ -67,6 +69,14 @@ function renderDiffResult(result: DiffRolesResult): string {
     .join("\n");
 }
 
+function renderResetGuidanceResult(result: ResetRoleGuidanceResult): string {
+  return [
+    `Reset role guidance for ${result.activeName}.`,
+    `Copied guidance from ${result.packageGuidancePath}.`,
+    `Updated ${result.activeGuidancePath}.`
+  ].join("\n");
+}
+
 function roleSourceOptions() {
   return listRoleSourceDefinitions().map((source) => ({
     value: source.name,
@@ -118,6 +128,14 @@ function runRoleDiff(argv: string[]): CliResult {
   return { exitCode: 0, stdout: renderDiffResult(diffRoles(argv[2])) };
 }
 
+function runRoleGuidance(argv: string[]): CliResult {
+  if (argv[2] !== "reset" || !argv[3] || argv.length > 4) {
+    throw new CliError("Usage: aix role guidance reset <active-name>", EXIT_USAGE);
+  }
+
+  return { exitCode: 0, stdout: renderResetGuidanceResult(resetRoleGuidance(argv[3])) };
+}
+
 function runRoleCommand(argv: string[]): CliResult {
   switch (argv[1]) {
     case "activate":
@@ -128,8 +146,10 @@ function runRoleCommand(argv: string[]): CliResult {
       return runRoleUpdate(argv);
     case "diff":
       return runRoleDiff(argv);
+    case "guidance":
+      return runRoleGuidance(argv);
     default:
-      throw new CliError("Usage: aix role <activate|deactivate|update|diff>", EXIT_USAGE);
+      throw new CliError("Usage: aix role <activate|deactivate|update|diff|guidance>", EXIT_USAGE);
   }
 }
 
@@ -191,13 +211,14 @@ async function promptForDeactivation(input: Readable, output: Writable): Promise
 
 export const roleCommand: Command = {
   name: "role",
-  usage: "role <activate|deactivate|update|diff>",
+  usage: "role <activate|deactivate|update|diff|guidance>",
   summary: "Activate or deactivate one role",
   splash: [
     { usage: "role activate [source/path]", summary: "Activate a role" },
     { usage: "role deactivate <name>", summary: "Deactivate a role" },
     { usage: "role update <name|source/path>", summary: "Refresh one role" },
-    { usage: "role diff <name|source/path>", summary: "Show pending role changes" }
+    { usage: "role diff <name|source/path>", summary: "Show pending role changes" },
+    { usage: "role guidance reset <name>", summary: "Reset active role guidance" }
   ],
   run: runRoleCommand,
   async runInteractive(argv, context) {

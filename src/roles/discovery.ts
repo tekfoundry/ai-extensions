@@ -1,10 +1,10 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { AixError } from "../errors.js";
-import { roleEntrypointPath } from "../paths/agents.js";
+import { roleEntrypointPath, roleGuidancePath } from "../paths/agents.js";
 import { parseRoleFrontMatter } from "./front-matter.js";
-import type { DiscoveredRole, ParsedRoleFile } from "./types.js";
-import { assertRoleContract, assertRoleFileNameMatches, buildParsedRole } from "./validation.js";
+import type { DiscoveredRole, ParsedRoleFile, ParsedRoleGuidanceFile } from "./types.js";
+import { assertRoleContract, assertRoleFileNameMatches, buildParsedRole, parseAndValidateRoleGuidanceFile } from "./validation.js";
 
 export function parseRoleFile(markdown: string, path = "role file"): ParsedRoleFile {
   const parsed = parseRoleFrontMatter(markdown, path);
@@ -25,6 +25,24 @@ export function parseRoleFileFromPath(path: string, options: { requireContract?:
   }
 
   return role;
+}
+
+export function parseRoleGuidanceFile(markdown: string, path = "role guidance file"): ParsedRoleGuidanceFile {
+  const parsed = parseRoleFrontMatter(markdown, path);
+
+  return parseAndValidateRoleGuidanceFile(parsed.metadata, parsed.body, path);
+}
+
+export function parseRoleGuidanceFileFromPath(path: string): ParsedRoleGuidanceFile {
+  if (!existsSync(path)) {
+    throw new AixError(`Missing role guidance file: ${path}`);
+  }
+
+  return parseRoleGuidanceFile(readFileSync(path, "utf8"), path);
+}
+
+export function assertBundledRoleGuidance(rolePath: string): void {
+  parseRoleGuidanceFileFromPath(roleGuidancePath(rolePath));
 }
 
 function discoverFromDirectory(root: string, directory: string, roles: DiscoveredRole[]): void {

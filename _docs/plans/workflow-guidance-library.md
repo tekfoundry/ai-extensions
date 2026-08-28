@@ -589,48 +589,141 @@ Execution evidence (2026-08-28):
   `npm test -- tests/skill-instructions.test.mjs`,
   `npm run build`, `node bin/aix.js verify`, and `git diff --check`.
 
-### Phase 2: Role Guidance Files (status: accepted)
+### Phase 2: Role Guidance Files (status: completed)
 
 Goal: split existing role files into clean role contracts plus role-specific
 guidance, then define `GUIDANCE.md` edit, diff, reset, and update behavior.
 
 Tasks:
 
-- ⬜️ Add `GUIDANCE.md` to every bundled top-level AIX role.
-- ⬜️ Add `GUIDANCE.md` to every bundled `design-plan-execute` workflow role.
-- ⬜️ Review each migrated `ROLE.md` for content that is really reusable
+- ✅ Add `GUIDANCE.md` to every bundled top-level AIX role.
+- ✅ Add `GUIDANCE.md` to every bundled `design-plan-execute` workflow role.
+- ✅ Review each migrated `ROLE.md` for content that is really reusable
       guidance rather than role contract.
-- ⬜️ Refactor each role bundle so `ROLE.md` stays focused on role identity,
+- ✅ Refactor each role bundle so `ROLE.md` stays focused on role identity,
       trigger conditions, context to inspect, stop conditions, and expected
       output.
-- ⬜️ Move best-practice, judgment, heuristic, review, and discipline-specific
+- ✅ Move best-practice, judgment, heuristic, review, and discipline-specific
       material from the old role content into that role's `GUIDANCE.md`.
-- ⬜️ Augment each role `GUIDANCE.md` with default role guidance so bundled AIX
+- ✅ Augment each role `GUIDANCE.md` with default role guidance so bundled AIX
       and workflow roles have useful guidance beyond mechanically extracted
       text.
-- ⬜️ Treat external standalone role `GUIDANCE.md` as optional while requiring
+- ✅ Treat external standalone role `GUIDANCE.md` as optional while requiring
       bundled AIX and workflow roles to include it.
-- ⬜️ Preserve `ROLE.md` as package-managed role contract behavior while making
+- ✅ Preserve `ROLE.md` as package-managed role contract behavior while making
       active role `GUIDANCE.md` project-editable after activation.
-- ⬜️ Ensure role update does not silently overwrite edited active
+- ✅ Ensure role update does not silently overwrite edited active
       `GUIDANCE.md`; changed upstream guidance should be visible for diff or
       manual reconciliation.
-- ⬜️ Add guidance metadata parsing for role `GUIDANCE.md`, including optional
+- ✅ Add guidance metadata parsing for role `GUIDANCE.md`, including optional
       `uses_guidance` entries.
-- ⬜️ Seed role guidance from `.agents/engineering-best-practices.md` where it
+- ✅ Seed role guidance from `.agents/engineering-best-practices.md` where it
       applies to technical, implementation, quality, and security roles, and
       author missing guidance for product, requirements, documentation, and UX
       writing roles.
+- ✅ Refactor role and activity `GUIDANCE.md` files to remove dependency on
+      `.agents/engineering-best-practices.md` after mining any remaining
+      reusable guidance into the focused role or activity guidance documents.
 
 Verification:
 
 - Tests cover active role guidance editability, role guidance diff/reset, role
   update safety, missing optional external role guidance, and required bundled
   role guidance.
+- Guidance review confirms focused `GUIDANCE.md` files are self-contained and
+  do not require `.agents/engineering-best-practices.md` for normal role or
+  activity execution.
 - Review role `GUIDANCE.md` content for clear ownership, no placeholder text,
   and no conflict with role contracts.
 - Review migrated `ROLE.md` files to confirm they are slimmer role contracts
   and no longer carry large blocks of guidance content.
+
+Execution note (2026-08-28, completed):
+
+- Added `GUIDANCE.md` files for all bundled AIX and `design-plan-execute`
+  workflow role bundles, copied workflow role guidance into the active
+  workflow package under `.agents/packages/workflows/aix/design-plan-execute`,
+  copied active workflow role guidance into `.agents/roles/<role-name>/GUIDANCE.md`,
+  and slimmed `ROLE.md` contracts.
+- Added parser/path primitives for role guidance metadata, active role hashing
+  that protects `ROLE.md` while allowing project-editable active guidance, a
+  reset primitive for active role guidance, and the
+  `aix role guidance reset <active-name>` CLI command.
+- Updated standalone and workflow role tests for optional external guidance,
+  required bundled guidance, editable active guidance, upstream guidance diff
+  visibility, update preservation, and reset behavior.
+- Updated README surfaces only. `_docs/kb` promotion is intentionally deferred
+  until plan closeout.
+- Verification: `npm run build` passes. `npm test --
+  tests/roles.test.mjs tests/workflow.test.mjs` passes with 194 tests.
+  `node bin/aix.js verify` passes after refreshing active workflow package
+  lockfile hashes. `git diff --check` reports pre-existing trailing whitespace
+  in `_docs/ideas.md`, which is unrelated to Phase 2 and was left untouched.
+
+Follow-up note (2026-08-28):
+
+- Developer review clarified that `uses_guidance:
+  .agents/engineering-best-practices.md` should not remain as a dependency in
+  focused guidance files. The intended end state is that useful guidance from
+  `.agents/engineering-best-practices.md` is mined into role and activity
+  guidance, after which the broad original file can be deleted or retired
+  without losing required behavior.
+
+Execution note (2026-08-28, completed):
+
+- Replaced legacy `.agents/engineering-best-practices.md` entries in bundled,
+  installed-package, and active role `GUIDANCE.md` metadata with focused
+  activity guidance names such as `activities/planning`,
+  `activities/implementation`, `activities/verification`,
+  `activities/review`, and `activities/documentation`.
+- Updated role guidance parser fixtures so `uses_guidance` examples use the
+  new activity-guidance naming contract.
+- Confirmed no role `GUIDANCE.md` file in `aix/roles`,
+  `aix/workflows/design-plan-execute/roles`,
+  `.agents/packages/workflows/aix/design-plan-execute/roles`, or
+  `.agents/roles` references `engineering-best-practices`.
+- Verification passed: `npm run build`, `npm test --
+  tests/roles.test.mjs tests/workflow.test.mjs` with 194 tests, and
+  `node bin/aix.js verify`.
+
+Correction note (2026-08-28):
+
+- Developer review found that the previous cleanup removed the legacy
+  dependency metadata but did not migrate enough role-specific guidance into
+  the focused `GUIDANCE.md` files. Reopened the task to expand each bundled
+  role guidance document as job-title guidance that can stand on its own.
+
+Execution note (2026-08-28, completed):
+
+- Expanded all bundled top-level AIX role `GUIDANCE.md` files and all bundled
+  `design-plan-execute` project-development role `GUIDANCE.md` files into
+  job-title guidance. Each document now describes the role's job focus, how the
+  role works, the judgment it should apply, common risks or review checks, and
+  output discipline.
+- Mined relevant implementation, architecture, maintainability, verification,
+  error-handling, state, refactoring, security, and package-safety guidance
+  into the roles that need it. Authored role-specific product, requirements,
+  product-design, UX-writing, documentation, workflow-architecture,
+  skill-authoring, release-readiness, and instruction-audit guidance where the
+  legacy engineering document did not cover the job well.
+- Synced updated workflow role guidance into the installed workflow package
+  under `.agents/packages/workflows/aix/design-plan-execute/roles` and active
+  role guidance under `.agents/roles`. Refreshed workflow package and
+  workflow-owned role package hashes in `aix.lock.json`.
+- Phase 3 still owns creation of workflow activity guidance files. There were
+  no activity `GUIDANCE.md` files to refactor during Phase 2.
+- Follow-up review generalized the `design-plan-execute` project-development
+  role guidance so reusable roles do not assume the project is AIX, a CLI, or a
+  package manager. AIX-specific language remains only in bundled AIX
+  development roles whose job titles are explicitly AIX-focused.
+- Verification passed: source guidance scan found no legacy
+  `engineering-best-practices` dependency, TODO text, placeholder text, or
+  selected AI-writing tells; installed-package and active guidance copies match
+  source; `npm run build` passes; `npm test --
+  tests/roles.test.mjs tests/workflow.test.mjs tests/package-smoke.test.mjs`
+  passes with 194 tests; `node bin/aix.js verify` passes. `git diff --check`
+  still reports pre-existing trailing whitespace in `_docs/ideas.md`, which is
+  unrelated and was left untouched.
 
 ### Phase 3: Workflow Activity Guidance (status: accepted)
 

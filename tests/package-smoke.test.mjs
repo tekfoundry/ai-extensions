@@ -53,6 +53,28 @@ test("npm pack artifact contains a working aix binary", async () => {
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/roles/project-dev/quality-engineer/ROLE.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/roles/project-dev/documentation-specialist/ROLE.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/roles/project-dev/implementation-engineer/ROLE.md")), true);
+  for (const rolePath of [
+    "aix/roles/aix-dev/aix-agent-instructions-auditor",
+    "aix/roles/aix-dev/aix-package-safety-reviewer",
+    "aix/roles/aix-dev/aix-release-readiness-specialist",
+    "aix/roles/aix-dev/aix-skill-author",
+    "aix/roles/aix-dev/aix-workflow-architect",
+    "aix/workflows/design-plan-execute/roles/project-dev/requirements-engineer",
+    "aix/workflows/design-plan-execute/roles/project-dev/security-engineer",
+    "aix/workflows/design-plan-execute/roles/project-dev/technical-architect",
+    "aix/workflows/design-plan-execute/roles/project-dev/ux-writer",
+    "aix/workflows/design-plan-execute/roles/project-dev/quality-engineer",
+    "aix/workflows/design-plan-execute/roles/project-dev/documentation-specialist",
+    "aix/workflows/design-plan-execute/roles/project-dev/implementation-engineer",
+    "aix/workflows/design-plan-execute/roles/project-dev/product-designer",
+    "aix/workflows/design-plan-execute/roles/project-dev/product-strategist"
+  ]) {
+    const guidance = readFileSync(join(unpackDirectory, rolePath, "GUIDANCE.md"), "utf8");
+
+    assert.equal(existsSync(join(unpackDirectory, rolePath, "ROLE.md")), true);
+    assert.match(guidance, /^uses_guidance:/m);
+    assert.doesNotMatch(guidance, /TODO|placeholder/i);
+  }
   assert.equal(readdirSync(packDirectory).some((entry) => entry.endsWith(".tgz")), true);
   assert.match(helpOutput, /AI Extensions/);
   assert.match(helpOutput, new RegExp(`aix v${packageJson.version.replaceAll(".", "\\.")}`));

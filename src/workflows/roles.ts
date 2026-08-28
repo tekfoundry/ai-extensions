@@ -3,10 +3,11 @@ import { join } from "node:path";
 import { AixError } from "../errors.js";
 import { activeRolePath, roleEntrypointPath } from "../paths/agents.js";
 import type { LockfileRoleEntry, LockfileWorkflowEntry, SourceType } from "../schema.js";
-import { discoverRoles, parseRoleFileFromPath } from "../roles/discovery.js";
+import { assertBundledRoleGuidance, discoverRoles, parseRoleFileFromPath } from "../roles/discovery.js";
 import {
   assertActiveRoleFilesMatchLockfile,
   assertRolePackageFilesMatchLockfile,
+  replaceActiveRoleFile,
   removeRoleFile,
   roleFileHashes,
   writeActiveRoleFile
@@ -79,6 +80,7 @@ export function assertWorkflowRolesSafe(
     );
 
     parseRoleFileFromPath(roleEntrypointPath(sourceRolePath), { requireContract: true });
+    assertBundledRoleGuidance(sourceRolePath);
     assertRoleName(plan.activeName, "active role name");
     assertNoWorkflowRoleCollision(lockfile, workflow.name, workflowSource, plan);
 
@@ -103,15 +105,16 @@ export function installWorkflowRoles(
   workflowSource: string,
   sourceType: SourceType,
   packagePath: string,
-  previousWorkflow?: LockfileWorkflowEntry
+  previousWorkflow?: LockfileWorkflowEntry,
+  previousRoles: LockfileRoleEntry[] = []
 ): LockfileRoleEntry[] {
   const previousActiveNames = new Set(previousWorkflow?.roles?.map((role) => role.activeName) || []);
+  const previousRolesByActiveName = new Map(previousRoles.map((role) => [role.activeName, role]));
   const entries = workflowRolePlans(packagePath).map((plan): LockfileRoleEntry => {
-    if (previousActiveNames.has(plan.activeName)) {
-      removeRoleFile(plan.activationPath);
-    }
-
-    const activeFiles = writeActiveRoleFile(plan.packageRolePath, plan.activationPath, plan.activeName);
+    const previousRole = previousRolesByActiveName.get(plan.activeName);
+    const activeFiles = previousActiveNames.has(plan.activeName) && previousRole
+      ? replaceActiveRoleFile(plan.packageRolePath, plan.activationPath, plan.activeName, previousRole)
+      : writeActiveRoleFile(plan.packageRolePath, plan.activationPath, plan.activeName);
 
     return {
       kind: "role",

@@ -92,8 +92,11 @@ This workflow installs these roles:
 | [`documentation-specialist`](roles/project-dev/documentation-specialist/ROLE.md) | "Use documentation-specialist for this docs impact review."<br>"Where should this current-state behavior be documented?"<br>"Does the implementation match the knowledge base and active plan?" | Reviews documentation impact, `_docs` placement, knowledge-base promotion needs, current-state accuracy, implementation-to-intent drift, links, and developer-facing documentation before planning or closeout treats docs as current. |
 | [`implementation-engineer`](roles/project-dev/implementation-engineer/ROLE.md) | "Use implementation-engineer to split this phase into tasks."<br>"Check whether this task is ready for task-execute."<br>"What files, tests, docs, and risks should this implementation touch?" | Reviews implementation task boundaries, sequencing, likely changed areas, code-change readiness, verification handoff, documentation impact, and residual risk before planned work moves into or through execution. |
 
-The workflow activates these roles under `.agents/roles/`. Remove or update the
-workflow to change them. Do not deactivate them like normal root roles.
+The workflow activates these roles under `.agents/roles/<name>/ROLE.md`.
+Each bundled role also ships `GUIDANCE.md`; active guidance files are
+project-editable and preserved by workflow updates. Remove or update the
+workflow to change the package-managed role contracts. Do not deactivate them
+like normal root roles.
 
 Use roles explicitly when you want bounded specialist judgment, for example
 `Use quality-engineer to plan verification` or

@@ -104,3 +104,30 @@ None yet.
      - [AIX workflow design](design/workflows.md)
 
 12. **coding standards**
+
+13. **optimizing 5h usage**
+    You’re right about the intended lifecycle: _docs/kb should be promoted at plan closeout, not after every task or phase. For Phase 2, I’ll keep changes limited to:
+- implementation files
+- tests
+- bundled role/workflow assets required by the phase
+- the active plan file for task status/evidence only
+  I’ll treat _docs/kb updates as deferred design promotion for the plan closeout phase.
+  Other ways to make your 5-hour usage last longer:
+- Avoid broad file reads unless needed. I’ll inspect narrow ranges with sed/grep instead of loading whole docs or huge files.
+- Avoid full test harness runs until the end. I’ll run targeted tests first, then one broad verification pass when needed.
+- Avoid parallel full test runs. They generate huge output and can interfere with each other in this repo.
+- Use subagents only when they materially reduce risk or context, not by default for every slice.
+- Keep phase execution notes concise. No long narrative unless it captures a real blocker or decision.
+- Defer _docs/kb promotion to final plan closeout.
+- Prefer code/search evidence over re-reading the same plan/docs repeatedly.
+
+14. **optimizing workflow**
+- all downstream calls need the following info, so we collect this early on
+```yaml
+requesting_role: none | <active-role-name>
+requesting_skill: none | <active-skill-name>
+activity: none | <activity-name>
+task_context: <short summary>
+```
+- then we get the guidance recommendations from `get-guidance` skill
+- then we use the `delegate-to-role` skill and provide all the collected info. this should be where the work is done. having this delegation as "read-only" causes essentially double the token usage 

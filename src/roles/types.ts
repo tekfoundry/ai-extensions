@@ -18,6 +18,12 @@ export interface ParsedRoleFile {
   hints: RoleRuntimeHints;
 }
 
+export interface ParsedRoleGuidanceFile {
+  body: string;
+  frontMatter: Record<string, RoleMetadataValue>;
+  usesGuidance: string[];
+}
+
 export interface DiscoveredRole {
   path: string;
   name: string;
