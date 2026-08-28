@@ -8,7 +8,7 @@ import { join } from "node:path";
 import { PassThrough } from "node:stream";
 import { test } from "node:test";
 import { run, runInteractive } from "../dist/cli.js";
-import { installWorkflowFromDefinitions } from "../dist/workflows/index.js";
+import { discoverWorkflowGuidance, installWorkflowFromDefinitions, validateWorkflowGuidance } from "../dist/workflows/index.js";
 
 function git(args, cwd) {
   return execFileSync("git", args, {
@@ -87,9 +87,34 @@ ${body}
 `;
 }
 
+function writeGuidance(directory, options = {}) {
+  mkdirSync(join(directory, "guidance/activities"), { recursive: true });
+  writeFileSync(join(directory, "guidance/README.md"), "# Workflow guidance\n\nRead relevant workflow guidance.\n", "utf8");
+  writeFileSync(
+    join(directory, "guidance/shared.md"),
+    "---\napplies_to:\n  roles:\n    - quality-engineer\n  skills:\n    - phase-execute\n---\n\n# Shared guidance\n\nUse shared workflow guidance.\n",
+    "utf8"
+  );
+
+  for (const activity of ["planning", "implementation", "verification", "review", "documentation"]) {
+    writeFileSync(
+      join(directory, `guidance/activities/${activity}.md`),
+      `---\napplies_to:\n  roles:\n    - quality-engineer\n  skills:\n    - ${activity === "planning" ? "plan-create" : "task-execute"}\n---\n\n# ${activity} guidance\n\nUse ${activity} guidance.\n`,
+      "utf8"
+    );
+  }
+
+  if (options.invalidMetadata) {
+    writeFileSync(join(directory, "guidance/activities/review.md"), "---\napplies_to:\n  unknown:\n    - value\n---\n\n# Review\n", "utf8");
+  }
+}
+
 function writeWorkflow(directory, title, skillBody, workflowName = "fixture-workflow", options = {}) {
   mkdirSync(join(directory, "skills/alpha"), { recursive: true });
   mkdirSync(join(directory, "templates/sections"), { recursive: true });
+  if (options.guidance) {
+    writeGuidance(directory, options.guidance === true ? {} : options.guidance);
+  }
   writeFileSync(
     join(directory, "workflow.json"),
     JSON.stringify(
@@ -102,6 +127,7 @@ function writeWorkflow(directory, title, skillBody, workflowName = "fixture-work
           marker: `aix:workflow ${workflowName}`
         },
         docs: ["README.md", "workflow.md", "engineering-best-practices.md"],
+        ...(options.guidance ? { guidanceDir: "guidance" } : {}),
         templatesDir: "templates",
         skillsDir: "skills"
       },
@@ -153,6 +179,7 @@ test("run workflow install installs docs, managed AGENTS block, and workflow-own
     assert.equal(result.exitCode, 0);
     assert.match(result.stdout, /Installed workflow fixture-workflow/);
     assert.match(result.stdout, /Installed 3 workflow templates/);
+    assert.match(result.stdout, /Installed 0 workflow guidance docs/);
     assert.equal(manifest.workflow, "fixture:.");
     assert.equal(manifest.sources.workflows.fixture.url, source);
     assert.equal(lockfile.workflows.length, 1);
@@ -171,6 +198,147 @@ test("run workflow install installs docs, managed AGENTS block, and workflow-own
     assert.ok(existsSync(join(projectPath, "_docs/plans/backlog")));
     assert.match(agents, /Keep this project text/);
     assert.match(agents, /<!-- aix:workflow fixture-workflow start -->/);
+  });
+});
+
+test("run workflow install tracks workflow guidance without publishing project overrides", async () => {
+  const source = await mkdtemp(join(tmpdir(), "aix-workflow-guidance-source-"));
+  writeWorkflow(source, "Guidance Workflow", "Guidance body.", "guidance-workflow", { guidance: true });
+  git(["init", "-b", "master"], source);
+  git(["add", "."], source);
+  git(["commit", "-m", "workflow guidance"], source);
+
+  await withProject(async (projectPath) => {
+    const result = run(["workflow", "install", source, "fixture"]);
+    const lockfile = JSON.parse(readFileSync("aix.lock.json", "utf8"));
+    const status = run(["status"]);
+    const verify = run(["verify"]);
+
+    assert.equal(result.exitCode, 0);
+    assert.match(result.stdout, /Installed 7 workflow guidance docs/);
+    assert.equal(lockfile.workflows[0].guidance.length, 7);
+    assert.ok(lockfile.workflows[0].guidance.some((file) => file.path === "guidance/shared.md"));
+    assert.ok(existsSync(join(projectPath, ".agents/packages/workflows/fixture/guidance-workflow/guidance/shared.md")));
+    assert.equal(existsSync(join(projectPath, ".agents/guidance")), false);
+    assert.match(status.stdout, /Workflow[\s\S]*Guidance[\s\S]*7/);
+    assert.equal(verify.exitCode, 0);
+  });
+});
+
+test("run workflow diff and update include workflow guidance changes", async () => {
+  const source = await mkdtemp(join(tmpdir(), "aix-workflow-guidance-update-"));
+  writeWorkflow(source, "Guidance Workflow", "Guidance body.", "guidance-workflow", { guidance: true });
+  git(["init", "-b", "master"], source);
+  git(["add", "."], source);
+  git(["commit", "-m", "workflow guidance"], source);
+
+  await withProject(async () => {
+    const previousCache = process.env.AIX_CACHE_DIR;
+    const cacheRoot = join(tmpdir(), `aix-workflow-guidance-cache-${Date.now()}`);
+    process.env.AIX_CACHE_DIR = cacheRoot;
+
+    try {
+      assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
+
+      writeFileSync(
+        join(source, "guidance/activities/verification.md"),
+        "---\napplies_to:\n  roles:\n    - quality-engineer\n  skills:\n    - work-verify\n---\n\n# verification guidance\n\nUse updated verification guidance.\n",
+        "utf8"
+      );
+      git(["add", "."], source);
+      git(["commit", "-m", "update workflow guidance"], source);
+
+      const diff = run(["workflow", "diff"]);
+      assert.equal(diff.exitCode, 0);
+      assert.match(diff.stdout, /guidance\/activities\/verification\.md/);
+      assert.match(diff.stdout, /Use updated verification guidance/);
+
+      const update = run(["workflow", "update"]);
+      const lockfile = JSON.parse(readFileSync("aix.lock.json", "utf8"));
+
+      assert.equal(update.exitCode, 0);
+      assert.match(
+        readFileSync(".agents/packages/workflows/fixture/guidance-workflow/guidance/activities/verification.md", "utf8"),
+        /Use updated verification guidance/
+      );
+      assert.ok(lockfile.workflows[0].guidance.some((file) => file.path === "guidance/activities/verification.md"));
+      assert.equal(run(["verify"]).exitCode, 0);
+    } finally {
+      if (previousCache === undefined) {
+        delete process.env.AIX_CACHE_DIR;
+      } else {
+        process.env.AIX_CACHE_DIR = previousCache;
+      }
+    }
+  });
+});
+
+test("run verify reports workflow guidance drift", async () => {
+  const source = await mkdtemp(join(tmpdir(), "aix-workflow-guidance-drift-"));
+  writeWorkflow(source, "Guidance Workflow", "Guidance body.", "guidance-workflow", { guidance: true });
+  git(["init", "-b", "master"], source);
+  git(["add", "."], source);
+  git(["commit", "-m", "workflow guidance"], source);
+
+  await withProject(async () => {
+    assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
+    writeFileSync(".agents/packages/workflows/fixture/guidance-workflow/guidance/shared.md", "# Edited guidance\n", "utf8");
+
+    const verify = run(["verify"]);
+
+    assert.equal(verify.exitCode, 2);
+    assert.match(verify.stdout, /Workflow package has drift: \.agents\/packages\/workflows\/fixture\/guidance-workflow/);
+    assert.match(verify.stdout, /Workflow guidance hash changed: \.agents\/packages\/workflows\/fixture\/guidance-workflow\/guidance\/shared\.md/);
+  });
+});
+
+test("workflow guidance parser preserves applies_to metadata", async () => {
+  const source = await mkdtemp(join(tmpdir(), "aix-workflow-guidance-parse-"));
+  writeWorkflow(source, "Guidance Workflow", "Guidance body.", "guidance-workflow", { guidance: true });
+
+  const guidance = discoverWorkflowGuidance(
+    {
+      name: "guidance-workflow",
+      docs: [],
+      guidanceDir: "guidance",
+      skillsDir: "skills"
+    },
+    source
+  );
+  const shared = guidance.documents.find((document) => document.name === "shared");
+
+  validateWorkflowGuidance(guidance);
+  assert.equal(guidance.documents.length, 7);
+  assert.deepEqual(shared.appliesTo.roles, ["quality-engineer"]);
+  assert.deepEqual(shared.appliesTo.skills, ["phase-execute"]);
+});
+
+test("workflow install validates required guidance files and metadata", async () => {
+  const missing = await mkdtemp(join(tmpdir(), "aix-workflow-guidance-missing-"));
+  writeWorkflow(missing, "Guidance Workflow", "Guidance body.", "guidance-workflow", { guidance: true });
+  rmSync(join(missing, "guidance/activities/documentation.md"));
+  git(["init", "-b", "master"], missing);
+  git(["add", "."], missing);
+  git(["commit", "-m", "missing guidance"], missing);
+
+  await withProject(async () => {
+    const result = run(["workflow", "install", missing, "fixture"]);
+
+    assert.equal(result.exitCode, 2);
+    assert.match(result.stderr, /Workflow guidance is missing required document: guidance\/activities\/documentation\.md/);
+  });
+
+  const invalid = await mkdtemp(join(tmpdir(), "aix-workflow-guidance-invalid-"));
+  writeWorkflow(invalid, "Guidance Workflow", "Guidance body.", "guidance-workflow", { guidance: { invalidMetadata: true } });
+  git(["init", "-b", "master"], invalid);
+  git(["add", "."], invalid);
+  git(["commit", "-m", "invalid guidance"], invalid);
+
+  await withProject(async () => {
+    const result = run(["workflow", "install", invalid, "fixture"]);
+
+    assert.equal(result.exitCode, 2);
+    assert.match(result.stderr, /applies_to\.unknown is not supported/);
   });
 });
 

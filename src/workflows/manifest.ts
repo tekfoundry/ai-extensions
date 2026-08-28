@@ -37,6 +37,10 @@ export function readWorkflowManifest(root: string): WorkflowManifestFile {
     throw new AixError(`${manifestPath} templatesDir must be a non-empty string when provided.`);
   }
 
+  if (raw.guidanceDir !== undefined && (typeof raw.guidanceDir !== "string" || raw.guidanceDir.trim() === "")) {
+    throw new AixError(`${manifestPath} guidanceDir must be a non-empty string when provided.`);
+  }
+
   let agentsMd: WorkflowManifestFile["agentsMd"];
   if (raw.agentsMd !== undefined) {
     if (!isRecord(raw.agentsMd)) {
@@ -67,6 +71,7 @@ export function readWorkflowManifest(root: string): WorkflowManifestFile {
     ...(typeof raw.title === "string" && raw.title.trim() !== "" ? { title: raw.title } : {}),
     ...(agentsMd ? { agentsMd } : {}),
     docs: raw.docs,
+    ...(typeof raw.guidanceDir === "string" ? { guidanceDir: raw.guidanceDir } : {}),
     ...(typeof raw.templatesDir === "string" ? { templatesDir: raw.templatesDir } : {}),
     skillsDir: raw.skillsDir
   };

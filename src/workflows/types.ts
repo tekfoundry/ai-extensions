@@ -7,6 +7,7 @@ export interface WorkflowManifestFile {
     marker: string;
   };
   docs: string[];
+  guidanceDir?: string;
   templatesDir?: string;
   skillsDir: string;
 }
@@ -18,6 +19,7 @@ export interface InstallWorkflowResult {
   lockfilePath: string;
   packagePath: string;
   installedDocs: string[];
+  installedGuidance: number;
   installedTemplates: number;
   activatedSkills: string[];
   activatedRoles: string[];

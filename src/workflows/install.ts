@@ -20,6 +20,7 @@ import { assertFolderNameSafe } from "../activation/naming.js";
 import { defaultCacheRoot, getDefaultWorkflowSources, resolveSourceFromDefinitions } from "../sources/index.js";
 import { assertAgentsMdBlockSafe, installAgentsMdBlock } from "./agents-md.js";
 import { assertWorkflowDocsSafe, installWorkflowDocs, scaffoldProjectDocs } from "./docs.js";
+import { discoverWorkflowGuidance, validateWorkflowGuidance, workflowGuidanceHashes } from "./guidance.js";
 import { readWorkflowManifest } from "./manifest.js";
 import { assertWorkflowActiveRolesUnmodified, assertWorkflowRolesSafe, installWorkflowRoles, replaceWorkflowRoleEntries, workflowRoles } from "./roles.js";
 import { assertWorkflowActiveSkillsUnmodified, assertWorkflowSkillsSafe, installWorkflowSkills } from "./skills.js";
@@ -60,6 +61,7 @@ function preflightWorkflowInstall(
   assertAgentsMdBlockSafe(workflow.agentsMd, stagedPackagePath, existingWorkflow?.agentsMd?.sha256);
   assertWorkflowSkillsSafe(workflow, source, stagedPackagePath, finalPackagePath, lockfile);
   assertWorkflowRolesSafe(workflow, source, stagedPackagePath, finalPackagePath, lockfile);
+  validateWorkflowGuidance(discoverWorkflowGuidance(workflow, stagedPackagePath));
   validateWorkflowTemplates(discoverWorkflowTemplates(workflow, stagedPackagePath));
 
   return existingWorkflow;
@@ -103,6 +105,7 @@ export function installResolvedWorkflow(
     const previousWorkflowRoles = existingWorkflow ? workflowRoles(lockfile, existingWorkflow.name) : [];
     const skillEntries = installWorkflowSkills(workflow, source, sourceType, packagePath, previousWorkflowSkills);
     const roleEntries = installWorkflowRoles(workflow, source, sourceType, packagePath, existingWorkflow, previousWorkflowRoles);
+    const guidance = workflowGuidanceHashes(discoverWorkflowGuidance(workflow, packagePath));
     const templates = workflowTemplateHashes(discoverWorkflowTemplates(workflow, packagePath));
 
     scaffoldProjectDocs();
@@ -136,6 +139,7 @@ export function installResolvedWorkflow(
             }
           : {}),
         ...(templates.length > 0 ? { templates } : {}),
+        ...(guidance.length > 0 ? { guidance } : {}),
         packageFiles
       }
     ];
@@ -148,6 +152,7 @@ export function installResolvedWorkflow(
       lockfilePath: LOCKFILE_FILE_NAME,
       packagePath,
       installedDocs: docs.map((doc) => doc.targetPath),
+      installedGuidance: guidance.length,
       installedTemplates: templates.length,
       activatedSkills: skillEntries.map((skill) => skill.activeName),
       activatedRoles: roleEntries.map((role) => role.activeName)

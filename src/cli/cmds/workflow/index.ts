@@ -19,6 +19,7 @@ function renderInstallWorkflowResult(result: InstallWorkflowResult): string {
   return [
     `Installed workflow ${result.name}.`,
     `Installed ${result.installedDocs.length} workflow docs.`,
+    `Installed ${result.installedGuidance} workflow guidance docs.`,
     `Installed ${result.installedTemplates} workflow templates.`,
     `Activated ${result.activatedSkills.length} workflow-owned skills.`,
     `Activated ${result.activatedRoles.length} workflow-owned roles.`,

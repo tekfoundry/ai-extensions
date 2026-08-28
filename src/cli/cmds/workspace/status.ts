@@ -187,6 +187,7 @@ function renderWorkflow(status: WorkspaceStatus, options: RenderStatusOptions): 
       { header: "Ref", value: () => refLabel(workflow) },
       { header: "Commit", value: () => commitLabel(workflow) },
       { header: "Docs", value: () => String(workflow.docCount) },
+      { header: "Guidance", value: () => String(workflow.guidanceCount) },
       { header: "Templates", value: () => String(workflow.templateCount) },
       { header: "Skills", value: () => String(workflow.skillCount) },
       { header: "Roles", value: () => String(workflow.roleCount) },

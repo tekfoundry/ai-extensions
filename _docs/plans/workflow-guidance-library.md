@@ -341,8 +341,8 @@ keeping external role authoring practical:
   report that no role guidance was provided for that active role.
 
 Add a bundled `get-guidance` skill under the root AIX skill source so roles,
-skills, and parent workflow contexts have one consistent recipe for finding
-relevant guidance before doing their core work:
+skills, and parent workflow contexts have one consistent read-only recipe for
+finding relevant guidance when a caller asks for that help:
 
 ```text
 @aix/skills/get-guidance
@@ -350,13 +350,20 @@ relevant guidance before doing their core work:
 
 `get-guidance` should be a root AIX skill, not a workflow-owned
 `design-plan-execute` skill, because guidance resolution is a cross-cutting AIX
-capability that should be usable by any workflow or active role. The
-`design-plan-execute` workflow should declare and activate `get-guidance` as a
-workflow-required external skill when that manifest capability exists. Current
-workflow manifests do not support external workflow skill declarations; the
-approved backlog plan
-`_docs/plans/backlog/workflow-external-skill-dependencies.md` defines that
-related capability.
+capability that should be usable by any workflow or active role. This plan
+creates the skill as an available resolver only. It does not make
+`get-guidance` part of default workflow startup, managed `AGENTS.md` routing,
+`delegate-to-role`, role execution, or skill execution.
+
+Default routing and mandatory adoption are deferred to the project-manager
+entry-role work in `_docs/plans/backlog/create-project-manager-role.md`. That
+plan will decide whether `project-manager` calls `get-guidance` as a separate
+skill, wraps the same resolution procedure inside
+`project-manager/GUIDANCE.md`, or uses another small handoff shape. If later
+workflow routing wants `design-plan-execute` to declare and activate
+`get-guidance` automatically, it must coordinate with the approved backlog plan
+`_docs/plans/backlog/workflow-external-skill-dependencies.md`, because current
+workflow manifests do not support external workflow skill declarations.
 
 The skill should be read-only. It should not install, update, activate,
 deactivate, publish, reset, or edit guidance. Its job is to resolve and return
@@ -430,19 +437,12 @@ outrank guidance. If guidance conflicts with a higher-priority instruction,
 Guidance informs judgment; it does not override the work request, lifecycle
 rules, role contract, skill procedure, or safety boundaries.
 
-Roles and skills should be able to say, in their own instructions, that they
-call or follow `get-guidance` before core work. This avoids duplicating
-guidance-resolution rules in every role and skill file.
-
-Guidance should be surfaced to agents through centralized workflow routing
-points, not by hand-editing every role and skill to repeat the same
-instruction. The managed workflow block in top-level `AGENTS.md` should
-include a concise rule that tells agents to use `get-guidance` when available
-before specialist role work or workflow skill execution. `.agents/workflow.md`
-should define guidance resolution as part of task orientation, and
-`delegate-to-role` should include guidance context when invoking a role. The
-first version should not require modifying every role and skill file solely to
-call `get-guidance`.
+Roles and skills may refer to `get-guidance` later when their own contracts
+need it, but this plan should not hand-wire the skill into every role or skill
+file. Central workflow routing is also out of scope for this plan. The
+project-manager plan owns the question of who resolves guidance during request
+startup, what caller payload is passed, and whether `delegate-to-role` should
+carry guidance context.
 
 The existing `.agents/engineering-best-practices.md` should be treated as
 migration source material. Its content likely belongs across:
@@ -507,11 +507,10 @@ and the file can be deleted.
 - `get-guidance` must receive all required caller-context fields and stay
   bounded to guidance that matches the requesting role, requesting skill,
   workflow-defined activity, and task summary.
-- The managed `AGENTS.md` workflow block, `.agents/workflow.md`, and
-  `delegate-to-role` should surface `get-guidance` as the portable guidance
-  retrieval path. The first version should not require hand-wiring
-  `get-guidance` into every role and skill file, and should not generate
-  host-specific compatibility files for guidance discovery.
+- This plan does not wire `get-guidance` into managed `AGENTS.md`,
+  `.agents/workflow.md`, `delegate-to-role`, role contracts, skill contracts,
+  workflow manifests, or default workflow startup. The project-manager plan
+  owns the later routing decision.
 - Standalone roles and workflow-owned roles must use compatible role package
   semantics so projects can combine one workflow with external roles.
 - Guidance metadata should be inspectable and conservative. It should not make
@@ -725,7 +724,7 @@ Execution note (2026-08-28, completed):
   still reports pre-existing trailing whitespace in `_docs/ideas.md`, which is
   unrelated and was left untouched.
 
-### Phase 3: Workflow Activity Guidance (status: accepted)
+### Phase 3: Workflow Activity Guidance (status: completed)
 
 Goal: add workflow-owned shared and activity guidance to the
 `design-plan-execute` workflow without materializing editable overrides during
@@ -733,19 +732,19 @@ workflow install.
 
 Tasks:
 
-- ⬜️ Add top-level workflow guidance under
+- ✅ Add top-level workflow guidance under
       `aix/workflows/design-plan-execute/guidance/`.
-- ⬜️ Add `guidance/README.md` and `guidance/shared.md`.
-- ⬜️ Add initial activity guidance for planning, implementation, verification,
+- ✅ Add `guidance/README.md` and `guidance/shared.md`.
+- ✅ Add initial activity guidance for planning, implementation, verification,
       review, and documentation.
-- ⬜️ Add front matter parsing for activity guidance metadata, including
+- ✅ Add front matter parsing for activity guidance metadata, including
       optional `applies_to.roles` and `applies_to.skills`.
-- ⬜️ Extend workflow manifest, install, update, diff, status, verify, and
+- ✅ Extend workflow manifest, install, update, diff, status, verify, and
       lockfile behavior to include workflow guidance origins and hashes.
-- ⬜️ Keep workflow install from copying workflow guidance into
+- ✅ Keep workflow install from copying workflow guidance into
       `.agents/guidance/`; that directory remains project-owned override
       space created by publishing or direct user customization.
-- ⬜️ Keep `.agents/engineering-best-practices.md` available during migration
+- ✅ Keep `.agents/engineering-best-practices.md` available during migration
       without editing or deleting it.
 
 Verification:
@@ -755,6 +754,33 @@ Verification:
   `.agents/guidance/` materialization during workflow install.
 - Documentation review confirms `engineering-best-practices.md` references are
   intentionally retained or moved, with no broken references.
+
+Execution note (2026-08-28, completed):
+
+- Added workflow-origin guidance files under
+  `aix/workflows/design-plan-execute/guidance/`: `README.md`, `shared.md`,
+  and activity guidance for planning, implementation, verification, review,
+  and documentation.
+- Added `guidanceDir` support to workflow manifests, workflow guidance
+  discovery, safe-name validation, required document validation, `applies_to`
+  metadata parsing, guidance hashing, lockfile parsing, install/update
+  lockfile writes, status counts, and verify drift checks.
+- Kept workflow install package-owned only. Tests confirm workflow install
+  copies guidance into `.agents/packages/workflows/.../guidance/` and does not
+  create `.agents/guidance/`.
+- Kept `.agents/engineering-best-practices.md` available and unchanged.
+  New workflow activity guidance does not depend on it. Existing legacy
+  references in skill-instruction tests and workflow fixture docs remain
+  intentional until later migration/closeout phases.
+- Clarified the Phase 3 verification severity decision in implementation:
+  current `aix verify` has only issue/failure reporting, so required guidance
+  drift and malformed metadata are reported as normal verify/install issues.
+  Advisory stale-reference warnings remain deferred until a warning channel is
+  designed.
+- Verification passed: `npm run build`; `npm test --
+  tests/workflow.test.mjs tests/status.test.mjs tests/lockfile.test.mjs
+  tests/package-smoke.test.mjs` ran the repository test runner and passed with
+  199 tests; `node bin/aix.js verify`; `git diff --check`.
 
 ### Phase 4: Guidance Commands (status: accepted)
 
@@ -785,10 +811,11 @@ Verification:
   no-op role guidance publish reporting.
 - CLI help and README examples match the accepted command surface.
 
-### Phase 5: Get Guidance Skill And Routing (status: accepted)
+### Phase 5: Get Guidance Skill (status: accepted)
 
-Goal: add the read-only `@aix/skills/get-guidance` skill and route agents to it
-from central workflow entrypoints.
+Goal: add the read-only `@aix/skills/get-guidance` skill as an available
+guidance resolver without making it part of default workflow startup or role
+routing.
 
 Tasks:
 
@@ -804,9 +831,13 @@ Tasks:
       guidance matches.
 - ⬜️ Make `get-guidance` report and ignore guidance that conflicts with higher
       priority user, repo, workflow, skill, role, or safety instructions.
-- ⬜️ Coordinate with the approved external workflow skill dependency plan so
-      `design-plan-execute` can declare and activate `get-guidance` when that
-      capability exists.
+- ⬜️ Keep the skill optional for this plan: do not wire it into managed
+      `AGENTS.md`, `.agents/workflow.md`, `delegate-to-role`, role contracts,
+      skill contracts, workflow manifests, or default workflow startup.
+- ⬜️ Add a plan note that mandatory routing and adoption are deferred to
+      `_docs/plans/backlog/create-project-manager-role.md`, with any future
+      workflow-required external skill activation depending on
+      `_docs/plans/backlog/workflow-external-skill-dependencies.md`.
 
 Verification:
 
@@ -815,36 +846,35 @@ Verification:
   and legacy fallback.
 - `get-guidance` examples produce bounded reading lists rather than dumping
   unrelated guidance.
+- Tests or review notes confirm no managed workflow append, role, skill,
+  delegation, or manifest wiring was added by this phase.
 
-### Phase 6: Agent Instruction Appends (status: accepted)
+### Phase 6: Defer Routing Adoption (status: accepted)
 
-Goal: extend managed agent instruction append behavior so AIX-level,
-workflow-level, and possibly skill-level context can be surfaced through
-central routing points.
+Goal: close the guidance plan's routing scope cleanly and hand default
+request-entry behavior to the project-manager plan.
 
 Tasks:
 
-- ⬜️ Review current workflow `AGENTS.append.md` behavior and managed root
-      `AGENTS.md` block ownership.
-- ⬜️ Design an AIX-level append source, such as `aix/AGENTS.append.md`, for
-      global AIX context that should apply regardless of the active workflow.
-- ⬜️ Decide whether skill directories may include their own append files for
-      central routing hints, and define how those appends are discovered,
-      ordered, installed, updated, and removed.
-- ⬜️ Extend managed `AGENTS.md` block behavior to surface `get-guidance` at a
-      high-level routing point without hand-wiring every role and skill.
-- ⬜️ Preserve existing workflow-owned `AGENTS.append.md` behavior and
-      marker-delimited overwrite protection.
-- ⬜️ Document ownership and precedence when AIX-level, workflow-level, and
-      skill-level append content all contribute instructions.
+- ⬜️ Record that this plan intentionally does not add AIX-level
+      `AGENTS.append.md`, skill-level append files, managed `AGENTS.md`
+      guidance routing, or `delegate-to-role` guidance payload changes.
+- ⬜️ Update `_docs/plans/backlog/create-project-manager-role.md`, or record a
+      required follow-up for that plan, so it owns request startup, guidance
+      resolution payloads, and any future default use of `get-guidance`.
+- ⬜️ Record that future automatic activation of `get-guidance` by
+      `design-plan-execute` depends on the external workflow skill dependency
+      plan, unless the project-manager plan chooses a different design.
+- ⬜️ Preserve existing workflow-owned `AGENTS.append.md` behavior and do not
+      change marker-delimited managed block composition in this plan.
+- ⬜️ Add closeout notes that distinguish the shipped guidance library and
+      optional resolver skill from unresolved project-manager routing behavior.
 
 Verification:
 
-- Tests cover managed block composition, marker safety, update drift,
-  uninstall/remove behavior, idempotent init, and preservation of
-  project-authored `AGENTS.md` content.
-- Security review confirms append composition cannot silently overwrite
-  project-owned instructions or blur instruction priority.
+- Documentation review confirms routing/adoption decisions are no longer
+  claimed by this plan.
+- `git diff --check` confirms the plan-only edit is clean.
 
 ### Phase 7: Documentation, Migration Review, And Closeout (status: accepted)
 
@@ -859,13 +889,14 @@ Tasks:
 - ⬜️ Update requirements docs for role bundles, workflow guidance, guidance
       commands, `get-guidance`, metadata, validation, and customization.
 - ⬜️ Update architecture docs for role bundle package shape, workflow guidance
-      package shape, command behavior, managed append behavior, and lifecycle
-      ownership.
+      package shape, command behavior, optional `get-guidance` behavior, and
+      lifecycle ownership.
 - ⬜️ Update security docs for role guidance instruction trust, project-owned
-      guidance edits, reset behavior, drift checks, and managed append
-      precedence.
+      guidance edits, reset behavior, drift checks, and deferred routing
+      adoption.
 - ⬜️ Update quality docs and test matrix for role bundles, guidance commands,
-      metadata validation, `get-guidance`, and append behavior.
+      metadata validation, optional `get-guidance`, and deferred routing
+      behavior.
 - ⬜️ Update README and workflow docs with command examples and migration notes.
 - ⬜️ Review `.agents/engineering-best-practices.md` against the new guidance
       files and record whether any content still needs migration, without
@@ -898,8 +929,9 @@ None.
   customization after design acceptance.
 - Architecture: Update workflow lifecycle and roles/templates architecture docs
   to cover role bundle package shape, activity guidance shape,
-  `get-guidance` resolution, guidance publish/diff/reset command behavior,
-  metadata, compatibility behavior, and lifecycle behavior.
+  optional `get-guidance` resolution, guidance publish/diff/reset command
+  behavior, metadata, compatibility behavior, lifecycle behavior, and deferred
+  routing adoption.
 - Security: Review overwrite, drift, package trust, and instruction-risk
   implications because guidance changes agent behavior.
 - Quality: Add verification expectations for guidance parsing, resolution,
@@ -921,7 +953,8 @@ None.
 ## Risks
 
 - Guidance could become another instruction layer that agents fail to discover
-  or apply consistently unless routing rules are explicit.
+  or apply consistently until the project-manager routing plan defines default
+  request-entry behavior.
 - Too many small guidance files could make the workflow feel heavy and
   increase maintenance cost.
 - A single shared guidance file could recreate the current problem by hiding
@@ -942,8 +975,8 @@ None.
   first version keeps that boundary explicit.
 - `get-guidance` could become too broad and load irrelevant guidance unless
   caller-context requirements and bounded-output rules are clear.
-- Roles or skills may inconsistently call `get-guidance` unless the workflow
-  defines where the call belongs.
+- Roles or skills may inconsistently call `get-guidance` until the
+  project-manager plan decides where guidance resolution belongs.
 - Migrating `engineering-best-practices.md` too aggressively could break
   existing workflow references before the new guidance library is established.
 

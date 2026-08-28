@@ -33,6 +33,13 @@ Reviewed context:
 - Thread discussion on 2026-08-28 about `router`, `bootstrapping`,
   `get-guidance`, `delegate-to-role`, role-owned work, and a
   `project-manager` entry role.
+- Thread discussion on 2026-08-28 about deferring workflow guidance routing out
+  of `_docs/plans/workflow-guidance-library.md` while keeping the optional
+  `get-guidance` skill.
+- Current implemented append behavior is workflow-owned through each
+  workflow's `AGENTS.append.md`; AIX does not yet have a global
+  `AGENTS.append.md` source for instructions that should apply across
+  workflows.
 
 ## High-Level Goal (status: accepted)
 
@@ -119,6 +126,16 @@ short instruction such as: start each request through the active
 `project-manager` role, which resolves the smallest useful context and
 delegation path before work begins.
 
+This plan should own any global AIX `AGENTS.append.md` behavior needed to make
+the entry role reliable across workflows. A global append source would be for
+AIX-level request-entry instructions, such as how to find the active
+`project-manager` role, when to answer directly, and how to preserve workflow
+lifecycle gates. It should not replace workflow-owned `AGENTS.append.md`
+content. If both global AIX append content and workflow append content are
+installed, the plan must define ordering, marker ownership, update behavior,
+uninstall behavior, drift checks, and instruction precedence before
+implementation.
+
 The project-manager role guidance should not depend on
 `.agents/engineering-best-practices.md`. Any reusable guardrails needed for
 entry routing should live in `project-manager/GUIDANCE.md` or focused activity
@@ -133,6 +150,8 @@ guidance.
 - Do not use the project-manager role to bypass active-plan, backlog,
   verification, security, or documentation lifecycle gates.
 - Do not make skills the primary worker identity when a suitable role exists.
+- Do not let global AIX append behavior overwrite, blur, or replace
+  workflow-owned append instructions.
 
 ## Boundaries And Invariants
 
@@ -145,6 +164,11 @@ guidance.
 - The parent context remains responsible for final user-facing reporting and
   for preserving worktree safety.
 - Backlog work remains unimplemented until explicitly activated.
+- Global AIX append content, if added, must be marker-delimited,
+  package-managed, drift-checked, and clearly ordered relative to
+  workflow-owned append content.
+- Workflow-owned `AGENTS.append.md` remains the workflow's place for
+  workflow-specific lifecycle instructions.
 
 ## Implementation Phases
 
@@ -156,6 +180,9 @@ Not drafted until Design Intent is accepted.
   workflow-owned role, or both?
 - Should `AGENTS.md` always point to `project-manager`, or should the workflow
   append point to it only when the role is active?
+- Should AIX add a global `AGENTS.append.md` source for cross-workflow
+  request-entry behavior, and how should it compose with workflow-owned
+  `AGENTS.append.md` blocks?
 - Should `get-guidance` be a separate skill, or should the first version use a
   guidance-resolution section inside `project-manager/GUIDANCE.md`?
 - What exact payload should `project-manager` pass to `delegate-to-role` so the
@@ -168,13 +195,15 @@ Not drafted until Design Intent is accepted.
   way requests enter AIX-assisted work.
 - Requirements: Document the entry routing expectations and acceptance signals.
 - Architecture: Update workflow lifecycle and roles architecture docs for the
-  project-manager entry role and role-first execution model.
+  project-manager entry role, role-first execution model, and any global
+  AIX append behavior.
 - Security: Review delegation, local file safety, authorization, and
-  instruction-trust implications.
+  instruction-trust implications, including global append precedence and
+  overwrite protection.
 - Quality: Add verification expectations for routing, minimal context,
-  delegation behavior, and no broad role fan-out.
+  delegation behavior, no broad role fan-out, and managed append composition.
 - Operations: Update install, workflow update, and release notes if bundled
-  role defaults or managed `AGENTS.md` text change.
+  role defaults, global append behavior, or managed `AGENTS.md` text change.
 - Decisions: Consider a decision record for adopting role-first request
   routing.
 - Glossary: Add or update terms for project manager, entry role, bootstrap
@@ -196,6 +225,9 @@ Not drafted until Design Intent is accepted.
   the direct-answer path is too strict.
 - Changing `AGENTS.md` entry behavior could affect all future agent work and
   needs careful review.
+- A global AIX append source could conflict with workflow-owned
+  `AGENTS.append.md` behavior unless ownership, ordering, and uninstall rules
+  are explicit.
 - Role-first execution may require updates to existing lifecycle skills so they
   are clearly procedures used by roles rather than standalone worker identities.
 - A separate `get-guidance` skill could become another large context source if
@@ -206,9 +238,12 @@ Not drafted until Design Intent is accepted.
 - Status: Planning draft.
 - Scope reviewed: Initial discussion only.
 - Findings: The role would shape agent routing and delegation behavior, so it
-  is instruction-sensitive. It must preserve lifecycle authorization, avoid
-  broad hidden delegation, keep file-operation and trust-boundary checks
-  explicit, and avoid loading unrelated guidance that could alter task behavior.
+  is instruction-sensitive. Any global AIX append behavior would also affect
+  future agent startup instructions. The implementation must preserve lifecycle
+  authorization, avoid broad hidden delegation, keep file-operation and
+  trust-boundary checks explicit, avoid loading unrelated guidance that could
+  alter task behavior, and prevent global append text from silently
+  overwriting or outranking workflow-owned instructions.
 - Blocking findings converted to plan tasks: Not drafted yet.
 - Residual risk: Security review is required after Design Intent acceptance and
   before implementation phases are approved.

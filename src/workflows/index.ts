@@ -1,4 +1,10 @@
 export { defaultWorkflowRequest, diffWorkflow, verifyWorkflow } from "./commands.js";
+export {
+  discoverWorkflowGuidance,
+  validateWorkflowGuidance,
+  workflowGuidanceCount,
+  workflowGuidanceHashes
+} from "./guidance.js";
 export { installBundledWorkflow, installWorkflow, installWorkflowFromDefinitions, listBundledWorkflows } from "./install.js";
 export type { BundledWorkflow } from "./install.js";
 export { removeWorkflow } from "./remove.js";
@@ -30,6 +36,10 @@ export type {
   WorkflowTemplateReference,
   WorkflowTemplateSet
 } from "./templates.js";
+export type {
+  WorkflowGuidance,
+  WorkflowGuidanceSet
+} from "./guidance.js";
 export type {
   DiffWorkflowResult,
   InstallWorkflowResult,

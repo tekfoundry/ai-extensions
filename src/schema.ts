@@ -147,6 +147,7 @@ export interface LockfileWorkflowEntry {
     activeName: string;
   }>;
   templates?: FileHash[];
+  guidance?: FileHash[];
   packageFiles: FileHash[];
 }
 

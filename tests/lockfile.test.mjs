@@ -112,6 +112,7 @@ test("parseLockfile supports standalone and workflow-owned roles", () => {
             activeName: "documentation-specialist"
           }
         ],
+        guidance: [{ path: "guidance/shared.md", sha256: "ghi" }],
         packageFiles: []
       }
     ]
@@ -122,6 +123,7 @@ test("parseLockfile supports standalone and workflow-owned roles", () => {
   assert.equal(lockfile.roles[0].requested, true);
   assert.equal(lockfile.roles[1].owner.name, "design-plan-execute");
   assert.equal(lockfile.workflows[0].roles[0].activeName, "documentation-specialist");
+  assert.equal(lockfile.workflows[0].guidance[0].path, "guidance/shared.md");
 });
 
 test("parseLockfile rejects malformed role entries", () => {
