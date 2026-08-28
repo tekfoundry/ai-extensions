@@ -182,8 +182,6 @@ It includes:
 - `.agents/README.md`, the process router
 - `.agents/workflow.md`, the agent lifecycle and planning contract
 - workflow-owned shared and activity guidance
-- `.agents/engineering-best-practices.md`, legacy reusable engineering
-  guidance retained during migration
 - workflow-owned skills for project setup, plan lifecycle work, implementation,
   verification, maintainability review, and design promotion
 - a managed block in root `AGENTS.md` that tells agents where to start
@@ -224,7 +222,6 @@ workflows/team-flow/
   AGENTS.append.md
   README.md
   workflow.md
-  engineering-best-practices.md
   guidance/
     shared.md
     activities/
@@ -252,8 +249,7 @@ Example `workflow.json`:
   },
   "docs": [
     "README.md",
-    "workflow.md",
-    "engineering-best-practices.md"
+    "workflow.md"
   ],
   "guidanceDir": "guidance",
   "skillsDir": "skills"

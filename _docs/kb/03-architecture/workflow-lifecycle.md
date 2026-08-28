@@ -10,7 +10,6 @@ workflow.json
 AGENTS.append.md
 README.md
 workflow.md
-engineering-best-practices.md
 guidance/
 templates/
 skills/

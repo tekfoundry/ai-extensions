@@ -126,7 +126,7 @@ function writeWorkflow(directory, title, skillBody, workflowName = "fixture-work
           source: "AGENTS.append.md",
           marker: `aix:workflow ${workflowName}`
         },
-        docs: ["README.md", "workflow.md", "engineering-best-practices.md"],
+        docs: ["README.md", "workflow.md"],
         ...(options.guidance ? { guidanceDir: "guidance" } : {}),
         templatesDir: "templates",
         skillsDir: "skills"
@@ -139,7 +139,6 @@ function writeWorkflow(directory, title, skillBody, workflowName = "fixture-work
   writeFileSync(join(directory, "AGENTS.append.md"), `## ${title}\n\nFollow the fixture process.\n`, "utf8");
   writeFileSync(join(directory, "README.md"), `# ${title}\n`, "utf8");
   writeFileSync(join(directory, "workflow.md"), "# Workflow\n", "utf8");
-  writeFileSync(join(directory, "engineering-best-practices.md"), "# Engineering\n", "utf8");
   writeFileSync(join(directory, "templates/plan.md"), "{{ section:status }}\n{{ repeat:phases section:phase }}\n", "utf8");
   writeFileSync(join(directory, "templates/sections/status.md"), "Backlog\n", "utf8");
   writeFileSync(join(directory, "templates/sections/phase.md"), "{{ phase:title }}\n", "utf8");
@@ -183,7 +182,7 @@ test("run workflow install installs docs, managed AGENTS block, and workflow-own
     assert.equal(manifest.workflow, "fixture:.");
     assert.equal(manifest.sources.workflows.fixture.url, source);
     assert.equal(lockfile.workflows.length, 1);
-    assert.equal(lockfile.workflows[0].docs.length, 3);
+    assert.equal(lockfile.workflows[0].docs.length, 2);
     assert.equal(lockfile.workflows[0].templates.length, 3);
     assert.equal(lockfile.skills[0].owner.kind, "workflow");
     assert.equal(lockfile.skills[0].owner.name, "fixture-workflow");

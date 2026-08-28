@@ -17,7 +17,6 @@ After installation, the workflow provides:
 
 - `.agents/README.md`: this workflow overview.
 - `.agents/workflow.md`: the Kanban process contract and work item lifecycle.
-- `.agents/engineering-best-practices.md`: implementation and review guidance.
 - `.agents/skills/kanban-create-item`: create a backlog work item.
 - `.agents/skills/kanban-prioritize`: order and move backlog items to ready.
 - `.agents/skills/kanban-execute`: implement one ready or in-progress item.

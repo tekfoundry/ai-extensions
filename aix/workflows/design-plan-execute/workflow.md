@@ -135,7 +135,7 @@ backlog work stops before implementation unless a human activates it.
    residual risk. Record exact commands, outcomes, skipped checks, and residual
    risk.
 6. **Review:** Before closing a task named `Review & Refactor`, run the
-   maintainability gate in `.agents/engineering-best-practices.md`. Record the
+   maintainability gate from focused role and activity guidance. Record the
    file-size scan, responsibility audit for large changed production files, any
    refactors made, and any deferred risks. Do not mark the task complete while
    a correctness risk or obvious mixed-responsibility production file remains
@@ -227,8 +227,6 @@ At minimum, a repo using this workflow should have the following documentation s
 - `AGENTS.md`: repo-specific instructions, commands, priorities, and safety rules
 - `.agents/README.md`: reusable agent process router
 - `.agents/workflow.md`: the reusable workflow and planning contract
-- `.agents/engineering-best-practices.md`: legacy reusable agent-facing
-  engineering guidance retained during migration
 - `.agents/packages/workflows/<source>/<workflow>/guidance/`: workflow-owned
   shared and activity guidance origins
 - `.agents/guidance/`: project-owned workflow guidance overrides after
@@ -451,8 +449,6 @@ and active execution.
 
 - This directory holds reusable AI-agent process structure.
 - `.agents/workflow.md` captures workflow rules that can travel across projects.
-- `.agents/engineering-best-practices.md` remains available during the
-  migration to focused role and activity guidance.
 - `.agents/packages/workflows/<source>/<workflow>/guidance/` holds
   workflow-owned shared and activity guidance origins.
 - `.agents/guidance/` holds project-owned workflow guidance overrides after
@@ -579,9 +575,7 @@ Update `_docs/kb` when the fix changes accepted current-state behavior or
 clarifies behavior that future agents should treat as stable truth. Update
 `_docs/lessons-learned.md` when the fix reveals a reusable product or
 architecture lesson. Update focused role or activity guidance, or this
-workflow, when the fix changes how agents or engineers should work. Keep
-`.agents/engineering-best-practices.md` unchanged unless the developer has
-explicitly approved its migration or removal.
+workflow, when the fix changes how agents or engineers should work.
 
 Escalate out of micro-fix handling as soon as the change grows beyond the
 criteria in `Work Classification`. At that point, create or update a backlog

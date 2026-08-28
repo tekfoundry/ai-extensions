@@ -45,9 +45,6 @@ active files where the model allows edits, then package origins.
    when no project override exists.
 4. Shared override or origin: `.agents/guidance/shared.md` first, then the
    active workflow package `guidance/shared.md`.
-5. Legacy fallback: `.agents/engineering-best-practices.md`, only when the
-   newer guidance library has no relevant role, activity, or shared guidance
-   for the request.
 
 Do not hardcode the allowed activity names. Discover available activities from
 the active workflow guidance directory. If `activity` names an unknown

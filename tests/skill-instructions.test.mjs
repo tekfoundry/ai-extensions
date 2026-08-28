@@ -27,8 +27,8 @@ test("code-review-refactor skill declares workflow review contract", () => {
   const skill = readFileSync(skillPath, "utf8");
 
   assert.match(skill, /^name: code-review-refactor$/m);
-  assert.match(skill, /Confirm `.agents\/engineering-best-practices\.md` exists\./);
-  assert.match(skill, /If `.agents\/engineering-best-practices\.md` is missing, stop before reviewing/);
+  assert.match(skill, /Read focused review and maintainability guidance/);
+  assert.match(skill, /Report the\s+guidance gap in the review/);
   assert.match(skill, /Review project code files by default\./);
   assert.match(skill, /Each finding should include:/);
   assert.match(skill, /Use one visible marker per finding\./);
@@ -83,7 +83,6 @@ test("get-guidance declares read-only bounded guidance resolution", () => {
   assert.match(skill, /Activity override: `.agents\/guidance\/activities\/<activity>\.md`/);
   assert.match(skill, /Activity origin: active workflow package guidance/);
   assert.match(skill, /Shared override or origin: `.agents\/guidance\/shared\.md` first/);
-  assert.match(skill, /Legacy fallback: `.agents\/engineering-best-practices\.md`/);
   assert.match(skill, /Do not hardcode the allowed activity names/);
   assert.match(skill, /unknown\s+activity, report that no matching activity guidance exists and list the\s+available activity names/);
   assert.match(skill, /applies_to:/);

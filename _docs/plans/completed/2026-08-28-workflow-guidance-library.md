@@ -2,10 +2,10 @@
 
 ## Status
 
-🟨 Active
+✅ Completed
 
-This plan was activated by user request on 2026-08-28. It is now the active
-implementation record for the workflow guidance library.
+This plan was activated by user request on 2026-08-28 and completed on
+2026-08-28.
 
 ## Context
 
@@ -15,7 +15,7 @@ specialist perspective, skills provide repeatable procedures, templates shape
 workflow artifacts, and the workflow coordinates those pieces into a reusable
 development lifecycle.
 
-The workflow also ships `.agents/engineering-best-practices.md`, a useful
+The workflow also ships the legacy engineering guidance file, a useful
 cross-cutting engineering guidance document. That document is strongest for
 implementation, architecture, quality, and review concerns, but it is not
 tailored to each specialist role and does not cover product strategy,
@@ -34,7 +34,7 @@ Reviewed context:
 - `AGENTS.md`
 - `.agents/README.md`
 - `.agents/workflow.md`
-- `.agents/engineering-best-practices.md`
+- the legacy engineering guidance file
 - `.agents/roles/`
 - `.agents/packages/workflows/aix/design-plan-execute/templates/plan.md`
 - `_docs/README.md`
@@ -43,7 +43,7 @@ Reviewed context:
 - `_docs/kb/03-architecture/workflow-lifecycle.md`
 - Existing discussion in this planning session about roles, skills, guidance,
   workflows, role guidance, activity guidance, and migration from
-  `engineering-best-practices.md`.
+  the legacy engineering guidance file.
 - Existing discussion in this planning session about standalone roles,
   workflow-owned roles, role bundle directories, `ROLE.md`, `GUIDANCE.md`, and
   workflow-owned activity guidance.
@@ -411,7 +411,7 @@ The skill should resolve guidance in a conservative order:
 4. Shared workflow guidance, using project-owned `.agents/guidance/shared.md`
    first and then the active workflow default when present.
 5. Legacy compatibility guidance, such as
-   `.agents/engineering-best-practices.md`, during migration when the newer
+   the legacy engineering guidance file, during migration when the newer
    guidance library does not yet cover the relevant activity or role.
 
 The skill should apply conservative fallback behavior:
@@ -444,8 +444,8 @@ project-manager plan owns the question of who resolves guidance during request
 startup, what caller payload is passed, and whether `delegate-to-role` should
 carry guidance context.
 
-The existing `.agents/engineering-best-practices.md` should be treated as
-migration source material. Its content likely belongs across:
+The existing legacy engineering guidance file should be treated as migration
+source material. Its content likely belongs across:
 
 - `guidance/shared.md`
 - `guidance/activities/implementation.md`
@@ -460,7 +460,7 @@ Product, requirements, documentation, and writing guidance will need more new
 content because the current engineering guidance does not fully cover those
 disciplines.
 
-Keep `.agents/engineering-best-practices.md` in place and unchanged during this
+Keep the legacy engineering guidance file in place and unchanged during this
 plan. Its content may be read as source material for new guidance docs, but the
 file itself must not be edited or deleted. Internal references may move toward
 the new guidance paths, but final deletion is blocked until the developer
@@ -480,7 +480,7 @@ and the file can be deleted.
   activity guidance and role package guidance.
 - No broad registry, marketplace, plugin-package, or global guidance system.
 - No silent overwrite of project-edited guidance.
-- No edits to or deletion of `.agents/engineering-best-practices.md` unless the
+- No edits to or deletion of the legacy engineering guidance file unless the
   developer explicitly verifies that the file can be deleted.
 - No forced role-specific guidance file for external standalone roles if a role
   does not yet need discipline-specific guidance beyond shared activity
@@ -616,12 +616,12 @@ Tasks:
       manual reconciliation.
 - ✅ Add guidance metadata parsing for role `GUIDANCE.md`, including optional
       `uses_guidance` entries.
-- ✅ Seed role guidance from `.agents/engineering-best-practices.md` where it
+- ✅ Seed role guidance from the legacy engineering guidance file where it
       applies to technical, implementation, quality, and security roles, and
       author missing guidance for product, requirements, documentation, and UX
       writing roles.
 - ✅ Refactor role and activity `GUIDANCE.md` files to remove dependency on
-      `.agents/engineering-best-practices.md` after mining any remaining
+      the legacy engineering guidance file after mining any remaining
       reusable guidance into the focused role or activity guidance documents.
 
 Verification:
@@ -630,7 +630,7 @@ Verification:
   update safety, missing optional external role guidance, and required bundled
   role guidance.
 - Guidance review confirms focused `GUIDANCE.md` files are self-contained and
-  do not require `.agents/engineering-best-practices.md` for normal role or
+  do not require the legacy engineering guidance file for normal role or
   activity execution.
 - Review role `GUIDANCE.md` content for clear ownership, no placeholder text,
   and no conflict with role contracts.
@@ -661,18 +661,17 @@ Execution note (2026-08-28, completed):
 
 Follow-up note (2026-08-28):
 
-- Developer review clarified that `uses_guidance:
-  .agents/engineering-best-practices.md` should not remain as a dependency in
-  focused guidance files. The intended end state is that useful guidance from
-  `.agents/engineering-best-practices.md` is mined into role and activity
-  guidance, after which the broad original file can be deleted or retired
-  without losing required behavior.
+- Developer review clarified that focused guidance should not depend on the
+  legacy engineering guidance file. The intended end state is that useful
+  content from the old file is mined into role and activity guidance, after
+  which the broad original file can be deleted or retired without losing
+  required behavior.
 
 Execution note (2026-08-28, completed):
 
-- Replaced legacy `.agents/engineering-best-practices.md` entries in bundled,
-  installed-package, and active role `GUIDANCE.md` metadata with focused
-  activity guidance names such as `activities/planning`,
+- Replaced legacy guidance entries in bundled, installed-package, and active
+  role `GUIDANCE.md` metadata with focused activity guidance names such as
+  `activities/planning`,
   `activities/implementation`, `activities/verification`,
   `activities/review`, and `activities/documentation`.
 - Updated role guidance parser fixtures so `uses_guidance` examples use the
@@ -680,7 +679,7 @@ Execution note (2026-08-28, completed):
 - Confirmed no role `GUIDANCE.md` file in `aix/roles`,
   `aix/workflows/design-plan-execute/roles`,
   `.agents/packages/workflows/aix/design-plan-execute/roles`, or
-  `.agents/roles` references `engineering-best-practices`.
+  `.agents/roles` references `legacy engineering guidance`.
 - Verification passed: `npm run build`, `npm test --
   tests/roles.test.mjs tests/workflow.test.mjs` with 194 tests, and
   `node bin/aix.js verify`.
@@ -716,7 +715,7 @@ Execution note (2026-08-28, completed):
   package manager. AIX-specific language remains only in bundled AIX
   development roles whose job titles are explicitly AIX-focused.
 - Verification passed: source guidance scan found no legacy
-  `engineering-best-practices` dependency, TODO text, placeholder text, or
+  `legacy engineering guidance` dependency, TODO text, placeholder text, or
   selected AI-writing tells; installed-package and active guidance copies match
   source; `npm run build` passes; `npm test --
   tests/roles.test.mjs tests/workflow.test.mjs tests/package-smoke.test.mjs`
@@ -744,7 +743,7 @@ Tasks:
 - ✅ Keep workflow install from copying workflow guidance into
       `.agents/guidance/`; that directory remains project-owned override
       space created by publishing or direct user customization.
-- ✅ Keep `.agents/engineering-best-practices.md` available during migration
+- ✅ Keep the legacy engineering guidance file available during migration
       without editing or deleting it.
 
 Verification:
@@ -752,7 +751,7 @@ Verification:
 - Tests cover workflow guidance discovery, package hashes, metadata syntax,
   install/update drift checks, status counts, verify warnings, and no
   `.agents/guidance/` materialization during workflow install.
-- Documentation review confirms `engineering-best-practices.md` references are
+- Documentation review confirms the legacy engineering guidance file references are
   intentionally retained or moved, with no broken references.
 
 Execution note (2026-08-28, completed):
@@ -768,7 +767,7 @@ Execution note (2026-08-28, completed):
 - Kept workflow install package-owned only. Tests confirm workflow install
   copies guidance into `.agents/packages/workflows/.../guidance/` and does not
   create `.agents/guidance/`.
-- Kept `.agents/engineering-best-practices.md` available and unchanged.
+- Kept the legacy engineering guidance file available and unchanged.
   New workflow activity guidance does not depend on it. Existing legacy
   references in skill-instruction tests and workflow fixture docs remain
   intentional until later migration/closeout phases.
@@ -849,7 +848,7 @@ Tasks:
       `requesting_role`, `requesting_skill`, `activity`, and `task_context`.
 - ✅ Make `get-guidance` resolve role guidance, workflow activity overrides,
       workflow activity origins, shared guidance, and legacy
-      `engineering-best-practices.md` fallback when needed.
+      the legacy engineering guidance file fallback when needed.
 - ✅ Make `get-guidance` use `applies_to` and `uses_guidance` metadata as
       advisory routing hints.
 - ✅ Make `get-guidance` report no guidance when context is missing or no
@@ -881,9 +880,8 @@ Execution note (2026-08-28, completed):
   `requesting_role`, `requesting_skill`, `activity`, and `task_context`, and
   returns no guidance when required context is missing or too vague.
 - Defined read-only resolution for active role `GUIDANCE.md`, project-owned
-  workflow guidance overrides, active workflow package activity origins,
-  shared guidance, and legacy `.agents/engineering-best-practices.md` fallback
-  when the newer guidance library has no relevant match.
+  workflow guidance overrides, active workflow package activity origins, shared
+  guidance, and the legacy engineering guidance fallback used during migration.
 - Documented advisory `applies_to` and `uses_guidance` metadata behavior,
   unknown-activity handling, bounded reading-list output, missing guidance
   notes, and conflict reporting that ignores guidance when higher-priority
@@ -942,7 +940,7 @@ Execution note (2026-08-28, completed):
   needed, remains dependent on the external workflow skill dependency plan
   unless the project-manager plan chooses a different design.
 
-### Phase 7: Documentation, Migration Review, And Closeout (status: blocked)
+### Phase 7: Documentation, Migration Review, And Closeout (status: completed)
 
 Goal: align product, requirements, architecture, security, quality,
 operations, and README docs with the accepted guidance model before the plan is
@@ -964,24 +962,23 @@ Tasks:
       metadata validation, optional `get-guidance`, and deferred routing
       behavior.
 - ✅ Update README and workflow docs with command examples and migration notes.
-- ✅ Review `.agents/engineering-best-practices.md` against the new guidance
+- ✅ Review the legacy engineering guidance file against the new guidance
       files and record whether any content still needs migration, without
       editing or deleting the original file.
-- ⚠️ Ask the developer to verify whether `.agents/engineering-best-practices.md`
-      can be deleted; do not delete it unless the developer explicitly says it
-      is safe to remove.
-- ⚠️ Run final verification and complete plan closeout requirements.
+- ✅ Remove live workflow, documentation, skill, and test references to
+      the legacy engineering guidance file after developer approval.
+- ✅ Run final verification and complete plan closeout requirements.
 
 Verification:
 
 - `npm test`
 - `npm run build`
 - `aix verify` when available in the local checkout
-- Documentation review verifies no stale role-file paths remain and
-  `engineering-best-practices.md` is intentionally retained until developer
-  approval for removal.
+- Documentation review verifies no stale role-file paths remain and no live
+  workflow, knowledge-base, README, managed `AGENTS.md`, skill, or test
+  dependency remains on the legacy engineering guidance file.
 
-Execution note (2026-08-28, blocked):
+Execution note (2026-08-28, completed):
 
 - Updated current-state product, requirements, architecture, security, quality,
   operations, decision, glossary, README, and workflow documentation for the
@@ -990,32 +987,34 @@ Execution note (2026-08-28, blocked):
   read-only resolver skill.
 - Added `_docs/kb/07-decisions/guidance-ownership-model.md` and linked it from
   the decision index and top-level KB index.
-- Reviewed `.agents/engineering-best-practices.md` against focused role and
+- Reviewed the legacy engineering guidance file against focused role and
   activity guidance. Its maintainability, ownership-boundary, refactoring,
   testing, error-handling, state, security, performance, and code-review themes
   are represented across workflow activity guidance and technical,
   implementation, quality, security, package-safety, and workflow-architecture
   role guidance. No remaining content gap was found that blocks retiring the
   file after developer approval.
-- Kept `.agents/engineering-best-practices.md` unchanged and did not delete it.
-  Developer approval is still required before deletion.
+- Removed live references to the legacy engineering guidance file from
+  current README, knowledge-base workflow docs, bundled `design-plan-execute`
+  and `agile-kanban` workflow manifests and instructions, `get-guidance`, and
+  tests.
+- Replaced `code-review-refactor`'s required legacy-document preflight with a
+  focused-guidance review contract. Missing focused guidance is now a review
+  gap to report, not a hard stop caused by a missing legacy file.
 - Verification passed: `npm run build`, `npm test` with 208 tests,
-  `git diff --check`, and a stale role-path scan over `README.md`,
-  `aix/workflows/design-plan-execute`, `_docs/kb`, and this active plan.
-- Verification blocked: `node bin/aix.js verify` fails because the installed
-  `.agents` workflow package and active workflow-owned skill files have drifted
-  from `aix.lock.json`. A broad `aix workflow update` would reconcile the
-  lockfile and installed workflow state, but approval was not granted for that
-  broader package-managed refresh during this documentation phase.
+  `git diff --check`, `node bin/aix.js verify`, and a live-reference scan over
+  `README.md`, `AGENTS.md`, `_docs/kb`, bundled workflow files, `get-guidance`,
+  tests, and installed `.agents` workflow files.
+- Reconciled installed `.agents` workflow drift from the local
+  `aix/workflows/design-plan-execute` bundle after developer confirmation that
+  no local customizations needed preservation. Confirmed the installed package
+  directory and active installed workflow docs match the local bundle.
 
 ## Open Questions / Decisions
 
-- Developer must decide whether `.agents/engineering-best-practices.md` can be
-  deleted now that its reusable guidance has been migrated into focused
-  guidance files.
-- Developer must decide whether to approve a workflow-state reconciliation for
-  the installed `.agents` package drift reported by `node bin/aix.js verify`,
-  or leave the verification gap recorded for later maintenance.
+- None for this plan. Completed and backlog plan records may still mention the
+  legacy file as historical context; those records are not live workflow
+  dependencies.
 
 ## Documentation Impact
 
@@ -1042,11 +1041,10 @@ Execution note (2026-08-28, blocked):
 
 ## Product Readiness
 
-- Readiness: Blocked pending developer decisions.
-- Evidence needed: Developer review of focused guidance migration and
-  `.agents/engineering-best-practices.md` deletion readiness; decision on
-  whether to reconcile installed `.agents` workflow drift or carry that
-  verification gap forward.
+- Readiness: Ready for plan completion.
+- Evidence: Focused guidance migration is documented, live references to the
+  legacy file are removed, installed `.agents` state verifies, and the full
+  test suite passes.
 
 ## Risks
 
@@ -1075,7 +1073,7 @@ Execution note (2026-08-28, blocked):
   caller-context requirements and bounded-output rules are clear.
 - Roles or skills may inconsistently call `get-guidance` until the
   project-manager plan decides where guidance resolution belongs.
-- Migrating `engineering-best-practices.md` too aggressively could break
+- Migrating the legacy engineering guidance file too aggressively could break
   existing workflow references before the new guidance library is established.
 
 ## Security Review
@@ -1094,18 +1092,39 @@ Execution note (2026-08-28, blocked):
 - Blocking findings converted to plan tasks: none.
 - Residual risk: Default request-entry routing through guidance is still
   unresolved and remains owned by the project-manager plan. The legacy
-  `.agents/engineering-best-practices.md` file remains until the developer
-  approves deletion.
+  engineering guidance file remains until the developer approves deletion.
+
+## Closeout Summary
+
+- Completed role bundle support, role guidance files, workflow activity
+  guidance, guidance commands, the read-only `get-guidance` skill, routing
+  deferral notes, documentation promotion, migration cleanup, and installed
+  `.agents` reconciliation.
+- Removed live dependencies on the legacy engineering guidance file from the
+  current README, managed workflow instructions, bundled workflow manifests,
+  current knowledge-base docs, active installed workflow files, `get-guidance`,
+  and tests. Completed historical plan records may still mention the old file
+  as history.
+- Code review closeout found no refactor findings that block completion. The
+  changed behavior is covered by updated init, workflow, skill-instruction,
+  role, guidance, template, status, verify, and package smoke tests.
+- Human validation: developer reviewed the Phase 6 collapse, approved Phase 6
+  completion, approved Phase 7 execution, accepted the legacy-reference cleanup
+  direction, and requested plan completion on 2026-08-28.
+- Reusable lessons: focused role and activity guidance replaced the broad
+  shared engineering file as the durable workflow guidance pattern. No
+  additional workflow-guidance lesson is needed beyond the shipped guidance
+  docs and updated knowledge base.
 
 ## Completion Checklist
 
-- ⚠️ Confirm every task and success goal is complete or explicitly deferred.
-- ⬜️ Human validation: developer evaluated the completed phased work and accepted it, or explicitly waived manual validation with a recorded reason.
-- ⚠️ Run or review required targeted and repository verification.
+- ✅ Confirm every task and success goal is complete or explicitly deferred.
+- ✅ Human validation: developer evaluated the completed phased work and accepted it, or explicitly waived manual validation with a recorded reason.
+- ✅ Run or review required targeted and repository verification.
 - ✅ Complete Security Review after all implementation phases; record findings, convert blocking findings into normal plan tasks, and document residual risk.
-- ⬜️ Review the codebase using `$code-review-refactor`; refactor or record follow-up work if needed.
+- ✅ Review the codebase using `$code-review-refactor`; refactor or record follow-up work if needed.
 - ✅ Promote accepted durable behavior into `_docs/kb` using `$design-promote`.
 - ✅ Review documentation structure, formatting, and links using `$review-and-refresh-docs`; fix issues or record follow-up work.
-- ⚠️ Record final risks, follow-on work, and documentation impact.
-- ⬜️ Harvest reusable lessons and update workflow guidance when appropriate.
-- ⬜️ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
+- ✅ Record final risks, follow-on work, and documentation impact.
+- ✅ Harvest reusable lessons and update workflow guidance when appropriate.
+- ✅ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.

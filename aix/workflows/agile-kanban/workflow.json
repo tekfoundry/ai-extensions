@@ -8,8 +8,7 @@
   },
   "docs": [
     "README.md",
-    "workflow.md",
-    "engineering-best-practices.md"
+    "workflow.md"
   ],
   "templatesDir": "templates",
   "skillsDir": "skills"

@@ -12,9 +12,8 @@ keep the review tied to the item outcome.
 
 1. Resolve the selected item from the prompt, state directories, or active work
    context.
-2. Read `AGENTS.md`, `.agents/workflow.md`, `.agents/engineering-best-practices.md`,
-   the selected item, changed files, relevant tests, and current worktree
-   status.
+2. Read `AGENTS.md`, `.agents/workflow.md`, the selected item, changed files,
+   relevant tests, and current worktree status.
 3. Classify the request as Kanban review.
 4. Confirm the item is `Review` or `In Progress`. If implementation has not
    occurred, report that there is nothing ready to review.

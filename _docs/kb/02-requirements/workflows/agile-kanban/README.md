@@ -19,8 +19,8 @@ by `aix init`.
   `Agile Kanban`.
 - The workflow must install a managed `AGENTS.md` block marked
   `aix:workflow agile-kanban`.
-- The workflow must install `README.md`, `workflow.md`, and
-  `engineering-best-practices.md` as workflow docs under `.agents/`.
+- The workflow must install `README.md` and `workflow.md` as workflow docs
+  under `.agents/`.
 - The workflow must install workflow-owned Kanban skills from its `skills/`
   directory.
 - The workflow must expose `templates/work-item.md` as the work item template.

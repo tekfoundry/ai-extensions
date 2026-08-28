@@ -23,8 +23,8 @@ promotion.
   `Design, Plan, Execute`.
 - The workflow must install a managed `AGENTS.md` block marked
   `aix:workflow design-plan-execute`.
-- The workflow must install `README.md`, `plan-example.md`, `workflow.md`, and
-  `engineering-best-practices.md` as workflow docs under `.agents/`.
+- The workflow must install `README.md`, `plan-example.md`, and `workflow.md`
+  as workflow docs under `.agents/`.
 - The workflow must install workflow-owned skills from its `skills/` directory.
 - The workflow must install workflow-owned project-development roles under
   `.agents/roles/`.

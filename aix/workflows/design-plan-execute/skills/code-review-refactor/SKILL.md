@@ -12,21 +12,21 @@ work.
 ## Pre-flight
 
 1. Read the repository entrypoint instructions, usually `AGENTS.md`.
-2. Confirm `.agents/engineering-best-practices.md` exists.
-3. If `.agents/engineering-best-practices.md` is missing, stop before reviewing
-   code. Tell the developer that the required engineering best-practices
-   document is missing and that it should define the project's code-quality,
-   ownership, testing, safety, refactor, and verification standards.
-4. Read `.agents/engineering-best-practices.md` fresh for this run and follow
-   it as the primary review standard.
-5. Read the project documentation router when it exists, usually
+2. Read focused review and maintainability guidance from the active role or
+   workflow guidance files that apply to the requested code area.
+3. If focused guidance is missing or incomplete for the requested review, use
+   the repository's current workflow rules and knowledge-base docs instead of
+   stopping solely because a legacy guidance file is absent. Report the
+   guidance gap in the review.
+4. Read the project documentation router when it exists, usually
    `_docs/README.md`, then read only the design docs needed for the requested
    code area.
-6. Check the current worktree status. Preserve user-authored files and
+5. Check the current worktree status. Preserve user-authored files and
    unrelated changes.
 
 Do not hard-code file-size thresholds, ownership rules, testing expectations,
-or refactor policy from memory. Use the current best-practices document.
+or refactor policy from memory. Use the current focused guidance, repository
+instructions, and project documentation.
 
 ## Default scope
 

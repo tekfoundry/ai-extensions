@@ -2,7 +2,7 @@
 
 ## Status
 
-📝 Planning Draft
+🟨 Active
 
 ## Context
 
@@ -26,7 +26,7 @@ Reviewed context:
 
 - `AGENTS.md`
 - `.agents/workflow.md`
-- `.agents/engineering-best-practices.md`
+- Focused role and activity guidance
 - `_docs/README.md`
 - `_docs/kb/03-architecture/workflow-lifecycle.md`
 - `_docs/plans/workflow-guidance-library.md`
@@ -80,6 +80,15 @@ The project-manager role should be thin. It should not become the agent that
 does all implementation, documentation, review, and verification work. Its main
 job is to decide the first useful path and hand work to the right specialist
 role with compact context.
+
+AIX should ship one generic top-level `project-manager` role rather than
+requiring workflows to duplicate a full project-manager role. Workflow-specific
+behavior should augment the generic project-manager through additional guidance
+documents instead of replacing the role. The standard `GUIDANCE.md` document
+remains the base guidance file, and packages may provide focused companion
+guidance files named with a domain prefix, such as `workflow.GUIDANCE.md`.
+Those files remain separate guidance documents. AIX should not append them into
+the base `project-manager/GUIDANCE.md` file.
 
 The expected startup flow is:
 
@@ -189,10 +198,10 @@ storage, activation, update, deactivation, uninstall, verification, and
 documentation work needed for optional `AGENTS.append.md` files on supported
 extension types.
 
-The project-manager role guidance should not depend on
-`.agents/engineering-best-practices.md`. Any reusable guardrails needed for
-entry routing should live in `project-manager/GUIDANCE.md` or focused activity
-guidance.
+The project-manager role guidance should not depend on the retired shared
+engineering guidance file. Any reusable guardrails needed for entry routing
+should live in `project-manager/GUIDANCE.md`, focused companion guidance files
+such as `workflow.GUIDANCE.md`, or focused activity guidance.
 
 ## Non-Goals
 
@@ -233,10 +242,13 @@ guidance.
 - Workflow-owned `AGENTS.append.md` remains the workflow's place for
   workflow-specific lifecycle instructions. Role-owned append content remains
   the role's place for role activation instructions.
+- The generic project-manager role should be augmented through separate
+  guidance files, not by mutating its base `GUIDANCE.md` file or duplicating
+  the full role inside a workflow.
 
 ## Implementation Phases
 
-### Phase 1: Define Extension Append Contract (status: draft)
+### Phase 1: Define Extension Append Contract (status: accepted)
 
 Goal: replace the workflow-only `AGENTS.md` append implementation with a shared
 extension-owned append contract before wiring new lifecycle behavior.
@@ -270,7 +282,7 @@ Success criteria:
 - Existing workflow append behavior still passes through the shared contract.
 - Unsafe marker states and local edits fail closed.
 
-### Phase 2: Wire Append Lifecycle Into Extensions (status: draft)
+### Phase 2: Wire Append Lifecycle Into Extensions (status: accepted)
 
 Goal: make activation, update, deactivation, uninstall, verification, and
 status behavior manage optional `AGENTS.append.md` files for all supported
@@ -306,10 +318,11 @@ Success criteria:
 - Each lifecycle command manages only its own extension's managed block.
 - Existing workflow append tests continue to pass.
 
-### Phase 3: Add Bundled Project-Manager Role (status: draft)
+### Phase 3: Add Bundled Project-Manager Role And Guidance Layering (status: accepted)
 
 Goal: ship a top-level default `project-manager` role with activation-owned
-entry instructions and focused routing guidance.
+entry instructions, focused routing guidance, and support for separate
+companion guidance documents.
 
 Tasks:
 
@@ -320,6 +333,15 @@ Tasks:
       aggregation, and handback when work does not belong to its managed team.
 - ⬜️ Write `GUIDANCE.md` so startup classification produces `roles`,
       `activities`, `task_context`, and `sequencing_notes`.
+- ⬜️ Define the companion guidance naming contract for additional guidance
+      files such as `workflow.GUIDANCE.md`, including package discovery,
+      activation behavior, ownership metadata, and conflict behavior.
+- ⬜️ Update `get-guidance` discovery so it can find standard `GUIDANCE.md`
+      files and additional `<domain>.GUIDANCE.md` files without flattening or
+      appending them into the base guidance document.
+- ⬜️ Add tests proving `get-guidance` can return matching companion guidance
+      for the active workflow and project-manager role while keeping unrelated
+      companion guidance out of the result.
 - ⬜️ Document that each delegated role receives the original prompt for intent
       and traceability, while `bounded_task`, supplied guidance, lifecycle
       rules, and repository instructions govern scope.
@@ -344,19 +366,22 @@ Success criteria:
 - `AGENTS.md` points to `project-manager` only when the role is active.
 - The project-manager role remains a manager and does not become a broad
   executor.
+- Additional workflow guidance can augment the generic project-manager without
+  duplicating the full role or mutating its base `GUIDANCE.md`.
 
-### Phase 4: Support Workflow Overrides And Routing Examples (status: draft)
+### Phase 4: Support Workflow Guidance Augmentation And Routing Examples (status: accepted)
 
-Goal: define how workflow-owned project-manager roles compose with the
-top-level default and provide reviewable examples for routing behavior.
+Goal: define how workflow-owned guidance augments the generic top-level
+project-manager role and provide reviewable examples for routing behavior.
 
 Tasks:
 
-- ⬜️ Define workflow override behavior for `project-manager`, including how an
-      active workflow-provided role may replace or coexist with the top-level
-      default without bypassing lifecycle gates.
-- ⬜️ Add tests or fixtures proving workflow overrides preserve the ordered
-      minimal role-list model and do not install unconditional root
+- ⬜️ Define workflow project-manager guidance augmentation behavior, including
+      how an active workflow may provide focused guidance such as
+      `workflow.GUIDANCE.md` without replacing the top-level project-manager
+      role.
+- ⬜️ Add tests or fixtures proving workflow guidance augmentation preserves the
+      ordered minimal role-list model and does not install unconditional root
       `AGENTS.md` routing.
 - ⬜️ Add routing examples for a small informational request, implementation
       request, documentation request, security-sensitive request, mixed
@@ -367,97 +392,28 @@ Tasks:
 - ⬜️ Review existing `get-guidance` terminology for `requesting_role` and
       `requesting_skill`; update examples or add compatibility notes if the
       project-manager caller model needs different vocabulary.
-- ⬜️ Run targeted role, guidance, and workflow override tests; record
+- ⬜️ Run targeted role, guidance, and workflow augmentation tests; record
       verification evidence.
 
 Success criteria:
 
-- Workflow overrides are explicit, tested, and do not weaken the default role's
-  safety or lifecycle rules.
+- Workflow guidance augmentation is explicit, tested, and does not weaken the
+  default role's safety or lifecycle rules.
 - Example prompts make the routing contract testable by human review even
   where behavior is instruction-level rather than code-level.
 
-### Phase 5: Promote Documentation And Product Knowledge (status: draft)
-
-Goal: update current-state docs only after implementation evidence exists, so
-the knowledge base does not claim request-entry behavior early.
-
-Tasks:
-
-- ⬜️ Update product docs to describe activation-owned project-manager entry
-      routing after the role can be activated.
-- ⬜️ Update requirements docs for startup classification, ordered minimal role
-      lists, per-role guidance tailoring, controlled delegation payloads,
-      direct-answer limits, and handback behavior.
-- ⬜️ Update architecture docs for skill, role, and workflow package shapes;
-      managed `AGENTS.md` composition; append lifecycle; top-level default
-      roles; workflow overrides; and role-first request routing.
-- ⬜️ Update security docs for instruction-trust boundaries, append precedence,
-      marker ownership, local-edit refusal, malformed block refusal, and
-      lifecycle operations that only touch owned blocks.
-- ⬜️ Update quality docs and test matrix for append lifecycle, no silent
-      overwrite, no broad role fan-out, per-role `get-guidance`, delegation
-      payloads, and direct-answer/handback behavior.
-- ⬜️ Update operations docs and release notes for install, activation, update,
-      deactivation, uninstall, verification, and status behavior.
-- ⬜️ Add or update a decision record covering role-first request routing,
-      top-level default plus workflow override, active-only `AGENTS.md`
-      pointer, cross-extension `AGENTS.append.md`, per-role `get-guidance`, and
-      project-manager handback behavior.
-- ⬜️ Update glossary and documentation indexes for project manager, entry role,
-      startup classification, ordered role list, activity list,
-      activation-owned append content, managed append block, role execution,
-      and role review.
-- ⬜️ Run documentation link/format checks available in the repo and
-      `git diff --check`; record verification evidence.
-
-Success criteria:
-
-- Current-state docs match implemented behavior and do not describe planned
-  behavior as shipped before the relevant phase is complete.
-- Security, quality, and operations docs cover the new instruction-sensitive
-  append behavior.
-
-### Phase 6: Final Verification, Review, And Closeout (status: draft)
-
-Goal: prove the whole plan works end to end and complete the lifecycle gates
-before archive.
-
-Tasks:
-
-- ⬜️ Run targeted tests for append helpers, skill lifecycle, role lifecycle,
-      workflow lifecycle, guidance integration, status, and verify.
-- ⬜️ Run `npm run build` and `npm test`; record exact outcomes.
-- ⬜️ Manually inspect generated `AGENTS.md` content with workflow, role, and
-      skill append blocks active together.
-- ⬜️ Manually review project-manager `ROLE.md`, `GUIDANCE.md`, append content,
-      and routing examples for clear role boundaries and no hidden broad
-      delegation.
-- ⬜️ Complete Security Review after implementation, convert blocking findings
-      into normal plan tasks, and record residual risk.
-- ⬜️ Run `$code-review-refactor`; refactor or record follow-up work for
-      maintainability issues.
-- ⬜️ Run `$review-and-refresh-docs`; fix documentation drift or record
-      follow-up work.
-- ⬜️ Confirm every success criterion, task, documentation impact item, and
-      accepted decision has been implemented, verified, or explicitly deferred.
-- ⬜️ Complete the final checklist and archive the plan only after human
-      validation accepts the completed work or explicitly waives it.
-
-Success criteria:
-
-- Repository verification passes or any skipped/failed checks have explicit
-  recorded rationale and residual risk.
-- Human validation accepts the completed phased work before archive.
+Closeout, documentation promotion, final security review, code review,
+repository-wide verification, human validation, and archive tasks are tracked
+only in the Completion Checklist so the plan does not repeat lifecycle gates in
+multiple places.
 
 ## Accepted Decisions
 
-- `project-manager` should be available both as a top-level AIX role and as a
-  workflow override point. AIX should ship a default top-level
-  `project-manager` role so request entry is reliable across projects.
-  Workflows may provide a more specific project-manager role when they need
-  different routing behavior, but workflow overrides must preserve lifecycle
-  gates and the ordered, minimal role-list model.
+- AIX should ship one generic top-level `project-manager` role so request entry
+  is reliable across projects. Workflows should augment that role through
+  workflow-owned guidance, such as `workflow.GUIDANCE.md`, instead of
+  duplicating a full project-manager role. Guidance augmentation must preserve
+  lifecycle gates and the ordered, minimal role-list model.
 - `AGENTS.md` should point to `project-manager` only when the project-manager
   role is active. This should be handled through activation-owned append
   content, not an unconditional root `AGENTS.md` instruction.
@@ -477,6 +433,11 @@ Success criteria:
   For each role in the ordered role list, it should call `get-guidance` with
   that role and the shared activity list, then pass only that role's tailored
   guidance set into the delegation payload.
+- AIX should support additional guidance documents named
+  `<domain>.GUIDANCE.md` alongside the standard `GUIDANCE.md`. The
+  `get-guidance` skill should discover those documents and return matching
+  companion guidance separately, without appending it into the base
+  `GUIDANCE.md`.
 - `project-manager` may answer directly only when the request is small,
   informational or conversational, needs no file inspection or edits, touches
   no workflow lifecycle state, and requires no specialist judgment. If the
@@ -513,9 +474,11 @@ Resolved.
 ## Product Readiness
 
 - Readiness: Design Intent accepted on 2026-08-28. Open questions are
-  resolved, and implementation phases are drafted for developer review.
-- Evidence needed: Developer review and acceptance of Implementation Phases
-  before backlog activation.
+  resolved, implementation phases are accepted, and the plan was activated on
+  2026-08-28.
+- Evidence needed: Complete the accepted implementation phases, run required
+  verification, promote durable behavior into `_docs/kb`, and finish closeout
+  gates before archive.
 
 ## Risks
 
@@ -533,6 +496,8 @@ Resolved.
   are clearly procedures used by roles rather than standalone worker identities.
 - A separate `get-guidance` skill could become another large context source if
   it summarizes guidance instead of resolving the smallest needed files.
+- Companion guidance files could become noisy if naming, discovery, and
+  matching rules are too loose.
 
 ## Security Review
 

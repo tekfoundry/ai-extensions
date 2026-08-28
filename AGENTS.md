@@ -61,7 +61,6 @@ npm package while installing the short `aix` binary.
 
 Read `.agents/README.md` for the reusable process router.
 Read `.agents/workflow.md` before substantial implementation work.
-Read `.agents/engineering-best-practices.md` for agent-facing engineering guidance.
 
 Use root `AGENTS.md` for repo-specific project facts, commands, and safety rules.
 Use `_docs/kb/README.md` for current implemented project knowledge when it exists.

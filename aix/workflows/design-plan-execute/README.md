@@ -629,8 +629,6 @@ Workflow package files:
   plan.
 - `workflow.md`: reusable workflow lifecycle, work classification, planning,
   verification, and completion rules.
-- `engineering-best-practices.md`: reusable engineering guidance for
-  agent-assisted development, retained during migration to focused guidance.
 - `guidance/README.md`, `guidance/shared.md`, and `guidance/activities/*.md`:
   workflow-owned shared and activity guidance for planning, implementation,
   verification, review, and documentation.
@@ -646,10 +644,6 @@ Installed workflow docs:
 - [Plan example](plan-example.md): complete approved backlog plan showing
   typical structure, section depth, task markers, verification, risks, and
   promotion notes.
-- [Engineering best practices](engineering-best-practices.md): reusable
-  engineering guidance for agent-assisted development. This file remains
-  available until the developer verifies the focused guidance library preserves
-  what matters.
 - [Guidance](guidance/README.md): workflow-owned shared and activity guidance
   used as package origins for `aix guidance` commands.
 - [Skills](skills/): reusable workflow skills for plan and task lifecycle work.

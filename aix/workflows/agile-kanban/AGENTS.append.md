@@ -2,7 +2,6 @@
 
 Read `.agents/README.md` for the Kanban process router.
 Read `.agents/workflow.md` before creating, moving, or executing work items.
-Read `.agents/engineering-best-practices.md` before implementation work.
 
 Use `_docs/kanban/<state>/` directories as the board source of truth:
 `backlog`, `ready`, `in-progress`, `review`, `blocked`, and `done`.

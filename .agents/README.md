@@ -57,9 +57,9 @@ After initialization or workflow installation, `aix` updates the project:
 
 1. `AGENTS.md` gets a managed block marked
    `aix:workflow design-plan-execute`.
-2. `.agents/` gets the workflow router, lifecycle rules, engineering guidance,
-   and workflow skills. These are reusable process files for agent-assisted
-   development.
+2. `.agents/` gets the workflow router, lifecycle rules, focused guidance
+   origins, role guidance, and workflow skills. These are reusable process
+   files for agent-assisted development.
 3. The workflow installs the reusable files listed in
    [Included Files](#included-files).
 4. `_docs/` gets the standard project documentation structure when directories
@@ -82,18 +82,21 @@ This workflow installs these roles:
 
 | Role name | Example prompts | What it does |
 | --- | --- | --- |
-| [`product-strategist`](roles/project-dev/product-strategist.md) | "Use product-strategist to review this feature idea."<br>"Should this idea become a plan, or should we narrow it first?"<br>"Compare these feature ideas by user value and sequencing." | Generates and evaluates product ideas, audience fit, scope, tradeoffs, and sequencing before planned work is accepted. |
-| [`product-designer`](roles/project-dev/product-designer.md) | "Use product-designer to review this workflow."<br>"Review this plan's user flow and accessibility before implementation."<br>"Does this prompt flow have clear states, recovery paths, and layout hierarchy?" | Reviews user flows, interaction design, accessibility, layout hierarchy, prototypes, terminal UX, and design-system fit before product-facing work is finalized. |
-| [`requirements-engineer`](roles/project-dev/requirements-engineer.md) | "Use requirements-engineer to refine this Design Intent."<br>"Are the requirements, non-goals, and acceptance signals ready?"<br>"Find open decisions before we draft phases." | Turns accepted product vision into requirements, non-goals, boundaries, acceptance signals, and plan-readiness evidence before implementation phases are drafted. |
-| [`technical-architect`](roles/project-dev/technical-architect.md) | "Use technical-architect to review this plan."<br>"Do these module boundaries and runtime contracts look ready for implementation?"<br>"Split this design into maintainable implementation phases." | Reviews system design, component boundaries, runtime contracts, integration choices, and maintainability tradeoffs before implementation phases are finalized. |
-| [`security-engineer`](roles/project-dev/security-engineer.md) | "Use security-engineer to review this plan."<br>"Do these install and update safeguards cover local drift and trust boundaries?"<br>"Review the security risks before closeout." | Reviews trust boundaries, secrets, authorization, destructive operations, dependency risk, and safety-sensitive behavior before implementation or closeout. |
-| [`ux-writer`](roles/project-dev/ux-writer.md) | "Use ux-writer to review this command output."<br>"Check this plan's labels, errors, empty states, and README copy."<br>"Does this onboarding text tell users what to do next?" | Reviews labels, prompts, errors, empty states, onboarding copy, README language, and developer-facing text before release. |
-| [`quality-engineer`](roles/project-dev/quality-engineer.md) | "Use quality-engineer to plan verification."<br>"Check this phase for regression risk and validation gaps."<br>"Do these checks prove the acceptance criteria?" | Reviews verification strategy, regression risk, acceptance evidence, gaps, and residual risk before implementation phases or closeout are treated as complete. |
-| [`documentation-specialist`](roles/project-dev/documentation-specialist.md) | "Use documentation-specialist for this docs impact review."<br>"Where should this current-state behavior be documented?"<br>"Does the implementation match the knowledge base and active plan?" | Reviews documentation impact, `_docs` placement, knowledge-base promotion needs, current-state accuracy, implementation-to-intent drift, links, and developer-facing documentation before planning or closeout treats docs as current. |
-| [`implementation-engineer`](roles/project-dev/implementation-engineer.md) | "Use implementation-engineer to split this phase into tasks."<br>"Check whether this task is ready for task-execute."<br>"What files, tests, docs, and risks should this implementation touch?" | Reviews implementation task boundaries, sequencing, likely changed areas, code-change readiness, verification handoff, documentation impact, and residual risk before planned work moves into or through execution. |
+| [`product-strategist`](roles/project-dev/product-strategist/ROLE.md) | "Use product-strategist to review this feature idea."<br>"Should this idea become a plan, or should we narrow it first?"<br>"Compare these feature ideas by user value and sequencing." | Generates and evaluates product ideas, audience fit, scope, tradeoffs, and sequencing before planned work is accepted. |
+| [`product-designer`](roles/project-dev/product-designer/ROLE.md) | "Use product-designer to review this workflow."<br>"Review this plan's user flow and accessibility before implementation."<br>"Does this prompt flow have clear states, recovery paths, and layout hierarchy?" | Reviews user flows, interaction design, accessibility, layout hierarchy, prototypes, terminal UX, and design-system fit before product-facing work is finalized. |
+| [`requirements-engineer`](roles/project-dev/requirements-engineer/ROLE.md) | "Use requirements-engineer to refine this Design Intent."<br>"Are the requirements, non-goals, and acceptance signals ready?"<br>"Find open decisions before we draft phases." | Turns accepted product vision into requirements, non-goals, boundaries, acceptance signals, and plan-readiness evidence before implementation phases are drafted. |
+| [`technical-architect`](roles/project-dev/technical-architect/ROLE.md) | "Use technical-architect to review this plan."<br>"Do these module boundaries and runtime contracts look ready for implementation?"<br>"Split this design into maintainable implementation phases." | Reviews system design, component boundaries, runtime contracts, integration choices, and maintainability tradeoffs before implementation phases are finalized. |
+| [`security-engineer`](roles/project-dev/security-engineer/ROLE.md) | "Use security-engineer to review this plan."<br>"Do these install and update safeguards cover local drift and trust boundaries?"<br>"Review the security risks before closeout." | Reviews trust boundaries, secrets, authorization, destructive operations, dependency risk, and safety-sensitive behavior before implementation or closeout. |
+| [`ux-writer`](roles/project-dev/ux-writer/ROLE.md) | "Use ux-writer to review this command output."<br>"Check this plan's labels, errors, empty states, and README copy."<br>"Does this onboarding text tell users what to do next?" | Reviews labels, prompts, errors, empty states, onboarding copy, README language, and developer-facing text before release. |
+| [`quality-engineer`](roles/project-dev/quality-engineer/ROLE.md) | "Use quality-engineer to plan verification."<br>"Check this phase for regression risk and validation gaps."<br>"Do these checks prove the acceptance criteria?" | Reviews verification strategy, regression risk, acceptance evidence, gaps, and residual risk before implementation phases or closeout are treated as complete. |
+| [`documentation-specialist`](roles/project-dev/documentation-specialist/ROLE.md) | "Use documentation-specialist for this docs impact review."<br>"Where should this current-state behavior be documented?"<br>"Does the implementation match the knowledge base and active plan?" | Reviews documentation impact, `_docs` placement, knowledge-base promotion needs, current-state accuracy, implementation-to-intent drift, links, and developer-facing documentation before planning or closeout treats docs as current. |
+| [`implementation-engineer`](roles/project-dev/implementation-engineer/ROLE.md) | "Use implementation-engineer to split this phase into tasks."<br>"Check whether this task is ready for task-execute."<br>"What files, tests, docs, and risks should this implementation touch?" | Reviews implementation task boundaries, sequencing, likely changed areas, code-change readiness, verification handoff, documentation impact, and residual risk before planned work moves into or through execution. |
 
-The workflow activates these roles under `.agents/roles/`. Remove or update the
-workflow to change them. Do not deactivate them like normal root roles.
+The workflow activates these roles under `.agents/roles/<name>/ROLE.md`.
+Each bundled role also ships `GUIDANCE.md`; active guidance files are
+project-editable and preserved by workflow updates. Remove or update the
+workflow to change the package-managed role contracts. Do not deactivate them
+like normal root roles.
 
 Use roles explicitly when you want bounded specialist judgment, for example
 `Use quality-engineer to plan verification` or
@@ -495,10 +498,10 @@ and completed states. Plan updates usually touch sections like
 </blockquote>
 </td>
 <td>
-The agent reads repository instructions, <code>.agents/engineering-best-practices.md</code>,
-relevant knowledge-base docs, and the current worktree. It inspects the requested code
-against the workflow's engineering guidance, reports findings first, then asks
-which findings you want to refactor.
+The agent reads repository instructions, focused role or activity guidance,
+relevant knowledge-base docs, and the current worktree. It inspects the
+requested code against the workflow's review guidance, reports findings first,
+then asks which findings you want to refactor.
 
 Small behavior-preserving fixes can proceed inline after confirmation. Larger
 or cross-cutting refactors are routed into a backlog plan with
@@ -626,8 +629,9 @@ Workflow package files:
   plan.
 - `workflow.md`: reusable workflow lifecycle, work classification, planning,
   verification, and completion rules.
-- `engineering-best-practices.md`: reusable engineering guidance for
-  agent-assisted development.
+- `guidance/README.md`, `guidance/shared.md`, and `guidance/activities/*.md`:
+  workflow-owned shared and activity guidance for planning, implementation,
+  verification, review, and documentation.
 - `templates/*.md`: default document templates for workflow artifacts.
 - `templates/sections/*.md`: reusable section templates used inside document
   templates and lifecycle records.
@@ -640,8 +644,8 @@ Installed workflow docs:
 - [Plan example](plan-example.md): complete approved backlog plan showing
   typical structure, section depth, task markers, verification, risks, and
   promotion notes.
-- [Engineering best practices](engineering-best-practices.md): reusable
-  engineering guidance for agent-assisted development.
+- [Guidance](guidance/README.md): workflow-owned shared and activity guidance
+  used as package origins for `aix guidance` commands.
 - [Skills](skills/): reusable workflow skills for plan and task lifecycle work.
 
 Root integration:

@@ -23,7 +23,7 @@ aix workflow install aix/workflows/design-plan-execute
 Dependencies:
 
 - `AGENTS.md`
-- `.agents/engineering-best-practices.md`
+- Focused role or activity guidance for code review and maintainability
 - `_docs/README.md`
 - Relevant `_docs/kb/` documents for the reviewed code area
 - `plan-create`, when selected refactors need a backlog implementation plan
@@ -44,8 +44,8 @@ new implementation plan.
 
 ## What it does
 
-The skill reads the repository instructions, engineering best practices, design
-docs, and worktree state. It reviews code for unclear ownership, mixed
+The skill reads the repository instructions, focused guidance, design docs, and
+worktree state. It reviews code for unclear ownership, mixed
 responsibilities, duplication, weak tests, brittle error handling, safety risks,
 and documentation drift. It reports prioritized findings first, then asks the
 developer which findings to refactor. Small behavior-preserving fixes can run

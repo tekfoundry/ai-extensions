@@ -123,7 +123,7 @@ test("initProject initializes an empty project with default sources and skills",
     const getGuidanceSkill = lockfile.skills.find((skill) => skill.activeName === "get-guidance");
 
     assert.equal(result.declaredCount, 1);
-    assert.equal(result.materializedCount, 43);
+    assert.equal(result.materializedCount, 42);
     assert.equal(result.activatedCount, 17);
     assert.equal(result.standaloneActivatedCount, 1);
     assert.deepEqual(Object.keys(manifest.sources.workflows), ["aix"]);
@@ -135,7 +135,7 @@ test("initProject initializes an empty project with default sources and skills",
     assert.equal(lockfile.lockfileVersion, 1);
     assert.equal(lockfile.workflows.length, 1);
     assert.equal(lockfile.workflows[0].name, "design-plan-execute");
-    assert.equal(lockfile.workflows[0].docs.length, 4);
+    assert.equal(lockfile.workflows[0].docs.length, 3);
     assert.equal(lockfile.workflows[0].templates.length, 22);
     assert.equal(lockfile.workflows[0].skills.length, 17);
     assert.equal(lockfile.workflows[0].roles.length, 9);
@@ -328,7 +328,7 @@ test("run init initializes a project through the CLI command path", async () => 
       assert.equal(result.exitCode, 0);
       assert.match(result.stdout, /Initialized AI Extensions/);
       assert.match(result.stdout, /Declared 1 workflow/);
-      assert.match(result.stdout, /Materialized 43 workflow assets/);
+      assert.match(result.stdout, /Materialized 42 workflow assets/);
       assert.match(result.stdout, /Activated 17 workflow-owned skills/);
       assert.match(result.stdout, /Activated 1 standalone skill/);
     } finally {
