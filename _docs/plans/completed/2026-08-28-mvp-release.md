@@ -2,10 +2,11 @@
 
 ## Status
 
-🟨 Active
+✅ Completed
 
-This plan was activated by user request on 2026-08-19. It is now the active
-implementation record for the MVP release.
+This plan was activated by user request on 2026-08-19 and completed on
+2026-08-28. It is now the historical implementation record for the MVP
+release.
 
 ## Context
 
@@ -1252,7 +1253,7 @@ Completion evidence:
   `npm_config_cache=/private/tmp/aix-npm-cache npm test` with 92 passing tests,
   and `git diff --check`.
 
-### Phase 9: Repeatable versioning and publishing (status: active closeout)
+### Phase 9: Repeatable versioning and publishing (status: completed)
 
 Goal: publish AI Extensions as a versioned package and make future releases
 repeatable.
@@ -1557,22 +1558,75 @@ Completion evidence:
 - Use the workflow task status markers in plan task lists from the start:
   `⬜️`, `🟨`, `✅`, and `⚠️`.
 
+## Security Review
+
+Post-phase closeout review found no blocking security issues. The MVP release
+keeps safety-sensitive writes scoped to `aix.json`, `aix.lock.json`,
+`.agents/`, managed workflow files, active skills, active roles, and template
+overrides. Git source resolution, package acceptance, local drift checks,
+managed `AGENTS.md` updates, npm publishing, and trusted publishing are
+documented in `_docs/kb/04-security/` and `_docs/kb/06-operations/`.
+
+Residual risks remain documented in the knowledge base: source content is not
+semantically sandboxed, Git commit signatures are not verified, registry
+package signatures are not verified by AIX, and human review remains required
+for release notes, package contents, and trusted source selection.
+
+## Closeout Summary
+
+The MVP shipped as the scoped npm package `@tekfoundry/aix` with the short
+`aix` binary. The completed implementation includes project initialization,
+Git-backed skill and role sources, workflow install/update/diff/uninstall,
+skill and role activation lifecycles, lockfile hashing, local drift refusal,
+status and verify commands, template publishing, Release Please versioning,
+GitHub Actions CI, npm publishing with provenance, and clean install
+validation.
+
+Current-state documentation has been promoted into `_docs/kb/` across product,
+requirements, architecture, security, quality, operations, decisions, and
+glossary docs. The final documentation refresh updated release operations to
+match the checked-in publish workflow: publishing runs from explicit `v*` tags
+or a manually dispatched workflow for a selected tag, after release
+verification passes and the `npm-publish` environment gate applies.
+
+Final verification reviewed during closeout:
+
+- `npm view @tekfoundry/aix@0.3.0 --json` confirmed the public package record,
+  latest dist tag, repository metadata, maintainer, tarball, and npm
+  provenance attestation from GitHub Actions.
+- `npm run release:publish-dry-run` passed.
+- `npm run release:verify` passed with 190 tests.
+- `git diff --check` passed before closeout edits.
+- A clean install of `@tekfoundry/aix@0.3.0` passed, and the installed binary
+  ran `aix --help` and `aix status` under Node 24.
+- The developer verified installation from another project and confirmed the
+  installed `aix` binary runs.
+
+Follow-on work belongs in future plans rather than this MVP record. Known
+candidates include broader runtime version coverage, optional automated
+post-publish install verification, GitHub Release-triggered publishing if it
+becomes the preferred gate, semantic checks for bundled instructions, and
+stronger source/package provenance validation.
+
 ## Completion Checklist
 
-- ⬜️ Confirm every task and success goal is complete or explicitly deferred.
-- ⬜️ Human validation: developer evaluated the completed phased work and accepted it, or explicitly waived manual validation with a recorded reason.
-- ⬜️ Run or review required targeted and repository verification.
-- ⬜️ Review the codebase to ensure the code is maintainable and clean; refactor if needed.
-- ⬜️ Promote accepted durable behavior into design docs using `$design-promote`.
-- ⬜️ Review documentation structure, formatting, and links using `$review-and-refresh-docs`; fix issues or record follow-up work.
-- ⬜️ Record final risks, follow-on work, and documentation impact.
-- ⬜️ Harvest reusable lessons and update workflow guidance when appropriate.
-- ⬜️ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
+- ✅ Confirm every task and success goal is complete or explicitly deferred.
+- ✅ Human validation: developer evaluated the completed phased work and
+      confirmed the published package installs from another project and the
+      installed `aix` binary runs.
+- ✅ Run or review required targeted and repository verification.
+- ✅ Review the codebase to ensure the code is maintainable and clean; refactor
+      if needed.
+- ✅ Promote accepted durable behavior into design docs using `$design-promote`.
+- ✅ Review documentation structure, formatting, and links using
+      `$review-and-refresh-docs`; fix issues or record follow-up work.
+- ✅ Record final risks, follow-on work, and documentation impact.
+- ✅ Harvest reusable lessons and update workflow guidance when appropriate.
+- ✅ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
 
 ## Promotion To Design
 
-After this plan is done, promote durable decisions into `_docs/kb/`,
-especially:
+Durable decisions from this plan were promoted into `_docs/kb/`, especially:
 
 - the exact manifest schema
 - the exact lockfile schema

@@ -78,11 +78,15 @@ The current GitHub release process is documented in
 - Release Please is manually dispatched to prepare a release PR.
 - CI verifies build, typecheck, tests, package preview, local install smoke,
   and whitespace.
-- npm publishing is manually dispatched from an explicit Git tag.
+- local release commands `npm run release:patch`, `npm run release:minor`, and
+  `npm run release:major` run release verification, bump the package version,
+  create the matching Git tag, and print the push command.
+- npm publishing runs from an explicit Git tag, either through a pushed `v*`
+  tag or manual workflow dispatch for the selected tag.
 - the publish workflow runs inside the `npm-publish` GitHub environment.
 - the publish workflow runs `npm run release:verify` before `npm publish`.
-- local GitHub Release artifacts can be generated with
-  `npm run release:github-artifact` until npm publishing is fully available.
+- fallback GitHub Release artifacts can be generated with
+  `npm run release:github-artifact` during npm publishing incidents.
 
 Publishing must stay separated from ordinary push CI.
 

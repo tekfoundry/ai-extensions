@@ -88,12 +88,6 @@ npm run build
 node bin/aix.js --help
 ```
 
-To create the release artifact locally:
-
-```bash
-npm run release:github-artifact
-```
-
 ## Quick start
 
 Initialize a project:
