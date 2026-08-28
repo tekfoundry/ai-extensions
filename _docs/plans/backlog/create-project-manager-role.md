@@ -36,6 +36,10 @@ Reviewed context:
 - Thread discussion on 2026-08-28 about deferring workflow guidance routing out
   of `_docs/plans/workflow-guidance-library.md` while keeping the optional
   `get-guidance` skill.
+- Thread discussion on 2026-08-28 about replacing `requesting_role` and
+  `requesting_skill` bootstrap variables with an ordered, minimal role list and
+  activity list. The project-manager role should resolve guidance for each role
+  and delegate in sequence.
 - Current implemented append behavior is workflow-owned through each
   workflow's `AGENTS.append.md`; AIX does not yet have a global
   `AGENTS.append.md` source for instructions that should apply across
@@ -45,14 +49,15 @@ Reviewed context:
 
 Create a `project-manager` role that acts as the universal lightweight entry
 point for AIX agent requests. The role should bootstrap each request, identify
-the likely activity and task context, resolve focused guidance, select one
-primary specialist role when work is needed, and keep delegation narrow enough
-to avoid role churn.
+the ordered and minimal role list, identify the likely activity list and task
+context, resolve focused guidance for each role, delegate work in sequence, and
+keep delegation narrow enough to avoid role churn.
 
 This matters because the desired operating model is role-centered:
 
-- The project manager decides who should think about the request.
-- The selected role decides how to work.
+- The project manager decides who should think about the request and in what
+  order.
+- Each selected role decides how to work.
 - Skills provide repeatable procedures.
 - Guidance provides focused judgment.
 
@@ -71,24 +76,54 @@ role with compact context.
 
 The expected startup flow is:
 
-1. Identify bootstrap variables:
-   - `requesting_role`
-   - `requesting_skill`
-   - `activity`
-   - `task_context`
-2. Use `get-guidance` or the equivalent guidance-resolution procedure to find
-   the smallest relevant guidance set.
-3. Read only the selected entrypoint, role, skill, activity, plan, code, or docs
-   context needed for the request.
-4. Choose one primary execution path.
-5. Delegate execution to the selected role when specialist work is needed.
-6. Review returned evidence and route follow-up only when evidence shows
-   another role is materially needed.
+1. Review the prompt and produce a startup classification:
+   - `roles`: ordered list of roles that have material work or review
+     responsibility.
+   - `activities`: list of activities that apply across the request.
+   - `task_context`: compact description of the request, known constraints,
+     and expected output.
+   - `sequencing_notes`: why the role order matters, when applicable.
+2. Review the role list for scope control. The role list is ordered and
+   minimal, not exhaustive. It should include only roles with material work or
+   review responsibility.
+3. For each role in order:
+   - Use `get-guidance` or the equivalent guidance-resolution procedure with
+     the role and activity list to find the smallest relevant guidance set.
+   - Read only the selected entrypoint, role, activity, plan, code, docs, or
+     guidance context needed for that delegation.
+   - Delegate bounded work or review to the role with the prompt, task context,
+     sequencing notes, and guidance list.
+   - Let the delegated role choose which skills to use and how to complete the
+     work under the supplied guidance.
+4. Review returned evidence before continuing to the next role when ordering
+   creates a dependency.
+5. Aggregate the delegation results into a final user-facing summary that
+   covers completed work, evidence, unresolved questions, and follow-up needs.
 
-The preferred routing model is conservative triage, not role fan-out. The
-project-manager role should select one primary role by default. It may add a
-secondary reviewer only when inspected evidence shows that role's domain is
-materially affected.
+The preferred routing model is conservative sequencing, not role fan-out. The
+project-manager role should select the smallest ordered role list that can
+handle the request. It may add another role only when the prompt or returned
+evidence shows that role's domain is materially affected.
+
+Each delegated role should receive the original user prompt for intent and
+traceability, but the original prompt should not become the role's assignment.
+The project-manager role should pass a controlled delegation payload:
+
+- `original_prompt`: the user's original request, preserved for intent and
+  traceability.
+- `role_assignment`: the specific role receiving the work or review request.
+- `bounded_task`: what this role should do, including any explicit non-scope.
+- `activities`: activity list selected by the project-manager role.
+- `guidance`: focused guidance documents resolved for this role and activity
+  set.
+- `sequencing_notes`: dependency context from earlier or later roles.
+- `return_requirements`: expected evidence, reviewed files or docs, decisions,
+  risks, verification notes, and handoff notes.
+
+Delegated roles may use the original prompt to understand user intent, but the
+`bounded_task`, supplied guidance, lifecycle rules, and repository instructions
+define the role's actual scope. A role must not expand its assignment only
+because the original prompt touches an adjacent domain.
 
 Role selection should be evidence-based:
 
@@ -160,7 +195,14 @@ guidance.
 - Specialist roles own bounded execution or review in their domains.
 - Skills remain reusable procedures selected by roles.
 - Guidance files must be focused enough to support low-token routing.
-- Delegation should start with one primary role unless evidence justifies more.
+- Delegation should use an ordered and minimal role list, not an exhaustive
+  list of every plausible specialist.
+- Role ordering should preserve dependencies such as requirements before
+  architecture, architecture before implementation, and implementation before
+  verification when those dependencies apply.
+- Delegation payloads should include the original user prompt for intent and
+  traceability, but role scope should be governed by the bounded task,
+  guidance, lifecycle rules, and repository instructions.
 - The parent context remains responsible for final user-facing reporting and
   for preserving worktree safety.
 - Backlog work remains unimplemented until explicitly activated.
@@ -185,8 +227,8 @@ Not drafted until Design Intent is accepted.
   `AGENTS.append.md` blocks?
 - Should `get-guidance` be a separate skill, or should the first version use a
   guidance-resolution section inside `project-manager/GUIDANCE.md`?
-- What exact payload should `project-manager` pass to `delegate-to-role` so the
-  selected role has enough context without duplicating broad reads?
+- Should `get-guidance` return separate guidance sets per role, or a shared
+  guidance set annotated by role relevance?
 - When can `project-manager` answer directly instead of delegating?
 
 ## Documentation Impact
@@ -206,8 +248,9 @@ Not drafted until Design Intent is accepted.
   role defaults, global append behavior, or managed `AGENTS.md` text change.
 - Decisions: Consider a decision record for adopting role-first request
   routing.
-- Glossary: Add or update terms for project manager, entry role, bootstrap
-  variables, role execution, and role review.
+- Glossary: Add or update terms for project manager, entry role, startup
+  classification, ordered role list, activity list, role execution, and role
+  review.
 
 ## Product Readiness
 
@@ -219,8 +262,8 @@ Not drafted until Design Intent is accepted.
 
 - The project-manager role could become too broad and recreate the context pile
   this work is meant to remove.
-- Conservative routing could miss a specialist role unless escalation rules are
-  clear and evidence-based.
+- Minimal role routing could miss a specialist role unless ordering and
+  escalation rules are clear and evidence-based.
 - Always starting through one role could add overhead to simple questions if
   the direct-answer path is too strict.
 - Changing `AGENTS.md` entry behavior could affect all future agent work and

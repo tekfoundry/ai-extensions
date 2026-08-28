@@ -11,6 +11,11 @@ Default bundled skills:
   broadening to unreviewed GitHub or internet results, presents review links
   and unsafe-flag notes, and waits for `confirm install #` before running
   install commands.
+- `get-guidance`: resolves a bounded read-only guidance list for a caller's
+  active role, skill, workflow activity, and task context. It reports matching
+  role guidance, workflow activity guidance, shared guidance, legacy fallback
+  guidance when needed, and conflicts with higher-priority instructions
+  without mutating files.
 
 Workflow-owned lifecycle skills live under
 `aix/workflows/design-plan-execute/skills`.

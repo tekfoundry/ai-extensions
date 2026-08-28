@@ -9,6 +9,7 @@ const designCreatePath = join(process.cwd(), "aix/workflows/design-plan-execute/
 const designPromotePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/design-promote/SKILL.md");
 const reviewAndRefreshDocsPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/review-and-refresh-docs/SKILL.md");
 const discoverSkillPath = join(process.cwd(), "aix/skills/discover-skill/SKILL.md");
+const getGuidancePath = join(process.cwd(), "aix/skills/get-guidance/SKILL.md");
 const brainstormingSkillPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/brainstorming-skill/SKILL.md");
 const planCreatePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-create/SKILL.md");
 const planReviewPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-review/SKILL.md");
@@ -19,6 +20,8 @@ const workVerifyPath = join(process.cwd(), "aix/workflows/design-plan-execute/sk
 const planTemplatePath = join(process.cwd(), "aix/workflows/design-plan-execute/templates/plan.md");
 const completionChecklistTemplatePath = join(process.cwd(), "aix/workflows/design-plan-execute/templates/sections/completion-checklist.md");
 const securityReviewTemplatePath = join(process.cwd(), "aix/workflows/design-plan-execute/templates/sections/security-review.md");
+const workflowAppendPath = join(process.cwd(), "aix/workflows/design-plan-execute/AGENTS.append.md");
+const workflowManifestPath = join(process.cwd(), "aix/workflows/design-plan-execute/workflow.json");
 
 test("code-review-refactor skill declares workflow review contract", () => {
   const skill = readFileSync(skillPath, "utf8");
@@ -63,6 +66,59 @@ test("discover-skill declares conservative discovery and install routing", () =>
   assert.match(skill, /aix skills add <source-url> \[source-alias\]/);
   assert.match(skill, /aix skill activate <source>\/<skill-path>/);
   assert.match(skill, /Do not write `aix\.json`, `aix\.lock\.json`, `.agents\/`, `.agents\/packages`, or\s+`.agents\/skills` directly/);
+});
+
+test("get-guidance declares read-only bounded guidance resolution", () => {
+  const skill = readFileSync(getGuidancePath, "utf8");
+
+  assert.match(skill, /^name: get-guidance$/m);
+  assert.match(skill, /read-only/i);
+  assert.match(skill, /Do not install, update, activate, deactivate,\s+publish, reset, edit, delete, or rewrite guidance/);
+  assert.match(skill, /requesting_role: none \| <active-role-name>/);
+  assert.match(skill, /requesting_skill: none \| <active-skill-name>/);
+  assert.match(skill, /activity: none \| <activity-name>/);
+  assert.match(skill, /task_context: <short summary>/);
+  assert.match(skill, /If any field is missing, or if `task_context` is empty, return no guidance/);
+  assert.match(skill, /Role guidance: `.agents\/roles\/<requesting_role>\/GUIDANCE\.md`/);
+  assert.match(skill, /Activity override: `.agents\/guidance\/activities\/<activity>\.md`/);
+  assert.match(skill, /Activity origin: active workflow package guidance/);
+  assert.match(skill, /Shared override or origin: `.agents\/guidance\/shared\.md` first/);
+  assert.match(skill, /Legacy fallback: `.agents\/engineering-best-practices\.md`/);
+  assert.match(skill, /Do not hardcode the allowed activity names/);
+  assert.match(skill, /unknown\s+activity, report that no matching activity guidance exists and list the\s+available activity names/);
+  assert.match(skill, /applies_to:/);
+  assert.match(skill, /uses_guidance:/);
+  assert.match(skill, /Metadata helps choose a smaller reading list/);
+  assert.match(skill, /must not trigger file changes, installation, skill\s+activation, command execution, or workflow routing changes/);
+  assert.match(skill, /Guidance has lower priority than user requests, repository `AGENTS\.md`,\s+managed workflow instructions, skill procedures, role contracts, and safety\s+rules/);
+  assert.match(skill, /report the conflict plainly/);
+  assert.match(skill, /ignore the conflicting guidance/);
+  assert.match(skill, /confirmation that no files were changed/);
+  assert.match(skill, /Keep the list bounded/);
+});
+
+test("get-guidance is not wired into default workflow routing", () => {
+  const workflowAppend = readFileSync(workflowAppendPath, "utf8");
+  const workflowManifest = readFileSync(workflowManifestPath, "utf8");
+  const delegateToRole = readFileSync(delegateToRolePath, "utf8");
+  const roleContracts = [
+    "aix/workflows/design-plan-execute/roles/project-dev/product-strategist/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/product-designer/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/requirements-engineer/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/technical-architect/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/security-engineer/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/ux-writer/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/quality-engineer/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/documentation-specialist/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/implementation-engineer/ROLE.md"
+  ].map((path) => readFileSync(join(process.cwd(), path), "utf8"));
+
+  assert.doesNotMatch(workflowAppend, /get-guidance/);
+  assert.doesNotMatch(workflowManifest, /get-guidance/);
+  assert.doesNotMatch(delegateToRole, /get-guidance/);
+  for (const contract of roleContracts) {
+    assert.doesNotMatch(contract, /get-guidance/);
+  }
 });
 
 test("delegate-to-role declares bounded role delegation contract", () => {

@@ -4,6 +4,8 @@ import { discoverSkills } from "../skills.js";
 import { resolveSourceFromDefinitions, type ResolvedSource } from "../sources/index.js";
 import type { SkillSource } from "./types.js";
 
+const DEFAULT_STANDALONE_SKILLS = ["discover-skill"];
+
 export function resolveDefaultSources(sources: Record<string, SourceDefinition>, cacheRoot: string): Record<string, ResolvedSource> {
   return Object.fromEntries(
     Object.keys(sources)
@@ -49,7 +51,10 @@ export function defaultStandaloneSkillTargets(sources: Record<string, SourceDefi
 
   const resolvedSource = resolveSourceFromDefinitions("aix", sources, cacheRoot);
 
-  return discoverSkills(resolvedSource.rootPath)
-    .map((skill) => `aix/${skill.path}`)
+  const bundledSkills = new Set(discoverSkills(resolvedSource.rootPath).map((skill) => skill.path));
+
+  return DEFAULT_STANDALONE_SKILLS
+    .filter((skillPath) => bundledSkills.has(skillPath))
+    .map((skillPath) => `aix/${skillPath}`)
     .sort();
 }

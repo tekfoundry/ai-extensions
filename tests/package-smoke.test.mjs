@@ -42,6 +42,8 @@ test("npm pack artifact contains a working aix binary", async () => {
   assert.equal(existsSync(join(unpackDirectory, "dist/cli.js")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/skills/discover-skill/SKILL.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/skills/discover-skill/known-sources.json")), true);
+  assert.equal(existsSync(join(unpackDirectory, "aix/skills/get-guidance/SKILL.md")), true);
+  assert.equal(existsSync(join(unpackDirectory, "aix/skills/get-guidance/README.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/skills/brainstorming-skill/SKILL.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/skills/brainstorming-skill/README.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/skills/task-execute/SKILL.md")), true);

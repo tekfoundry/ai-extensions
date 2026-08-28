@@ -16,6 +16,15 @@ export {
   resetWorkflowTemplate
 } from "./template-commands.js";
 export {
+  diffGuidance,
+  diffGuidanceCommands,
+  listGuidance,
+  previewResetAllGuidance,
+  publishGuidance,
+  resetAllGuidance,
+  resetGuidance
+} from "./guidance-commands.js";
+export {
   discoverWorkflowTemplates,
   parseWorkflowTemplateReferences,
   validateWorkflowTemplates,
@@ -31,6 +40,16 @@ export type {
   ResetWorkflowTemplateResult,
   PublishedWorkflowTemplate
 } from "./template-commands.js";
+export type {
+  ActiveGuidanceDocument,
+  DiffGuidanceCommandsResult,
+  DiffGuidanceResult,
+  ListGuidanceResult,
+  PublishGuidanceResult,
+  ResetAllGuidancePreviewResult,
+  ResetAllGuidanceResult,
+  ResetGuidanceResult
+} from "./guidance-commands.js";
 export type {
   WorkflowTemplate,
   WorkflowTemplateReference,

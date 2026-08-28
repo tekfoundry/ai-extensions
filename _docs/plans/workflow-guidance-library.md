@@ -782,26 +782,26 @@ Execution note (2026-08-28, completed):
   tests/package-smoke.test.mjs` ran the repository test runner and passed with
   199 tests; `node bin/aix.js verify`; `git diff --check`.
 
-### Phase 4: Guidance Commands (status: accepted)
+### Phase 4: Guidance Commands (status: completed)
 
 Goal: provide one compact public command family for listing, publishing,
 diffing, and resetting active guidance from workflows and active roles.
 
 Tasks:
 
-- ⬜️ Add `aix guidance list` with compact table output using command-ready
+- ✅ Add `aix guidance list` with compact table output using command-ready
       names, kind, origin, status, and relevant metadata.
-- ⬜️ Add `aix guidance publish` to publish all workflow shared/activity
+- ✅ Add `aix guidance publish` to publish all workflow shared/activity
       guidance into `.agents/guidance/`, while reporting active role guidance
       as already editable.
-- ⬜️ Add `aix guidance diff` with no target to list valid diff commands.
-- ⬜️ Add `aix guidance diff <name>` for `shared`,
+- ✅ Add `aix guidance diff` with no target to list valid diff commands.
+- ✅ Add `aix guidance diff <name>` for `shared`,
       `activities/<activity-name>`, and `roles/<role-name>`.
-- ⬜️ Add `aix guidance reset <name>` with kind-specific reset behavior for
+- ✅ Add `aix guidance reset <name>` with kind-specific reset behavior for
       workflow guidance overrides and role `GUIDANCE.md`.
-- ⬜️ Add `aix guidance reset --all` with a preview of all modified guidance
+- ✅ Add `aix guidance reset --all` with a preview of all modified guidance
       documents and an approval prompt before changing files.
-- ⬜️ Ensure guidance commands preserve unrelated files and refuse unsafe
+- ✅ Ensure guidance commands preserve unrelated files and refuse unsafe
       overwrites.
 
 Verification:
@@ -811,7 +811,32 @@ Verification:
   no-op role guidance publish reporting.
 - CLI help and README examples match the accepted command surface.
 
-### Phase 5: Get Guidance Skill (status: accepted)
+Execution note (2026-08-28, completed):
+
+- Added the public `aix guidance` command family with list, publish, diff, and
+  reset subcommands. The command layer aggregates active workflow shared and
+  activity guidance with active role `GUIDANCE.md` files, reports command-ready
+  names, kind, origin, status, and metadata, and lists exact `aix guidance diff
+  <name>` targets when diff is run without a target.
+- Implemented workflow guidance publishing into `.agents/guidance/` while
+  leaving role guidance as already-editable active role files. Publish refuses
+  targeted arguments and refuses to overwrite locally edited workflow guidance
+  overrides.
+- Implemented targeted reset for workflow guidance overrides and role
+  guidance, plus `aix guidance reset --all` with a preview table and exact
+  confirmation text before removing workflow overrides or restoring modified
+  or missing role guidance. Reset behavior preserves unrelated project-owned
+  files.
+- Updated CLI splash/help metadata and README examples for the accepted
+  command surface.
+- Verification passed: `npm run build`; `node --test tests/guidance.test.mjs`;
+  `node --test tests/cli.test.mjs`; `npm test --
+  tests/workflow.test.mjs tests/templates.test.mjs tests/roles.test.mjs
+  tests/status.test.mjs` ran the repository test runner and passed with 206
+  tests; `node bin/aix.js verify`; `git diff --check`. A manual direct smoke
+  of `node bin/aix.js guidance list` also passed against the current checkout.
+
+### Phase 5: Get Guidance Skill (status: completed)
 
 Goal: add the read-only `@aix/skills/get-guidance` skill as an available
 guidance resolver without making it part of default workflow startup or role
@@ -819,22 +844,22 @@ routing.
 
 Tasks:
 
-- ⬜️ Add root AIX skill `aix/skills/get-guidance/SKILL.md`.
-- ⬜️ Define the required caller context fields:
+- ✅ Add root AIX skill `aix/skills/get-guidance/SKILL.md`.
+- ✅ Define the required caller context fields:
       `requesting_role`, `requesting_skill`, `activity`, and `task_context`.
-- ⬜️ Make `get-guidance` resolve role guidance, workflow activity overrides,
+- ✅ Make `get-guidance` resolve role guidance, workflow activity overrides,
       workflow activity origins, shared guidance, and legacy
       `engineering-best-practices.md` fallback when needed.
-- ⬜️ Make `get-guidance` use `applies_to` and `uses_guidance` metadata as
+- ✅ Make `get-guidance` use `applies_to` and `uses_guidance` metadata as
       advisory routing hints.
-- ⬜️ Make `get-guidance` report no guidance when context is missing or no
+- ✅ Make `get-guidance` report no guidance when context is missing or no
       guidance matches.
-- ⬜️ Make `get-guidance` report and ignore guidance that conflicts with higher
+- ✅ Make `get-guidance` report and ignore guidance that conflicts with higher
       priority user, repo, workflow, skill, role, or safety instructions.
-- ⬜️ Keep the skill optional for this plan: do not wire it into managed
+- ✅ Keep the skill optional for this plan: do not wire it into managed
       `AGENTS.md`, `.agents/workflow.md`, `delegate-to-role`, role contracts,
       skill contracts, workflow manifests, or default workflow startup.
-- ⬜️ Add a plan note that mandatory routing and adoption are deferred to
+- ✅ Add a plan note that mandatory routing and adoption are deferred to
       `_docs/plans/backlog/create-project-manager-role.md`, with any future
       workflow-required external skill activation depending on
       `_docs/plans/backlog/workflow-external-skill-dependencies.md`.
@@ -848,6 +873,36 @@ Verification:
   unrelated guidance.
 - Tests or review notes confirm no managed workflow append, role, skill,
   delegation, or manifest wiring was added by this phase.
+
+Execution note (2026-08-28, completed):
+
+- Added the root AIX `get-guidance` skill under `aix/skills/get-guidance/`
+  with a `SKILL.md` contract and README. The skill requires
+  `requesting_role`, `requesting_skill`, `activity`, and `task_context`, and
+  returns no guidance when required context is missing or too vague.
+- Defined read-only resolution for active role `GUIDANCE.md`, project-owned
+  workflow guidance overrides, active workflow package activity origins,
+  shared guidance, and legacy `.agents/engineering-best-practices.md` fallback
+  when the newer guidance library has no relevant match.
+- Documented advisory `applies_to` and `uses_guidance` metadata behavior,
+  unknown-activity handling, bounded reading-list output, missing guidance
+  notes, and conflict reporting that ignores guidance when higher-priority
+  user, repository, workflow, skill, role, or safety instructions win.
+- Kept `get-guidance` optional. It is available from the root AIX skill source
+  and appears in `aix skills list`, but default project init still activates
+  only `discover-skill` as the standalone bundled skill. No managed workflow
+  append, workflow manifest, role contract, `delegate-to-role`, or default
+  workflow startup wiring was added.
+- Observed the project-manager backlog plan note that defers mandatory
+  guidance routing and adoption to
+  `_docs/plans/backlog/create-project-manager-role.md`; future workflow-required
+  external skill activation still depends on
+  `_docs/plans/backlog/workflow-external-skill-dependencies.md`.
+- Verification passed: `npm run build`; `node --test
+  tests/skill-instructions.test.mjs`; `node --test tests/skills.test.mjs`;
+  `node --test tests/skill-instructions.test.mjs tests/skills.test.mjs
+  tests/init.test.mjs tests/package-smoke.test.mjs`; `node bin/aix.js
+  verify`; `git diff --check`; `npm test` passed with 208 tests.
 
 ### Phase 6: Defer Routing Adoption (status: accepted)
 

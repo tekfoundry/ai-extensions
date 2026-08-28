@@ -24,6 +24,7 @@ fit together like this:
 | --- | --- | --- | --- |
 | Skill | A repeatable procedure an agent can follow to complete a task. | A recipe. | `plan-create`, `task-execute`, `kanban-create-item`, `kanban-execute`. |
 | Role | A persona with domain knowledge that helps an agent choose, apply, or review skills more effectively. | A specialist, like a pie chef or kitchen manager. | `aix-workflow-architect`, `aix-skill-author`, `technical-architect`, `quality-engineer`. |
+| Guidance | Reusable best-practice judgment for roles and workflow activities. | House standards. | `roles/quality-engineer`, `activities/verification`, `shared`. |
 | Workflow | A repeatable development pipeline that coordinates docs, skills, roles, and templates so agents produce higher-quality, maintainable work. | A restaurant operating playbook that can be repeated across locations. | Design-plan-execute, agile-kanban. |
 
 The command is `aix`. The npm package is `@tekfoundry/aix`.
@@ -355,6 +356,36 @@ Host-native agent directories are compatibility outputs, not AIX's canonical
 role storage. AIX does not write `.claude/agents`, `.codex/agents`,
 `.agents/agents`, or similar host-specific files unless a future explicit
 integration command or configuration owns that behavior.
+
+## Guidance
+
+Guidance is reusable judgment that agents can read while they follow a role,
+skill, or workflow. Role guidance lives with active role bundles under
+`.agents/roles/<name>/GUIDANCE.md` and is editable after activation. Workflow
+activity guidance lives in the active workflow package until you publish
+editable overrides under `.agents/guidance/`.
+
+Use one command family for the active guidance set:
+
+```bash
+aix guidance list
+aix guidance publish
+aix guidance diff
+aix guidance diff shared
+aix guidance diff activities/verification
+aix guidance diff roles/quality-engineer
+aix guidance reset shared
+aix guidance reset activities/verification
+aix guidance reset roles/quality-engineer
+aix guidance reset --all
+```
+
+`aix guidance list` shows command-ready names, kind, origin, status, and
+metadata. `aix guidance publish` copies workflow shared and activity guidance
+into `.agents/guidance/`; active role guidance is already editable, so publish
+reports it without rewriting it. `aix guidance reset --all` previews every
+guidance customization it will reset and requires the exact confirmation text
+before it removes workflow overrides or restores role guidance.
 
 ### Bundled roles
 

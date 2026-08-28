@@ -99,7 +99,7 @@ function parseAppliesTo(frontMatter: string, path: string): WorkflowGuidance["ap
   return appliesTo;
 }
 
-function parseWorkflowGuidanceFrontMatter(markdown: string, path: string): {
+export function parseWorkflowGuidanceMarkdown(markdown: string, path: string): {
   appliesTo: WorkflowGuidance["appliesTo"];
   body: string;
 } {
@@ -137,7 +137,7 @@ function readGuidance(guidanceRoot: string, guidanceDir: string, relativePath: s
   assertGuidanceNameSafe(name, absolutePath);
 
   const contents = readFileSync(absolutePath, "utf8");
-  const parsed = parseWorkflowGuidanceFrontMatter(contents, absolutePath);
+  const parsed = parseWorkflowGuidanceMarkdown(contents, absolutePath);
 
   if (parsed.body.trim() === "") {
     throw new AixError(`Invalid workflow guidance file: ${absolutePath} must include guidance content.`);

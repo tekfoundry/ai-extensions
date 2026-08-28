@@ -153,6 +153,7 @@ test("run skills list reports aix git source skills without mutating project fil
     assert.match(result.stdout, /Path\s+Name\s+Install Command/);
     assert.doesNotMatch(result.stdout, /brainstorming-skill\s+brainstorming-skill/);
     assert.match(result.stdout, /discover-skill\s+discover-skill/);
+    assert.match(result.stdout, /get-guidance\s+get-guidance/);
     assert.equal(readFileSync("aix.json", "utf8"), beforeManifest);
     assertNoManagedProjectWrites(projectPath);
   } finally {

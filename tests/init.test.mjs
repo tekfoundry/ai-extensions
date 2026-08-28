@@ -120,6 +120,7 @@ test("initProject initializes an empty project with default sources and skills",
     const implementationEngineerRole = lockfile.roles.find((role) => role.activeName === "implementation-engineer");
     const brainstormingSkill = lockfile.skills.find((skill) => skill.activeName === "brainstorming-skill");
     const discoverSkill = lockfile.skills.find((skill) => skill.activeName === "discover-skill");
+    const getGuidanceSkill = lockfile.skills.find((skill) => skill.activeName === "get-guidance");
 
     assert.equal(result.declaredCount, 1);
     assert.equal(result.materializedCount, 43);
@@ -143,6 +144,7 @@ test("initProject initializes an empty project with default sources and skills",
     assert.ok(lockfile.skills.every((skill) => skill.kind === "skill"));
     assert.equal(lockfile.skills.filter((skill) => skill.owner?.kind === "workflow").length, 17);
     assert.ok(discoverSkill);
+    assert.equal(getGuidanceSkill, undefined);
     assert.equal(discoverSkill.source, "aix");
     assert.equal(discoverSkill.sourcePath, "discover-skill");
     assert.equal(discoverSkill.requested, true);
@@ -279,6 +281,8 @@ test("initProject initializes an empty project with default sources and skills",
     assert.ok(existsSync(join(projectPath, ".agents/packages/skills/aix/discover-skill/SKILL.md")));
     assert.ok(existsSync(join(projectPath, ".agents/packages/skills/aix/discover-skill/known-sources.json")));
     assert.ok(existsSync(join(projectPath, ".agents/skills/discover-skill/SKILL.md")));
+    assert.equal(existsSync(join(projectPath, ".agents/packages/skills/aix/get-guidance/SKILL.md")), false);
+    assert.equal(existsSync(join(projectPath, ".agents/skills/get-guidance/SKILL.md")), false);
     assert.equal(lstatSync(join(projectPath, ".agents/skills/task-execute")).isSymbolicLink(), true);
     assert.equal(readlinkSync(join(projectPath, ".agents/skills/task-execute")), "../packages/workflows/aix/design-plan-execute/skills/task-execute");
     assert.equal(lstatSync(join(projectPath, ".agents/skills/code-review-refactor")).isSymbolicLink(), true);
