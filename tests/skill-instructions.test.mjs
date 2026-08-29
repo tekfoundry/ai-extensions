@@ -11,17 +11,41 @@ const reviewAndRefreshDocsPath = join(process.cwd(), "aix/workflows/design-plan-
 const discoverSkillPath = join(process.cwd(), "aix/skills/discover-skill/SKILL.md");
 const getGuidancePath = join(process.cwd(), "aix/skills/get-guidance/SKILL.md");
 const brainstormingSkillPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/brainstorming-skill/SKILL.md");
+const planActivatePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-activate/SKILL.md");
 const planCreatePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-create/SKILL.md");
+const planDeferPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-defer/SKILL.md");
 const planReviewPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-review/SKILL.md");
 const planUpdatePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-update/SKILL.md");
 const planExecutePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-execute/SKILL.md");
+const phaseExecutePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/phase-execute/SKILL.md");
+const taskExecutePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/task-execute/SKILL.md");
 const planCompletePath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/plan-complete/SKILL.md");
 const workVerifyPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/work-verify/SKILL.md");
+const projectInitPath = join(process.cwd(), "aix/workflows/design-plan-execute/skills/project-init/SKILL.md");
 const planTemplatePath = join(process.cwd(), "aix/workflows/design-plan-execute/templates/plan.md");
 const completionChecklistTemplatePath = join(process.cwd(), "aix/workflows/design-plan-execute/templates/sections/completion-checklist.md");
 const securityReviewTemplatePath = join(process.cwd(), "aix/workflows/design-plan-execute/templates/sections/security-review.md");
 const workflowAppendPath = join(process.cwd(), "aix/workflows/design-plan-execute/AGENTS.append.md");
 const workflowManifestPath = join(process.cwd(), "aix/workflows/design-plan-execute/workflow.json");
+
+const lifecycleSkillPaths = [
+  brainstormingSkillPath,
+  skillPath,
+  designCreatePath,
+  designPromotePath,
+  planActivatePath,
+  planCompletePath,
+  planCreatePath,
+  planDeferPath,
+  planExecutePath,
+  phaseExecutePath,
+  planReviewPath,
+  planUpdatePath,
+  projectInitPath,
+  reviewAndRefreshDocsPath,
+  taskExecutePath,
+  workVerifyPath
+];
 
 test("code-review-refactor skill declares workflow review contract", () => {
   const skill = readFileSync(skillPath, "utf8");
@@ -120,6 +144,19 @@ test("get-guidance is not wired into default workflow routing", () => {
   assert.doesNotMatch(delegateToRole, /get-guidance/);
   for (const contract of roleContracts) {
     assert.doesNotMatch(contract, /get-guidance/);
+  }
+});
+
+test("workflow lifecycle skills declare the project-manager entry gate", () => {
+  for (const lifecycleSkillPath of lifecycleSkillPaths) {
+    const skill = readFileSync(lifecycleSkillPath, "utf8");
+
+    assert.match(skill, /## Project-Manager Entry Gate/, lifecycleSkillPath);
+    assert.match(skill, /Use as a lifecycle procedure selected by project-manager or a delegated role/, lifecycleSkillPath);
+    assert.match(skill, /When the active `project-manager` role is present/, lifecycleSkillPath);
+    assert.match(skill, /Lifecycle skills\s+are procedures selected by the project-manager or delegated roles, not default\s+direct request entrypoints/, lifecycleSkillPath);
+    assert.match(skill, /without PM routing context or a PM\s+Context Packet, stop and route through project-manager first/, lifecycleSkillPath);
+    assert.match(skill, /Allowed bypasses are PM Review, tiny informational requests that require no\s+file reads or commands, bootstrapping before project-manager is active,\s+already-routed requests carrying PM routing context or a PM Context Packet,\s+and explicit developer override/, lifecycleSkillPath);
   }
 });
 

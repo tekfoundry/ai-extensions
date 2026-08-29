@@ -236,7 +236,15 @@ function parseWorkflowDoc(value: unknown, path: string): LockfileWorkflowDoc {
   };
 }
 
-function parseAgentsMdBlock(value: unknown, path: string): LockfileAgentsMdBlock | undefined {
+function parseAgentsMdBlock(
+  value: unknown,
+  path: string,
+  defaults?: {
+    owner: { kind: AppendBlockOwnerKind; name: string };
+    source: string;
+    sourcePath: string;
+  }
+): LockfileAgentsMdBlock | undefined {
   if (value === undefined) {
     return undefined;
   }
@@ -267,9 +275,14 @@ function parseAgentsMdBlock(value: unknown, path: string): LockfileAgentsMdBlock
       throw new LockfileError(`${path}.owner.kind must be "skill", "role", or "workflow".`);
     }
 
+    const ownerName =
+      typeof value.owner.name === "string" && value.owner.name.trim() === "" && defaults?.owner.kind === ownerKind
+        ? defaults.owner.name
+        : requireString(value.owner.name, `${path}.owner.name`);
+
     owner = {
       kind: ownerKind,
-      name: requireString(value.owner.name, `${path}.owner.name`)
+      name: ownerName
     };
   } else if (legacySha256) {
     owner = {
@@ -282,8 +295,18 @@ function parseAgentsMdBlock(value: unknown, path: string): LockfileAgentsMdBlock
 
   return {
     owner,
-    source: legacySha256 ? optionalString(value.source, `${path}.source`) || "" : requireString(value.source, `${path}.source`),
-    sourcePath: legacySha256 ? optionalString(value.sourcePath, `${path}.sourcePath`) || "" : requireString(value.sourcePath, `${path}.sourcePath`),
+    source:
+      typeof value.source === "string" && value.source.trim() === "" && defaults
+        ? defaults.source
+        : legacySha256
+          ? optionalString(value.source, `${path}.source`) || ""
+          : requireString(value.source, `${path}.source`),
+    sourcePath:
+      typeof value.sourcePath === "string" && value.sourcePath.trim() === "" && defaults
+        ? defaults.sourcePath
+        : legacySha256
+          ? optionalString(value.sourcePath, `${path}.sourcePath`) || ""
+          : requireString(value.sourcePath, `${path}.sourcePath`),
     path: requireString(value.path, `${path}.path`),
     marker: requireString(value.marker, `${path}.marker`),
     sourceSha256,
@@ -349,25 +372,35 @@ function parseWorkflowEntry(value: unknown, path: string): LockfileWorkflowEntry
     throw new LockfileError(`${path}.packageFiles must be an array.`);
   }
 
+  const source = requireString(value.source, `${path}.source`);
+  const sourcePath = requireString(value.sourcePath, `${path}.sourcePath`);
+  const name = requireString(value.name, `${path}.name`);
   const sourceUrl = optionalString(value.sourceUrl, `${path}.sourceUrl`);
   const requestedRef = optionalString(value.requestedRef, `${path}.requestedRef`);
   const resolvedCommit = optionalString(value.resolvedCommit, `${path}.resolvedCommit`);
   const title = optionalString(value.title, `${path}.title`);
-  const agentsMd = parseAgentsMdBlock(value.agentsMd, `${path}.agentsMd`);
+  const agentsMd = parseAgentsMdBlock(value.agentsMd, `${path}.agentsMd`, {
+    owner: {
+      kind: "workflow",
+      name
+    },
+    source,
+    sourcePath
+  });
   const templates = Array.isArray(value.templates) ? value.templates : undefined;
   const guidance = Array.isArray(value.guidance) ? value.guidance : undefined;
   const roles = Array.isArray(value.roles) ? value.roles : undefined;
 
   return {
     kind,
-    source: requireString(value.source, `${path}.source`),
+    source,
     sourceType,
     ...(sourceUrl ? { sourceUrl } : {}),
     ...(requestedRef ? { requestedRef } : {}),
     ...(resolvedCommit ? { resolvedCommit } : {}),
-    sourcePath: requireString(value.sourcePath, `${path}.sourcePath`),
+    sourcePath,
     packagePath: requireString(value.packagePath, `${path}.packagePath`),
-    name: requireString(value.name, `${path}.name`),
+    name,
     ...(title ? { title } : {}),
     docs: value.docs.map((doc, index) => parseWorkflowDoc(doc, `${path}.docs[${index}]`)),
     ...(agentsMd ? { agentsMd } : {}),

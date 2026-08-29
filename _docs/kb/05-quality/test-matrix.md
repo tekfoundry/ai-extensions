@@ -131,7 +131,20 @@ Tests in `tests/roles.test.mjs` cover the bundled project-manager PM Review
 contract. They check the case-insensitive `pm review` trigger examples, exact
 canonical routing probes for roles and activities, no broad role fan-out,
 per-role guidance planning, out-of-team handback, and the abort-before-work
-rule.
+rule. The same test file covers PM Context Packets by checking the bundled
+project-manager packet shape and confirming every bundled workflow role has
+conditional orientation rules for accepting packet baseline facts, re-reading
+authority files, falling back to normal orientation, and returning compact
+handoff evidence. The same role tests also pin the project-manager
+activation-owned append text and guidance entry-routing section so they keep
+requiring active project-manager routing before specialist roles, lifecycle
+skills, or file work.
+
+Tests in `tests/skill-instructions.test.mjs` cover lifecycle skill entry-gate
+instructions. They fail if workflow lifecycle skills stop describing
+themselves as procedures selected by project-manager or delegated roles, or if
+they lose the rule to stop and route through project-manager when it is active
+and no PM routing context or PM Context Packet was provided.
 
 Quality risks:
 
@@ -142,6 +155,8 @@ Quality risks:
 - making `get-guidance` load broad or unrelated instruction context
 - routing project-manager startup through `get-guidance` instead of the active
   project-manager guidance files
+- lifecycle skills becoming a default direct entrypoint again when the active
+  project-manager role should route meaningful project work first
 
 Targeted checks:
 

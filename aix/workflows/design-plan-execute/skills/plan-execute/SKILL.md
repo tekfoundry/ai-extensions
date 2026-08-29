@@ -1,6 +1,6 @@
 ---
 name: plan-execute
-description: Orchestrate execution of an active implementation plan across phases. Use when the user asks Codex to execute, continue, or complete an active plan, including selecting the only in-progress plan when no plan is named; repeatedly route bounded phase work through `phase-execute` until completion or a stop condition.
+description: Orchestrate execution of an active implementation plan across phases. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
 ---
 
 # Plan Execute
@@ -9,6 +9,22 @@ Use this skill as the parent orchestration context for whole-plan execution.
 It sequences phases and owns integration, verification review, documentation
 impact, risk tracking, and closeout. It does not bypass `phase-execute` or
 `task-execute`.
+
+## Project-Manager Entry Gate
+
+When the active `project-manager` role is present, meaningful AIX project
+requests should reach this skill only after project-manager routing or a
+delegated role selects it as the procedure for bounded work. Lifecycle skills
+are procedures selected by the project-manager or delegated roles, not default
+direct request entrypoints.
+
+If a direct user request reaches this skill without PM routing context or a PM
+Context Packet, stop and route through project-manager first.
+
+Allowed bypasses are PM Review, tiny informational requests that require no
+file reads or commands, bootstrapping before project-manager is active,
+already-routed requests carrying PM routing context or a PM Context Packet,
+and explicit developer override.
 
 ## Role Collaboration
 

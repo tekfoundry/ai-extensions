@@ -382,7 +382,7 @@ test("bundled project-manager role has activation-owned append and companion gui
     assert.equal(existsSync(join(projectRoot, ".agents/roles/project-manager/GUIDANCE.md")), true);
     assert.equal(existsSync(join(projectRoot, ".agents/roles/project-manager/workflow.GUIDANCE.md")), true);
     assert.match(agents, /<!-- aix:role project-manager start -->/);
-    assert.match(agents, /adjacent `\*\.GUIDANCE\.md` files/);
+    assert.match(agents, /adjacent\s+`\*\.GUIDANCE\.md` files/);
 
     const deactivate = run(["role", "deactivate", "project-manager"]);
     const updatedAgents = readFileSync(join(projectRoot, "AGENTS.md"), "utf8");
@@ -395,6 +395,10 @@ test("bundled project-manager role has activation-owned append and companion gui
 
 function projectManagerGuidance() {
   return readFileSync(join(repoRoot, "aix/roles/project-manager/GUIDANCE.md"), "utf8");
+}
+
+function projectManagerAppend() {
+  return readFileSync(join(repoRoot, "aix/roles/project-manager/AGENTS.append.md"), "utf8");
 }
 
 function routingProbeBlock(guidance, heading) {
@@ -438,6 +442,35 @@ test("bundled project-manager guidance defines PM Review mode", () => {
   assert.match(guidance, /PM review - complete Phase 4/);
   assert.match(guidance, /pm review- complete Phase 4/);
   assert.match(guidance, /pm review complete Phase 4/);
+});
+
+test("bundled project-manager append enforces role-first entry routing", () => {
+  const append = projectManagerAppend();
+
+  assert.match(append, /When the active `project-manager` role is present/);
+  assert.match(append, /route meaningful AIX\s+project requests through it before specialist roles, lifecycle skills, or file\s+work/);
+  assert.match(append, /Lifecycle skills are procedures selected by the project-manager or\s+delegated roles, not default direct request entrypoints/);
+  assert.match(append, /Allowed bypasses are narrow/);
+  assert.match(append, /PM Review/);
+  assert.match(append, /tiny informational answers that require\s+no file reads or commands/);
+  assert.match(append, /bootstrapping before project-manager is active/);
+  assert.match(append, /already-routed requests carrying PM routing context or a PM Context Packet/);
+  assert.match(append, /explicit developer override/);
+});
+
+test("bundled project-manager guidance defines entry routing enforcement", () => {
+  const guidance = projectManagerGuidance();
+
+  assert.match(guidance, /## Entry Routing Enforcement/);
+  assert.match(guidance, /meaningful AIX project\s+requests start through it before specialist roles, lifecycle skills, or file\s+work/);
+  assert.match(guidance, /Lifecycle skills are procedures selected by the project-manager or\s+delegated roles/);
+  assert.match(guidance, /Allowed bypasses are narrow:/);
+  assert.match(guidance, /PM Review mode/);
+  assert.match(guidance, /tiny informational or conversational answers that require no file reads,\s+commands, lifecycle state, specialist judgment, or safety-sensitive decisions/);
+  assert.match(guidance, /bootstrapping before `project-manager` is active/);
+  assert.match(guidance, /requests already carrying PM routing context or a PM Context Packet/);
+  assert.match(guidance, /explicit developer override/);
+  assert.match(guidance, /stop and route through\s+`project-manager` first/);
 });
 
 test("bundled project-manager guidance has exact PM Review routing probes", () => {
@@ -519,6 +552,57 @@ test("PM Review routing probes avoid broad role fan-out and document guidance pl
   }
 
   assert.match(routingProbeBlock(guidance, "Out-Of-Team Request"), /handback:/);
+});
+
+test("bundled project-manager guidance defines PM Context Packets", () => {
+  const guidance = projectManagerGuidance();
+
+  assert.match(guidance, /pm_context_packet:/);
+  assert.match(guidance, /work_mode: active-plan \| backlog \| micro-fix \| informational \| handback \| unknown/);
+  assert.match(guidance, /active_plan: none \| <plan path>/);
+  assert.match(guidance, /selected_phase: none \| <phase name>/);
+  assert.match(guidance, /selected_task: none \| <task name>/);
+  assert.match(guidance, /accepted_decisions:/);
+  assert.match(guidance, /known_constraints:/);
+  assert.match(guidance, /relevant_files:/);
+  assert.match(guidance, /required_reads:/);
+  assert.match(guidance, /optional_reads:/);
+  assert.match(guidance, /stop_conditions:/);
+  assert.match(guidance, /guidance_plan:/);
+  assert.match(guidance, /return_requirements:/);
+  assert.match(guidance, /accepted_context:/);
+  assert.match(guidance, /re_read_context:/);
+  assert.match(guidance, /delegated role may accept low-risk orientation facts from it/);
+  assert.match(guidance, /must still re-read files it will edit, verify, judge for\s+safety, or cite as evidence/);
+  assert.match(guidance, /If no PM Context Packet is provided, the role should use its normal orientation\s+flow/);
+  assert.match(guidance, /Do not pass a full running transcript/);
+});
+
+test("shipped workflow roles support conditional PM Context Packet orientation", () => {
+  const roleFiles = [
+    "documentation-specialist",
+    "implementation-engineer",
+    "product-designer",
+    "product-strategist",
+    "quality-engineer",
+    "requirements-engineer",
+    "security-engineer",
+    "technical-architect",
+    "ux-writer"
+  ].map((roleName) => join(repoRoot, `aix/workflows/design-plan-execute/roles/project-dev/${roleName}/ROLE.md`));
+
+  for (const rolePath of roleFiles) {
+    const role = readFileSync(rolePath, "utf8");
+
+    assert.match(role, /If the project-manager provided a PM Context Packet/);
+    assert.match(role, /Accept low-risk orientation facts from it/);
+    assert.match(role, /Re-read the authority files this role will edit, verify, judge for safety, or cite as evidence/);
+    assert.match(role, /use normal orientation instead/);
+    assert.match(role, /When no PM Context Packet is provided/);
+    assert.match(role, /accepted packet context when provided/);
+    assert.match(role, /context re-read for authority/);
+    assert.match(role, /handoff notes/);
+  }
 });
 
 test("discoverRoles reports shipped workflow-owned project development roles", () => {

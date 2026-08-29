@@ -1,6 +1,6 @@
 ---
 name: phase-execute
-description: Orchestrate execution of one active-plan phase through bounded `task-execute` work. Use when a user asks to review, complete, or implement a phase in a plan file, including selecting the current phase when no phase is named; repeatedly route concrete tasks through `task-execute` until the phase is complete or a stop condition occurs.
+description: Orchestrate execution of one active-plan phase through bounded `task-execute` work. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
 ---
 
 # Phase Execute
@@ -17,6 +17,22 @@ Use this skill as the parent orchestration context for a single active-plan
 phase. It sequences task work, owns phase-level integration, reviews
 verification evidence and documentation impact after each task, tracks risks,
 and does not bypass `task-execute`.
+
+## Project-Manager Entry Gate
+
+When the active `project-manager` role is present, meaningful AIX project
+requests should reach this skill only after project-manager routing or a
+delegated role selects it as the procedure for bounded work. Lifecycle skills
+are procedures selected by the project-manager or delegated roles, not default
+direct request entrypoints.
+
+If a direct user request reaches this skill without PM routing context or a PM
+Context Packet, stop and route through project-manager first.
+
+Allowed bypasses are PM Review, tiny informational requests that require no
+file reads or commands, bootstrapping before project-manager is active,
+already-routed requests carrying PM routing context or a PM Context Packet,
+and explicit developer override.
 
 ## Role Collaboration
 

@@ -166,6 +166,26 @@ the prefix, classifies the remaining prompt, emits the startup context and
 per-role guidance plan, then stops. PM Review must not delegate, edit files,
 run commands, change lifecycle state, verify work, or update plan state.
 
+When `project-manager` is active, it is the documented default entry path for
+meaningful AIX project requests. Its activation-owned `AGENTS.md` append block
+routes those requests through project-manager before specialist roles,
+lifecycle skills, or file work. Lifecycle skills are procedures selected by
+the project-manager or delegated roles, not default direct request
+entrypoints. The allowed bypasses are PM Review, tiny informational answers
+requiring no file reads or commands, bootstrap work before project-manager is
+active, already-routed requests carrying PM routing context or a PM Context
+Packet, and explicit developer override.
+
+For delegated work, the project-manager may pass a PM Context Packet. The
+packet carries the original prompt, work mode, active plan, selected phase or
+task, accepted decisions, known constraints, relevant file pointers, required
+and optional reads, stop conditions, per-role guidance planning, and compact
+return requirements. Delegated roles may accept low-risk baseline facts from
+the packet, but they must re-read files they edit, verify, judge for safety, or
+cite as evidence. If no packet is provided, roles use their normal orientation
+flow. The project-manager should keep each packet role-specific instead of
+passing a full running transcript through the delegation chain.
+
 The public guidance command family aggregates workflow and role guidance:
 
 ```bash

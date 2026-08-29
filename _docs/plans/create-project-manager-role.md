@@ -554,6 +554,173 @@ Success criteria:
   tests/status.test.mjs tests/verify.test.mjs` passed with 12 tests;
   `AIX_CACHE_DIR=/tmp/aix-phase4-full-cache npm test` passed with 225 tests.
 
+### Phase 5: Add PM Context Packets For Delegation (status: accepted)
+
+Goal: reduce repeated role orientation by having the project-manager produce a
+small context packet for each delegated role. The packet should carry settled
+baseline context, exact source pointers, guidance planning, and compact return
+requirements without becoming an ever-growing transcript that every role must
+read.
+
+The packet should be conditional. If a project-manager context packet is
+present, delegated roles should accept low-risk baseline facts from it and
+re-read only the authority files they edit, verify, judge for safety, or cite
+as evidence. If no packet is present, roles should use their normal orientation
+flow.
+
+Tasks:
+
+- ✅ Define the PM Context Packet shape in `project-manager/GUIDANCE.md`,
+      including original prompt, work mode, active plan, selected phase or
+      task, accepted decisions, known constraints, relevant files, required
+      reads, optional reads, stop conditions, and per-role `guidance_plan`.
+- ✅ Define packet compaction rules. The project-manager should pass each role
+      the smallest useful role-specific packet, not the full accumulated
+      history of prior role runs.
+- ✅ Update delegated-role guidance or contracts with conditional orientation:
+      accept low-risk PM baseline when provided; re-read authority files for
+      edits, verification, safety review, and evidence; fall back to normal
+      orientation when no PM packet exists.
+- ✅ Define compact delegated-role return requirements, including accepted
+      context, re-read context, files inspected or changed, decisions, risks,
+      verification evidence, and handoff notes.
+- ✅ Clarify `get-guidance` usage inside PM Context Packets. The packet's
+      `guidance_plan` is a bounded reading plan, not permission to load broad
+      context or summarize every guidance file.
+- ✅ Add instruction-level tests proving the bundled project-manager guidance
+      defines PM Context Packets and every bundled workflow role supports the
+      conditional orientation rule.
+- ✅ Update current-state docs for role architecture, trust boundaries,
+      quality coverage, and glossary terms.
+- ✅ Run targeted role, guidance, package, workflow, status, and verify tests;
+      record verification evidence.
+
+Success criteria:
+
+- Delegated roles can start from a PM-provided baseline without repeating
+  generic orientation work.
+- Roles still re-read source-of-truth files when they edit, verify, judge
+  safety, or cite evidence.
+- The packet remains bounded and role-specific instead of becoming a growing
+  transcript passed wholesale through the delegation chain.
+- `get-guidance` remains a resolver for reading plans, not a broad context
+  expansion step.
+- Existing role, guidance, workflow, status, verify, and packaging tests pass.
+
+- 2026-08-29: Phase 5 added PM Context Packets to the default bundled
+  `aix/roles/project-manager/GUIDANCE.md`. The packet carries the original
+  prompt, work mode, active plan, selected phase or task, accepted decisions,
+  known constraints, relevant file pointers, required and optional reads, stop
+  conditions, per-role `guidance_plan`, and compact return requirements. The
+  guidance now tells the project-manager to keep packets role-specific and not
+  pass a full running transcript through the delegation chain. All bundled
+  workflow role contracts now use conditional orientation: accept low-risk
+  packet baseline facts when provided, re-read authority files for edits,
+  verification, safety review, and evidence, and fall back to normal
+  orientation when no useful packet is present. Role outputs now include
+  accepted packet context, authority context re-read, and handoff notes.
+  `tests/roles.test.mjs` checks the project-manager packet shape and confirms
+  every bundled workflow role supports the conditional orientation rule. During
+  verification, refreshing the activated project-manager role exposed a
+  compatibility issue where generated legacy workflow append metadata could
+  contain empty owner/source fields. `src/lockfile/parse.ts` now repairs those
+  legacy-empty workflow append fields from the containing workflow entry, and
+  `tests/lockfile.test.mjs` covers the regression.
+  Current-state docs were promoted for role architecture, trust-boundary
+  behavior, quality coverage, and glossary terms.
+  Verification: `npm run build` passed; `node --test tests/roles.test.mjs`
+  passed with 47 tests after loosening one line-wrap-sensitive guidance
+  assertion; `node --test tests/lockfile.test.mjs` passed with 6 tests;
+  `node --test tests/package-smoke.test.mjs` passed; `node --test
+  tests/skill-instructions.test.mjs tests/guidance.test.mjs` passed with 25
+  tests; `AIX_CACHE_DIR=/tmp/aix-phase5-workflow-cache node --test
+  tests/workflow.test.mjs` passed with 22 tests; `node --test
+  tests/status.test.mjs tests/verify.test.mjs` passed with 12 tests. An initial
+  `AIX_CACHE_DIR=/tmp/aix-phase5-full-cache npm test` run failed only because
+  the activated project-manager lockfile state had stale generated workflow
+  append metadata. After the parser compatibility fix and `node bin/aix.js
+  role update project-manager`, `node --test tests/activation.test.mjs` passed
+  with 23 tests and `AIX_CACHE_DIR=/tmp/aix-phase5-full-cache npm test` passed
+  with 228 tests.
+
+### Phase 6: Enforce Project-Manager Entry Routing (status: accepted)
+
+Goal: close the remaining instruction bypass where meaningful AIX project
+requests can still start directly through lifecycle skills or specialist roles
+even when the active `project-manager` role is present.
+
+This phase should enforce the role-first model already accepted by the plan.
+When `project-manager` is active, meaningful AIX project work should route
+through it before specialist roles, lifecycle skills, or file work. Lifecycle
+skills remain procedures selected by the project-manager or delegated roles,
+not primary request entrypoints.
+
+Tasks:
+
+- ✅ Strengthen `project-manager/AGENTS.append.md` so it states the mandatory
+      routing rule when the active project-manager role is present.
+- ✅ Update default project-manager guidance to define allowed bypass
+      exceptions, including PM Review, tiny informational answers that require
+      no file reads or commands, bootstrapping before project-manager is active,
+      already-routed requests carrying PM routing context or a PM Context
+      Packet, and explicit developer override.
+- ✅ Add a project-manager entry gate to lifecycle skill contracts such as
+      `plan-review`, `plan-update`, `plan-execute`, `phase-execute`,
+      `task-execute`, `work-verify`, `plan-complete`, `design-promote`, and
+      `review-and-refresh-docs`.
+- ✅ Rewrite direct-entry lifecycle examples or descriptions that imply skills
+      are the normal worker identity for meaningful project work.
+- ✅ Ensure the gate tells a lifecycle skill to stop and route through
+      project-manager when project-manager is active and no PM routing context
+      or PM Context Packet was provided.
+- ✅ Add instruction-level tests proving the project-manager append text,
+      project-manager guidance, and lifecycle skills include the no-bypass
+      routing rule and allowed exceptions.
+- ✅ Update current-state docs for workflow lifecycle, role architecture,
+      trust boundaries, quality coverage, and glossary terms.
+- ✅ Run targeted role, skill-instruction, package, workflow, status, and
+      verify tests; record verification evidence.
+
+Success criteria:
+
+- Active project-manager routing is the documented default entry path for
+  meaningful AIX project requests.
+- Lifecycle skills clearly describe themselves as procedures selected by
+  project-manager or delegated roles, not as default direct request entrypoints.
+- Allowed bypasses are explicit and narrow.
+- Instruction-level tests fail if lifecycle skill contracts lose the
+  project-manager entry gate.
+- Existing role, skill-instruction, workflow, status, verify, and packaging
+  tests pass.
+
+- 2026-08-29: Phase 6 enforced project-manager-first routing for meaningful
+  AIX project requests when the active `project-manager` role is present. The
+  bundled `project-manager/AGENTS.append.md` now routes work through
+  project-manager before specialist roles, lifecycle skills, or file work, and
+  the default `project-manager/GUIDANCE.md` defines the narrow bypass list:
+  PM Review, tiny informational answers requiring no file reads or commands,
+  bootstrap-before-activation work, already-routed requests carrying PM
+  routing context or a PM Context Packet, and explicit developer override.
+  Workflow lifecycle skill contracts now declare a project-manager entry gate
+  and describe themselves as procedures selected by project-manager or
+  delegated roles rather than default direct request entrypoints. The active
+  `project-manager` role and active workflow package were refreshed so this
+  workspace's `.agents` state matches the shipped source. Current-state docs
+  were promoted for workflow lifecycle, role architecture, trust-boundary
+  behavior, quality coverage, and glossary terms.
+  Verification: `npm run build` passed; `node --test tests/roles.test.mjs`
+  passed with 49 tests after replacing one line-wrap-sensitive append
+  assertion; `node --test tests/skill-instructions.test.mjs` passed with 19
+  tests; `node --test tests/package-smoke.test.mjs` passed; `node --test
+  tests/skill-instructions.test.mjs tests/guidance.test.mjs` passed with 26
+  tests; `node --test tests/lockfile.test.mjs` passed with 6 tests;
+  `AIX_CACHE_DIR=/tmp/aix-phase6-workflow-cache node --test
+  tests/workflow.test.mjs` passed with 22 tests; `node --test
+  tests/status.test.mjs tests/verify.test.mjs` passed with 12 tests;
+  `AIX_CACHE_DIR=/tmp/aix-phase6-full-cache npm test` passed with 231 tests;
+  `git diff --check` passed; `node bin/aix.js verify` passed; status reported
+  health ok with source update checks unavailable.
+
 Closeout, documentation promotion, final security review, code review,
 repository-wide verification, human validation, and archive tasks are tracked
 only in the Completion Checklist so the plan does not repeat lifecycle gates in
@@ -577,6 +744,20 @@ multiple places.
   delegation, file edits, command execution, lifecycle changes, verification,
   or plan state changes. Workflow companion guidance should be changed only if
   the default guidance cannot express workflow-shaped routing clearly.
+- 2026-08-29: Add Phase 5 for PM Context Packets. The project-manager should
+  create compact, role-specific context packets for delegation so roles can
+  accept low-risk baseline facts without repeating generic orientation. Roles
+  must still re-read authority files for edits, verification, safety review,
+  and evidence. The packet should include `get-guidance` results as a bounded
+  reading plan, not as broad loaded context, and role outputs should stay
+  compact enough for the project-manager to carry forward.
+- 2026-08-29: Add Phase 6 to enforce the role-first entry model. The accepted
+  operating model is that meaningful AIX project requests start through active
+  `project-manager`, specialist roles own bounded work or review, and lifecycle
+  skills are procedures selected by project-manager or delegated roles.
+  Remaining direct-entry lifecycle skill wording should be tightened so agents
+  stop and route through project-manager when it is active and no PM routing
+  context or PM Context Packet was provided.
 - Skills, roles, and workflows should all support optional
   `AGENTS.append.md` content. AIX should compose those blocks as managed,
   marker-delimited content in the project `AGENTS.md` file. Each block must

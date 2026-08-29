@@ -1,6 +1,6 @@
 ---
 name: task-execute
-description: Execute one concrete task from an authorized implementation plan or approved micro-fix. Use when Codex is asked to implement, complete, or continue a task within a plan phase, including selecting the only in-progress plan when no plan is named; honor a user-specified task when provided, otherwise select the best next open task from the current phase. Includes updating task status, making the smallest coherent change, running targeted verification, and reporting evidence; stop when task scope, phase, authorization, or safety-sensitive behavior is unclear.
+description: Execute one concrete task from an authorized implementation plan or approved micro-fix. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
 ---
 
 # Task Execute
@@ -12,6 +12,22 @@ instructions, and current code are authoritative.
 
 Do not use this skill to activate backlog work, complete an entire phase by
 default, or broaden the task into adjacent refactors.
+
+## Project-Manager Entry Gate
+
+When the active `project-manager` role is present, meaningful AIX project
+requests should reach this skill only after project-manager routing or a
+delegated role selects it as the procedure for bounded work. Lifecycle skills
+are procedures selected by the project-manager or delegated roles, not default
+direct request entrypoints.
+
+If a direct user request reaches this skill without PM routing context or a PM
+Context Packet, stop and route through project-manager first.
+
+Allowed bypasses are PM Review, tiny informational requests that require no
+file reads or commands, bootstrapping before project-manager is active,
+already-routed requests carrying PM routing context or a PM Context Packet,
+and explicit developer override.
 
 ## Role Collaboration
 

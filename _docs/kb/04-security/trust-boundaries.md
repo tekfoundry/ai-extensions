@@ -40,8 +40,10 @@ behavior.
   package-managed workflow origin files.
 - `_docs/`: project-owned knowledge and plan records, not routine workflow
   update targets.
-- Root `AGENTS.md`: mixed ownership; only marker-delimited workflow blocks are
-  package-managed.
+- Root `AGENTS.md`: mixed ownership; marker-delimited workflow, role, and
+  skill append blocks are package-managed by their owning extension. The
+  active project-manager role uses its owned append block to publish the
+  project-manager entry routing rule.
 
 ## Actor Permissions
 
@@ -98,10 +100,20 @@ behavior.
   startup classification and guidance planning only, and must stop before
   delegation, file edits, command execution, lifecycle changes, verification,
   or plan state changes.
+- PM Context Packets are orientation aids, not authority. Delegated roles may
+  accept low-risk baseline facts from a packet, but must re-read source files
+  before editing them, verifying them, judging safety-sensitive behavior, or
+  citing them as evidence. A stale, incomplete, or conflicting packet must send
+  the role back to normal orientation or to the project-manager for review.
+- When the active `project-manager` role is present, meaningful AIX project
+  requests must route through it before specialist roles, lifecycle skills, or
+  file work unless a narrow bypass applies. The allowed bypasses are PM Review,
+  tiny informational answers that require no file reads or commands,
+  bootstrapping before project-manager is active, already-routed requests
+  carrying PM routing context or a PM Context Packet, and explicit developer
+  override.
 - Guidance metadata is advisory and must not create hidden dependency,
   activation, or routing behavior.
-- Default request-entry routing through guidance is deferred to the
-  project-manager plan.
 - The lockfile is the integrity record for accepted package and active files,
   not a trust endorsement of source content.
 

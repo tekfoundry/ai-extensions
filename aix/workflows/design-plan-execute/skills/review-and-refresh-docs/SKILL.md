@@ -1,6 +1,6 @@
 ---
 name: review-and-refresh-docs
-description: Review implementation reality and refresh `_docs/kb` so current-state project knowledge matches the code, accepted plans, and verified evidence.
+description: Review implementation reality and refresh `_docs/kb` so current-state project knowledge matches the code, accepted plans, and verified evidence. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
 ---
 
 # Review And Refresh Docs
@@ -12,6 +12,22 @@ changes.
 This skill reviews implementation reality and refreshes `_docs/kb/` so the
 knowledge base describes the current implemented system. It is the workflow's
 authoritative docs gate.
+
+## Project-Manager Entry Gate
+
+When the active `project-manager` role is present, meaningful AIX project
+requests should reach this skill only after project-manager routing or a
+delegated role selects it as the procedure for bounded work. Lifecycle skills
+are procedures selected by the project-manager or delegated roles, not default
+direct request entrypoints.
+
+If a direct user request reaches this skill without PM routing context or a PM
+Context Packet, stop and route through project-manager first.
+
+Allowed bypasses are PM Review, tiny informational requests that require no
+file reads or commands, bootstrapping before project-manager is active,
+already-routed requests carrying PM routing context or a PM Context Packet,
+and explicit developer override.
 
 ## Role Collaboration
 

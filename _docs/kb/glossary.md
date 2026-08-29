@@ -27,10 +27,19 @@ or workflow guidance.
 - Project manager: The top-level AIX entry role that classifies meaningful
   project requests, chooses an ordered minimal role list, and delegates bounded
   work without becoming a broad executor.
+- Project-manager entry gate: The lifecycle skill contract that requires
+  meaningful AIX project requests to route through active project-manager
+  before specialist roles, lifecycle skills, or file work unless PM Review, a
+  tiny informational answer, bootstrap-before-activation work, already-routed
+  PM context, or explicit developer override applies.
 - PM Review: A project-manager dry-run mode triggered by a case-insensitive
   `pm review` prompt prefix. It emits startup classification and guidance
   planning, then stops before delegation, file edits, command execution,
   lifecycle changes, verification, or plan state changes.
+- PM Context Packet: A compact, role-specific delegation packet from the
+  project-manager. It carries baseline request context, source pointers,
+  guidance planning, stop conditions, and return requirements so roles can
+  avoid repeated generic orientation while still re-reading authority files.
 - Startup classification: The project-manager routing summary containing
   `roles`, `activities`, `task_context`, and `sequencing_notes`.
 - Activity guidance: Workflow-owned guidance for a lifecycle activity such as

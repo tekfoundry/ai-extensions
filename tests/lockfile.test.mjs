@@ -156,6 +156,47 @@ test("parseLockfile supports standalone and workflow-owned roles", () => {
   assert.equal(lockfile.workflows[0].guidance[0].path, "guidance/shared.md");
 });
 
+test("parseLockfile repairs generated legacy workflow append metadata", () => {
+  const lockfile = parseLockfile({
+    lockfileVersion: 1,
+    skills: [],
+    roles: [],
+    workflows: [
+      {
+        kind: "workflow",
+        source: "aix",
+        sourceType: "git",
+        sourcePath: "aix/workflows/design-plan-execute",
+        packagePath: ".agents/packages/workflows/aix/design-plan-execute",
+        name: "design-plan-execute",
+        docs: [],
+        agentsMd: {
+          owner: {
+            kind: "workflow",
+            name: ""
+          },
+          source: "",
+          sourcePath: "",
+          path: "AGENTS.md",
+          marker: "aix:workflow design-plan-execute",
+          sourceSha256: "source",
+          renderedSha256: "rendered",
+          installedSha256: "installed"
+        },
+        skills: [],
+        packageFiles: []
+      }
+    ]
+  });
+
+  assert.deepEqual(lockfile.workflows[0].agentsMd.owner, {
+    kind: "workflow",
+    name: "design-plan-execute"
+  });
+  assert.equal(lockfile.workflows[0].agentsMd.source, "aix");
+  assert.equal(lockfile.workflows[0].agentsMd.sourcePath, "aix/workflows/design-plan-execute");
+});
+
 test("parseLockfile rejects malformed role entries", () => {
   assert.throws(
     () =>

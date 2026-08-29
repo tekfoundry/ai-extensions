@@ -1,6 +1,6 @@
 ---
 name: plan-create
-description: Start and refine a backlog implementation plan from user intent, repository context, and explicit success criteria. Use when a user asks to plan-create, create, draft, or turn an idea into a plan; always place new plans under `_docs/plans/backlog/` for developer review before activation.
+description: Start and refine a backlog implementation plan from user intent, repository context, and explicit success criteria. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
 ---
 
 # Plan Create
@@ -9,6 +9,22 @@ Use this skill to turn an initial request into a decision-complete backlog
 plan through a collaborative technical-design process. This is a planning
 workflow; do not implement the proposed work unless the user explicitly
 activates the backlog plan afterward.
+
+## Project-Manager Entry Gate
+
+When the active `project-manager` role is present, meaningful AIX project
+requests should reach this skill only after project-manager routing or a
+delegated role selects it as the procedure for bounded work. Lifecycle skills
+are procedures selected by the project-manager or delegated roles, not default
+direct request entrypoints.
+
+If a direct user request reaches this skill without PM routing context or a PM
+Context Packet, stop and route through project-manager first.
+
+Allowed bypasses are PM Review, tiny informational requests that require no
+file reads or commands, bootstrapping before project-manager is active,
+already-routed requests carrying PM routing context or a PM Context Packet,
+and explicit developer override.
 
 Act as a technical design partner. Lead the user from a high-level product
 goal into implementation-ready design intent and phased work, but keep the

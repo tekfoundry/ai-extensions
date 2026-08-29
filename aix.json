@@ -12,5 +12,8 @@
     "cursor-pstack:unslop",
     "aix:discover-skill"
   ],
-  "workflow": "aix:aix/workflows/design-plan-execute"
+  "workflow": "aix:aix/workflows/design-plan-execute",
+  "roles": [
+    "aix:roles/project-manager"
+  ]
 }

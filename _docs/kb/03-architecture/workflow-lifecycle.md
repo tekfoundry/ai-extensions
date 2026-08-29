@@ -206,9 +206,23 @@ previews affected guidance and requires confirmation before changing files.
 The optional `get-guidance` skill resolves guidance for a supplied role, skill,
 activity, and task context. This workflow does not route startup through that
 skill by default, and it does not declare automatic activation for it. Request
-entry and default guidance payloads are deferred to the project-manager plan.
-If a future workflow chooses to require automatic activation of `get-guidance`,
-that design depends on external workflow skill dependency support.
+entry belongs to the active project-manager role when it is present.
+
+When the active `project-manager` role is present, meaningful AIX project
+requests route through it before specialist roles, lifecycle skills, or file
+work. Lifecycle skills remain procedures selected by the project-manager or
+delegated roles, not default direct request entrypoints. Each workflow
+lifecycle skill declares a project-manager entry gate: if it receives a direct
+meaningful project request while project-manager is active and no PM routing
+context or PM Context Packet was provided, it should stop and route through
+project-manager first. Allowed bypasses are PM Review, tiny informational
+requests requiring no file reads or commands, bootstrap work before
+project-manager is active, already-routed requests carrying PM context, and
+explicit developer override.
+
+If a future workflow chooses to require automatic activation of
+`get-guidance`, that design depends on external workflow skill dependency
+support.
 
 ## Documentation Scaffolding
 
