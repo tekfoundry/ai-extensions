@@ -2,7 +2,7 @@
 
 ## Status
 
-🟨 Active
+✅ Completed 2026-08-29
 
 ## Context
 
@@ -869,9 +869,9 @@ Resolved.
 - Readiness: Design Intent accepted on 2026-08-28. Open questions are
   resolved, implementation phases are accepted, and the plan was activated on
   2026-08-28.
-- Evidence needed: Complete the accepted implementation phases, run required
-  verification, promote durable behavior into `_docs/kb`, and finish closeout
-  gates before archive.
+- Closeout: All accepted implementation phases are complete. Required
+  verification passed, durable behavior was promoted into `_docs/kb`, and the
+  developer accepted the completed work as-is on 2026-08-29.
 
 ## Risks
 
@@ -894,9 +894,12 @@ Resolved.
 
 ## Security Review
 
-- Status: Planning draft with security-sensitive phase tasks identified.
-- Scope reviewed: Initial discussion, accepted design decisions, and bounded
-  `security-engineer` sidecar review on 2026-08-28.
+- Status: Complete.
+- Scope reviewed: Initial discussion, accepted design decisions, bounded
+  `security-engineer` sidecar review on 2026-08-28, append lifecycle
+  implementation, project-manager activation-owned append behavior, PM Review,
+  PM Context Packets, lifecycle skill entry gates, active `.agents` refresh
+  behavior, and final verification evidence.
 - Findings: The role would shape agent routing and delegation behavior, so it
   is instruction-sensitive. Activation-owned append content from skills, roles,
   and workflows would also affect future agent startup instructions. The
@@ -908,26 +911,59 @@ Resolved.
 - Blocking findings converted to plan tasks: Phase 1 and Phase 2 include append
   ownership, marker collision refusal, malformed marker refusal, drift checks,
   local-edit refusal, owned-block-only lifecycle behavior, and verification.
-  Phase 3 and Phase 4 include delegation-safety and routing-safety tasks.
+  Phase 3 through Phase 6 include delegation-safety, routing-safety, PM Review,
+  PM Context Packet, and no-bypass lifecycle skill gate tasks.
 - Residual risk: Any extension that can inject startup instructions expands the
-  instruction-trust surface. The planned mitigations are ownership metadata,
+  instruction-trust surface. Implemented mitigations are ownership metadata,
   deterministic precedence, fail-closed parsing, drift refusal, owned-block-only
-  lifecycle operations, and lifecycle tests. Security review is required again
-  after implementation and before closeout.
+  lifecycle operations, explicit PM bypass limits, role-specific context
+  packets that do not replace authority reads, and lifecycle tests. No blocking
+  security findings remain. Residual risk is accepted for normal AIX
+  instruction-trust operation.
 
 ## Completion Checklist
 
-- ⬜️ Confirm every task and success goal is complete or explicitly deferred.
-- ⬜️ Human validation: developer evaluated the completed phased work and
+- ✅ Confirm every task and success goal is complete or explicitly deferred.
+- ✅ Human validation: developer evaluated the completed phased work and
   accepted it, or explicitly waived manual validation with a recorded reason.
-- ⬜️ Run or review required targeted and repository verification.
-- ⬜️ Complete Security Review after all implementation phases; record findings,
+- ✅ Run or review required targeted and repository verification.
+- ✅ Complete Security Review after all implementation phases; record findings,
   convert blocking findings into normal plan tasks, and document residual risk.
-- ⬜️ Review the codebase using `$code-review-refactor`; refactor or record
+- ✅ Review the codebase using `$code-review-refactor`; refactor or record
   follow-up work if needed.
-- ⬜️ Promote accepted durable behavior into `_docs/kb` using `$design-promote`.
-- ⬜️ Review documentation structure, formatting, and links using
+- ✅ Promote accepted durable behavior into `_docs/kb` using `$design-promote`.
+- ✅ Review documentation structure, formatting, and links using
   `$review-and-refresh-docs`; fix issues or record follow-up work.
-- ⬜️ Record final risks, follow-on work, and documentation impact.
-- ⬜️ Harvest reusable lessons and update workflow guidance when appropriate.
-- ⬜️ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
+- ✅ Record final risks, follow-on work, and documentation impact.
+- ✅ Harvest reusable lessons and update workflow guidance when appropriate.
+- ✅ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
+
+Closeout notes:
+
+- Human validation: On 2026-08-29, the developer accepted the completed work as
+  is.
+- Verification reviewed: phase-level evidence records passing targeted and
+  full-suite checks through Phase 6, including `npm run build`, role,
+  instruction, guidance, package, workflow, status, verify, `aix verify`, and
+  full `npm test` coverage.
+- Code review: Final review found no required refactor before archive. The
+  only implementation-code change in the completed plan is the compatibility
+  parser repair for generated legacy workflow append metadata; it is covered by
+  `tests/lockfile.test.mjs` and full-suite verification. Remaining changed
+  surfaces are instruction contracts, tests, active package-managed `.agents`
+  state, lockfile/manifest state, and documentation.
+- Documentation promotion: Durable behavior was promoted into `_docs/kb` for
+  workflow lifecycle, role architecture, trust boundaries, quality coverage,
+  operations impact where applicable, and glossary terminology.
+- Documentation review: Current-state docs use existing knowledge-base
+  placement, no stale `_docs/design` links were found, and no unresolved docs
+  structure issues remain for this plan.
+- Final risks and follow-on work: No blocking follow-on work remains. Residual
+  risk is the normal instruction-trust risk of active roles, skills, workflow
+  append blocks, and project-editable guidance; mitigations are documented in
+  `_docs/kb/04-security/trust-boundaries.md`.
+- Reusable lessons: The durable lesson was promoted directly into shipped
+  lifecycle skill contracts: when project-manager is active, skills are
+  procedures selected by project-manager or delegated roles, not default direct
+  request entrypoints.
+- Archive target: `_docs/plans/completed/2026-08-29-create-project-manager-role.md`.
