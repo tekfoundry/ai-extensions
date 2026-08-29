@@ -44,6 +44,10 @@ test("npm pack artifact contains a working aix binary", async () => {
   assert.equal(existsSync(join(unpackDirectory, "aix/skills/discover-skill/known-sources.json")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/skills/get-guidance/SKILL.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/skills/get-guidance/README.md")), true);
+  assert.equal(existsSync(join(unpackDirectory, "aix/roles/project-manager/ROLE.md")), true);
+  assert.equal(existsSync(join(unpackDirectory, "aix/roles/project-manager/GUIDANCE.md")), true);
+  assert.equal(existsSync(join(unpackDirectory, "aix/roles/project-manager/workflow.GUIDANCE.md")), true);
+  assert.equal(existsSync(join(unpackDirectory, "aix/roles/project-manager/AGENTS.append.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/skills/brainstorming-skill/SKILL.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/skills/brainstorming-skill/README.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/skills/task-execute/SKILL.md")), true);
@@ -64,6 +68,7 @@ test("npm pack artifact contains a working aix binary", async () => {
     "aix/roles/aix-dev/aix-release-readiness-specialist",
     "aix/roles/aix-dev/aix-skill-author",
     "aix/roles/aix-dev/aix-workflow-architect",
+    "aix/roles/project-manager",
     "aix/workflows/design-plan-execute/roles/project-dev/requirements-engineer",
     "aix/workflows/design-plan-execute/roles/project-dev/security-engineer",
     "aix/workflows/design-plan-execute/roles/project-dev/technical-architect",

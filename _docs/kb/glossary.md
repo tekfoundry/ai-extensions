@@ -21,6 +21,14 @@ or workflow guidance.
   follow roles, skills, or workflow activities.
 - Role guidance: Guidance that travels with a role bundle in `GUIDANCE.md` and
   is editable in the active role directory after activation.
+- Companion guidance: Role-adjacent guidance files whose names end in
+  `.GUIDANCE.md`. The project-manager role loads adjacent companion guidance
+  beside its active `GUIDANCE.md` before routing.
+- Project manager: The top-level AIX entry role that classifies meaningful
+  project requests, chooses an ordered minimal role list, and delegates bounded
+  work without becoming a broad executor.
+- Startup classification: The project-manager routing summary containing
+  `roles`, `activities`, `task_context`, and `sequencing_notes`.
 - Activity guidance: Workflow-owned guidance for a lifecycle activity such as
   planning, implementation, verification, review, or documentation.
 - Guidance metadata: Advisory front matter, such as `applies_to` or

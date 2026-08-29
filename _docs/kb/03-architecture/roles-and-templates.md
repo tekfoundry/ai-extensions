@@ -24,6 +24,12 @@ Active role guidance lives beside the entrypoint when present:
 .agents/roles/<active-name>/GUIDANCE.md
 ```
 
+Active role companion guidance also lives beside the entrypoint when present:
+
+```text
+.agents/roles/<active-name>/*.GUIDANCE.md
+```
+
 Workflow-owned role source files are discovered from `roles/project-dev/`
 inside a workflow package and activated with workflow owner metadata.
 
@@ -69,6 +75,7 @@ Role activation validates:
 - contract sections when required
 - bundled role guidance presence when the role is shipped by AIX or a workflow
 - optional `uses_guidance` metadata shape in `GUIDANCE.md`
+- optional companion guidance files whose names end in `.GUIDANCE.md`
 - filename/name agreement
 - active role name or alias
 - active-name collisions
@@ -92,10 +99,19 @@ aix role activate <source/path> [alias]
   -> upsert lockfile role entry
 ```
 
-`ROLE.md` is package-managed role behavior. Active `GUIDANCE.md` is
-project-editable after activation. Updates preserve edited active role
-guidance and make upstream guidance changes visible through diff or reset
-flows instead of overwriting local edits silently.
+`ROLE.md` is package-managed role behavior. Active `GUIDANCE.md` and active
+companion files whose names end in `.GUIDANCE.md` are project-editable after
+activation. Updates refresh active guidance files that are missing or still
+match the previous package copy. Updates preserve edited active guidance and
+make upstream guidance changes visible through diff or reset flows instead of
+overwriting local edits silently.
+
+The bundled top-level `project-manager` role lives at
+`aix/roles/project-manager`. It ships `ROLE.md`, `GUIDANCE.md`,
+`AGENTS.append.md`, and companion guidance such as `workflow.GUIDANCE.md`.
+Activating it exposes the role under `.agents/roles/project-manager/` and adds
+only its owned marker-delimited `AGENTS.md` block. Deactivation removes only
+that role block and the role's active/package files.
 
 Standalone role update and diff accept either an active name or a source/path
 target. Workflow-owned roles are filtered out of standalone management and must
@@ -132,8 +148,16 @@ Guidance resolution is published-first for workflow guidance:
 
 Role guidance follows active role bundle ownership instead. Activating a role
 copies `GUIDANCE.md` into `.agents/roles/<active-name>/GUIDANCE.md` when the
-role provides guidance, and that active guidance is editable. AIX still keeps
-the package-origin guidance so diff and reset can compare or restore it.
+role provides guidance, and copies any package-root companion files whose names
+end in `.GUIDANCE.md` beside it. Those active guidance files are editable. AIX
+still keeps the package-origin guidance so diff, reset, update, status, and
+verify can reason from the package-managed copy.
+
+The `project-manager` role has a special startup convention. Before it routes
+or delegates, it reads its active `GUIDANCE.md` plus every adjacent active file
+whose name ends in `.GUIDANCE.md`. Companion guidance supplements the base
+guidance as separate documents. AIX does not flatten companion guidance into
+`GUIDANCE.md`.
 
 The public guidance command family aggregates workflow and role guidance:
 
@@ -152,12 +176,10 @@ file mutation.
 
 The bundled `get-guidance` skill is an optional read-only resolver. It can
 return a bounded reading list for a requesting role, requesting skill,
-activity, and task context. It is not wired into managed `AGENTS.md`,
+activity list, and task context. It is not wired into managed `AGENTS.md`,
 workflow manifests, `delegate-to-role`, role contracts, skill contracts, or
-default startup routing. Future request-entry behavior belongs to the
-project-manager plan, and automatic workflow activation of external resolver
-skills depends on the external workflow skill dependency plan unless that
-future design changes.
+default startup routing. The project-manager role uses its own active guidance
+for startup, then may use `get-guidance` for delegated roles.
 
 ## Role Delegation Runtime
 

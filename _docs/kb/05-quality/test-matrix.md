@@ -92,9 +92,10 @@ node --test tests/diff.test.mjs tests/update.test.mjs
 Tests in `tests/roles.test.mjs` cover path helpers, front matter parsing,
 delegation resolution, prompt-overlay construction, role contract validation,
 metadata hints, role discovery, bundled development roles, role CLI lifecycle,
-diff/update, local bundled source precedence, role-owned skill deactivation
-refusal, aliases, active-name collisions, workflow-owned role deactivation
-refusal, verify, and status reporting.
+diff/update, local bundled source precedence, bundled project-manager
+activation, companion `*.GUIDANCE.md` activation and update preservation,
+role-owned skill deactivation refusal, aliases, active-name collisions,
+workflow-owned role deactivation refusal, verify, and status reporting.
 
 Quality risks:
 
@@ -102,6 +103,9 @@ Quality risks:
 - host-native agent files being written by delegation fallback
 - role metadata becoming an implicit install path
 - active role drift going unreported
+- project-manager append instructions appearing when the role is inactive
+- companion guidance being flattened into `GUIDANCE.md` or overwriting local
+  edits during role update
 - workflow-owned roles being removable through standalone commands
 
 Targeted check:
@@ -119,8 +123,9 @@ files.
 
 Tests in `tests/skill-instructions.test.mjs` cover the optional
 `get-guidance` skill contract, including required caller context, bounded
-reading lists, unknown activity handling, conflict reporting, no file mutation,
-and legacy fallback behavior.
+reading lists, activity-list caller context, unknown activity handling,
+conflict reporting, no file mutation, project-manager startup separation, and
+legacy fallback behavior.
 
 Quality risks:
 
@@ -129,8 +134,8 @@ Quality risks:
 - losing active role guidance edits during role or workflow updates
 - resetting more guidance than the user targeted
 - making `get-guidance` load broad or unrelated instruction context
-- accidentally wiring default request startup to guidance before the
-  project-manager design owns that decision
+- routing project-manager startup through `get-guidance` instead of the active
+  project-manager guidance files
 
 Targeted checks:
 

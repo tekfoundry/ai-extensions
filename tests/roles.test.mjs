@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -26,6 +26,7 @@ import { run } from "../dist/cli.js";
 
 const roleEntry = "ROLE.md";
 const guidanceEntry = "GUIDANCE.md";
+const repoRoot = process.cwd();
 
 function git(args, cwd) {
   return execFileSync("git", args, {
@@ -92,6 +93,19 @@ ${body}
 `;
 }
 
+function companionGuidanceMarkdown(body = "Use companion project-manager guidance.") {
+  return `---
+applies_to:
+  roles:
+    - project-manager
+---
+
+# Companion guidance
+
+${body}
+`;
+}
+
 async function createRoleGitSource(options = {}) {
   const directory = await mkdtemp(join(tmpdir(), "aix-role-source-"));
 
@@ -99,6 +113,9 @@ async function createRoleGitSource(options = {}) {
   writeFileSync(join(directory, "roles/aix-dev/quality-engineer/ROLE.md"), validRoleMarkdown(), "utf8");
   if (options.guidance) {
     writeFileSync(join(directory, "roles/aix-dev/quality-engineer/GUIDANCE.md"), validRoleGuidanceMarkdown(), "utf8");
+  }
+  if (options.companionGuidance) {
+    writeFileSync(join(directory, "roles/aix-dev/quality-engineer/workflow.GUIDANCE.md"), companionGuidanceMarkdown(), "utf8");
   }
   if (options.append) {
     writeFileSync(join(directory, "roles/aix-dev/quality-engineer/AGENTS.append.md"), "Use quality role append guidance.\n", "utf8");
@@ -335,13 +352,45 @@ test("discoverRoles reports the bundled AIX development role pack", () => {
       "aix-package-safety-reviewer",
       "aix-release-readiness-specialist",
       "aix-skill-author",
-      "aix-workflow-architect"
+      "aix-workflow-architect",
+      "project-manager"
     ]
   );
 
   for (const role of roles) {
     assertRoleContract(parseRoleFileFromPath(join("aix/roles", role.path, roleEntry)));
   }
+});
+
+test("bundled project-manager role has activation-owned append and companion guidance", async () => {
+  await withProject(async (projectRoot) => {
+    mkdirSync(join(projectRoot, "aix/roles"), { recursive: true });
+    cpSync(join(repoRoot, "aix/roles/project-manager"), join(projectRoot, "aix/roles/project-manager"), { recursive: true });
+
+    const activate = run(["role", "activate", "aix/roles/project-manager"]);
+    const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
+    const agents = readFileSync(join(projectRoot, "AGENTS.md"), "utf8");
+
+    assert.equal(activate.exitCode, 0, activate.stderr);
+    assert.match(activate.stdout, /Activated role aix\/roles\/project-manager as project-manager/);
+    assert.equal(lockfile.roles[0].source, "aix");
+    assert.equal(lockfile.roles[0].sourceType, "local");
+    assert.equal(lockfile.roles[0].sourcePath, "roles/project-manager");
+    assert.equal(lockfile.roles[0].agentsMd.marker, "aix:role project-manager");
+    assert.ok(lockfile.roles[0].packageFiles.some((file) => file.path === "workflow.GUIDANCE.md"));
+    assert.deepEqual(lockfile.roles[0].activeFiles.map((file) => file.path), [roleEntry]);
+    assert.equal(existsSync(join(projectRoot, ".agents/roles/project-manager/GUIDANCE.md")), true);
+    assert.equal(existsSync(join(projectRoot, ".agents/roles/project-manager/workflow.GUIDANCE.md")), true);
+    assert.match(agents, /<!-- aix:role project-manager start -->/);
+    assert.match(agents, /adjacent `\*\.GUIDANCE\.md` files/);
+
+    const deactivate = run(["role", "deactivate", "project-manager"]);
+    const updatedAgents = readFileSync(join(projectRoot, "AGENTS.md"), "utf8");
+
+    assert.equal(deactivate.exitCode, 0, deactivate.stderr);
+    assert.doesNotMatch(updatedAgents, /aix:role project-manager/);
+    assert.equal(existsSync(join(projectRoot, ".agents/roles/project-manager")), false);
+  });
 });
 
 test("discoverRoles reports shipped workflow-owned project development roles", () => {
@@ -731,6 +780,66 @@ test("role guidance is editable, diffable, preserved on update, and resettable",
 
     assert.deepEqual(lockfile.roles[0].activeFiles.map((file) => file.path), [roleEntry]);
     assert.match(readFileSync(join(projectRoot, ".agents/roles/quality-engineer/GUIDANCE.md"), "utf8"), /updated upstream/);
+  });
+
+  if (previousCache === undefined) {
+    delete process.env.AIX_CACHE_DIR;
+  } else {
+    process.env.AIX_CACHE_DIR = previousCache;
+  }
+});
+
+test("role companion guidance is activated beside GUIDANCE.md and preserves local edits on update", async () => {
+  const gitSource = await createRoleGitSource({ guidance: true, companionGuidance: true });
+  const cacheRoot = await mkdtemp(join(tmpdir(), "aix-role-cache-"));
+  const previousCache = process.env.AIX_CACHE_DIR;
+
+  process.env.AIX_CACHE_DIR = cacheRoot;
+
+  await withProject(async (projectRoot) => {
+    run(["roles", "add", gitSource.directory, "fixture"]);
+    run(["role", "activate", "fixture/roles/aix-dev/quality-engineer"]);
+
+    let lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
+
+    assert.ok(lockfile.roles[0].packageFiles.some((file) => file.path === "workflow.GUIDANCE.md"));
+    assert.deepEqual(lockfile.roles[0].activeFiles.map((file) => file.path), [roleEntry]);
+    assert.match(readFileSync(join(projectRoot, ".agents/roles/quality-engineer/workflow.GUIDANCE.md"), "utf8"), /companion project-manager/);
+
+    writeFileSync(
+      join(gitSource.directory, "roles/aix-dev/quality-engineer/workflow.GUIDANCE.md"),
+      companionGuidanceMarkdown("Use updated companion guidance."),
+      "utf8"
+    );
+    git(["add", "."], gitSource.directory);
+    git(["commit", "-m", "update companion guidance"], gitSource.directory);
+
+    const updateUnedited = run(["role", "update", "quality-engineer"]);
+
+    assert.equal(updateUnedited.exitCode, 0, updateUnedited.stderr);
+    assert.match(readFileSync(join(projectRoot, ".agents/roles/quality-engineer/workflow.GUIDANCE.md"), "utf8"), /updated companion/);
+
+    writeFileSync(join(projectRoot, ".agents/roles/quality-engineer/workflow.GUIDANCE.md"), "project companion edit\n", "utf8");
+    writeFileSync(
+      join(gitSource.directory, "roles/aix-dev/quality-engineer/workflow.GUIDANCE.md"),
+      companionGuidanceMarkdown("Use second upstream companion guidance."),
+      "utf8"
+    );
+    git(["add", "."], gitSource.directory);
+    git(["commit", "-m", "second companion guidance update"], gitSource.directory);
+
+    const updateEdited = run(["role", "update", "quality-engineer"]);
+
+    assert.equal(updateEdited.exitCode, 0, updateEdited.stderr);
+    assert.equal(readFileSync(join(projectRoot, ".agents/roles/quality-engineer/workflow.GUIDANCE.md"), "utf8"), "project companion edit\n");
+    assert.match(
+      readFileSync(join(projectRoot, ".agents/packages/roles/fixture/roles/aix-dev/quality-engineer/workflow.GUIDANCE.md"), "utf8"),
+      /second upstream companion/
+    );
+    assert.equal(verifyRoles().issues.length, 0);
+
+    lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
+    assert.ok(lockfile.roles[0].packageFiles.some((file) => file.path === "workflow.GUIDANCE.md"));
   });
 
   if (previousCache === undefined) {

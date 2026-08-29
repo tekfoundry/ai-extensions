@@ -397,37 +397,47 @@ companion guidance documents.
 
 Tasks:
 
-- ⬜️ Add bundled role assets under the top-level AIX role source, including
+- ✅ Add bundled role assets under the top-level AIX role source, including
       `ROLE.md`, `GUIDANCE.md`, and `AGENTS.append.md`.
-- ⬜️ Write `ROLE.md` so `project-manager` owns request triage, ordered minimal
+- ✅ Write `ROLE.md` so `project-manager` owns request triage, ordered minimal
       role selection, sequencing, scope control, delegation choice, result
       aggregation, and handback when work does not belong to its managed team.
-- ⬜️ Write `GUIDANCE.md` so startup classification produces `roles`,
+- ✅ Write `GUIDANCE.md` so startup classification produces `roles`,
       `activities`, `task_context`, and `sequencing_notes`.
-- ⬜️ Define the companion guidance naming contract for additional guidance
-      files such as `workflow.GUIDANCE.md`, including package discovery,
-      activation behavior, ownership metadata, and conflict behavior.
-- ⬜️ Update `get-guidance` discovery so it can find standard `GUIDANCE.md`
-      files and additional `<domain>.GUIDANCE.md` files without flattening or
-      appending them into the base guidance document.
-- ⬜️ Add tests proving `get-guidance` can return matching companion guidance
-      for the active workflow and project-manager role while keeping unrelated
-      companion guidance out of the result.
-- ⬜️ Document that each delegated role receives the original prompt for intent
+- ✅ Define the companion guidance naming contract for additional guidance
+      files ending in `.GUIDANCE.md`, such as `workflow.GUIDANCE.md`.
+      Companion guidance supplements the activated `project-manager` role's
+      standard `GUIDANCE.md`, lives next to that activated role document, and
+      must define package discovery, activation behavior, ownership metadata,
+      and conflict behavior.
+- ✅ Update project-manager guidance loading instructions so the role knows how
+      to read its own standard `GUIDANCE.md` plus any adjacent companion files
+      whose names end in `.GUIDANCE.md` before it routes or delegates work. Do
+      not flatten or append companion files into the base guidance document.
+- ✅ Update `get-guidance` usage instructions for delegated roles. The
+      `project-manager` role uses `get-guidance` after startup, once per
+      selected delegated role, to resolve that role's tailored guidance from
+      the shared activity list.
+- ✅ Add tests proving bundled project-manager companion guidance is packaged,
+      activated beside the role's `GUIDANCE.md`, and kept separate from the
+      base guidance document while unrelated companion guidance stays out of
+      the project-manager startup set.
+- ✅ Document that each delegated role receives the original prompt for intent
       and traceability, while `bounded_task`, supplied guidance, lifecycle
       rules, and repository instructions govern scope.
-- ⬜️ Document the controlled delegation payload:
+- ✅ Document the controlled delegation payload:
       `original_prompt`, `role_assignment`, `bounded_task`, `activities`,
       `guidance`, `sequencing_notes`, and `return_requirements`.
-- ⬜️ Document per-role `get-guidance` use. For each selected role,
-      `project-manager` calls the existing root AIX `get-guidance` skill with
-      that role and the shared activity list, then passes only that role's
-      tailored guidance into the delegation payload.
-- ⬜️ Document direct-answer limits and the handback rule for work that cannot
+- ✅ Document per-role `get-guidance` use. After loading its own base and
+      companion guidance, `project-manager` calls the existing root AIX
+      `get-guidance` skill with each selected delegated role and the shared
+      activity list, then passes only that role's tailored guidance into the
+      delegation payload.
+- ✅ Document direct-answer limits and the handback rule for work that cannot
       be delegated to a suitable managed role.
-- ⬜️ Add tests that confirm bundled project-manager role assets are discoverable
+- ✅ Add tests that confirm bundled project-manager role assets are discoverable
       and activation injects/removes only the project-manager append block.
-- ⬜️ Run targeted role activation and package tests; record verification
+- ✅ Run targeted role activation and package tests; record verification
       evidence.
 
 Success criteria:
@@ -437,8 +447,28 @@ Success criteria:
 - `AGENTS.md` points to `project-manager` only when the role is active.
 - The project-manager role remains a manager and does not become a broad
   executor.
-- Additional workflow guidance can augment the generic project-manager without
-  duplicating the full role or mutating its base `GUIDANCE.md`.
+- Additional guidance can augment the generic project-manager from adjacent
+  companion guidance files without duplicating the full role or mutating its
+  base `GUIDANCE.md`.
+
+- 2026-08-28: Phase 3 added the bundled top-level `project-manager` role under
+  `aix/roles/project-manager` with `ROLE.md`, `GUIDANCE.md`,
+  `workflow.GUIDANCE.md`, and activation-owned `AGENTS.append.md`. Role
+  activation now copies package-root companion files whose names end in
+  `.GUIDANCE.md` beside active role `GUIDANCE.md`; role update refreshes
+  missing or unedited companion guidance and preserves local active edits.
+  `get-guidance` remains read-only and now documents activity-list caller
+  context for delegated roles while keeping project-manager startup guidance
+  separate. Current-state docs were promoted for role architecture,
+  get-guidance requirements, trust boundaries, test coverage, and glossary
+  terms.
+  Verification: `npm run build` passed; `node --test tests/roles.test.mjs`
+  passed with 42 tests; `node --test tests/skill-instructions.test.mjs`
+  passed with 18 tests; `node --test tests/package-smoke.test.mjs` passed;
+  `node --test tests/agents-md.test.mjs tests/guidance.test.mjs` passed with
+  15 tests; `node --test tests/status.test.mjs tests/verify.test.mjs
+  tests/init.test.mjs` passed with 19 tests;
+  `AIX_CACHE_DIR=/tmp/aix-phase3-full-cache npm test` passed with 222 tests.
 
 ### Phase 4: Support Workflow Guidance Augmentation And Routing Examples (status: accepted)
 
@@ -524,18 +554,26 @@ multiple places.
   verification issues.
 - `get-guidance` should remain a separate root AIX skill. The
   `_docs/plans/workflow-guidance-library.md` plan already built it as a
-  read-only guidance resolver. This plan should use that skill from
-  `project-manager` rather than duplicating guidance resolution inside
-  `project-manager/GUIDANCE.md`.
-- `project-manager` should resolve guidance separately for each selected role.
-  For each role in the ordered role list, it should call `get-guidance` with
-  that role and the shared activity list, then pass only that role's tailored
-  guidance set into the delegation payload.
-- AIX should support additional guidance documents named
-  `<domain>.GUIDANCE.md` alongside the standard `GUIDANCE.md`. The
-  `get-guidance` skill should discover those documents and return matching
-  companion guidance separately, without appending it into the base
-  `GUIDANCE.md`.
+  read-only guidance resolver. The project-manager role should use that skill
+  for delegated roles rather than duplicating delegated-role guidance
+  resolution inside `project-manager/GUIDANCE.md`.
+- The project-manager role must already have its own guidance loaded before it
+  routes or delegates. Its own guidance set includes the standard
+  `GUIDANCE.md` plus any adjacent companion files whose names end in
+  `.GUIDANCE.md`.
+- Project-manager companion guidance files should live next to the activated
+  role's standard guidance document, for example
+  `.agents/roles/project-manager/workflow.GUIDANCE.md`. They supplement, but do
+  not replace, flatten into, or append into `GUIDANCE.md`.
+- After startup, `project-manager` should resolve guidance separately for each
+  selected delegated role. For each role in the ordered role list, it should
+  call `get-guidance` with that delegated role and the shared activity list,
+  then pass only that role's tailored guidance set into the delegation payload.
+- AIX should support additional project-manager companion guidance documents
+  whose file names end in `.GUIDANCE.md` alongside the activated
+  project-manager `GUIDANCE.md`. Discovery should return matching companion
+  guidance separately from the base document and keep unrelated companion
+  guidance out of the startup set.
 - `project-manager` may answer directly only when the request is small,
   informational or conversational, needs no file inspection or edits, touches
   no workflow lifecycle state, and requires no specialist judgment. If the
@@ -556,6 +594,13 @@ Resolved.
   are normal no-ops, drifted known blocks fail closed, removals preflight all
   affected blocks before deleting files, and status/verify report append
   problems as normal verification issues.
+- 2026-08-28: Phase 3 readiness review resolved project-manager guidance
+  layering. Companion files whose names end in `.GUIDANCE.md` supplement the
+  project-manager role's own `GUIDANCE.md` and should live next to the
+  activated role guidance document. The project-manager role must know how to
+  load its own base and companion guidance before routing. It should then use
+  `get-guidance` for delegated roles, passing each selected role and the shared
+  activity list so delegated-role guidance remains tailored to that role.
 
 ## Documentation Impact
 

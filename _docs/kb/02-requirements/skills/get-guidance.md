@@ -2,12 +2,14 @@
 
 `get-guidance` is an optional standalone bundled skill that resolves a bounded
 reading list from active role guidance, workflow guidance overrides, workflow
-guidance origins, shared guidance, and legacy fallback guidance.
+guidance origins, shared guidance, and legacy fallback guidance for delegated
+role work.
 
 ## Actors
 
-- Agent runtime: asks for focused guidance before role, skill, or activity work
-  when the runtime already has enough context to make the request specific.
+- Agent runtime: asks for focused guidance before delegated role, skill, or
+  activity work when the runtime already has enough context to make the
+  request specific.
 - Project developer: may explicitly ask an agent to resolve guidance for a
   role, skill, activity, and task.
 - Reviewer: checks whether the returned reading list is bounded, relevant,
@@ -24,11 +26,18 @@ guidance origins, shared guidance, and legacy fallback guidance.
 
 ## User Stories
 
-- As an agent runtime, I can provide `requesting_role`, `requesting_skill`,
-  `activity`, and `task_context` so that guidance resolution is scoped before
-  any files are read.
-  Acceptance signals: every field is required, and explicit `none` values are
-  accepted when a field does not apply.
+- As an agent runtime, I can provide `requesting_role`, `requesting_skill`, an
+  `activity` or `activities` value, and `task_context` so that delegated-role
+  guidance resolution is scoped before broad files are read.
+  Acceptance signals: caller context is explicit, activity lists are accepted,
+  and `none` values are accepted when a field does not apply.
+
+- As the project-manager role, I load my own active `GUIDANCE.md` plus
+  adjacent active `*.GUIDANCE.md` files before routing, then use
+  `get-guidance` only for selected delegated roles.
+  Acceptance signals: project-manager startup guidance is not resolved through
+  `get-guidance`; delegated-role guidance remains tailored to the delegated
+  role and shared activity list.
 
 - As an agent runtime, I can resolve role, activity, shared, and legacy
   fallback guidance without mutating project files.
@@ -48,8 +57,9 @@ guidance origins, shared guidance, and legacy fallback guidance.
 - `applies_to` and `uses_guidance` metadata are advisory hints only.
 - Missing guidance must be reported without blocking unless a higher-priority
   workflow or role contract says the guidance is required.
-- Default request-entry routing through `get-guidance` is deferred to the
-  project-manager plan.
+- Default request-entry routing does not start through `get-guidance`. The
+  active project-manager role owns startup guidance loading and uses
+  `get-guidance` after startup for delegated roles.
 
 ## Acceptance Criteria
 

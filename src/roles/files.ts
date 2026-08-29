@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, mkdirSync, readFileSync, rmSync, rmdirSync, writeFileSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { AixError } from "../errors.js";
 import { copyFilesSafely } from "../fs/files.js";
@@ -22,6 +22,17 @@ export function activeRoleFileHashes(path: string): FileHash[] {
         }
       ]
     : [];
+}
+
+function companionGuidanceNames(path: string): string[] {
+  if (!existsSync(path)) {
+    return [];
+  }
+
+  return readdirSync(path, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".GUIDANCE.md"))
+    .map((entry) => entry.name)
+    .sort((left, right) => left.localeCompare(right));
 }
 
 export function assertRoleFileHashesMatch(path: string, expectedFiles: FileHash[], message: string): void {
@@ -81,6 +92,14 @@ export function writeActiveRoleFile(
     writeFileSync(targetGuidancePath, readFileSync(sourceGuidancePath), "utf8");
   }
 
+  for (const name of companionGuidanceNames(sourcePath)) {
+    const targetCompanionPath = join(targetPath, name);
+
+    if (!existsSync(targetCompanionPath)) {
+      writeFileSync(targetCompanionPath, readFileSync(join(sourcePath, name), "utf8"), "utf8");
+    }
+  }
+
   return activeRoleFileHashes(targetPath);
 }
 
@@ -91,6 +110,13 @@ function packageGuidanceHash(entry: LockfileRoleEntry): string | undefined {
 function activeGuidanceIsEditableOrMissing(entry: LockfileRoleEntry): boolean {
   const expectedGuidanceHash = packageGuidanceHash(entry);
   const activeGuidancePath = roleGuidancePath(entry.activationPath);
+
+  return !expectedGuidanceHash || !existsSync(activeGuidancePath) || hashFile(activeGuidancePath) === expectedGuidanceHash;
+}
+
+function activeCompanionGuidanceIsEditableOrMissing(entry: LockfileRoleEntry, name: string): boolean {
+  const expectedGuidanceHash = entry.packageFiles.find((file) => file.path === name)?.sha256;
+  const activeGuidancePath = join(entry.activationPath, name);
 
   return !expectedGuidanceHash || !existsSync(activeGuidancePath) || hashFile(activeGuidancePath) === expectedGuidanceHash;
 }
@@ -109,6 +135,33 @@ export function replaceActiveRoleFile(
 
   if (shouldRefreshGuidance && existsSync(roleGuidancePath(sourcePath))) {
     writeFileSync(targetGuidancePath, readFileSync(roleGuidancePath(sourcePath)), "utf8");
+  }
+
+  const nextCompanionNames = new Set(companionGuidanceNames(sourcePath));
+  const previousCompanionNames = previousEntry
+    ? previousEntry.packageFiles.filter((file) => file.path.endsWith(".GUIDANCE.md")).map((file) => file.path)
+    : [];
+
+  for (const name of nextCompanionNames) {
+    const activeGuidancePath = join(targetPath, name);
+    const shouldRefreshCompanion = previousEntry
+      ? activeCompanionGuidanceIsEditableOrMissing(previousEntry, name)
+      : !existsSync(activeGuidancePath);
+
+    if (shouldRefreshCompanion) {
+      writeFileSync(activeGuidancePath, readFileSync(join(sourcePath, name), "utf8"), "utf8");
+    }
+  }
+
+  for (const name of previousCompanionNames) {
+    if (nextCompanionNames.has(name)) {
+      continue;
+    }
+
+    const activeGuidancePath = join(targetPath, name);
+    if (activeCompanionGuidanceIsEditableOrMissing(previousEntry!, name) && existsSync(activeGuidancePath)) {
+      unlinkSync(activeGuidancePath);
+    }
   }
 
   return activeFiles;

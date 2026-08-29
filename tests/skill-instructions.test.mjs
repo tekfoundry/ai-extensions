@@ -77,14 +77,17 @@ test("get-guidance declares read-only bounded guidance resolution", () => {
   assert.match(skill, /requesting_role: none \| <active-role-name>/);
   assert.match(skill, /requesting_skill: none \| <active-skill-name>/);
   assert.match(skill, /activity: none \| <activity-name>/);
+  assert.match(skill, /activities:\n\s+- <activity-name>/);
   assert.match(skill, /task_context: <short summary>/);
-  assert.match(skill, /If any field is missing, or if `task_context` is empty, return no guidance/);
+  assert.match(skill, /If the role, skill, task context, and both activity fields are missing/);
   assert.match(skill, /Role guidance: `.agents\/roles\/<requesting_role>\/GUIDANCE\.md`/);
   assert.match(skill, /Activity override: `.agents\/guidance\/activities\/<activity>\.md`/);
   assert.match(skill, /Activity origin: active workflow package guidance/);
   assert.match(skill, /Shared override or origin: `.agents\/guidance\/shared\.md` first/);
   assert.match(skill, /Do not hardcode the allowed activity names/);
   assert.match(skill, /unknown\s+activity, report that no matching activity guidance exists and list the\s+available activity names/);
+  assert.match(skill, /Do not use this skill to load the project-manager role's own startup guidance/);
+  assert.match(skill, /adjacent active files whose names end in `\.GUIDANCE\.md`/);
   assert.match(skill, /applies_to:/);
   assert.match(skill, /uses_guidance:/);
   assert.match(skill, /Metadata helps choose a smaller reading list/);
