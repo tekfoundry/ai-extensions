@@ -393,6 +393,134 @@ test("bundled project-manager role has activation-owned append and companion gui
   });
 });
 
+function projectManagerGuidance() {
+  return readFileSync(join(repoRoot, "aix/roles/project-manager/GUIDANCE.md"), "utf8");
+}
+
+function routingProbeBlock(guidance, heading) {
+  const pattern = new RegExp(`### ${heading}\\n\\n\`\`\`yaml\\n([\\s\\S]*?)\\n\`\`\``);
+  const match = guidance.match(pattern);
+
+  assert.ok(match, `Missing ${heading} routing probe`);
+
+  return match[1];
+}
+
+function listAfter(block, key) {
+  const match = block.match(new RegExp(`^  ${key}:\\n((?:    - .+\\n)*)`, "m"));
+
+  if (!match) {
+    return [];
+  }
+
+  return match[1]
+    .trim()
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => line.trim().replace(/^- /, ""));
+}
+
+test("bundled project-manager guidance defines PM Review mode", () => {
+  const guidance = projectManagerGuidance();
+
+  assert.match(guidance, /## PM Review Mode/);
+  assert.match(guidance, /starts with `pm review`, ignoring case/);
+  assert.match(guidance, /Accept the prefix with a colon, a hyphen, a spaced hyphen, or plain whitespace/);
+  assert.match(guidance, /return a missing-prompt response/);
+  assert.match(guidance, /mode: pm_review/);
+  assert.match(guidance, /original_prompt: <prompt after prefix>/);
+  assert.match(guidance, /guidance_plan:/);
+  assert.match(guidance, /requesting_role: <role name>/);
+  assert.match(guidance, /requesting_skill: none \| <skill name>/);
+  assert.match(guidance, /PM Review runs startup classification only/);
+  assert.match(guidance, /stop before delegation, file\s+edits, command execution, lifecycle changes, verification, or plan state\s+changes/);
+  assert.match(guidance, /PM Review: complete Phase 4/);
+  assert.match(guidance, /PM review - complete Phase 4/);
+  assert.match(guidance, /pm review- complete Phase 4/);
+  assert.match(guidance, /pm review complete Phase 4/);
+});
+
+test("bundled project-manager guidance has exact PM Review routing probes", () => {
+  const guidance = projectManagerGuidance();
+  const cases = [
+    {
+      heading: "Small Informational Request",
+      roles: [],
+      activities: []
+    },
+    {
+      heading: "Implementation Request",
+      roles: ["implementation-engineer", "quality-engineer"],
+      activities: ["implementation", "verification"]
+    },
+    {
+      heading: "Documentation Request",
+      roles: ["documentation-specialist", "quality-engineer"],
+      activities: ["documentation", "verification"]
+    },
+    {
+      heading: "Security-Sensitive Request",
+      roles: ["security-engineer", "technical-architect", "implementation-engineer", "quality-engineer"],
+      activities: ["review", "implementation", "verification"]
+    },
+    {
+      heading: "Mixed Architecture Plus Implementation Request",
+      roles: ["technical-architect", "implementation-engineer", "quality-engineer"],
+      activities: ["review", "implementation", "verification"]
+    },
+    {
+      heading: "Out-Of-Team Request",
+      roles: [],
+      activities: []
+    }
+  ];
+
+  for (const probe of cases) {
+    const block = routingProbeBlock(guidance, probe.heading);
+
+    assert.deepEqual(listAfter(block, "roles"), probe.roles, probe.heading);
+    assert.deepEqual(listAfter(block, "activities"), probe.activities, probe.heading);
+    assert.match(block, /mode: pm_review/);
+    assert.match(block, /task_context:/);
+    assert.match(block, /sequencing_notes:/);
+    assert.match(block, /abort_before:\n    - delegation\n    - file edits\n    - command execution\n    - lifecycle changes\n    - verification\n    - plan state changes/);
+  }
+});
+
+test("PM Review routing probes avoid broad role fan-out and document guidance planning", () => {
+  const guidance = projectManagerGuidance();
+  const allRoleNames = [
+    "requirements-engineer",
+    "technical-architect",
+    "security-engineer",
+    "implementation-engineer",
+    "quality-engineer",
+    "documentation-specialist",
+    "product-designer",
+    "product-strategist",
+    "ux-writer"
+  ];
+
+  for (const heading of [
+    "Implementation Request",
+    "Documentation Request",
+    "Security-Sensitive Request",
+    "Mixed Architecture Plus Implementation Request"
+  ]) {
+    const block = routingProbeBlock(guidance, heading);
+    const roles = listAfter(block, "roles");
+
+    assert.ok(roles.length > 0, heading);
+    assert.ok(roles.length < allRoleNames.length, heading);
+    assert.match(block, /guidance_plan:/);
+    for (const role of roles) {
+      assert.match(block, new RegExp(`role: ${role}[\\s\\S]*requesting_role: ${role}`), `${heading} missing ${role} guidance plan`);
+    }
+  }
+
+  assert.match(routingProbeBlock(guidance, "Out-Of-Team Request"), /handback:/);
+});
+
 test("discoverRoles reports shipped workflow-owned project development roles", () => {
   const roles = discoverRoles("aix/workflows/design-plan-execute/roles/project-dev");
 

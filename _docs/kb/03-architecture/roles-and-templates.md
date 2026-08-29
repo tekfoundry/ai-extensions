@@ -159,6 +159,13 @@ whose name ends in `.GUIDANCE.md`. Companion guidance supplements the base
 guidance as separate documents. AIX does not flatten companion guidance into
 `GUIDANCE.md`.
 
+The project-manager role also supports PM Review mode as an instruction-level
+dry run. When a user prompt starts with `pm review`, ignoring case and allowing
+a colon, hyphen, spaced hyphen, or whitespace after the prefix, the role strips
+the prefix, classifies the remaining prompt, emits the startup context and
+per-role guidance plan, then stops. PM Review must not delegate, edit files,
+run commands, change lifecycle state, verify work, or update plan state.
+
 The public guidance command family aggregates workflow and role guidance:
 
 ```bash

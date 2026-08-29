@@ -127,6 +127,12 @@ reading lists, activity-list caller context, unknown activity handling,
 conflict reporting, no file mutation, project-manager startup separation, and
 legacy fallback behavior.
 
+Tests in `tests/roles.test.mjs` cover the bundled project-manager PM Review
+contract. They check the case-insensitive `pm review` trigger examples, exact
+canonical routing probes for roles and activities, no broad role fan-out,
+per-role guidance planning, out-of-team handback, and the abort-before-work
+rule.
+
 Quality risks:
 
 - treating guidance metadata as automatic dependency or routing behavior
@@ -142,6 +148,7 @@ Targeted checks:
 ```bash
 node --test tests/guidance.test.mjs
 node --test tests/skill-instructions.test.mjs
+node --test tests/roles.test.mjs
 ```
 
 ## Workflows And Init

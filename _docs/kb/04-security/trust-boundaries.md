@@ -94,6 +94,10 @@ behavior.
   active `*.GUIDANCE.md` files before routing. `get-guidance` is used after
   startup for delegated roles, not to override the project-manager role's own
   startup contract.
+- PM Review mode is a no-work boundary for the project-manager role. It emits
+  startup classification and guidance planning only, and must stop before
+  delegation, file edits, command execution, lifecycle changes, verification,
+  or plan state changes.
 - Guidance metadata is advisory and must not create hidden dependency,
   activation, or routing behavior.
 - Default request-entry routing through guidance is deferred to the

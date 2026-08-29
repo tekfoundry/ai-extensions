@@ -27,6 +27,10 @@ or workflow guidance.
 - Project manager: The top-level AIX entry role that classifies meaningful
   project requests, chooses an ordered minimal role list, and delegates bounded
   work without becoming a broad executor.
+- PM Review: A project-manager dry-run mode triggered by a case-insensitive
+  `pm review` prompt prefix. It emits startup classification and guidance
+  planning, then stops before delegation, file edits, command execution,
+  lifecycle changes, verification, or plan state changes.
 - Startup classification: The project-manager routing summary containing
   `roles`, `activities`, `task_context`, and `sequencing_notes`.
 - Activity guidance: Workflow-owned guidance for a lifecycle activity such as

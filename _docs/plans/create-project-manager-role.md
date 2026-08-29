@@ -470,38 +470,89 @@ Success criteria:
   tests/init.test.mjs` passed with 19 tests;
   `AIX_CACHE_DIR=/tmp/aix-phase3-full-cache npm test` passed with 222 tests.
 
-### Phase 4: Support Workflow Guidance Augmentation And Routing Examples (status: accepted)
+### Phase 4: Add PM Review Probe And Routing Examples (status: accepted)
 
-Goal: define how workflow-owned guidance augments the generic top-level
-project-manager role and provide reviewable examples for routing behavior.
+Goal: make the generic top-level project-manager role probeable before work
+starts. The role should support a `pm review` request prefix that runs startup
+classification only, emits the context it would use for routing, and stops
+before delegation, file edits, command execution, lifecycle changes, or
+verification.
+
+Phase 4 should start with the default `project-manager/GUIDANCE.md`. Use the
+Phase 3 companion guidance model only if the default guidance cannot express
+workflow-shaped routing clearly. In that case, `workflow.GUIDANCE.md` may add
+the needed workflow-specific guidance without replacing the top-level
+project-manager role or adding unconditional root `AGENTS.md` routing.
 
 Tasks:
 
-- ⬜️ Define workflow project-manager guidance augmentation behavior, including
-      how an active workflow may provide focused guidance such as
-      `workflow.GUIDANCE.md` without replacing the top-level project-manager
-      role.
-- ⬜️ Add tests or fixtures proving workflow guidance augmentation preserves the
-      ordered minimal role-list model and does not install unconditional root
-      `AGENTS.md` routing.
-- ⬜️ Add routing examples for a small informational request, implementation
-      request, documentation request, security-sensitive request, mixed
-      architecture plus implementation request, and out-of-team request.
-- ⬜️ Verify examples show per-role guidance tailoring, no broad role fan-out,
-      dependency-preserving role order, controlled delegation payloads, and
-      handback behavior.
-- ⬜️ Review existing `get-guidance` terminology for `requesting_role` and
-      `requesting_skill`; update examples or add compatibility notes if the
-      project-manager caller model needs different vocabulary.
-- ⬜️ Run targeted role, guidance, and workflow augmentation tests; record
+- ✅ Define PM Review mode in the default project-manager guidance. The trigger
+      should be a case-insensitive `pm review` prefix with optional `:`, ` -`,
+      `-`, or whitespace before the reviewed prompt. If no prompt follows the
+      prefix, the role should return a missing-prompt response.
+- ✅ Define the PM Review output shape so it emits the stripped original
+      prompt, ordered `roles`, `activities`, `task_context`,
+      `sequencing_notes`, and a per-role `guidance_plan`.
+- ✅ Define the PM Review stop rule. PM Review must stop before delegation,
+      file edits, command execution, lifecycle changes, verification, or plan
+      state changes.
+- ✅ Add PM Review probe examples for a small informational request,
+      implementation request, documentation request, security-sensitive
+      request, mixed architecture plus implementation request, and out-of-team
+      request.
+- ✅ Add tests or fixtures proving the probe examples assert exact expected
+      roles and activities, preserve the ordered minimal role-list model, and
+      do not install unconditional root `AGENTS.md` routing.
+- ✅ Verify examples show per-role guidance tailoring, no broad role fan-out,
+      dependency-preserving role order, controlled delegation payloads,
+      handback behavior, and abort-before-work behavior.
+- ✅ Review existing `get-guidance` terminology for `requesting_role` and
+      `requesting_skill`; update examples or add compatibility notes so PM
+      Review's `guidance_plan` is clear about delegated-role guidance.
+- ✅ Decide whether workflow companion guidance augmentation is necessary after
+      the default PM Review probes are written and tested. If it is not
+      necessary, record that decision in the Phase 4 evidence instead of
+      changing `workflow.GUIDANCE.md`.
+- ✅ Run targeted role, guidance, package, and workflow tests; record
       verification evidence.
 
 Success criteria:
 
-- Workflow guidance augmentation is explicit, tested, and does not weaken the
-  default role's safety or lifecycle rules.
-- Example prompts make the routing contract testable by human review even
-  where behavior is instruction-level rather than code-level.
+- PM Review gives developers a simple way to probe project-manager startup
+  routing for test prompts, ad-hoc prompts, and before-execution prompts.
+- PM Review output is structured enough to inspect exact roles, activities,
+  task context, sequencing, and guidance planning without doing work.
+- The default project-manager guidance handles the canonical routing probes
+  unless workflow companion guidance is proven necessary.
+- Any workflow guidance augmentation is explicit, tested, and does not weaken
+  the default role's safety or lifecycle rules.
+- Example prompts make the routing contract testable by human review and by
+  instruction-level fixtures.
+
+- 2026-08-29: Phase 4 added PM Review mode to the default bundled
+  `aix/roles/project-manager/GUIDANCE.md`. PM Review accepts a
+  case-insensitive `pm review` prefix with optional `:`, ` -`, `-`, or
+  whitespace, emits startup routing context and a per-role guidance plan, and
+  stops before delegation, file edits, command execution, lifecycle changes,
+  verification, or plan state changes. The default guidance now includes six
+  canonical probe examples with exact expected `roles` and `activities`.
+  `tests/roles.test.mjs` checks the PM Review trigger examples, exact routing
+  probes, no broad role fan-out, guidance planning, handback, and
+  abort-before-work behavior. Workflow companion guidance augmentation was not
+  needed because the default guidance expressed the probe contract cleanly and
+  workflow tests still passed without changing `workflow.GUIDANCE.md`.
+  Current-state docs were promoted for role architecture, trust-boundary
+  behavior, quality coverage, and glossary terms.
+  Verification: `npm run build` passed; `node --test tests/roles.test.mjs`
+  passed with 45 tests after fixing the routing-probe parser helper;
+  `node --test tests/package-smoke.test.mjs` passed after replacing an
+  external-service example word that matched the package smoke test's TODO
+  guard; `node --test tests/skill-instructions.test.mjs` passed with 18 tests;
+  `node --test tests/guidance.test.mjs` passed with 7 tests;
+  `AIX_CACHE_DIR=/tmp/aix-phase4-workflow-cache node --test
+  tests/workflow.test.mjs` passed with 22 tests; `node --test
+  tests/status.test.mjs tests/verify.test.mjs` passed with 12 tests;
+  `AIX_CACHE_DIR=/tmp/aix-phase4-full-cache npm test` passed with 225 tests.
 
 Closeout, documentation promotion, final security review, code review,
 repository-wide verification, human validation, and archive tasks are tracked
@@ -518,6 +569,14 @@ multiple places.
 - `AGENTS.md` should point to `project-manager` only when the project-manager
   role is active. This should be handled through activation-owned append
   content, not an unconditional root `AGENTS.md` instruction.
+- 2026-08-29: Phase 4 should first optimize the generic
+  `project-manager/GUIDANCE.md` and use `pm review` as the dry-run routing
+  probe. The trigger is a case-insensitive `pm review` prefix with optional
+  `:`, ` -`, `-`, or whitespace before the reviewed prompt. PM Review should
+  emit startup classification and guidance planning only, then stop before
+  delegation, file edits, command execution, lifecycle changes, verification,
+  or plan state changes. Workflow companion guidance should be changed only if
+  the default guidance cannot express workflow-shaped routing clearly.
 - Skills, roles, and workflows should all support optional
   `AGENTS.append.md` content. AIX should compose those blocks as managed,
   marker-delimited content in the project `AGENTS.md` file. Each block must
