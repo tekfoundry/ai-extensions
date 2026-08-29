@@ -36,6 +36,19 @@ test("writeLockfile writes parseable JSON atomically", async () => {
           activationPath: ".agents/skills/tdd",
           originalName: "tdd",
           activeName: "tdd",
+          agentsMd: {
+            owner: {
+              kind: "skill",
+              name: "tdd"
+            },
+            source: "example",
+            sourcePath: "skills/tdd",
+            path: "AGENTS.md",
+            marker: "aix:skill tdd",
+            sourceSha256: "source",
+            renderedSha256: "rendered",
+            installedSha256: "installed"
+          },
           packageFiles: [
             {
               path: "SKILL.md",
@@ -54,7 +67,10 @@ test("writeLockfile writes parseable JSON atomically", async () => {
     filePath
   );
 
-  assert.deepEqual(parseLockfile(JSON.parse(await readFile(filePath, "utf8"))).skills[0]?.activeName, "tdd");
+  const parsed = parseLockfile(JSON.parse(await readFile(filePath, "utf8")));
+
+  assert.equal(parsed.skills[0]?.activeName, "tdd");
+  assert.equal(parsed.skills[0]?.agentsMd?.marker, "aix:skill tdd");
 });
 
 test("parseLockfile supports standalone and workflow-owned roles", () => {
@@ -75,6 +91,19 @@ test("parseLockfile supports standalone and workflow-owned roles", () => {
         originalName: "quality-engineer",
         activeName: "quality-engineer",
         requested: true,
+        agentsMd: {
+          owner: {
+            kind: "role",
+            name: "quality-engineer"
+          },
+          source: "fixture",
+          sourcePath: "roles/quality-engineer",
+          path: "AGENTS.md",
+          marker: "aix:role quality-engineer",
+          sourceSha256: "source",
+          renderedSha256: "rendered",
+          installedSha256: "installed"
+        },
         packageFiles: [{ path: "ROLE.md", sha256: "abc" }],
         activeFiles: [{ path: "ROLE.md", sha256: "abc" }]
       },
@@ -121,6 +150,7 @@ test("parseLockfile supports standalone and workflow-owned roles", () => {
   assert.equal(lockfile.roles.length, 2);
   assert.equal(lockfile.roles[0].kind, "role");
   assert.equal(lockfile.roles[0].requested, true);
+  assert.equal(lockfile.roles[0].agentsMd.marker, "aix:role quality-engineer");
   assert.equal(lockfile.roles[1].owner.name, "design-plan-execute");
   assert.equal(lockfile.workflows[0].roles[0].activeName, "documentation-specialist");
   assert.equal(lockfile.workflows[0].guidance[0].path, "guidance/shared.md");

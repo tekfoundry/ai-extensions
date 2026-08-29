@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { addManagedAppendVerifyIssues } from "../agents-md.js";
 import { parseManifest } from "../manifest.js";
 import { compareFileHashesToLockfile } from "../lockfile/drift.js";
 import { activeSkillPath, packageSkillPath } from "../paths/agents.js";
@@ -84,6 +85,7 @@ export function verifySkills(): VerifySkillsResult {
 
     addHashIssues(issues, "Package", skill.packagePath, compareFileHashesToLockfile(skill.packagePath, skill.packageFiles));
     addHashIssues(issues, "Active skill", skill.activationPath, compareFileHashesToLockfile(skill.activationPath, skill.activeFiles));
+    addManagedAppendVerifyIssues(issues, skill.agentsMd);
 
     if (existsSync(skill.packagePath)) {
       const packageName = readSkillName(issues, "Package", skill.packagePath);

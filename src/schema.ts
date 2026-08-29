@@ -4,6 +4,7 @@ export const LOCKFILE_VERSION = 1;
 
 export type SourceType = "git" | "local";
 export type PackageKind = "skill" | "workflow" | "role";
+export type AppendBlockOwnerKind = "skill" | "role" | "workflow";
 
 export interface BaseSourceDefinition {
   type: SourceType;
@@ -87,6 +88,7 @@ export interface LockfileSkillEntry {
     name: string;
   };
   dependencies?: LockfileSkillDependency[];
+  agentsMd?: LockfileAgentsMdBlock;
   packageFiles: FileHash[];
   activeFiles: FileHash[];
 }
@@ -109,6 +111,7 @@ export interface LockfileRoleEntry {
     kind: "workflow";
     name: string;
   };
+  agentsMd?: LockfileAgentsMdBlock;
   packageFiles: FileHash[];
   activeFiles: FileHash[];
 }
@@ -120,9 +123,17 @@ export interface LockfileWorkflowDoc {
 }
 
 export interface LockfileAgentsMdBlock {
+  owner: {
+    kind: AppendBlockOwnerKind;
+    name: string;
+  };
+  source: string;
+  sourcePath: string;
   path: string;
   marker: string;
-  sha256: string;
+  sourceSha256: string;
+  renderedSha256: string;
+  installedSha256: string;
 }
 
 export interface LockfileWorkflowEntry {

@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { AixError } from "../errors.js";
+import { extensionAppendDefinition, lockfileBlockForDefinition, preflightAppendDefinitions, writeExtensionAppendBlocks } from "../extension-append.js";
 import { copyFilesSafely } from "../fs/files.js";
 import { parseManifest } from "../manifest.js";
 import { activeSkillPath, packageSkillPath, SKILL_PACKAGES_DIR } from "../paths/agents.js";
@@ -15,6 +16,7 @@ import { manifestSourceDefinitions, updateManifestSkills } from "./manifest.js";
 import { activationTargetFromInput, assertFolderNameSafe } from "./naming.js";
 import { assertPackageFilesMatchLockfile, assertPackagePathMatchesSource } from "./package-files.js";
 import type { ActivateSkillResult } from "./types.js";
+import type { AppendBlockDefinition } from "../agents-md.js";
 
 interface SkillActivationPlan {
   source: string;
@@ -214,7 +216,7 @@ function activatePlannedSkill(
   manifestJson: Record<string, unknown>,
   lockfile: { skills: LockfileSkillEntry[] },
   requested: boolean
-): void {
+): AppendBlockDefinition | undefined {
   const packagePath = packageSkillPath(plan.source, plan.sourcePath);
   const activationPath = activeSkillPath(plan.activeName);
   const existingEntry = lockfile.skills.find(
@@ -225,6 +227,8 @@ function activatePlannedSkill(
   const activeFiles = plan.alias
     ? activateAliasWrapper(activationPath, packagePath, plan.activeName)
     : activateDirectSymlink(activationPath, packagePath);
+  const appendDefinition = extensionAppendDefinition("skill", plan.activeName, plan.source, plan.sourcePath, packagePath);
+  const agentsMd = lockfileBlockForDefinition(appendDefinition);
 
   if (requested) {
     updateManifestSkills(manifestJson, plan.source, plan.sourcePath, plan.alias);
@@ -245,9 +249,12 @@ function activatePlannedSkill(
     ...(plan.alias ? { alias: plan.alias } : {}),
     requested: isRequested,
     ...(plan.dependencies.length > 0 ? { dependencies: plan.dependencies } : {}),
+    ...(agentsMd ? { agentsMd } : {}),
     packageFiles,
     activeFiles
   });
+
+  return appendDefinition;
 }
 
 export function prepareSkillActivationFromDefinitions(
@@ -317,11 +324,18 @@ export function activateSkillFromDefinitions(
   cacheRoot = defaultCacheRoot()
 ): ActivateSkillResult {
   const prepared = prepareSkillActivationFromDefinitions(target, alias, defaultSourceDefinitions, cacheRoot);
+  const previousLockfile = structuredClone(prepared.lockfile);
+  const sourceAppendDefinitions = prepared.plans.map((plan) =>
+    extensionAppendDefinition("skill", plan.activeName, plan.source, plan.sourcePath, plan.sourceSkillPath)
+  );
+
+  preflightAppendDefinitions(previousLockfile, sourceAppendDefinitions);
 
   mkdirSync(SKILL_PACKAGES_DIR, { recursive: true });
 
+  const appendDefinitions: AppendBlockDefinition[] = [];
   for (const plan of prepared.plans) {
-    activatePlannedSkill(
+    const appendDefinition = activatePlannedSkill(
       plan,
       prepared.definition,
       prepared.sourceType,
@@ -330,8 +344,13 @@ export function activateSkillFromDefinitions(
       prepared.lockfile,
       plan === prepared.requestedPlan
     );
+
+    if (appendDefinition) {
+      appendDefinitions.push(appendDefinition);
+    }
   }
 
+  writeExtensionAppendBlocks(previousLockfile, prepared.lockfile, appendDefinitions);
   writeJsonObjectAtomic(MANIFEST_FILE_NAME, prepared.manifestJson);
   writeJsonObjectAtomic(LOCKFILE_FILE_NAME, prepared.lockfile);
 

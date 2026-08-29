@@ -239,6 +239,15 @@ such as `workflow.GUIDANCE.md`, or focused activity guidance.
 - Activating, updating, deactivating, or uninstalling an extension must manage
   only that extension's append block and must refuse silent overwrite when a
   managed block has local edits.
+- Unknown AIX-looking append blocks that are not represented in the lockfile
+  are user-owned content. AIX must not adopt, validate, reorder, repair, or
+  remove them. Known lockfile-owned blocks are the only blocks lifecycle
+  commands may manage.
+- AIX-owned append blocks should be maintained as one known managed cluster at
+  the end of `AGENTS.md`, below user-owned content. If a known block is found
+  outside that cluster and its installed hash still matches the lockfile, AIX
+  may move it into the cluster. If the known block was edited, AIX must fail
+  closed and report the drift.
 - Workflow-owned `AGENTS.append.md` remains the workflow's place for
   workflow-specific lifecycle instructions. Role-owned append content remains
   the role's place for role activation instructions.
@@ -255,25 +264,25 @@ extension-owned append contract before wiring new lifecycle behavior.
 
 Tasks:
 
-- ⬜️ Inspect current workflow append behavior in `src/workflows/agents-md.ts`,
+- ✅ Inspect current workflow append behavior in `src/workflows/agents-md.ts`,
       workflow install/update/remove paths, lockfile schema, and existing
       workflow append tests.
-- ⬜️ Define a shared append block model for skills, roles, and workflows,
+- ✅ Define a shared append block model for skills, roles, and workflows,
       including owner kind, owner name, source, source path, marker, target
       path, source hash, rendered block hash, and installed block hash.
-- ⬜️ Define deterministic composition order for managed blocks. Workflow blocks
+- ✅ Define deterministic composition order for managed blocks. Workflow blocks
       should frame role blocks, and role blocks should frame skill blocks,
       with stable ordering inside each extension type.
-- ⬜️ Define marker collision behavior. Duplicate managed markers, orphan
+- ✅ Define marker collision behavior. Duplicate managed markers, orphan
       markers, nested managed blocks, malformed managed blocks, and unknown
       owner blocks should fail closed instead of being rewritten silently.
-- ⬜️ Extract or replace workflow-specific append helpers with shared helpers
+- ✅ Extract or replace workflow-specific append helpers with shared helpers
       that can render, find, insert, replace, remove, and verify owned blocks
       without changing unrelated `AGENTS.md` content.
-- ⬜️ Add focused tests for shared append rendering, deterministic ordering,
+- ✅ Add focused tests for shared append rendering, deterministic ordering,
       marker collision refusal, malformed marker refusal, drift refusal,
       missing optional append files, and byte-preserving removal.
-- ⬜️ Run targeted append/workflow tests and record verification evidence.
+- ✅ Run targeted append/workflow tests and record verification evidence.
 
 Success criteria:
 
@@ -281,6 +290,19 @@ Success criteria:
   workflow append blocks.
 - Existing workflow append behavior still passes through the shared contract.
 - Unsafe marker states and local edits fail closed.
+
+- 2026-08-28: Phase 1 added a shared `src/agents-md.ts` append-block
+  contract, moved workflow append helpers onto it, extended lockfile append
+  metadata with compatibility parsing for old workflow hashes, and added
+  focused append safety tests.
+  Verification: `npm run build` passed; `node --test tests/agents-md.test.mjs`
+  passed; `node --test tests/lockfile.test.mjs` passed;
+  `AIX_CACHE_DIR=/tmp/aix-workflow-test-cache node --test
+  tests/workflow.test.mjs` passed; `AIX_CACHE_DIR=/tmp/aix-full-test-cache npm
+  test` passed with 215 tests; `git diff --check` passed. A first workflow
+  test run without `AIX_CACHE_DIR` failed because the sandbox blocked writes to
+  `/Users/rcravens/Library/Caches/aix`, so verification was rerun with the
+  cache under `/tmp`.
 
 ### Phase 2: Wire Append Lifecycle Into Extensions (status: accepted)
 
@@ -290,25 +312,52 @@ extension types.
 
 Tasks:
 
-- ⬜️ Extend package discovery, parsing, and lockfile handling so skills, roles,
-      and workflows may declare or carry optional `AGENTS.append.md` content.
-- ⬜️ Wire role activation and update to install or replace only the owned role
+- ✅ Extend package discovery, parsing, and lockfile handling so skills, roles,
+      and workflows may carry optional `AGENTS.append.md` content. Skills and
+      roles use only the package-root `AGENTS.append.md` convention; missing
+      append files are a silent no-op. Skill and role lockfile entries must
+      support optional `agentsMd` metadata with backward-compatible parsing
+      when the metadata is absent.
+- ✅ Add a shared append lifecycle layer that composes `AGENTS.md` from all
+      known lockfile-owned append blocks plus the pending lifecycle change.
+      The lifecycle must keep the known managed block cluster at the end of
+      `AGENTS.md`, below user-owned content, and must leave unknown
+      AIX-looking blocks untouched as user-owned text.
+- ✅ Generate role and skill append ownership and markers from active names,
+      including aliases, using markers such as `aix:role <activeName>` and
+      `aix:skill <activeName>`.
+- ✅ Wire role activation and update to install or replace only the owned role
       append block when no drift exists.
-- ⬜️ Wire role deactivation and removal to remove only the owned role append
-      block and preserve surrounding user content byte-for-byte.
-- ⬜️ Wire skill activation and update to install or replace only the owned
+- ✅ Wire role deactivation and removal to remove only the owned role append
+      block and preserve surrounding user content byte-for-byte. Removal must
+      preflight all affected append blocks before deleting active or package
+      files.
+- ✅ Wire skill activation and update to install or replace only the owned
       skill append block when no drift exists.
-- ⬜️ Wire skill deactivation and removal to remove only the owned skill append
-      block and preserve surrounding user content byte-for-byte.
-- ⬜️ Keep workflow install, update, and uninstall behavior compatible while
+- ✅ Wire skill deactivation and removal to remove only the owned skill append
+      block and preserve surrounding user content byte-for-byte. Removal must
+      preflight all affected append blocks, including append blocks for
+      orphaned dependency skills, before deleting active or package files.
+- ✅ On update, remove an extension's old owned append block when the updated
+      package no longer ships `AGENTS.append.md`, after confirming the
+      installed block is unmodified.
+- ✅ Keep workflow install, update, and uninstall behavior compatible while
       moving it onto the shared append lifecycle.
-- ⬜️ Update `aix verify` and `aix status` behavior so missing, changed,
-      malformed, duplicate, or conflicting managed append blocks are reported
-      clearly.
-- ⬜️ Add integration tests that activate a workflow, role, and skill with
+- ✅ Update `aix verify` and `aix status` behavior so missing, changed,
+      malformed, duplicate, or conflicting known managed append blocks are
+      reported as normal verification issues. Unknown AIX-looking blocks are
+      user-owned content and should not be reported unless they interfere with
+      a known lockfile-owned block.
+- ✅ Add integration tests that activate a workflow, role, and skill with
       append content into one `AGENTS.md`, then update and remove each owner
-      independently.
-- ⬜️ Run targeted lifecycle tests for skills, roles, workflows, status, and
+      independently. Coverage must include aliases, dependency-only skills,
+      cross-owner composition, known block relocation into the end cluster,
+      duplicate known blocks with identical content collapsing to one block,
+      duplicate known blocks with different content stopping for manual repair,
+      missing append files, append-file removal during update, local drift,
+      malformed known blocks, and byte-preserving removal around user-owned
+      content.
+- ✅ Run targeted lifecycle tests for skills, roles, workflows, status, and
       verify; record verification evidence.
 
 Success criteria:
@@ -316,7 +365,29 @@ Success criteria:
 - Skills, roles, and workflows all support optional activation-owned
   `AGENTS.append.md` content.
 - Each lifecycle command manages only its own extension's managed block.
+- Unknown or malformed AIX-looking blocks that are not lockfile-owned remain
+  untouched as user-owned content.
+- `aix verify` and `aix status` report append drift and known-block integrity
+  problems as normal verification issues.
 - Existing workflow append tests continue to pass.
+
+- 2026-08-28: Phase 2 implemented shared append lifecycle support for
+  workflow, role, and skill append blocks. Skill and role lockfile entries now
+  track optional `agentsMd` metadata; role and skill lifecycle commands use
+  active-name markers; update removes owned append blocks when packages stop
+  shipping `AGENTS.append.md`; deactivation and workflow uninstall preflight
+  and rewrite append state before deleting active/package files; verify and
+  status surface known append drift as normal verification issues. Unknown
+  AIX-looking blocks remain user-owned content and are preserved below normal
+  user text, with known managed blocks maintained as an end cluster.
+  Verification: `npm run build` passed;
+  `AIX_CACHE_DIR=/tmp/aix-phase2-targeted-cache node --test
+  tests/agents-md.test.mjs tests/lockfile.test.mjs tests/activation.test.mjs
+  tests/update.test.mjs tests/roles.test.mjs tests/workflow.test.mjs
+  tests/verify.test.mjs tests/status.test.mjs` passed with 119 tests;
+  `AIX_CACHE_DIR=/tmp/aix-phase2-full-cache npm test` passed with 220 tests;
+  `git diff --check` passed. `_docs/kb` promotion was intentionally skipped
+  for this phase at developer request.
 
 ### Phase 3: Add Bundled Project-Manager Role And Guidance Layering (status: accepted)
 
@@ -424,6 +495,33 @@ multiple places.
   or uninstall operations must only manage that extension's block. Composition
   order, marker ownership, drift checks, local-edit refusal, and instruction
   precedence must be defined before implementation.
+- Phase 2 should use one shared append lifecycle that composes all known
+  lockfile-owned workflow, role, and skill append blocks whenever any one
+  extension changes. Known managed blocks should be maintained as a cluster at
+  the end of `AGENTS.md`, below user-owned content.
+- Role and skill append files use the package-root `AGENTS.append.md`
+  convention only. Missing append files are a silent no-op.
+- Role and skill append ownership and markers use active names, including
+  aliases, so marker identity matches the names users manage with lifecycle
+  commands.
+- Unknown AIX-looking blocks, including malformed unknown blocks, are treated
+  as user-owned content. AIX must not touch, adopt, reorder, validate, repair,
+  or remove them.
+- Known lockfile-owned append blocks with local edits must fail closed during
+  update, deactivation, removal, status, or verify. Deactivation and removal
+  must preflight every affected append block before deleting any active or
+  package files.
+- Duplicate known append blocks with identical rendered content may be
+  collapsed to one block. Duplicate known blocks with different content must
+  stop with a clear manual-repair message.
+- If a known append block exists outside the end cluster and is unmodified,
+  AIX may move it into the known managed cluster. If the known block is
+  modified, AIX must stop and report drift.
+- If an updated role or skill no longer ships `AGENTS.append.md`, AIX should
+  remove that extension's old owned append block after confirming it is
+  unmodified.
+- `aix verify` and `aix status` should report append issues as normal
+  verification issues.
 - `get-guidance` should remain a separate root AIX skill. The
   `_docs/plans/workflow-guidance-library.md` plan already built it as a
   read-only guidance resolver. This plan should use that skill from
@@ -448,6 +546,16 @@ multiple places.
 ## Open Questions / Decisions
 
 Resolved.
+
+- 2026-08-28: Phase 2 readiness review confirmed the append lifecycle should
+  be implemented as a shared compose/preflight layer before command-specific
+  wiring. The developer selected seamless lifecycle behavior: known
+  lockfile-owned blocks are managed together, unknown AIX-looking blocks stay
+  user-owned, role and skill markers use active names, package-root
+  `AGENTS.append.md` is the only role/skill convention, missing append files
+  are normal no-ops, drifted known blocks fail closed, removals preflight all
+  affected blocks before deleting files, and status/verify report append
+  problems as normal verification issues.
 
 ## Documentation Impact
 

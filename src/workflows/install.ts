@@ -2,6 +2,8 @@ import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { AixError } from "../errors.js";
+import { assertInstalledAppendBlockUnmodified, lockfileAppendBlocks, type AppendBlockDefinition } from "../agents-md.js";
+import { extensionAppendDefinition, lockfileBlockForDefinition, preflightAppendDefinitions, writeExtensionAppendBlocks } from "../extension-append.js";
 import { copyFilesSafely } from "../fs/files.js";
 import { parseManifest } from "../manifest.js";
 import { packageWorkflowPath, WORKFLOW_PACKAGES_DIR } from "../paths/agents.js";
@@ -18,7 +20,7 @@ import { readJsonObject, writeJsonObjectAtomic } from "../activation/json.js";
 import { readLockfileJson } from "../activation/lockfile.js";
 import { assertFolderNameSafe } from "../activation/naming.js";
 import { defaultCacheRoot, getDefaultWorkflowSources, resolveSourceFromDefinitions } from "../sources/index.js";
-import { assertAgentsMdBlockSafe, installAgentsMdBlock } from "./agents-md.js";
+import { assertAgentsMdBlockSafe, workflowAppendDefinition } from "./agents-md.js";
 import { assertWorkflowDocsSafe, installWorkflowDocs, scaffoldProjectDocs } from "./docs.js";
 import { discoverWorkflowGuidance, validateWorkflowGuidance, workflowGuidanceHashes } from "./guidance.js";
 import { readWorkflowManifest } from "./manifest.js";
@@ -57,8 +59,12 @@ function preflightWorkflowInstall(
     assertWorkflowActiveRolesUnmodified(lockfile, existingWorkflow.name);
   }
 
+  for (const block of lockfileAppendBlocks(lockfile)) {
+    assertInstalledAppendBlockUnmodified(block);
+  }
+
   assertWorkflowDocsSafe(workflow, stagedPackagePath, existingWorkflow);
-  assertAgentsMdBlockSafe(workflow.agentsMd, stagedPackagePath, existingWorkflow?.agentsMd?.sha256);
+  assertAgentsMdBlockSafe(workflow.agentsMd, stagedPackagePath, existingWorkflow?.agentsMd, workflow.name);
   assertWorkflowSkillsSafe(workflow, source, stagedPackagePath, finalPackagePath, lockfile);
   assertWorkflowRolesSafe(workflow, source, stagedPackagePath, finalPackagePath, lockfile);
   validateWorkflowGuidance(discoverWorkflowGuidance(workflow, stagedPackagePath));
@@ -85,6 +91,7 @@ export function installResolvedWorkflow(
   options: { allowExistingWorkflow?: boolean; sourceType?: SourceType } = {}
 ): InstallWorkflowResult {
   const sourceType = options.sourceType || "git";
+  const previousLockfile = structuredClone(lockfile);
   const stagedPackage = stageWorkflowPackage(resolvedRoot);
 
   try {
@@ -100,7 +107,8 @@ export function installResolvedWorkflow(
     );
     const packageFiles = writeWorkflowPackage(stagedPackage.path, packagePath);
     const docs = installWorkflowDocs(workflow, packagePath);
-    const agentsMd = installAgentsMdBlock(workflow.agentsMd, packagePath);
+    const workflowAppend = workflow.agentsMd ? workflowAppendDefinition(workflow.agentsMd, packagePath, workflow.name) : undefined;
+    const agentsMd = lockfileBlockForDefinition(workflowAppend);
     const previousWorkflowSkills = existingWorkflow ? workflowSkills(lockfile, existingWorkflow.name) : [];
     const previousWorkflowRoles = existingWorkflow ? workflowRoles(lockfile, existingWorkflow.name) : [];
     const skillEntries = installWorkflowSkills(workflow, source, sourceType, packagePath, previousWorkflowSkills);
@@ -144,6 +152,15 @@ export function installResolvedWorkflow(
       }
     ];
     manifestJson.workflow = `${source}:${sourcePath}`;
+
+    const appendDefinitions: AppendBlockDefinition[] = [
+      workflowAppend,
+      ...skillEntries.map((skill) => extensionAppendDefinition("skill", skill.activeName, skill.source, skill.sourcePath, skill.packagePath)),
+      ...roleEntries.map((role) => extensionAppendDefinition("role", role.activeName, role.source, role.sourcePath, role.packagePath))
+    ].filter((definition): definition is AppendBlockDefinition => definition !== undefined);
+
+    preflightAppendDefinitions(previousLockfile, appendDefinitions);
+    writeExtensionAppendBlocks(previousLockfile, lockfile, appendDefinitions);
 
     return {
       name: workflow.name,

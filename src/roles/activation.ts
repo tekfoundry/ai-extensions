@@ -2,10 +2,12 @@ import { execFileSync } from "node:child_process";
 import { copyFileSync, existsSync, lstatSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { AixError } from "../errors.js";
+import { assertInstalledAppendBlockUnmodified, type AppendBlockDefinition } from "../agents-md.js";
 import { writeJsonObjectAtomic } from "../activation/json.js";
 import { readJsonObject } from "../activation/json.js";
 import { readLockfileJson } from "../activation/lockfile.js";
 import { manifestRoleSourceDefinitions, removeManifestRole, updateManifestRoles } from "../activation/manifest.js";
+import { extensionAppendDefinition, lockfileBlockForDefinition, preflightAppendDefinitions, writeExtensionAppendBlocks } from "../extension-append.js";
 import { LOCKFILE_FILE_NAME, MANIFEST_FILE_NAME, type LockfileRoleEntry, type SourceDefinition, type SourceType } from "../schema.js";
 import { defaultCacheRoot, getDefaultRoleSources, loadRoleSourceDefinitions, resolveSourceFromDefinitions } from "../sources/index.js";
 import { activeRolePath, packageRolePath, roleEntrypointPath, roleGuidancePath } from "../paths/agents.js";
@@ -117,6 +119,8 @@ function roleLockfileEntry(
   const activationPath = activeRolePath(activeName);
   const packageFiles = copyRoleFileSafely(sourceRolePath, packagePath);
   const activeFiles = writeActiveRoleFile(packagePath, activationPath, activeName);
+  const appendDefinition = extensionAppendDefinition("role", activeName, source, sourcePath, packagePath);
+  const agentsMd = lockfileBlockForDefinition(appendDefinition);
 
   return {
     kind: "role",
@@ -132,6 +136,7 @@ function roleLockfileEntry(
     activeName,
     requested,
     ...(activeName !== originalName ? { alias: activeName } : {}),
+    ...(agentsMd ? { agentsMd } : {}),
     packageFiles,
     activeFiles
   };
@@ -245,7 +250,11 @@ export function activateRoleFromDefinitions(
   assertRoleName(activeName, "active role name");
 
   const lockfile = readLockfileJson();
+  const previousLockfile = structuredClone(lockfile);
   assertRoleActivationSafe(lockfile, source, resolvedSourcePath, sourceRolePath, activeName);
+  const sourceAppendDefinition = extensionAppendDefinition("role", activeName, source, resolvedSourcePath, sourceRolePath);
+
+  preflightAppendDefinitions(previousLockfile, [sourceAppendDefinition]);
 
   const entry = roleLockfileEntry(
     source,
@@ -261,6 +270,7 @@ export function activateRoleFromDefinitions(
 
   upsertRoleEntry(lockfile, entry);
   updateManifestRoles(manifestJson, source, resolvedSourcePath, alias);
+  writeExtensionAppendBlocks(previousLockfile, lockfile, sourceAppendDefinition ? [sourceAppendDefinition] : []);
   writeJsonObjectAtomic(MANIFEST_FILE_NAME, manifestJson);
   writeJsonObjectAtomic(LOCKFILE_FILE_NAME, lockfile);
 
@@ -432,6 +442,7 @@ export function diffRoles(target?: string, cacheRoot = defaultCacheRoot()): Diff
 
 export function updateRoles(target?: string, cacheRoot = defaultCacheRoot()): UpdateRolesResult {
   const lockfile = readLockfileJson();
+  const previousLockfile = structuredClone(lockfile);
   const { entries, resolvedSources } = standaloneRoleEntries(target, cacheRoot);
 
   if (entries.length === 0) {
@@ -443,6 +454,7 @@ export function updateRoles(target?: string, cacheRoot = defaultCacheRoot()): Up
 
   for (const entry of entries) {
     assertRoleNoLocalDrift(entry, "update");
+    assertInstalledAppendBlockUnmodified(entry.agentsMd);
   }
 
   const updatePlans = entries.map((entry) => {
@@ -458,6 +470,12 @@ export function updateRoles(target?: string, cacheRoot = defaultCacheRoot()): Up
   });
   const plansByKey = new Map(updatePlans.map((plan) => [roleEntryKey(plan.entry), plan]));
   const updatedRoles: UpdatedRole[] = [];
+  const sourceAppendDefinitions = updatePlans.map((plan) =>
+    extensionAppendDefinition("role", plan.entry.activeName, plan.entry.source, plan.entry.sourcePath, plan.sourceRolePath)
+  );
+  const appendDefinitions: AppendBlockDefinition[] = [];
+
+  preflightAppendDefinitions(previousLockfile, sourceAppendDefinitions);
 
   lockfile.roles = (lockfile.roles || []).map((entry) => {
     const plan = plansByKey.get(roleEntryKey(entry));
@@ -468,6 +486,8 @@ export function updateRoles(target?: string, cacheRoot = defaultCacheRoot()): Up
 
     const packageFiles = replaceRoleDirectory(plan.sourceRolePath, entry.packagePath);
     const activeFiles = replaceActiveRoleFile(entry.packagePath, entry.activationPath, entry.activeName, entry);
+    const appendDefinition = extensionAppendDefinition("role", entry.activeName, entry.source, entry.sourcePath, entry.packagePath);
+    const agentsMd = lockfileBlockForDefinition(appendDefinition);
     const updatedEntry: LockfileRoleEntry = {
       ...entry,
       ...(entry.sourceType === "git" && plan.resolvedSource
@@ -478,9 +498,14 @@ export function updateRoles(target?: string, cacheRoot = defaultCacheRoot()): Up
           }
         : {}),
       originalName: plan.role.name,
+      ...(agentsMd ? { agentsMd } : { agentsMd: undefined }),
       packageFiles,
       activeFiles
     };
+
+    if (appendDefinition) {
+      appendDefinitions.push(appendDefinition);
+    }
 
     updatedRoles.push({
       source: updatedEntry.source,
@@ -495,6 +520,7 @@ export function updateRoles(target?: string, cacheRoot = defaultCacheRoot()): Up
     return updatedEntry;
   });
 
+  writeExtensionAppendBlocks(previousLockfile, lockfile, appendDefinitions);
   writeJsonObjectAtomic(LOCKFILE_FILE_NAME, lockfile);
 
   return {
@@ -543,6 +569,7 @@ export function deactivateRole(activeName: string | undefined): DeactivateRoleRe
 
   const manifestJson = readJsonObject(MANIFEST_FILE_NAME);
   const lockfile = readLockfileJson();
+  const previousLockfile = structuredClone(lockfile);
   const roles = lockfile.roles || [];
   const entryIndex = roles.findIndex((role) => role.activeName === activeName);
 
@@ -564,6 +591,8 @@ export function deactivateRole(activeName: string | undefined): DeactivateRoleRe
   roles.splice(entryIndex, 1);
   lockfile.roles = roles;
   removeManifestRole(manifestJson, entry.source, entry.sourcePath);
+
+  writeExtensionAppendBlocks(previousLockfile, lockfile, []);
 
   removeRoleFile(entry.activationPath);
   removeRolePackageFile(entry.packagePath);

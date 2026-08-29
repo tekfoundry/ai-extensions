@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { addManagedAppendVerifyIssues } from "../agents-md.js";
 import { activeRolePath, packageRolePath, roleEntrypointPath } from "../paths/agents.js";
 import { readLockfileJson } from "../activation/lockfile.js";
 import type { LockfileRoleEntry } from "../schema.js";
@@ -72,6 +73,7 @@ export function verifyRoles(): VerifyRolesResult {
 
     addHashIssue(issues, () => assertRolePackageFilesMatchLockfile(role));
     addHashIssue(issues, () => assertActiveRoleFilesMatchLockfile(role));
+    addManagedAppendVerifyIssues(issues, role.agentsMd);
 
     addRoleFileIssues(issues, "Role package", role, role.packagePath, role.originalName);
     addRoleFileIssues(issues, "Active role", role, role.activationPath, role.activeName);

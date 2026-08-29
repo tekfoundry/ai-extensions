@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, writeFileSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, rmSync, writeFileSync } from "node:fs";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -191,6 +191,66 @@ test("run skill activate with an alias writes a manifest object and managed acti
   });
 });
 
+test("skill append content uses active-name markers, reports drift, and is removed when the package drops it", async () => {
+  await withProject(async (projectRoot, gitSource) => {
+    writeFileSync(join(gitSource.directory, "skills/demo/AGENTS.append.md"), "Use demo-alias for request entry.\n", "utf8");
+    git(["add", "."], gitSource.directory);
+    git(["commit", "-m", "add skill append"], gitSource.directory);
+    writeFileSync(
+      join(projectRoot, "AGENTS.md"),
+      [
+        "# Project Rules",
+        "",
+        "<!-- aix:skill copied-user-block start -->",
+        "User-owned copied block.",
+        ""
+      ].join("\n"),
+      "utf8"
+    );
+
+    const result = run(["skill", "activate", "fixture/skills/demo", "demo-alias"]);
+    const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
+    const agents = readFileSync(join(projectRoot, "AGENTS.md"), "utf8");
+
+    assert.equal(result.exitCode, 0);
+    assert.equal(lockfile.skills[0].agentsMd.marker, "aix:skill demo-alias");
+    assert.match(agents, /copied-user-block start/);
+    assert.match(agents, /<!-- aix:skill demo-alias start -->/);
+    assert.ok(agents.indexOf("copied-user-block start") < agents.indexOf("aix:skill demo-alias start"));
+
+    writeFileSync(
+      join(projectRoot, "AGENTS.md"),
+      agents.replace("Use demo-alias for request entry.", "Use locally edited demo-alias instructions."),
+      "utf8"
+    );
+
+    const verify = run(["verify"]);
+    const status = run(["status"]);
+    const blockedDeactivate = run(["skill", "deactivate", "demo-alias"]);
+
+    assert.equal(verify.exitCode, 2);
+    assert.match(verify.stdout, /skill block hash changed in AGENTS\.md/);
+    assert.equal(status.exitCode, 0);
+    assert.match(status.stdout, /skill block hash changed in AGENTS\.md/);
+    assert.equal(blockedDeactivate.exitCode, 2);
+    assert.match(blockedDeactivate.stderr, /Refusing to manage modified skill block in AGENTS\.md/);
+
+    writeFileSync(join(projectRoot, "AGENTS.md"), agents, "utf8");
+    rmSync(join(gitSource.directory, "skills/demo/AGENTS.append.md"));
+    git(["add", "."], gitSource.directory);
+    git(["commit", "-m", "remove skill append"], gitSource.directory);
+
+    const update = run(["skills", "update"]);
+    const updatedLockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
+    const updatedAgents = readFileSync(join(projectRoot, "AGENTS.md"), "utf8");
+
+    assert.equal(update.exitCode, 0);
+    assert.equal(updatedLockfile.skills[0].agentsMd, undefined);
+    assert.doesNotMatch(updatedAgents, /aix:skill demo-alias/);
+    assert.match(updatedAgents, /copied-user-block start/);
+  });
+});
+
 test("run skill activate detects active-name collisions before materializing a package", async () => {
   await withProject(async (projectRoot) => {
     mkdirSync(join(projectRoot, ".agents/skills/demo"), { recursive: true });
@@ -272,6 +332,48 @@ test("run skill activate activates inferred dependencies first and records lockf
         reason: 'Call the Skill tool with "grilling"'
       }
     ]);
+  } finally {
+    if (previousCache === undefined) {
+      delete process.env.AIX_CACHE_DIR;
+    } else {
+      process.env.AIX_CACHE_DIR = previousCache;
+    }
+
+    process.chdir(previousCwd);
+  }
+});
+
+test("skill deactivation removes append blocks for orphaned dependency-only skills", async () => {
+  const gitSource = await createGitSourceWithDependency();
+  const cacheRoot = await mkdtemp(join(tmpdir(), "aix-activation-cache-"));
+  const projectRoot = await mkdtemp(join(tmpdir(), "aix-activation-project-"));
+  const previousCwd = process.cwd();
+  const previousCache = process.env.AIX_CACHE_DIR;
+
+  writeFileSync(join(gitSource.directory, "skills/grilling/AGENTS.append.md"), "Use grilling dependency guidance.\n", "utf8");
+  writeFileSync(join(gitSource.directory, "skills/grill-me/AGENTS.append.md"), "Use grill-me guidance.\n", "utf8");
+  git(["add", "."], gitSource.directory);
+  git(["commit", "-m", "add dependency append files"], gitSource.directory);
+
+  process.chdir(projectRoot);
+  process.env.AIX_CACHE_DIR = cacheRoot;
+
+  try {
+    assert.equal(run(["skills", "add", gitSource.directory, "fixture"]).exitCode, 0);
+    assert.equal(run(["skill", "activate", "fixture/skills/grill-me"]).exitCode, 0);
+
+    const agents = readFileSync(join(projectRoot, "AGENTS.md"), "utf8");
+    assert.match(agents, /aix:skill grilling/);
+    assert.match(agents, /aix:skill grill-me/);
+
+    const deactivate = run(["skill", "deactivate", "grill-me"]);
+    const updatedAgents = readFileSync(join(projectRoot, "AGENTS.md"), "utf8");
+    const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
+
+    assert.equal(deactivate.exitCode, 0);
+    assert.doesNotMatch(updatedAgents, /aix:skill grilling/);
+    assert.doesNotMatch(updatedAgents, /aix:skill grill-me/);
+    assert.deepEqual(lockfile.skills, []);
   } finally {
     if (previousCache === undefined) {
       delete process.env.AIX_CACHE_DIR;

@@ -1,6 +1,8 @@
 import { existsSync, mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import { assertInstalledAppendBlockUnmodified, type AppendBlockDefinition } from "../agents-md.js";
 import { AixError } from "../errors.js";
+import { extensionAppendDefinition, lockfileBlockForDefinition, preflightAppendDefinitions, writeExtensionAppendBlocks } from "../extension-append.js";
 import { copyFilesSafely } from "../fs/files.js";
 import { parseManifest } from "../manifest.js";
 import { defaultCacheRoot, loadSourceDefinitions, resolveSourceFromDefinitions } from "../sources/index.js";
@@ -41,10 +43,13 @@ function replacePackageFromSource(entry: LockfileSkillEntry, sourceSkillPath: st
   const activeFiles = entry.alias
     ? replaceAliasWrapper(entry, sourceSkillPath)
     : packageFileHashes(entry.packagePath);
+  const appendDefinition = extensionAppendDefinition("skill", entry.activeName, entry.source, entry.sourcePath, entry.packagePath);
+  const agentsMd = lockfileBlockForDefinition(appendDefinition);
 
   return {
     ...entry,
     originalName,
+    ...(agentsMd ? { agentsMd } : { agentsMd: undefined }),
     packageFiles,
     activeFiles
   };
@@ -72,6 +77,7 @@ export function updateSkills(target?: string, cacheRoot = defaultCacheRoot()): U
   parseManifest(manifestJson);
 
   const lockfile = readLockfileJson();
+  const previousLockfile = structuredClone(lockfile);
   const requestedTarget = target ? activationTargetFromInput(target) : undefined;
   const skillEntries = lockfile.skills.filter((skill) => !skill.owner);
   const entriesToUpdate = requestedTarget
@@ -95,6 +101,7 @@ export function updateSkills(target?: string, cacheRoot = defaultCacheRoot()): U
 
   for (const entry of entriesToUpdate) {
     assertNoLocalDrift(entry);
+    assertInstalledAppendBlockUnmodified(entry.agentsMd);
   }
 
   const gitEntries = entriesToUpdate.filter((entry) => entry.sourceType !== "local");
@@ -141,6 +148,12 @@ export function updateSkills(target?: string, cacheRoot = defaultCacheRoot()): U
     };
   });
   const updatePlansByKey = new Map(updatePlans.map((plan) => [entryKey(plan.entry), plan]));
+  const sourceAppendDefinitions = updatePlans.map((plan) =>
+    extensionAppendDefinition("skill", plan.entry.activeName, plan.entry.source, plan.entry.sourcePath, plan.sourceSkillPath)
+  );
+  const appendDefinitions: AppendBlockDefinition[] = [];
+
+  preflightAppendDefinitions(previousLockfile, sourceAppendDefinitions);
 
   lockfile.skills = lockfile.skills.map((entry) => {
     const updatePlan = updatePlansByKey.get(entryKey(entry));
@@ -150,6 +163,17 @@ export function updateSkills(target?: string, cacheRoot = defaultCacheRoot()): U
     }
 
     const updatedEntry = replacePackageFromSource(entry, updatePlan.sourceSkillPath, updatePlan.originalName);
+    const appendDefinition = extensionAppendDefinition(
+      "skill",
+      updatedEntry.activeName,
+      updatedEntry.source,
+      updatedEntry.sourcePath,
+      updatedEntry.packagePath
+    );
+
+    if (appendDefinition) {
+      appendDefinitions.push(appendDefinition);
+    }
 
     updatedSkills.push({
       source: updatedEntry.source,
@@ -175,6 +199,7 @@ export function updateSkills(target?: string, cacheRoot = defaultCacheRoot()): U
     };
   });
 
+  writeExtensionAppendBlocks(previousLockfile, lockfile, appendDefinitions);
   writeJsonObjectAtomic(LOCKFILE_FILE_NAME, lockfile);
 
   return {

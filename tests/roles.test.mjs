@@ -100,6 +100,9 @@ async function createRoleGitSource(options = {}) {
   if (options.guidance) {
     writeFileSync(join(directory, "roles/aix-dev/quality-engineer/GUIDANCE.md"), validRoleGuidanceMarkdown(), "utf8");
   }
+  if (options.append) {
+    writeFileSync(join(directory, "roles/aix-dev/quality-engineer/AGENTS.append.md"), "Use quality role append guidance.\n", "utf8");
+  }
   git(["init", "-b", "main"], directory);
   git(["add", "."], directory);
   git(["commit", "-m", "roles"], directory);
@@ -876,6 +879,56 @@ test("activateRoleFromDefinitions supports aliases without changing package role
     assert.match(packageRole, /^name: quality-engineer$/m);
     assert.match(activeRole, /^name: test-quality-engineer$/m);
     assert.equal(lockfile.roles[0].alias, "test-quality-engineer");
+  });
+});
+
+test("role append content uses active-name markers and deactivation removes only the owned block", async () => {
+  const gitSource = await createRoleGitSource({ append: true });
+  const cacheRoot = await mkdtemp(join(tmpdir(), "aix-role-cache-"));
+
+  await withProject(async (projectRoot) => {
+    writeFileSync(
+      join(projectRoot, "AGENTS.md"),
+      [
+        "# Project Rules",
+        "",
+        "<!-- aix:role copied-user-block start -->",
+        "User-owned copied block.",
+        ""
+      ].join("\n"),
+      "utf8"
+    );
+
+    activateRoleFromDefinitions(
+      "fixture/aix-dev/quality-engineer/ROLE.md",
+      "test-quality-engineer",
+      {
+        fixture: {
+          type: "git",
+          url: gitSource.directory,
+          path: "roles",
+          ref: "main"
+        }
+      },
+      cacheRoot
+    );
+
+    const lockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
+    const agents = readFileSync(join(projectRoot, "AGENTS.md"), "utf8");
+
+    assert.equal(lockfile.roles[0].agentsMd.marker, "aix:role test-quality-engineer");
+    assert.match(agents, /copied-user-block start/);
+    assert.match(agents, /<!-- aix:role test-quality-engineer start -->/);
+    assert.ok(agents.indexOf("copied-user-block start") < agents.indexOf("aix:role test-quality-engineer start"));
+
+    const deactivate = deactivateRole("test-quality-engineer");
+    const updatedLockfile = JSON.parse(readFileSync(join(projectRoot, "aix.lock.json"), "utf8"));
+    const updatedAgents = readFileSync(join(projectRoot, "AGENTS.md"), "utf8");
+
+    assert.equal(deactivate.activeName, "test-quality-engineer");
+    assert.deepEqual(updatedLockfile.roles, []);
+    assert.doesNotMatch(updatedAgents, /aix:role test-quality-engineer/);
+    assert.match(updatedAgents, /copied-user-block start/);
   });
 });
 

@@ -1,4 +1,5 @@
 import {
+  type AppendBlockOwnerKind,
   LOCKFILE_FILE_NAME,
   LOCKFILE_VERSION,
   type FileHash,
@@ -124,6 +125,7 @@ function parseSkillEntry(value: unknown, path: string): LockfileSkillEntry {
   const alias = optionalString(value.alias, `${path}.alias`);
   const owner = parseSkillOwner(value.owner, `${path}.owner`);
   const dependencies = value.dependencies;
+  const agentsMd = parseAgentsMdBlock(value.agentsMd, `${path}.agentsMd`);
 
   if (dependencies !== undefined && !Array.isArray(dependencies)) {
     throw new LockfileError(`${path}.dependencies must be an array.`);
@@ -145,6 +147,7 @@ function parseSkillEntry(value: unknown, path: string): LockfileSkillEntry {
     requested: optionalBoolean(value.requested, `${path}.requested`, true),
     ...(owner ? { owner } : {}),
     ...(dependencies ? { dependencies: dependencies.map((dependency, index) => parseSkillDependency(dependency, `${path}.dependencies[${index}]`)) } : {}),
+    ...(agentsMd ? { agentsMd } : {}),
     packageFiles: value.packageFiles.map((file, index) => parseFileHash(file, `${path}.packageFiles[${index}]`)),
     activeFiles: value.activeFiles.map((file, index) => parseFileHash(file, `${path}.activeFiles[${index}]`))
   };
@@ -198,6 +201,7 @@ function parseRoleEntry(value: unknown, path: string): LockfileRoleEntry {
   const resolvedCommit = optionalString(value.resolvedCommit, `${path}.resolvedCommit`);
   const alias = optionalString(value.alias, `${path}.alias`);
   const owner = parseRoleOwner(value.owner, `${path}.owner`);
+  const agentsMd = parseAgentsMdBlock(value.agentsMd, `${path}.agentsMd`);
 
   return {
     kind,
@@ -214,6 +218,7 @@ function parseRoleEntry(value: unknown, path: string): LockfileRoleEntry {
     ...(alias ? { alias } : {}),
     requested: optionalBoolean(value.requested, `${path}.requested`, true),
     ...(owner ? { owner } : {}),
+    ...(agentsMd ? { agentsMd } : {}),
     packageFiles: value.packageFiles.map((file, index) => parseFileHash(file, `${path}.packageFiles[${index}]`)),
     activeFiles: value.activeFiles.map((file, index) => parseFileHash(file, `${path}.activeFiles[${index}]`))
   };
@@ -240,10 +245,50 @@ function parseAgentsMdBlock(value: unknown, path: string): LockfileAgentsMdBlock
     throw new LockfileError(`${path} must be an object.`);
   }
 
+  const legacySha256 = optionalString(value.sha256, `${path}.sha256`);
+  const sourceSha256 = legacySha256
+    ? optionalString(value.sourceSha256, `${path}.sourceSha256`) || legacySha256
+    : requireString(value.sourceSha256, `${path}.sourceSha256`);
+  const renderedSha256 = legacySha256
+    ? optionalString(value.renderedSha256, `${path}.renderedSha256`) || legacySha256
+    : requireString(value.renderedSha256, `${path}.renderedSha256`);
+  const installedSha256 = legacySha256
+    ? optionalString(value.installedSha256, `${path}.installedSha256`) || renderedSha256
+    : requireString(value.installedSha256, `${path}.installedSha256`);
+  let owner: { kind: AppendBlockOwnerKind; name: string };
+
+  if (value.owner !== undefined) {
+    if (!isRecord(value.owner)) {
+      throw new LockfileError(`${path}.owner must be an object.`);
+    }
+
+    const ownerKind = requireString(value.owner.kind, `${path}.owner.kind`);
+    if (ownerKind !== "skill" && ownerKind !== "role" && ownerKind !== "workflow") {
+      throw new LockfileError(`${path}.owner.kind must be "skill", "role", or "workflow".`);
+    }
+
+    owner = {
+      kind: ownerKind,
+      name: requireString(value.owner.name, `${path}.owner.name`)
+    };
+  } else if (legacySha256) {
+    owner = {
+      kind: "workflow",
+      name: ""
+    };
+  } else {
+    throw new LockfileError(`${path}.owner must be an object.`);
+  }
+
   return {
+    owner,
+    source: legacySha256 ? optionalString(value.source, `${path}.source`) || "" : requireString(value.source, `${path}.source`),
+    sourcePath: legacySha256 ? optionalString(value.sourcePath, `${path}.sourcePath`) || "" : requireString(value.sourcePath, `${path}.sourcePath`),
     path: requireString(value.path, `${path}.path`),
     marker: requireString(value.marker, `${path}.marker`),
-    sha256: requireString(value.sha256, `${path}.sha256`)
+    sourceSha256,
+    renderedSha256,
+    installedSha256
   };
 }
 

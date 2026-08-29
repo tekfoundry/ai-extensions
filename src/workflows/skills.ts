@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { extensionAppendDefinition, lockfileBlockForDefinition } from "../extension-append.js";
 import { activeSkillPath } from "../paths/agents.js";
 import type { LockfileSkillEntry, LockfileWorkflowEntry, SourceType } from "../schema.js";
 import { discoverSkills, parseSkillNameFromDirectory } from "../skills.js";
@@ -76,6 +77,8 @@ export function installWorkflowSkills(
 ): LockfileSkillEntry[] {
   const entries = workflowSkillPlans(workflow, packagePath).map((plan): LockfileSkillEntry => {
     const activeFiles = activateDirectSymlink(plan.activationPath, plan.packageSkillPath);
+    const appendDefinition = extensionAppendDefinition("skill", plan.activeName, workflowSource, plan.sourcePath, plan.packageSkillPath);
+    const agentsMd = lockfileBlockForDefinition(appendDefinition);
 
     return {
       kind: "skill",
@@ -91,6 +94,7 @@ export function installWorkflowSkills(
         kind: "workflow",
         name: workflow.name
       },
+      ...(agentsMd ? { agentsMd } : {}),
       packageFiles: packageFileHashes(plan.packageSkillPath),
       activeFiles
     };

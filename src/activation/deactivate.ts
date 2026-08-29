@@ -1,6 +1,7 @@
 import { parseManifest } from "../manifest.js";
 import { LOCKFILE_FILE_NAME, MANIFEST_FILE_NAME, type LockfileSkillEntry } from "../schema.js";
 import { assertActiveFilesMatchLockfile, removeActivePath } from "./active-files.js";
+import { writeExtensionAppendBlocks } from "../extension-append.js";
 import { readJsonObject, writeJsonObjectAtomic } from "./json.js";
 import { readLockfileJson, skillsDependingOn } from "./lockfile.js";
 import { removeManifestSkill } from "./manifest.js";
@@ -52,6 +53,7 @@ export function deactivateSkill(activeName: string | undefined): DeactivateSkill
   parseManifest(manifestJson);
 
   const lockfile = readLockfileJson();
+  const previousLockfile = structuredClone(lockfile);
   const entryIndex = lockfile.skills.findIndex((skill) => skill.activeName === activeName);
 
   if (entryIndex < 0) {
@@ -108,6 +110,8 @@ export function deactivateSkill(activeName: string | undefined): DeactivateSkill
   lockfile.skills = lockfile.skills.filter(
     (skill) => !orphanedEntries.some((orphan) => orphan.source === skill.source && orphan.sourcePath === skill.sourcePath)
   );
+
+  writeExtensionAppendBlocks(previousLockfile, lockfile, []);
 
   for (const removedEntry of removedEntries) {
     removeActivePath(removedEntry.activationPath);

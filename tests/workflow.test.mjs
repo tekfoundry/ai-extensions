@@ -143,11 +143,17 @@ function writeWorkflow(directory, title, skillBody, workflowName = "fixture-work
   writeFileSync(join(directory, "templates/sections/status.md"), "Backlog\n", "utf8");
   writeFileSync(join(directory, "templates/sections/phase.md"), "{{ phase:title }}\n", "utf8");
   writeFileSync(join(directory, "skills/alpha/SKILL.md"), `---\nname: alpha\n---\n\n# Alpha\n\n${skillBody}\n`, "utf8");
+  if (options.skillAppend) {
+    writeFileSync(join(directory, "skills/alpha/AGENTS.append.md"), "Use alpha workflow skill guidance.\n", "utf8");
+  }
 
   if (options.roleName) {
     mkdirSync(join(directory, `roles/project-dev/${options.roleName}`), { recursive: true });
     writeFileSync(join(directory, `roles/project-dev/${options.roleName}/ROLE.md`), validRoleMarkdown(options.roleName), "utf8");
     writeFileSync(join(directory, `roles/project-dev/${options.roleName}/GUIDANCE.md`), validRoleGuidanceMarkdown(), "utf8");
+    if (options.roleAppend) {
+      writeFileSync(join(directory, `roles/project-dev/${options.roleName}/AGENTS.append.md`), "Use workflow role guidance.\n", "utf8");
+    }
   }
 }
 
@@ -374,6 +380,43 @@ test("run workflow install activates workflow-owned roles and reports them in st
     const verify = run(["verify"]);
     assert.equal(verify.exitCode, 0);
     assert.match(verify.stdout, /verification passed/);
+  });
+});
+
+test("workflow install composes workflow, role, and skill append blocks and uninstall removes them", async () => {
+  const source = await mkdtemp(join(tmpdir(), "aix-workflow-append-source-"));
+
+  writeWorkflow(source, "Append Workflow", "Use this workflow skill.", "fixture-workflow", {
+    roleName: "quality-engineer",
+    roleAppend: true,
+    skillAppend: true
+  });
+  git(["init", "-b", "master"], source);
+  git(["add", "."], source);
+  git(["commit", "-m", "workflow append"], source);
+
+  await withProject(async () => {
+    writeFileSync("AGENTS.md", "# Project Rules\n\nKeep this project text.\n", "utf8");
+
+    const install = run(["workflow", "install", source, "fixture"]);
+    const lockfile = JSON.parse(readFileSync("aix.lock.json", "utf8"));
+    const agents = readFileSync("AGENTS.md", "utf8");
+
+    assert.equal(install.exitCode, 0);
+    assert.equal(lockfile.workflows[0].agentsMd.marker, "aix:workflow fixture-workflow");
+    assert.equal(lockfile.roles[0].agentsMd.marker, "aix:role quality-engineer");
+    assert.equal(lockfile.skills[0].agentsMd.marker, "aix:skill alpha");
+    assert.ok(agents.indexOf("aix:workflow fixture-workflow") < agents.indexOf("aix:role quality-engineer"));
+    assert.ok(agents.indexOf("aix:role quality-engineer") < agents.indexOf("aix:skill alpha"));
+
+    const uninstall = run(["workflow", "uninstall"]);
+    const updatedAgents = readFileSync("AGENTS.md", "utf8");
+
+    assert.equal(uninstall.exitCode, 0);
+    assert.doesNotMatch(updatedAgents, /aix:workflow fixture-workflow/);
+    assert.doesNotMatch(updatedAgents, /aix:role quality-engineer/);
+    assert.doesNotMatch(updatedAgents, /aix:skill alpha/);
+    assert.match(updatedAgents, /Keep this project text/);
   });
 });
 

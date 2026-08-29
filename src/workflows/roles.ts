@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { AixError } from "../errors.js";
+import { extensionAppendDefinition, lockfileBlockForDefinition } from "../extension-append.js";
 import { activeRolePath, roleEntrypointPath } from "../paths/agents.js";
 import type { LockfileRoleEntry, LockfileWorkflowEntry, SourceType } from "../schema.js";
 import { assertBundledRoleGuidance, discoverRoles, parseRoleFileFromPath } from "../roles/discovery.js";
@@ -115,6 +116,8 @@ export function installWorkflowRoles(
     const activeFiles = previousActiveNames.has(plan.activeName) && previousRole
       ? replaceActiveRoleFile(plan.packageRolePath, plan.activationPath, plan.activeName, previousRole)
       : writeActiveRoleFile(plan.packageRolePath, plan.activationPath, plan.activeName);
+    const appendDefinition = extensionAppendDefinition("role", plan.activeName, workflowSource, plan.sourcePath, plan.packageRolePath);
+    const agentsMd = lockfileBlockForDefinition(appendDefinition);
 
     return {
       kind: "role",
@@ -130,6 +133,7 @@ export function installWorkflowRoles(
         kind: "workflow",
         name: workflow.name
       },
+      ...(agentsMd ? { agentsMd } : {}),
       packageFiles: roleFileHashes(plan.packageRolePath),
       activeFiles
     };
