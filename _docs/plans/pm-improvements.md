@@ -1,0 +1,1762 @@
+# PM improvements
+
+## Status
+
+🚧 In Progress
+
+This plan is approved for implementation. Work should proceed through the
+ordered phases and tasks below, with the documented PM dogfooding gate applied
+as soon as the required runtime capabilities are available.
+
+## Context
+
+The current `project-manager` role gives AIX a single routing point for
+meaningful project requests and defines bounded delegation through PM Context
+Packets. A review of Firstmate's operating contract surfaced additional ideas
+for making that model behave more like a real project team: the PM should be a
+clear user-facing coordinator, worker authority should be explicit, task
+briefs and results should be durable, and the root agent instructions should
+stay concise while conditional procedures live elsewhere.
+
+Reviewed context:
+
+- `AGENTS.md`
+- `.agents/README.md`
+- `.agents/workflow.md`
+- `.agents/roles/project-manager/ROLE.md`
+- `.agents/roles/project-manager/GUIDANCE.md`
+- `.agents/roles/project-manager/workflow.GUIDANCE.md`
+- `.agents/skills/plan-create/SKILL.md`
+- `.agents/skills/delegate-to-role/SKILL.md`
+- `_docs/README.md`
+- `_docs/kb/README.md`
+- `_docs/kb/03-architecture/roles-and-templates.md`
+- `_docs/kb/03-architecture/system-architecture.md`
+- [Firstmate `AGENTS.md`](https://github.com/kunchenguid/firstmate/blob/main/AGENTS.md)
+- [Firstmate `docs/architecture.md`](https://github.com/kunchenguid/firstmate/blob/main/docs/architecture.md)
+- [Firstmate `docs/scripts.md`](https://github.com/kunchenguid/firstmate/blob/main/docs/scripts.md)
+- Discussion on keeping always-loaded `AGENTS.md` content minimal while
+  preserving project-owned instructions.
+
+## High-Level Goal (status: accepted)
+
+Improve AIX's project-manager operating model so the user has one clear
+project coordinator, while specialist roles can work through bounded,
+independent delegations with explicit authority, durable evidence, and
+host-neutral execution semantics.
+
+## Design Intent (status: accepted)
+
+### UX
+
+The user should experience AIX as a project team with one visible point of
+contact: the project-manager. AIX setup prepares the project; the user's
+chosen AI harness provides the conversation; the PM coordinates the work
+inside that conversation.
+
+The intended journey is:
+
+1. The user installs AIX using the normal package-manager flow.
+2. The user runs `aix init` in a project. By default, AIX initializes only the
+   package-management layer, including project metadata, extension
+   configuration, lock and integrity tracking, status, verification, install,
+   update, and removal support. It does not install the PM role, the
+   `design-plan-execute` workflow, or modify `AGENTS.md` for PM routing.
+3. If the user wants the project team workflow, they explicitly install and
+   activate `design-plan-execute`. The workflow installs its team roster,
+   supporting guidance, skills, specialist roles, and its required
+   `project-manager` dependency. The workflow does not duplicate the reusable
+   PM package, but activation also activates its dependency and adds the
+   minimal managed routing block to `AGENTS.md` without replacing project-owned
+   content.
+4. The user opens the project in a supported AI harness and starts a normal
+   project conversation. Once the PM workflow is active, the harness loads
+   `AGENTS.md` and the conversation behaves as a conversation between the
+   user and the project-manager. The PM becomes the normal entry point for
+   meaningful project work.
+5. The user describes the outcome they want in ordinary project language.
+   The PM clarifies only when needed, turns the request into a plan or task
+   sequence, and delegates bounded work to independent native sub-agents.
+6. The PM gives the user concise progress, decisions, blockers, and final
+   outcomes. Specialist transcripts should not become the user's primary
+   interface.
+7. The user remains the decision-maker for product choices, risky or
+   irreversible actions, and final merge or release decisions. The PM should
+   pause and bring those decisions back to the user.
+8. The user can inspect project status and durable delegation evidence through
+   AIX diagnostics without needing to reconstruct the work from chat history.
+
+The first-run experience should make the boundary clear. `aix init` does not
+silently adopt a project workflow, create a hidden long-running PM process, or
+require AIX to own a separate agent manager. It prepares only the package
+manager. Installing and activating a workflow is the explicit point where the
+project opts into additional AI-agent conventions.
+
+Rerunning `aix init` is package-management maintenance. It should leave any
+installed or active workflow, standalone PM role, team roster, managed PM
+routing, and delegation records unchanged. It should not migrate, deactivate,
+update, or remove those assets. Users manage workflow and PM state through
+explicit workflow or role commands.
+
+Installing a workflow should not imply activation. A workflow may be installed
+for inspection or later use, but activation is what changes the active project
+workflow and enables PM routing. The package manager should record dependency
+provenance so the project can tell that `project-manager` was installed by
+`design-plan-execute`, and can safely handle future shared dependencies.
+
+The workflow manifest should declare `project-manager` as a required reusable
+role dependency, alongside its team roster and specialist roles. The PM
+package remains standalone and reusable by other workflows, but the active
+workflow owns activation of that dependency. AIX must record dependency
+provenance in manifest and lockfile state and must not remove a shared
+dependency while another active workflow still requires it.
+
+Activating `design-plan-execute` installs or verifies its team roster, guidance,
+skills, specialist roles, and PM dependency, then activates the dependency and
+adds the minimal managed PM-routing block to `AGENTS.md`. The activation must
+fail clearly if required assets or native delegation capabilities are not
+available; it must not silently produce a partially PM-routed project.
+
+Deactivating a workflow cascades to its workflow-owned dependencies, including
+the PM dependency when no other active workflow requires it. AIX removes the
+workflow's managed routing hooks and returns the project to normal, non-PM
+prompt behavior while preserving project-owned `AGENTS.md` content. The
+workflow's team roster, guidance, skills, and specialist roles are deactivated
+with it according to their ownership and dependency provenance. Before
+deactivation, AIX must warn when the workflow has active or unlanded
+delegations and identify the affected delegation dataset. If the user confirms
+continuation, AIX may delete that workflow-owned delegation dataset, including
+its operational records and isolated workspaces, while preserving project-owned
+files and unrelated work. Without confirmation, deactivation must stop.
+
+The experience should remain harness-neutral. AIX should explain the same PM
+workflow whether the user works in Codex, Claude Code, Gemini CLI, Cursor,
+OpenCode, or another supported harness. The exact launch command, any
+host-specific worker UI, and the detailed `aix pm` maintenance command set
+remain implementation decisions, but they must not change the PM's
+single-contact interaction model. `aix pm` is not the PM launcher.
+
+If the active harness lacks native delegation, AIX should say so plainly. The
+user can still use the package-manager features, inspect the installed
+workflow, and repair or verify project assets. If the PM workflow is installed
+and active, the full team workflow should report that native delegation is
+unavailable rather than pretending that inline role prompts are independent
+agents.
+
+### `AGENTS.md`
+
+Revise the AIX-managed `AGENTS.md` project entrypoint so it establishes the
+project-manager as the primary user-facing orchestrator for meaningful project
+work. The contract should clearly distinguish the responsibilities of the
+project-manager, delegated specialist roles, and the user.
+
+The direction is to capture a small set of always-loaded rules in `AGENTS.md`:
+
+- The project-manager is the single user-facing coordination point.
+- The project-manager routes and supervises work but does not perform
+  specialist implementation, review, verification, documentation, or
+  lifecycle work itself.
+- Delegated roles receive bounded assignments and own the work assigned to
+  them.
+- The parent context retains final decisions, lifecycle authority, worktree
+  safety, and user-facing reporting.
+- Delegation must preserve explicit scope, authority, stop conditions, and
+  return evidence.
+- The project-manager should report failures, blockers, incomplete evidence,
+  and unresolved decisions plainly.
+- Plans and project knowledge remain separate from transient delegation and
+  runtime state.
+- The contract should remain host-neutral. It must describe the delegation
+  model without assuming Codex, Claude, a terminal multiplexer, or any other
+  specific harness.
+
+The AIX-managed block should remain a short routing pointer and hard-rule
+summary, not a copy of the project-manager role, workflow procedures, or
+delegation schemas. Detailed behavior should be progressively loaded from the
+active role, guidance, skills, plans, and future runtime documentation only
+when the current request needs it.
+
+AIX should preserve any existing project-owned `AGENTS.md` content. It should
+never replace the whole file, reorganize user-authored instructions, or
+silently compress the file to reduce input size. When the file does not exist,
+AIX may create it with the minimal managed block. When it exists, AIX should
+append the managed block if absent and update only the content between stable
+AIX markers on later workflow changes.
+
+The managed block should be idempotent and ownership-specific. It should tell
+the harness that the project uses the AIX workflow, direct meaningful work to
+the active project-manager role, and point to the role files and relevant
+guidance. It should not embed the full role contract or list every specialist
+role.
+
+If project-owned instructions conflict with the AIX routing block, AIX should
+surface the conflict rather than overwrite or silently reinterpret the
+project's instructions. AIX should also provide a size diagnostic for an
+unusually large `AGENTS.md`, such as a warning from `aix status` or `aix
+verify`, while preserving the user's file and allowing intentional large
+files.
+
+Detailed procedures, runtime-specific behavior, recovery mechanics, and
+conditional guidance should remain in the project-manager role, workflow
+guidance, skills, or a future delegation runtime rather than expanding the
+root `AGENTS.md` contract unnecessarily.
+
+### Delegation protocol
+
+AIX should define the delegation protocol separately from the mechanism that
+runs a worker. The project-manager remains the single user-facing coordinator.
+It chooses the smallest adequate role sequence, creates a bounded assignment,
+delegates it, receives evidence, and decides whether to continue, escalate, or
+hand back to the user.
+
+The protocol should remain independent of model vendors, model names, and
+specific harnesses. It should define role identity, assignment scope, required
+reads, authority, stop conditions, status vocabulary, return requirements, and
+the relationship to the parent plan or task.
+
+### Harness and capability discovery
+
+The `aix pm` capability should be discoverable before team orchestration starts.
+AIX should inspect the active harness and obtain a capability snapshot that
+answers whether native sub-agent delegation is available and what relevant
+controls the host exposes. Discovery should use local or harness metadata and
+must not require a model invocation to ask the model what it can do.
+
+Discovery should happen at the start of every PM session or fresh PM
+invocation. The result is session-scoped, not a permanent project capability.
+A PM may reuse the snapshot for multiple delegations during the same session,
+but AIX should rediscover when the execution boundary changes, including when
+the user switches harnesses, the harness changes its model or relevant runtime
+configuration, work moves to another host, the host reports changed
+capabilities, or the user requests an explicit refresh through a diagnostic
+command.
+
+The discovery operation should be cheap enough to run at session startup. It
+should return a compact snapshot for PM runtime context and record the same
+snapshot, or a stable reference to it, with each delegation. It should not be
+added to `AGENTS.md` or copied into every user prompt.
+
+The discovery result should distinguish at least:
+
+- `supported`: the host explicitly provides the capability.
+- `unsupported`: the host explicitly does not provide it.
+- `unknown`: the host cannot report it reliably.
+
+The snapshot should cover the capabilities required by PM team orchestration,
+including independent context, role-specific instructions, task assignment,
+result return, inspectable worker state, concurrency, permissions, sandboxing,
+worktree behavior, interruption, and resume where the host exposes them.
+
+Harness name, provider or vendor, and exact model identifier are useful runtime
+metadata, but AIX should not require them to make the core decision. Some hosts
+may not expose all of those fields. AIX must not guess missing values.
+
+AIX should record the discovery snapshot with the delegation or parent task so
+later review can explain why a delegation was accepted, rejected, or limited.
+The discovery interface should sit behind the execution-provider boundary so a
+future AIX-owned manager can report the same capability contract.
+
+The initial capability policy should distinguish required, conditional, and
+informational capabilities:
+
+| Capability | Initial policy |
+| --- | --- |
+| Independent context | Required for every PM delegation |
+| Role-specific instructions | Required for every PM delegation |
+| Task assignment and result return | Required for every PM delegation |
+| Stable worker and delegation identity | Required for every PM delegation |
+| Correlated status or completion state | Required, or the provider must supply an equivalent durable state |
+| Workspace isolation | Required for parallel change-producing work |
+| Interruption and stop | Required before dispatching work that may need cancellation |
+| Resume | Optional, but the provider must report whether it supports it |
+| Exact harness, vendor, and model metadata | Informational and optional |
+
+The PM should evaluate capabilities against the task mode, not only against a
+single global host verdict. A read-only scout may need less workspace control
+than parallel implementation work, but neither may bypass the required
+identity, context, assignment, and result contract.
+
+Full PM team orchestration should require a harness with native sub-agent
+delegation. AIX should not claim that a prompt overlay or inline role pass is
+an independent worker. If native delegation is unavailable, the package
+manager remains usable, but `aix pm` should report that the project-manager
+workflow is installed and native PM delegation is unavailable in the current
+harness.
+
+The package-manager features remain independent of this requirement.
+Installing, updating, verifying, and managing workflows, roles, skills,
+templates, and guidance should work without a native sub-agent host.
+
+### Execution provider boundary
+
+The initial execution provider is the active harness's native sub-agent
+facility. The host owns worker creation, independent context, concurrency,
+permissions, sandboxing, worktrees, interruption, and other runtime mechanics
+that it supports. AIX supplies the role persona, delegation brief, protocol,
+authority rules, and evidence expectations.
+
+The PM is always the user-facing primary agent session. AIX is not a hidden
+second agent and does not become a long-running parent process. Once the PM
+workflow is active, normal project conversations in a harness that loads the
+project instructions enter through the PM rather than directly through a
+specialist role. Existing narrow bypasses, such as PM Review, tiny
+informational requests, and explicit developer overrides, still apply.
+
+In this plan, "parent context" means the PM's primary session plus the host
+controls around it. The parent owns the authoritative plan, user decisions,
+and final review; the PM owns routing and worker coordination within that
+authority. The PM may make routine sequencing decisions, prepare and revise
+bounded briefs, answer low-risk worker questions, and continue work within
+accepted scope, but neither the PM nor the parent session may directly edit
+project source, tests, documentation, plans, configuration, or other project
+artifacts. Those changes must pass through a bounded delegated role. The PM
+must return product choices, scope expansion,
+permission changes, destructive actions, data-impacting decisions, merge,
+release, and other irreversible decisions to the user. This plan does not
+define a separate AIX-hosted PM session.
+
+The provider contract should expose operations equivalent to create worker,
+deliver the initial brief, receive a correlated result, and discover
+capabilities. AIX should not require the CLI process to remain alive while a
+native worker runs. The provider or host must return enough identity and state
+for the PM to correlate work with durable records. Status, inspection,
+follow-up direction, stop, resume, worktrees, and concurrency are additional
+capabilities that the provider should report explicitly.
+
+The PM should use a tiered capability contract. Every supported host must
+provide independent worker creation, identity, initial brief delivery,
+correlated result return, and capability discovery. The PM should dispatch a
+task only when the host satisfies that task mode's additional requirements. A
+short read-only investigation may not need stop or worktree support, while a
+long-running or risky task may require both. Missing capabilities must be
+reported honestly and must not be silently replaced with inline prompting.
+
+### Secret handling
+
+AIX must never place raw secrets in delegation briefs, status events, result
+files, plans, `AGENTS.md`, PM prompts, or other durable project files. A task
+that needs a credential should carry only an ephemeral secret reference and
+the capability required to resolve it.
+
+The provider owns secret resolution and runtime injection. It may use the
+active host's secret mechanism or a future approved secret-store integration,
+but the value must remain outside AIX records and the normal PM exchange. The
+provider should redact known secret values from worker output, status, results,
+and logs where the host supports redaction.
+
+If the provider cannot securely resolve, inject, and protect the requested
+secret, the PM must refuse or escalate the task rather than pass the raw value
+through a prompt or write it to a file. A future integration with a password
+manager such as 1Password may be evaluated separately; it is not a dependency
+of this plan.
+
+AIX should define a host-execution interface and pass that abstraction through
+the PM and delegation services. PM logic must not depend directly on Codex,
+Claude, Gemini, Cursor, OpenCode, or another host's SDK, command syntax,
+session object, or event format. The provider implementation should translate
+the host's native operations and events into the AIX delegation contract.
+
+Permission requirements should be task-specific. The delegation brief should
+declare the access the task needs, such as read-only inspection, source or
+document writes, test execution, network access, or an ephemeral secret
+reference. The provider should grant the narrowest host-supported permissions
+that satisfy the brief, report inherited or unavailable controls, and never
+silently broaden access. A risky permission expansion must return to the user.
+
+The PM must not dispatch a task when the provider cannot provide the required
+permission, approval, sandbox, or secret boundary safely. A role's authority
+and write domain remain limits even when the host grants broader technical
+access.
+
+The abstraction should expose the required core operations and task-scoped
+optional capabilities, including worker creation, initial brief delivery,
+correlated result return, capability discovery, status inspection, follow-up
+direction, stop, resume, workspace handling, and concurrency reporting. It
+should also translate host worker IDs into AIX identity records and normalize
+unsupported operations instead of leaking host-specific behavior into the PM.
+
+This interface is an adapter boundary, not an AIX-owned agent manager. The
+initial implementation may provide one native-host adapter at a time, while
+the PM remains unaware of how the host creates or runs the worker.
+
+The active workflow and PM role define the protocol version used for a
+delegation. Capability discovery decides whether the current host can perform
+the task; AIX does not need runtime version-range negotiation in the initial
+implementation. The provider adapter must support the active AIX protocol or
+report incompatibility before dispatch. Workflow, PM role, provider, and
+protocol versions should be recorded with the delegation for recovery and
+future migration work.
+
+The shared protocol document explains the rules but does not enforce them by
+itself. Enforcement should be layered:
+
+- guidance gives the PM and worker the common behavioral contract
+- the provider adapter validates host exchanges, identity, capability, and
+  transport data
+- AIX validates durable record and result schemas
+- the PM enforces assignment scope, role ownership, authority, and evidence
+  sufficiency
+
+The parent session must not bypass this chain by editing project artifacts,
+running delegated lifecycle work directly, or dispatching a worker outside the
+PM. A host that cannot support the required enforcement and correlation for a
+task mode must report that limitation instead of silently weakening the
+protocol.
+
+A Firstmate-style launcher and supervisor that owns process creation, terminal
+sessions, worktrees, kill, resume, liveness, recovery, and teardown is not part
+of this plan. If native hosts later prove insufficient, AIX may add its own
+agent manager as another execution provider. That manager must consume the same
+delegation brief, status vocabulary, result format, discovery contract, and
+authority rules rather than creating a second workflow model.
+
+### Workflow team roster
+
+The standalone PM should discover the available delegation team from the
+active workflow. Each workflow may provide a `team.md` file as its team
+contract. The file should be workflow-owned, versioned with the workflow, and
+available to the PM after workflow activation.
+
+`team.md` should combine readable team guidance with structured metadata that
+identifies, at minimum:
+
+- workflow name and version
+- available role names and short responsibilities
+- supported task and delivery modes for each role
+- default write domains and denied artifact areas
+- role dependencies, preferred sequencing, and handoff relationships
+- required capabilities or permission boundaries
+- guidance for choosing between overlapping roles
+
+The PM should load `team.md` during startup or team discovery, then load the
+full `ROLE.md` and `GUIDANCE.md` files only for roles it may delegate to. The
+roster is the authoritative list of workflow-provided roles; the PM should not
+infer team membership from arbitrary files or require every role document to
+be loaded into its initial context.
+
+The workflow may also expose compatible standalone roles when the package
+manager records them as active. The PM should preserve each role's ownership
+and provenance and should reject ambiguous or conflicting team metadata rather
+than silently choosing a role.
+
+### Shared delegation protocol ownership
+
+The PM and every delegated worker need the same communication rules, but those
+rules should not become another always-loaded project entrypoint. AIX should
+not introduce a root-level `SUBAGENTS.md` by default. That would add context,
+create another instruction hierarchy, and make workflow protocol look like
+project-owned instructions.
+
+The canonical protocol should belong to the installed workflow as shared
+guidance, for example:
+
+```text
+.agents/packages/workflows/aix/design-plan-execute/
+  guidance/delegation-protocol.md
+```
+
+When the workflow is activated, AIX should publish or expose the usable
+project copy through the managed `.agents/guidance/` area. The PM and selected
+roles should reference the same protocol rather than maintaining separate
+copies of its rules.
+
+The shared protocol should define the concrete exchange contract, including:
+
+- dispatch, status, question, decision, result, and stop message types
+- required fields and delegation correlation IDs
+- when a worker must pause and return control to the PM
+- what counts as a valid completion and evidence package
+- how partial, failed, blocked, cancelled, and abandoned work is reported
+- the rule that supervised workers communicate through the PM
+
+The delegation brief should include the protocol version and any assignment-
+specific rules that apply. Durable delegation records should preserve the
+brief, status events, and result so the PM can recover the exchange without
+replaying the full conversation or relying on a worker to reload every
+workflow document.
+
+The knowledge responsibilities should remain separate:
+
+- `ROLE.md` defines who the agent is and its authority.
+- `GUIDANCE.md` defines how that role reasons and operates.
+- Shared delegation protocol guidance defines how the PM and worker
+  communicate.
+- The delegation brief defines what the worker must do now.
+- Durable records document what actually happened.
+
+### Delegation identity and display naming
+
+The PM should create an AIX delegation identity before starting a worker. The
+worker must receive that identity in its brief and use it in every status
+message, question, result, and durable record. A worker should never need to
+infer its identity from conversation context or a host UI.
+
+AIX should distinguish its stable protocol identity from the host's runtime
+identity:
+
+```yaml
+subagent_id: aix-agent-42
+delegation_id: aix-del-7f31
+host_worker_id: <opaque id assigned by the active harness>
+display_name: Technical architect - architecture review
+role: technical-architect
+```
+
+`subagent_id` identifies the logical role-agent instance and may be reused for
+compatible sequential assignments. `delegation_id` is the AIX-owned
+correlation key for one bounded assignment. A retry may create a new worker
+and delegation for the same parent task. `host_worker_id` is an opaque
+identifier supplied by Codex, Claude, or another execution provider and is
+used for host-specific routing and state inspection. If a host returns its
+worker ID only after creation, the PM or execution provider should deliver an
+identity message before the worker begins meaningful work.
+
+The PM may reuse a subagent only when the role, workspace, authority, and task
+family remain compatible and the provider supports follow-up work. Each new
+assignment gets a new brief and `delegation_id`; accumulated conversation
+context is not authoritative. The PM should require a context reset or fresh
+subagent after failure, blocked work, a security or permission boundary, scope
+change, workspace change, or any other condition that could carry unsafe
+assumptions forward.
+
+The PM should be able to assign a short, human-readable display name related
+to the role and current assignment, such as `Quality engineer - test
+strategy`. The display name helps the user understand which worker is active,
+but it must not replace the stable delegation ID because names can collide or
+change. The host may display a different native label, but AIX should preserve
+its own display name in the delegation record.
+
+### Role-agent persona
+
+Each delegated role should come alive as a role instance, not as a generic
+agent receiving an isolated question. The role instance must load and apply:
+
+- `ROLE.md` for identity, responsibilities, authority, boundaries, and stop
+  conditions.
+- `GUIDANCE.md` and any selected companion guidance for domain judgment,
+  heuristics, and tradeoffs.
+- The delegation brief for the current assignment, plan, task, constraints,
+  acceptance signals, and expected result.
+
+Role documents define how the worker should operate. The delegation brief
+defines what this worker should do now. The original user prompt may be
+included for intent and traceability, but it must not expand the bounded task.
+The worker should load only the role, guidance, project instructions, plan,
+code, tests, and other context required for its assignment.
+
+The persona should be functional rather than decorative. A role agent should
+understand which decisions it can make, which decisions must return to the
+PM, what work it owns, what it must not touch, and what evidence it must
+produce before reporting completion.
+
+### Role ownership, workspace, and concurrency policy
+
+Role boundaries should reduce unnecessary write concurrency before AIX relies
+on worktree isolation. The initial role policy should assign source-code and
+test implementation to `implementation-engineer`. Other roles may change
+documents within their declared domain, but they should not edit source code
+or silently expand into another role's artifact ownership.
+
+The PM should assign both a task mode and an artifact write scope before
+dispatch. The scope should identify the files or document area the role may
+change, along with any generated or managed files it must not touch. Each
+artifact has one active writer at a time, even when several roles may read it.
+
+- Read-only investigation and review work may run in parallel when the host
+  permits it.
+- Multiple roles may write in parallel only when their artifact scopes are
+  disjoint and neither scope includes shared generated, managed, plan, or
+  index files.
+- Work on the same document, plan, knowledge-base entry, manifest, lockfile,
+  `AGENTS.md`, or generated index must be serialized through the PM.
+- Every write-producing delegation receives an isolated workspace with an
+  explicit integration handoff. A reused subagent may continue only when the
+  provider can safely reset or rebind its workspace for the new delegation.
+  Otherwise the provider must create a fresh subagent.
+- If a role discovers that its work requires an artifact outside its scope, it
+  must stop and return the question to the PM instead of editing it.
+- If the host cannot provide the isolation required by the selected task
+  mode, the PM must serialize the work, change the task to read-only, or
+  return a capability gap.
+
+The role package should declare or otherwise expose its default write domain.
+The PM may narrow that domain for a specific assignment, but must not widen it
+without an explicit authority decision. Workspace isolation binds to the
+write-producing delegation, not to the logical subagent's entire lifetime. A
+read-only delegation may use no worktree. The host owns workspace creation and
+permissions. AIX records the selected workspace, role scope, and delivery
+mode, while the PM retains authority over sequencing, handoff, and whether
+unlanded work may be cleaned up.
+
+Shared artifacts should have one clear owner. AIX package-management commands
+own machine-managed `aix.json`, `aix.lock.json`, package state, workflow
+metadata, and the AIX-managed block in `AGENTS.md`. Delegated documentation or
+lifecycle roles own project plans, knowledge-base documents, indexes, and
+other project-owned documentation only within their assigned scope. The PM
+coordinates changes to shared artifacts but does not edit them directly.
+
+Roles may support more than one task mode, but each role package should declare
+the task modes and delivery modes it is allowed to receive, along with its
+default evidence requirements and write-domain limits. The PM selects a valid
+role and mode combination for each assignment. A role's ability to perform a
+review or verification task does not grant it permission to implement source
+changes, and a delivery mode must not widen the role's declared authority.
+
+These declarations should be inspectable as role metadata or an equivalent
+validated role contract. At minimum they should describe supported task modes,
+allowed delivery modes, default write domains, required evidence, and any
+capabilities that the role must not receive. AIX should validate the contract
+when the role is installed or activated and the PM should validate each brief
+against it before dispatch.
+
+### Delegation brief
+
+Every delegation should have a compact, inspectable brief. The brief should be
+usable as the input to a native sub-agent creation request without changing
+its meaning. Inline role overlays are not an independent execution mode for
+`aix pm` team orchestration.
+
+The initial protocol should carry fields equivalent to:
+
+```yaml
+subagent_id: <logical role-agent id>
+delegation_id: <stable unique id>
+parent_session_id: <PM session id>
+parent_plan: <plan path or none>
+parent_phase: <phase or none>
+parent_task: <task or none>
+original_prompt: <user intent for traceability>
+role: <selected role name>
+display_name: <human-readable role and assignment label>
+execution_mode: native
+delegation_protocol_version: <workflow protocol version>
+task_mode: scout | implementation | review | verification
+delivery_mode: report-only | local-change | isolated-change
+required_access:
+  - <minimum permission or host capability>
+assignment: <bounded work or review>
+required_reads:
+  - <source-of-truth path>
+optional_reads:
+  - <context path>
+accepted_context:
+  - <settled fact the worker may use>
+known_constraints:
+  - <scope, safety, lifecycle, or non-goal constraint>
+stop_conditions:
+  - <condition that returns control to the PM>
+return_requirements:
+  - files_inspected
+  - files_changed
+  - decisions
+  - risks
+  - verification
+  - handoff_notes
+```
+
+The brief should be role-specific and compact. It should not contain a full
+conversation transcript, every prior role result, or every potentially
+relevant file. Source-of-truth files belong in `required_reads`; orientation
+facts belong in `accepted_context`; unresolved matters belong in
+`stop_conditions` or `handoff_notes`.
+
+### Communication and exchange protocol
+
+The PM and role agent should use both an interactive channel and a durable
+channel.
+
+Every delegation must create its durable brief, status, and result records
+before worker execution begins. Native in-flight status events are preferred,
+but they are not required for every task. A provider may use safe file-based
+status updates or polling when it can guarantee shared access, atomic writes,
+identity validation, and a way for the PM to observe changes. The protocol
+does not require token-level streaming or a worker heartbeat to prove progress.
+
+The PM should gate tasks against the status and control capabilities available
+for the delegation. A host with only initial-brief and final-result delivery
+may run a short bounded task, while a long-running or risky task requires the
+stronger monitoring and intervention capabilities it needs.
+
+The interactive channel is for short, active coordination:
+
+- dispatching a brief
+- answering a bounded question
+- sending a decision
+- requesting clarification
+- asking the worker to continue or stop
+
+Every task requires a dispatch, identity or acceptance confirmation, and a
+correlated final result. Status updates, questions, decisions, follow-up
+direction, and stop messages become required when the selected task mode or
+its safety policy needs them. A provider may omit a non-required message type
+only when its capability snapshot records that limitation and the PM confirms
+that the task does not depend on it.
+
+The durable channel is for recoverable task state:
+
+- the exact delegation brief
+- meaningful status events
+- the final result
+- evidence pointers
+- unresolved decisions
+- the relationship to the parent plan or task
+
+The PM should not rely on chat history alone. The worker should not need the
+full PM transcript to understand its assignment. A restarted or compacted PM
+should be able to recover the delegation from the durable brief and result
+records.
+
+Every PM session must perform recovery discovery before accepting new
+meaningful project work. It scans `.aix/pm/` for non-terminal delegations even
+when the prior PM, host, or machine ended without writing a final status, such
+as after a crash or power loss. It reconciles each candidate with available
+provider state, worker identity, workspace state, and plan/task references, then
+records the result as healthy, completed, failed, `host-lost`, or `unknown`.
+The PM must surface unresolved recovery state and decide whether to continue,
+stop, or create a fresh delegation before dispatching overlapping work.
+
+Record ownership follows the direction of information flow. The PM authors the
+outbound brief and any follow-up or coordination decisions. The worker is the
+primary author of substantive progress events, findings, proposed results, and
+evidence. The provider or AIX owns the record envelope and integrity controls,
+including delegation identity, host identity, timestamps, sequencing, atomic
+persistence, and schema validation. The PM owns final acceptance, rejection,
+integration outcome, and recovery decisions. Workers must not be able to
+rewrite authoritative identity, scope, or lifecycle metadata.
+
+Delegation records should carry lifecycle timestamps, including
+`created_at`, `updated_at`, `last_status_at`, `last_observed_at`, and
+`completed_at` when applicable. Completed delegation data may be purged before
+the normal retention threshold once it is no longer relevant. An incomplete
+delegation that is stale and no longer being worked must not live beyond the
+default 30-day inactivity limit. Explicit safety holds, such as an unresolved
+integration or destructive-risk condition, must be represented separately and
+must be cleared or explicitly overridden before purge.
+
+Delegation findings should not be promoted into the knowledge base after every
+task. The PM should maintain concise promotion candidates during plan
+execution, then perform one bounded, non-chatty promotion pass during plan
+completion after implementation, verification, and integration are resolved.
+Delegation data is not purgeable merely because a worker finished; promotion
+and integration must complete first, or an explicit waiver must be recorded.
+Once the plan's durable implementation and design knowledge has been promoted
+or waived, delegation-specific briefs, status events, results, and workspaces
+may be purged when their safety holds are clear.
+
+The initial exchange should be one-directional in authority:
+
+```text
+PM -> worker: bounded brief and authority
+worker -> PM: status, questions, evidence, result
+PM -> worker: decisions or additional bounded direction
+PM -> user: translated outcome, blocker, or escalation
+```
+
+The worker should communicate with the PM, not directly with the user, when a
+delegation is being supervised. A user decision should return through the PM
+so the PM can preserve correlation, scope, and the decision's effect on the
+parent plan.
+
+The user may observe native worker names, status, and other host-provided
+activity. If the user thinks a worker needs steering, the managed path is to
+tell the PM what needs to change. The PM should decide whether to send bounded
+follow-up direction, pause the worker, revise the assignment, or stop and
+restart it. This keeps the user's intent, the worker's authority, and the
+durable record aligned.
+
+Some hosts may allow the user to message or steer a worker directly. AIX
+cannot assume it can prevent that interaction, but direct steering is outside
+the managed protocol. If it occurs, the PM must treat it as an external
+intervention, record or summarize its effect, re-check scope and authority,
+and reconcile the delegation before accepting the result. Direct host control
+must not silently change the assignment or authorize work outside the PM.
+
+### Internal exception recovery and escalation
+
+The PM should treat most worker problems as team-operating work, not as an
+immediate user interruption. When a worker reports a conflict, failed
+verification, scope drift, incomplete result, stale worktree, or unsafe cleanup
+condition, the PM should diagnose the problem and retry, redirect, pause,
+restart, or delegate a repair or integration task as appropriate.
+
+The PM should bring the user in only when the team reaches a product or scope
+decision, needs permission for a risky or irreversible action, encounters a
+material security or data-safety concern, or cannot recover after reasonable
+bounded attempts. The user should receive the outcome and the decision needed,
+not an invitation to manage branches, worktrees, status files, or routine
+worker correction.
+
+Messages should remain short. Long instructions, reports, and evidence should
+live in durable files with pointers sent through the interactive channel. This
+keeps active prompts small and lets the PM summarize instead of copying raw
+worker transcripts into the user conversation.
+
+### Durable delegation records
+
+AIX should use a small project-local delegation record rather than attempting
+to persist every agent message. The recommended location is a project-local
+`.aix/pm/` directory, separate from package-managed `.agents/` content and
+project-owned `_docs/` knowledge. The initial design should treat these files
+as local operational state, with an explicit later decision about whether a
+project wants to commit them for team history. The intended shape is:
+
+```text
+<delegation-root>/<delegation-id>/
+  brief.md
+  status.jsonl
+  result.md
+```
+
+The record root should also contain a small index or metadata file that maps
+`subagent_id`, `delegation_id`, `parent_session_id`, host identity, task mode,
+workspace, and current terminal state. Records must not contain full raw
+transcripts by default. Prompts, reports, and evidence should be stored only
+when needed for recovery or audit, and the plan must define how sensitive
+content is handled before implementation.
+
+`brief.md` is the immutable or append-with-revision task assignment that the
+worker received. If the assignment changes, the record should make the new
+decision explicit rather than silently rewriting the original intent.
+
+`status.jsonl` is an append-only event stream. It should record meaningful
+transitions such as:
+
+```text
+created
+dispatched
+working
+needs-decision
+blocked
+paused
+completed
+failed
+cancelled
+```
+
+Each event should include a unique event ID, delegation and subagent IDs,
+timestamp, source, sequence information, and any host correlation data. The
+protocol should define whether an event is accepted, duplicated, stale, or
+out of order. Exact duplicates should be ignored by event ID. Stale or late
+events remain evidence but must not regress the derived current state. Genuine
+conflicts should be retained and surfaced for PM reconciliation rather than
+resolved by arrival order or timestamp alone. Terminal states should include
+completed, failed, cancelled,
+and abandoned. `needs-decision`, `blocked`, and `paused` are resumable or
+reviewable states until the PM records a terminal outcome.
+
+Status events are evidence of transitions, not the complete current state. A
+future reconciler may derive current state from the event stream, host state,
+worktree state, plan state, and result artifacts. The PM should not treat the
+last status line or a stopped conversation as proof of completion.
+
+The project should use a PM session lease to prevent multiple sessions from
+dispatching overlapping work or issuing conflicting coordination decisions.
+Per-delegation and per-artifact locks should provide narrower protection for
+record updates and write scopes. Other PM sessions may inspect state read-only,
+but only the lease holder may dispatch, steer, accept, integrate, or perform
+coordination writes. Lease expiry and takeover must go through recovery
+discovery so a new PM does not assume the previous session stopped cleanly.
+
+`result.md` is the durable handoff. It should contain, as applicable:
+
+- delegation ID and role
+- subagent ID and host worker ID when available
+- execution mode
+- assignment summary
+- files and documents inspected
+- files changed
+- decisions made
+- risks and uncertainty
+- verification commands and outcomes
+- skipped checks and reasons
+- unresolved questions or blockers
+- links to PRs, reports, plans, or other artifacts
+- handoff notes for the PM or next role
+
+The result should say plainly whether the assignment completed, failed,
+blocked, or returned partial work. A result is evidence for the PM; it does
+not by itself authorize a merge, plan transition, destructive action, or new
+implementation scope.
+
+### Delegation retention and cleanup
+
+Delegation records are working evidence, not permanent project state. AIX
+should provide a first-class project maintenance command, `aix pm tidy`, so
+cleanup does not depend on a plan-completion event. This matters for small
+inline tasks, failed work, abandoned sessions, and delegations that never had
+an implementation plan.
+
+`aix pm tidy` should operate locally and should not require native delegation
+or an active PM session. By default it should inspect the PM workspace,
+summarize eligible records, and run as a preview. An explicit apply option may
+perform reversible housekeeping, while an explicit purge or confirmation may
+delete completed delegation data that is no longer relevant. Stale incomplete
+delegations are purgeable at the 30-day inactivity limit unless a safety hold
+or unresolved external reference protects them.
+
+The command should be able to identify and report:
+
+- orphaned delegation records
+- stale status events and temporary PM files
+- completed delegation archives
+- unreferenced reports and runtime metadata
+- records that remain protected by an active task, decision, or worktree
+
+Detailed deletion should require an explicit purge option or confirmation, for
+example `aix pm tidy --purge`. Cleanup filters, retention age, state selection,
+and protected-record overrides remain implementation decisions, but every
+mutating mode must be conservative and explain what it will change before it
+runs.
+
+Cleanup should not preserve delegation details indefinitely. Assignment
+outcomes, decisions, changed files, verification, risks, and artifact links
+that matter to the project should be promoted once during plan completion into
+the plan or `_docs/kb`. After successful promotion or an explicit waiver, the
+delegation brief, result, raw status events, summaries, tombstones, archives,
+and workspace may be deleted together when no safety hold remains.
+
+`aix pm tidy` must not casually delete project source, unmerged changes,
+worktrees, or other user-authored files. Any future worktree cleanup needs a
+separate explicit scope and safety contract.
+
+### Observability and troubleshooting
+
+Normal user-facing PM output should remain concise. It should explain the
+current decision, progress, exception, or required user action without making
+the user parse provider or orchestration internals. AIX should provide an
+explicit verbose diagnostics mode for development, debugging, recovery, and
+support.
+
+Verbose diagnostics may be rendered by the CLI, written to structured local
+runtime logs, or both. They should make it possible to reconstruct capability
+discovery, PM session startup, brief dispatch, worker creation, status
+transitions, provider responses, lease and lock behavior, workspace
+integration, cleanup decisions, and refusal or recovery paths. Diagnostics
+must be correlated by PM session ID, delegation ID, subagent ID, host worker
+ID, event ID, and workspace ID where available.
+
+Diagnostics are troubleshooting evidence, not a second communication protocol
+and not a replacement for the durable brief, status, or result records. Logs
+are local runtime state under `.aix/pm/`, ignored by Git, subject to the raw
+secret prohibition and redaction rules, and bounded by rotation or cleanup.
+Development and test fixtures may enable verbose output by default, but normal
+installed behavior requires explicit opt-in.
+
+### Task lifecycle and authority
+
+The delegation lifecycle should separate task progress from worker liveness:
+
+```text
+created -> dispatched -> working -> completed
+                         |       -> failed
+                         |       -> blocked
+                         |       -> needs-decision
+                         |       -> paused
+                         -> cancelled
+```
+
+The host may report that a worker process is alive, but liveness is not proof
+that work is progressing. Completion requires the expected result and evidence
+for the task type.
+
+The authority boundaries should be explicit:
+
+- The PM owns routing, sequencing, delegation records, escalation, result
+  aggregation, and user-facing communication.
+- The role agent owns only the bounded assignment and its evidence.
+- The parent context retains final lifecycle decisions, worktree safety,
+  verification review, and user-authorized actions.
+- The user retains product decisions, risky or irreversible approvals, and
+  final merge or release authority unless a separate accepted policy says
+  otherwise.
+
+The PM should review returned evidence minimally and by exception. It should
+re-read or challenge a result when the worker reports uncertainty, scope
+drift, failed or incomplete verification, safety-sensitive changes, changed
+files outside the assignment, or a dependency requires exact content.
+
+### Firstmate lessons to adopt
+
+Firstmate's operating contract supplies several useful patterns:
+
+- Treat the primary agent as a liaison, not a second implementer.
+- Give every worker a bounded brief with acceptance and safety requirements.
+- Keep worker communication behind the coordinator.
+- Persist work state so restart does not depend on conversation memory.
+- Distinguish status events from reconciled current state.
+- Preserve unlanded work and refuse unsafe cleanup.
+- Make delivery mode explicit rather than inferred.
+- Keep scout or investigation work distinct from change-producing work.
+- Return plain outcomes to the user instead of raw status logs or transcripts.
+- Route durable knowledge to its most specific owner.
+
+These are protocol and ownership lessons, not a requirement to copy
+Firstmate's shell scripts, terminal backends, secondmates, remote homes,
+watchers, Relay features, or private fleet state layout.
+
+### Deferred runtime direction
+
+This plan does not introduce an AIX-owned agent manager. In particular, it
+does not yet define AIX commands or services for spawning, monitoring,
+interrupting, resuming, killing, recovering, or tearing down independent
+worker processes.
+
+If a future runtime is proposed, it must consume the same delegation brief,
+status vocabulary, result format, and authority rules. It should be an
+execution adapter behind the protocol, not a second source of role or
+workflow truth.
+
+## Non-goals
+
+- Building an AIX-owned process manager, daemon, terminal multiplexer, or
+  remote worker fleet in the initial implementation.
+- Supporting inline prompt overlays as an equivalent to independent native
+  sub-agents.
+- Making AIX depend on one model vendor, model family, or AI harness.
+- Persisting full worker transcripts or turning delegation logs into the
+  project's permanent knowledge base.
+- Letting PM delegation bypass user approval for product, destructive, merge,
+  release, or other irreversible decisions.
+- Adding registry, plugin-package, global-install, or publishing behavior to
+  the package-manager layer.
+
+## Boundaries and invariants
+
+- `aix init` initializes package management only. Workflow installation and
+  activation are explicit opt-in operations.
+- Rerunning `aix init` is non-interfering with installed or active workflows,
+  standalone PM state, PM routing, team rosters, and delegation records.
+- Workflows declare `project-manager` as a reusable role dependency. The PM
+  package remains standalone and reusable, while the active workflow owns
+  activation of that dependency. Workflow, role, and dependency provenance
+  remain in manifest and lockfile state.
+- The PM is the single user-facing project coordinator. AIX CLI commands
+  manage project assets and local PM records; they do not become a hidden
+  long-running agent.
+- When the PM workflow is active, the PM is the primary agent session for
+  normal project conversations. Specialist roles are entered through PM
+  delegation, subject to the documented narrow bypasses.
+- Native hosts own worker execution. AIX owns the role, brief, protocol,
+  identity, evidence, authority, and record contracts.
+- PM logic depends on an AIX host-execution interface, not on a specific
+  vendor SDK, model, command syntax, session object, or event format.
+- AIX uses `subagent_id` for a logical worker, `delegation_id` for one bounded
+  assignment, and `host_worker_id` for the provider's runtime handle.
+- A native worker is not considered complete without a correlated result and
+  the evidence required by its task mode.
+- Role write domains narrow concurrency before workspace isolation is needed.
+  `implementation-engineer` owns source-code and test implementation; other
+  roles may write only within their declared document domains.
+- Same-artifact writes are serialized. Parallel change-producing workers
+  require isolated workspaces per delegation, and AIX must not silently allow
+  concurrent writes to a shared checkout.
+- `AGENTS.md` receives only a small marker-delimited routing block when the PM
+  workflow is activated. Project-owned content remains untouched.
+- PM records live outside package-managed `.agents/` content and project-owned
+  `_docs/` knowledge. Cleanup never removes protected work or source files by
+  default.
+- Raw secrets never enter PM prompts or durable delegation records. Secret
+  references and provider-controlled ephemeral injection are the only allowed
+  delegation path.
+- Unknown required host capabilities fail closed for PM team orchestration,
+  while package-management commands remain available.
+
+## Implementation Phases (status: accepted)
+
+The phases below are intentionally incremental. Each phase introduces a
+testable contract or integrated capability before later phases depend on it.
+The first host/provider implementation may be a test double, but it must use
+the same interface that a real supported harness adapter will use. No phase
+activates PM behavior by accident; package-only initialization remains the
+default until an eligible workflow is explicitly installed and activated.
+
+### Incremental dogfooding rule
+
+The plan should be developed as a sequence of vertical slices, not as a fully
+top-down build that is only tested at the end. Early contract, storage, and
+package-lifecycle work may be implemented directly because the new PM runtime
+does not exist yet. As soon as the first real native-provider path, durable
+exchange, and workspace safety boundary are usable, the AIX project itself
+should activate the PM workflow and use it to implement subsequent bounded
+code changes.
+
+The first PM-dogfooded change should be deliberately small and reversible, such
+as a focused test or runtime module change. The PM must dispatch it to the
+implementation-engineer through the real provider interface, receive durable
+status and result evidence, verify it, and integrate or recover the isolated
+workspace. From that gate onward, every normal implementation, documentation,
+verification, and cleanup task in this plan should be routed through the PM.
+Direct implementation is reserved for bootstrap gaps, provider/runtime
+failures, or explicit recovery work, and any exception must be recorded in the
+plan. This makes the plan itself an acceptance test of the delegation model.
+
+### Observability and troubleshooting direction
+
+Normal user-facing output should remain concise and explain decisions,
+progress, exceptions, and required action without exposing internal noise.
+During development, debugging, and recovery, AIX should support an opt-in
+verbose mode that exposes the underlying orchestration evidence. This may be
+shown in the CLI, written to structured local runtime logs, or both, depending
+on the host and command.
+
+Verbose diagnostics should be correlated by PM session ID, delegation ID,
+subagent ID, host worker ID, event ID, and workspace ID where available. They
+should make it possible to reconstruct capability discovery, brief dispatch,
+worker creation, status transitions, provider responses, lease/lock behavior,
+workspace integration, cleanup decisions, and refusal or recovery paths.
+Diagnostics are troubleshooting evidence, not a second communication protocol
+and not a replacement for the durable brief, status, or result records.
+
+Verbose logs are local runtime state under `.aix/pm/`, are ignored by Git, and
+follow the same raw-secret prohibition and redaction rules as delegation
+records. The implementation should support bounded rotation or cleanup so
+debugging cannot create unbounded project data. Development and test fixtures
+may enable verbose output by default; normal installed behavior should require
+an explicit opt-in.
+
+### Phase 1: Establish PM domain contracts and local state (status: accepted)
+
+Goal: create the stable vocabulary and safe project-local storage boundaries
+without dispatching workers yet.
+
+Tasks:
+
+- [ ] Add PM domain types and validators for workflow/team identity,
+  `subagent_id`, `delegation_id`, `host_worker_id`, display name, task mode,
+  delivery mode, protocol version, authority, write scope, required access,
+  lifecycle state, safety holds, and evidence references.
+- [ ] Add safe `.aix/pm/` path helpers and a project-local runtime layout for
+  session metadata, leases, delegation directories, indexes, briefs, status
+  events, results, and temporary workspaces. Reject paths that escape the
+  project or delegation root.
+- [ ] Define timestamp handling and UTC serialization for `created_at`,
+  `updated_at`, `last_status_at`, `last_observed_at`, and `completed_at`.
+- [ ] Define event identity and ordering validation: event IDs, delegation and
+  subagent IDs, sequence numbers, timestamps, event source, and host
+  correlation data. Implement duplicate, stale, out-of-order, and conflict
+  classifications as pure domain logic.
+- [ ] Define the initial protocol and record schema versions, including the
+  fail-closed behavior for unsupported or unknown required versions.
+- [ ] Add focused unit tests for IDs, timestamps, path safety, state
+  transitions, event classification, schema rejection, and atomic record
+  writes. Add fixtures for crash-left and partially written state.
+- [ ] Define the structured diagnostic event shape, log levels, correlation
+  fields, redaction boundary, rotation/size policy, and concise-versus-verbose
+  rendering contract. Add a local logger that is safe to use during recovery
+  and cannot persist raw secret values.
+
+Exit criteria:
+
+- PM records can be created and validated without a host or active PM session.
+- A malformed, path-escaping, secret-bearing, or identity-inconsistent record
+  is rejected by the domain layer.
+- The package-management CLI and existing lockfile formats remain unchanged.
+
+### Phase 2: Model workflow teams and dependency activation (status: accepted)
+
+Goal: make workflow ownership and activation state express the PM team without
+changing the normal package-only `aix init` experience.
+
+Tasks:
+
+- [ ] Extend workflow manifest and lockfile types to declare required reusable
+  role dependencies, especially `project-manager`, workflow-owned team roster
+  metadata, dependency provenance, and required PM capabilities.
+- [ ] Define and validate the workflow-owned `team.md` contract: workflow and
+  version, role responsibilities, supported task/delivery modes, write domains,
+  denied areas, sequencing or handoff rules, required capabilities, and
+  permission expectations.
+- [ ] Add the `team.md` asset and required dependency metadata to
+  `design-plan-execute`; keep the generic PM role package reusable and avoid
+  duplicating it in the workflow.
+- [ ] Refactor workflow installation and activation to resolve, install or
+  verify, and activate declared dependencies atomically. Record whether PM and
+  specialist roles were requested directly or activated through a workflow.
+- [ ] Refactor workflow deactivation/removal to cascade through dependencies
+  that no other active workflow requires, preserve ownership/provenance, and
+  remove only AIX-owned managed routing hooks.
+- [ ] Preserve existing project-owned `AGENTS.md` content, update only stable
+  AIX marker blocks, and add the minimal PM-routing block only when an active
+  workflow requires PM. Ensure failed activation rolls back package, lockfile,
+  role, and `AGENTS.md` changes.
+- [ ] Ensure default and repeated `aix init` remain package-only and do not
+  install, activate, migrate, or remove PM/workflow state.
+- [ ] Add workflow, dependency, lockfile, append-block, rollback, shared
+  dependency, deactivation, and rerun tests.
+
+Exit criteria:
+
+- Installing a workflow does not activate it; activating it installs and
+  activates its declared PM/team dependencies and hooks.
+- Deactivation removes the active workflow's AIX-owned hooks and restores
+  normal prompt behavior without overwriting project-owned instructions.
+- The active workflow exposes a validated `team.md` roster and dependency
+  provenance through status/verification output.
+
+### Phase 3: Define the host-execution boundary and capability discovery (status: accepted)
+
+Goal: hide vendor, model, harness, worker-session, and event-transport details
+behind one host-neutral interface.
+
+Tasks:
+
+- [ ] Define the host-execution interface for session identity, capability
+  discovery, independent worker creation, role instructions, initial brief
+  delivery, correlated results, optional status/inspection/follow-up/stop/
+  resume operations, permissions, workspace binding, and concurrency.
+- [ ] Define the provider capability snapshot and refresh policy: discover at
+  every PM session/fresh invocation, reuse during that session, and refresh on
+  harness/model/runtime changes or explicit request. Record provider/vendor,
+  harness, model, runtime, protocol support, and unknown fields without
+  guessing missing metadata.
+- [ ] Implement a fake/native-shaped provider for contract tests. It must
+  create independent workers, return logical and host IDs, accept role
+  instructions and briefs, and emit correlated final results.
+- [ ] Implement the minimum viable adapter for the first supported native host
+  early enough to support project dogfooding. It must use the same interface as
+  the fake provider and support independent worker creation, role/persona and
+  brief delivery, correlated results, and the required capability snapshot.
+- [ ] Implement the PM preflight decision: required native delegation
+  capabilities must be explicitly supported; unsupported or unknown required
+  capabilities fail closed for PM orchestration while package-management
+  commands remain available.
+- [ ] Add provider contract tests proving independent context, identity
+  propagation, role/persona loading, brief delivery, result correlation, and
+  capability refusal. Test capability refresh after a harness/model change.
+
+Exit criteria:
+
+- PM orchestration depends only on the AIX host interface, never on a vendor
+  SDK or harness-specific session details.
+- A provider can be substituted in tests without changing PM behavior.
+- The user receives a clear native-delegation readiness error instead of an
+  inline or silently shared-context fallback.
+- One real supported host can execute the minimum native delegation path needed
+  for the later PM dogfooding gate.
+
+### Phase 4: Package the PM persona and shared delegation protocol (status: accepted)
+
+Goal: make every role worker arrive with the right identity, boundaries, and
+communication rules before it receives work.
+
+Tasks:
+
+- [ ] Update the reusable PM `ROLE.md` and `GUIDANCE.md` to describe session
+  startup recovery, workflow-team discovery, capability preflight, bounded
+  briefs, orchestration authority, user escalation, and the no-direct-edit
+  rule for PM and parent contexts.
+- [ ] Add workflow-owned shared delegation protocol guidance, initially under
+  `design-plan-execute`, covering dispatch, acceptance, status, questions,
+  decisions, follow-up, stop, result, evidence, identity, scope, and terminal
+  state semantics. Do not add a root `SUBAGENTS.md`.
+- [ ] Define role metadata for supported task modes, delivery modes, write
+  domains, denied capabilities, required evidence, and permission expectations.
+  Validate that `team.md` references roles and modes that actually exist.
+- [ ] Define the worker context loading order: project instructions, selected
+  role `ROLE.md`, selected `GUIDANCE.md` files, shared protocol guidance,
+  `team.md` excerpt, and the current delegation brief. Avoid loading the full
+  PM transcript or every role document.
+- [ ] Add role/persona fixtures and instruction tests that verify role
+  identity, authority, stop conditions, protocol version, delegation identity,
+  and bounded task scope are present in the worker context.
+
+Exit criteria:
+
+- A fake worker can be initialized as a named role instance with the exact
+  role and guidance context needed for its assignment.
+- Role documents define behavior while the brief defines the current task;
+  neither requires full transcript forwarding.
+
+### Phase 5: Implement durable delegation exchange (status: accepted)
+
+Goal: establish recoverable PM-to-worker and worker-to-PM communication for
+short inline tasks and larger planned work.
+
+Tasks:
+
+- [ ] Implement delegation creation that writes an authoritative, PM-authored
+  `brief.md` before dispatch. Include IDs, role, workflow/team version,
+  protocol versions, task and delivery modes, bounded goal, constraints,
+  acceptance signals, write scope, required access, stop conditions, and
+  return requirements.
+- [ ] Implement worker-owned progress and result publication through a
+  controlled interface. Store meaningful status events and `result.md`, while
+  AIX/provider owns identity, sequencing, timestamps, atomic persistence, and
+  schema validation.
+- [ ] Implement the required exchange: dispatch, identity/acceptance
+  confirmation, and correlated final result. Add optional status, question,
+  decision, follow-up, and stop paths according to task mode and provider
+  capability.
+- [ ] Enforce bounded durable content: summaries, decisions, evidence pointers,
+  and limited excerpts only. Reject raw secrets and avoid full prompts,
+  transcripts, source copies, or unrestricted worker output. Support ephemeral
+  secret references without persisting secret values.
+- [ ] Add record indexes and read APIs that allow a compacted or new PM session
+  to recover a delegation without replaying chat history.
+- [ ] Emit correlated diagnostics for brief publication, worker status/result
+  publication, validation failures, provider responses, and interrupted writes.
+  Keep the durable delegation records concise while retaining detailed
+  troubleshooting evidence in the opt-in local diagnostic stream.
+- [ ] Add end-to-end fake-provider tests for brief creation, worker status and
+  result publication, correlation, partial/blocked results, malformed output,
+  secret rejection, and interrupted writes.
+
+Exit criteria:
+
+- A delegation can be dispatched and recovered entirely from `.aix/pm/` plus
+  provider state.
+- Worker-authored content cannot rewrite authoritative identity, scope, or
+  lifecycle fields.
+- The PM can accept or reject a result using evidence without relying on the
+  original conversation transcript.
+
+### Phase 6: Add PM orchestration, recovery, and coordination (status: accepted)
+
+Goal: make the PM a usable orchestrator for independent native workers while
+keeping user interaction centered on the PM.
+
+Tasks:
+
+- [ ] Implement PM session startup: acquire the project PM lease, discover the
+  active workflow/team, refresh capabilities, and reconcile every non-terminal
+  delegation before accepting new meaningful work.
+- [ ] Implement lease expiry/takeover and per-delegation/per-artifact locks.
+  Permit read-only inspection from other sessions, but restrict dispatch,
+  steering, acceptance, integration, and coordination writes to the lease
+  holder.
+- [ ] Implement conservative role selection from `team.md`, loading full role
+  and guidance documents only for selected workers. Enforce task mode, delivery
+  mode, write scope, authority, required access, and role ownership.
+- [ ] Implement logical subagent reuse only for compatible sequential work. Each
+  assignment gets a fresh brief and delegation ID; every retry gets a new
+  worker and delegation without inherited mutable context.
+- [ ] Implement recovery reconciliation across durable records, provider state,
+  worker identity, workspaces, plan/task references, and event history. Record
+  `host-lost` or `unknown` when evidence conflicts or is insufficient.
+- [ ] Implement PM recovery actions: follow-up, pause, stop, fresh retry,
+  redirect, delegated repair, verification, and escalation. Preserve the rule
+  that PM and parent contexts do not edit project artifacts directly.
+- [ ] Add PM-facing `status`/inspection behavior and refusal-path UX for missing
+  capabilities, expired leases, conflicting sessions, unavailable workers,
+  unsafe permissions, and unresolved recovery state.
+- [ ] Add verbose PM diagnostics for session startup, capability discovery,
+  recovery reconciliation, lease acquisition/takeover, lock contention,
+  provider actions, and state decisions. Ensure normal output remains concise
+  and verbose output is explicitly enabled.
+- [ ] Add fake-provider integration tests for sequential delegation, independent
+  contexts, recovery after abrupt termination, event conflicts, lease takeover,
+  fresh retry, user decision routing, and parent/PM direct-edit refusal.
+
+Exit criteria:
+
+- A normal conversation in an activated PM workflow enters through the PM and
+  can complete a bounded delegated task using a native-shaped provider.
+- A new PM session discovers incomplete work before dispatching overlapping
+  work.
+- Routine failures are handled by PM recovery; only product, scope, risky
+  permission, security/data safety, or unrecoverable decisions reach the user.
+
+### Phase 7: Add workspace isolation and integration (status: accepted)
+
+Goal: hide workspace mechanics from the user while making write-producing
+delegations safe to execute and integrate.
+
+Tasks:
+
+- [ ] Define the workspace interface for read-only execution, isolated
+  write-producing execution, base revision, scope, ownership, cleanliness,
+  integration target, and cleanup state.
+- [ ] Bind isolation to each write-producing delegation rather than the
+  logical subagent lifetime. Allow read-only work without a worktree when safe.
+- [ ] Implement isolated worktree creation, validation, status inspection,
+  integration handoff, conflict detection, and safe cleanup. Preserve
+  unmerged changes and refuse unsafe deletion.
+- [ ] Enforce role write domains and single-writer artifact locks. Serialize
+  same-artifact changes while allowing disjoint read or write scopes to run in
+  parallel when the provider supports it.
+- [ ] Implement PM/delegated repair paths for conflicts, verification failures,
+  scope drift, unmerged changes, and incomplete cleanup. Surface exceptions to
+  the user only after bounded recovery attempts.
+- [ ] Add isolated temporary-project integration tests for clean integration,
+  conflicts, scope violations, abandoned worktrees, cleanup refusal, document
+  concurrency, and implementation-engineer-only source-code writes.
+- [ ] Run the first PM dogfooding change in the AIX repository through the real
+  provider path. Use a small bounded implementation-engineer task, an isolated
+  workspace, durable brief/status/result records, verification, and PM-owned
+  integration. Record the delegation and any recovery or exception path.
+
+Exit criteria:
+
+- Users do not manage branches, worktrees, or merge mechanics for normal
+  delegations.
+- Integration exceptions are visible and recoverable without silently losing
+  work or allowing out-of-scope changes.
+- The PM has successfully orchestrated and integrated at least one real code
+  change in AIX through a supported native host.
+
+### Phase 8: Implement tidy, retention, and completion cleanup (status: accepted)
+
+Goal: make PM runtime state maintainable for both planned and inline work.
+
+Tasks:
+
+- [ ] After the Phase 7 dogfooding gate, route the implementation of this phase
+  through the PM and record the delegation evidence in the plan's execution
+  notes.
+- [ ] Implement `aix pm tidy` as a local command that works without an active PM
+  session or native delegation. Preview eligible records, workspaces, safety
+  holds, references, timestamps, and proposed actions by default.
+- [ ] Add interactive confirmation and explicit mutation modes for archive,
+  apply, and purge. Non-interactive use remains preview-only unless an explicit
+  mutation flag is supplied.
+- [ ] Implement relevance and retention rules: completed data may be purged
+  early after it is no longer relevant; stale incomplete delegations reach the
+  default 30-day inactivity limit; active work, unlanded changes, unresolved
+  integration, destructive-risk holds, and external references block purge.
+- [ ] Implement plan-completion integration so durable implementation/design
+  knowledge is promoted once, concisely, into the plan or `_docs/kb`. Do not
+  run chatty per-delegation promotion.
+- [ ] Permit full deletion of delegation briefs, results, status events,
+  indexes, temporary files, and workspaces after promotion or explicit waiver
+  and cleared safety holds. Do not retain tombstones by default.
+- [ ] Add workflow-deactivation warning and confirmation for active/unlanded
+  delegation datasets; on confirmation delete only the affected workflow-owned
+  runtime dataset, preserving project-owned files and unrelated work.
+- [ ] Add CLI and integration tests for preview, confirmation, non-interactive
+  refusal, early completed cleanup, 30-day stale cleanup, safety holds,
+  deactivation deletion, and plan-completion promotion ordering.
+- [ ] Add diagnostic-log rotation and cleanup tests, including redaction,
+  correlation, bounded size, preview reporting, and purge behavior.
+
+Exit criteria:
+
+- PM runtime data has a clear, user-visible cleanup path and does not become
+  permanent project history.
+- Deactivation cannot silently delete active delegation data or project-owned
+  files.
+
+### Phase 9: Connect supported native providers and harden the workflow (status: accepted)
+
+Goal: prove the host-neutral design against real supported harnesses and finish
+the user-facing package lifecycle.
+
+Tasks:
+
+- [ ] Continue using the PM to orchestrate normal implementation, documentation,
+  verification, and provider-hardening work. Use direct parent-context changes
+  only for documented bootstrap or recovery exceptions.
+- [ ] Implement one supported native provider adapter against the Phase 3
+  interface's complete capability set, extending the Phase 3 minimum adapter
+  with the provider's supported status/control, permission, workspace, and
+  concurrency operations.
+- [ ] Add additional provider adapters only where their native delegation
+  contract satisfies the required PM capabilities. Document unsupported or
+  unknown capability behavior; do not add inline fallback behavior.
+- [ ] Add a supported-harness capability matrix and diagnostics showing the
+  discovered harness, vendor/provider, model, runtime, protocol support, and
+  missing capabilities without requiring those metadata fields to be present.
+- [ ] Complete command UX and help for workflow activation/deactivation,
+  `aix pm` inspection/status/tidy operations, verbose diagnostics, confirmation
+  prompts, refusal paths, and normal-prompt restoration.
+- [ ] Run package, activation, workflow, role, lockfile, security, provider,
+  lifecycle, workspace, cleanup, and end-to-end regression suites. Verify
+  packed npm artifacts include all PM/workflow assets and exclude local runtime
+  state.
+- [ ] Review and update product, requirements, architecture, security,
+  quality, operations, workflow, and PM role documentation. Promote only
+  accepted durable behavior during plan completion.
+
+Exit criteria:
+
+- At least one real supported harness can run the complete PM delegation path.
+- Package-only users remain unaffected, and unsupported hosts fail clearly.
+- The plan's verification and security gates pass with no unowned runtime or
+  cleanup behavior.
+
+## Open Questions / Decisions
+
+The durable direction is defined above. The product and architecture decisions
+that required user input are recorded below as decided. The remaining items
+are implementation-design details that can be resolved after Design Intent is
+accepted.
+
+### Decisions recorded before Design Intent acceptance
+
+#### Workflow dependency and activation lifecycle
+
+- [Decided] Workflow activation installs and activates its declared
+  dependencies, including the reusable PM role and managed routing hooks.
+  Deactivation cascades through dependencies that no other active workflow
+  requires, removes the workflow's AIX-owned hooks, and returns prompts to
+  normal non-PM behavior without changing project-owned `AGENTS.md` content.
+- [Decided] Before deactivation, AIX warns about active or unlanded
+  delegations. If the user explicitly confirms, AIX deletes the affected
+  workflow-owned delegation dataset, including operational records and
+  isolated workspaces. Without confirmation, deactivation stops. Project-owned
+  files and unrelated work are preserved.
+
+#### Delegation records, privacy, and cleanup
+
+- [Decided] `.aix/pm/` is the project-local location for PM and delegation
+  operational records. It is runtime state for the local user and harness,
+  not a portable project artifact, and is ignored by Git by default. Workflow
+  source packages may still be installed from Git or npm, but the installed
+  workflow state, PM state, delegation records, and workspaces are not treated
+  as cross-user history or a committed collaboration surface.
+- [Decided] Briefs, status, results, and indexes contain bounded summaries,
+  structured metadata, decisions, and evidence pointers rather than full user
+  prompts, full PM transcripts, source-file copies, or unrestricted worker
+  output. A sub-agent receives a PM-authored brief containing the extracted
+  goal, constraints, acceptance criteria, and relevant decisions. The PM may
+  include a short exact excerpt when wording is materially important, but full
+  prompt forwarding is not part of the protocol. Raw secrets remain prohibited
+  in all durable records.
+- [Decided] Use split record ownership. The PM writes the brief and
+  coordination decisions; the worker writes substantive progress and result
+  content; the provider or AIX owns identity, timestamps, sequencing, atomic
+  persistence, and schema validation; and the PM records acceptance,
+  integration, and recovery outcomes. Workers cannot rewrite authoritative
+  identity, scope, or lifecycle metadata. Concurrent writes use controlled
+  append or single-writer rules and recoverable atomic updates.
+- [Decided] `aix pm tidy` uses lifecycle timestamps and conservative reference
+  checks. Completed delegation data may be purged early once it is no longer
+  relevant. Incomplete delegations that are stale and no longer being worked
+  have a default maximum inactivity lifetime of 30 days. Explicit safety holds
+  such as unresolved integration or destructive-risk conditions block purge
+  until cleared or explicitly overridden. Plan, task, decision, worktree, and
+  host references must be considered when identifying relevance.
+- [Decided] Plan and implementation knowledge is promoted to the knowledge
+  base once, as part of plan completion, rather than after each delegation.
+  Promotion should be concise and non-chatty. Completed delegation data is
+  eligible for full cleanup only after that batch promotion and integration
+  step succeeds or an explicit waiver is recorded.
+- [Decided] `aix pm tidy` is preview-only by default. It lists the records,
+  workspaces, and other assets eligible for cleanup, then asks for explicit
+  user confirmation before deleting or purging them in an interactive session.
+  Without approval, it makes no changes. A non-interactive invocation remains
+  preview-only unless an explicit mutation flag is supplied.
+- [Decided] After plan-completion promotion or an explicit waiver, delegation
+  briefs, summaries, tombstones, archives, raw status events, and workspaces
+  have no required long-term retention and may be deleted together once safety
+  holds and external references are clear. Before then, they remain protected
+  as execution state.
+
+#### Lifecycle, recovery, and concurrency
+
+- [Decided] Terminal states include `completed`, `failed`, `cancelled`,
+  `expired`, and `superseded`. `host-lost` and `unknown` remain non-terminal
+  recovery states until the PM records a terminal outcome. Other resumable or
+  reviewable states include `needs-decision`, `blocked`, and `paused`.
+- [Decided] A retry always creates a new worker and a new delegation ID. The
+  retry starts without inherited conversational or mutable worker state. The
+  prior delegation's records remain available temporarily as recovery evidence;
+  the new worker reconstructs from the original brief and validated prior
+  evidence rather than trusting a potentially corrupted live context. The
+  logical role-agent identity may still be reused only when its compatibility
+  and workspace rules allow it.
+- [Decided] Every PM session performs recovery discovery before accepting new
+  meaningful work. It scans for non-terminal delegations, including those left
+  by crashes or power loss, and reconciles durable records with provider,
+  worker, workspace, and plan/task evidence. It must not treat a live process
+  or the last status event as proof of progress or completion. Unresolved work
+  is recorded as `host-lost` or `unknown` and must be resolved or isolated
+  before overlapping work is dispatched.
+- [Decided] Status events use event IDs, delegation and subagent IDs,
+  sequence numbers, timestamps, and host correlation data. Exact duplicates
+  are ignored. Stale or out-of-order events remain evidence but cannot regress
+  current state. Genuine conflicts are retained and surfaced for PM
+  reconciliation rather than resolved by arrival order or timestamp alone.
+- [Decided] Use a project-level PM session lease plus per-delegation and
+  per-artifact locks. Only the lease holder may dispatch, steer, accept,
+  integrate, or make coordination writes; other sessions may inspect state
+  read-only. Lease expiry or takeover requires recovery discovery before new
+  work is dispatched.
+
+### Details that can follow Design Intent acceptance
+
+- The exact native-provider API or tool mapping for each supported harness.
+- The machine-readable brief, event, result, capability, and record-index
+  schemas, including field-level compatibility rules.
+- The exact command shape and flags for PM launch, status, tidy apply, and
+  purge.
+- The supported-harness matrix and the source of each capability field.
+- The detailed PM status view and how `aix status` and `aix verify` summarize
+  incomplete native worker state.
+- Retention intervals, archive encoding, and migration details for future
+  protocol versions.
+
+Implementation phases and task breakdown are now drafted below the accepted
+Design Intent. The remaining implementation details can be resolved within
+those phases without reopening the product direction unless new evidence
+requires a design change.
+
+## Verification
+
+Design acceptance should be supported by checks that prove the following
+contracts before implementation phases are closed:
+
+- Default `aix init` leaves PM assets and PM routing out of the project.
+- Rerunning `aix init` leaves existing installed and active workflow, PM,
+  routing, roster, and delegation state unchanged.
+- Activating `design-plan-execute` records its team roster and specialist-role
+  ownership, installs or verifies its PM dependency, activates PM routing, and
+  reports a clear failure if required assets or native delegation capabilities
+  are unavailable.
+- An active workflow exposes a validated `team.md` roster, and the PM can
+  discover the team without loading every role document at startup.
+- A normal conversation in a project with the PM workflow active enters
+  through the PM, while documented narrow bypasses continue to work.
+- Routine PM orchestration can continue within accepted scope, while product,
+  scope, permission, destructive, merge, release, and irreversible decisions
+  return to the user.
+- Users may observe native workers, but managed steering passes through the
+  PM; any direct host intervention is recorded and reconciled before result
+  acceptance.
+- Worker failures, verification failures, scope drift, integration conflicts,
+  and unsafe cleanup are handled by PM recovery or delegated repair before
+  user escalation whenever possible.
+- Neither the PM nor the parent session can bypass delegation by directly
+  editing project artifacts or running delegated lifecycle work.
+- Workflow activation installs and activates its declared dependencies,
+  including the PM dependency and managed routing hooks. Deactivation warns
+  about active or unlanded delegations and requires explicit confirmation
+  before deleting their workflow-owned dataset, including operational records
+  and isolated workspaces. It then removes only AIX-owned routing hooks,
+  returns prompts to normal behavior, and preserves project-owned `AGENTS.md`
+  content plus unrelated work.
+- Session-start capability discovery uses runtime metadata, records its
+  snapshot, and refuses unsupported or unknown required capabilities.
+- A delegation carries all required identities, task mode, delivery mode,
+  protocol version, constraints, and return requirements.
+- Compatible sequential work may reuse the logical role-agent identity with a
+  fresh brief and delegation ID. Every retry creates a fresh worker and
+  delegation; scope changes, permission changes, and unsafe context boundaries
+  also require a fresh worker.
+- Provider, AIX, and PM layers enforce their respective protocol, scope,
+  identity, record, and evidence responsibilities.
+- Delegation records and PM prompts contain secret references at most; raw
+  secret values stay in the provider's runtime injection path and known values
+  are redacted from worker output where supported.
+- Provider permission handling grants only task-required access, reports
+  inherited or unavailable controls, and refuses unsafe permission expansion.
+- Status and result records correlate correctly across normal completion,
+  questions, pauses, failures, cancellation, retry, and host loss.
+- Normal PM output remains concise, while explicit verbose diagnostics expose
+  correlated session, delegation, worker, event, lease, provider, workspace,
+  and cleanup evidence for development and troubleshooting.
+- Verbose diagnostics remain local and Git-ignored, redact raw secrets, use
+  bounded retention or rotation, and can be cleaned up without deleting
+  project-owned files.
+- Parallel change-producing work is refused or isolated when the host lacks
+  the required workspace boundary, and same-artifact writes are serialized.
+- Role write-domain rules prevent non-implementation roles from changing
+  source code and prevent document roles from editing each other's artifacts
+  without PM coordination.
+- The AIX repository completes at least one real implementation-engineer code
+  change through the PM, a supported native provider, durable delegation
+  records, isolated workspace integration, and verification before the plan's
+  later implementation work proceeds.
+- Role task-mode and delivery-mode declarations reject assignments that exceed
+  a role's supported work or authority.
+- Role installation and PM dispatch validate declared write domains, task
+  modes, delivery modes, and required evidence.
+- Machine-managed state changes route through AIX package operations, while
+  project-owned plans and documentation route through delegated roles.
+- `aix pm tidy` previews changes by default, protects active and unlanded
+  work except for an explicitly confirmed workflow-deactivation purge, and
+  requires explicit authorization for compaction or deletion.
+- Package-manager commands continue to work when PM assets are absent or the
+  current host lacks native delegation.
+
+The implementation should include unit or contract tests for schemas and
+state transitions, isolated temporary-project integration tests for file and
+lockfile behavior, CLI tests for UX and refusal paths, and manual checks for
+the installed role/protocol instructions and supported-harness experience.
+
+## Documentation Impact
+
+- Product: Update PM onboarding, package-only initialization, workflow
+  activation, native-host errors, worker visibility, and tidy behavior.
+- Requirements: Record PM, worker, provider, dependency, lifecycle, cleanup,
+  and unsupported-host requirements.
+- Architecture: Update package/workflow ownership, provider boundaries,
+  delegation records, capability discovery, and workspace policy.
+- Security: Add trust-boundary, permission, persistence, and destructive
+  cleanup guidance before implementation.
+- Quality: Add protocol, lifecycle, refusal-path, package lifecycle, and
+  temporary-project integration coverage.
+- Operations: Document native-provider prerequisites, session discovery,
+  recovery, retention, and tidy operations.
+- Decisions: Record the PM opt-in model, native-only team orchestration, and
+  future provider boundary.
+- Glossary: Define PM, subagent, delegation, provider, capability snapshot,
+  task mode, delivery mode, and parent context.
+
+## Product Readiness
+
+- Readiness: Internal-use-ready before public release.
+- Evidence needed: A complete native-provider path, safe refusal behavior,
+  documented supported-harness requirements, and manual review of the PM
+  conversation and cleanup experience.
+
+## Risks
+
+- Expanding `AGENTS.md` too far could make the always-loaded project contract
+  expensive to read and harder to maintain.
+- An existing large or conflicting project-owned `AGENTS.md` cannot be safely
+  rewritten automatically; AIX needs diagnostics and clear managed-block
+  ownership instead.
+- A written coordination rule cannot create independent workers by itself;
+  host-native delegation and future runtime adapters remain separate design
+  concerns.
+- Ambiguous authority between the PM, delegated roles, and the parent context
+  could cause duplicate work or unsafe lifecycle changes.
+- Native hosts may differ in context isolation, worktree behavior, permission
+  inheritance, concurrency, interruption, result delivery, and persistence.
+- Persisting too much conversation content could increase context size and
+  create noisy or stale project records; persisting too little could make
+  recovery and evidence review unreliable.
+- Requiring native delegation may narrow `aix pm` support even if the AIX
+  package-manager features continue to work on a wider set of hosts.
+- A Markdown protocol may be ignored or misapplied unless the provider and
+  record writer validate the exchange contract.
+- Native hosts may expose workers in their own UI, which could conflict with
+  the PM's single-contact model or allow unsupervised user interaction.
+- A native worker may inherit broader permissions or secrets than the PM
+  intended, especially when it shares the primary checkout.
+- Persisted briefs and results may contain proprietary prompts, source code,
+  credentials, or prompt-injection content.
+- Workflow activation or PM-role changes could remove routing or shared role
+  files unexpectedly if ownership and deactivation checks are incomplete.
+- Orphan detection may misclassify work if plan, task, host, or worktree
+  references are stale or incomplete.
+- Concurrent PM sessions may write conflicting delegation records or dispatch
+  overlapping work unless session and workspace locking rules are defined.
+
+## Security Review
+
+- Status: Required before Design Intent acceptance.
+- Scope reviewed: Project instruction ownership, delegated authority, native
+  provider permissions, workspace isolation, persisted prompts and results,
+  package dependency provenance, and destructive cleanup.
+- Findings: The plan must define how workers inherit host permissions, what
+  sensitive content may enter durable records, how untrusted role or worker
+  instructions are handled, and how tidy proves that protected work is safe.
+- Blocking findings converted to plan tasks: Provider permission inheritance,
+  workspace isolation, record privacy, and cleanup authorization must be
+  resolved before implementation.
+- Residual risk: Native host behavior and future AIX-owned runtime behavior
+  remain host-specific until provider contracts are implemented and tested.
+
+## Completion Checklist
+
+- ⬜️ Confirm every task and success goal is complete or explicitly deferred.
+- ⬜️ Human validation: developer evaluated the completed phased work and accepted it, or explicitly waived manual validation with a recorded reason.
+- ⬜️ Run or review required targeted and repository verification.
+- ⬜️ Complete Security Review after all implementation phases; record findings, convert blocking findings into normal plan tasks, and document residual risk.
+- ⬜️ Review the codebase using `$code-review-refactor`; refactor or record follow-up work if needed.
+- ⬜️ Promote accepted durable behavior into `_docs/kb` using `$design-promote`.
+- ⬜️ Review documentation structure, formatting, and links using `$review-and-refresh-docs`; fix issues or record follow-up work.
+- ⬜️ Record final risks, follow-on work, and documentation impact.
+- ⬜️ Harvest reusable lessons and update workflow guidance when appropriate.
+- ⬜️ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
