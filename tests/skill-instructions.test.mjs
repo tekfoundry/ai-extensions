@@ -159,7 +159,7 @@ test("workflow lifecycle skills declare the project-manager entry gate", () => {
     assert.match(skill, /If a direct user request or parent-context continuation reaches this skill\s+without PM routing context or a PM Context Packet, stop and route through\s+project-manager first/, lifecycleSkillPath);
     assert.match(skill, /A parent context that received a PM Context Packet may\s+route, preserve worktree safety, review returned evidence, and report results/, lifecycleSkillPath);
     assert.match(skill, /parent review is minimal and exception-driven, trusting delegated role evidence\s+unless uncertainty, out-of-scope changes, failed tests, incomplete evidence,\s+safety-sensitive changes, or another role's need for exact file content gives a\s+concrete reason to re-read files/, lifecycleSkillPath);
-    assert.match(skill, /must not run this lifecycle skill itself\s+to implement, verify, change\s+lifecycle state, or perform\s+repo-changing work outside the delegated role/, lifecycleSkillPath);
+    assert.match(skill, /must not run this lifecycle skill itself\s+to implement, verify, change\s+lifecycle state, or perform\s+repo-changing work\s+outside the delegated role/, lifecycleSkillPath);
     assert.match(skill, /Allowed bypasses are PM Review, tiny informational requests that require no\s+file reads, commands, lifecycle state, specialist judgment, or safety-sensitive\s+decisions, bootstrapping before project-manager is active, already-routed\s+requests carrying PM routing context or a PM Context Packet, and explicit\s+developer override/, lifecycleSkillPath);
   }
 });
