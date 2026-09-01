@@ -135,7 +135,9 @@ rule. The same test file covers PM Context Packets by checking the bundled
 project-manager packet shape and confirming every bundled workflow role has
 conditional orientation rules for accepting packet baseline facts, re-reading
 authority files, falling back to normal orientation, and returning compact
-handoff evidence. The same role tests also pin the project-manager
+handoff evidence. They also pin the minimal, exception-driven parent review
+contract so parent contexts trust delegated role evidence and re-read files
+only for concrete exceptions. The same role tests also pin the project-manager
 activation-owned append text and guidance entry-routing section so they keep
 requiring active project-manager routing before specialist roles, lifecycle
 skills, or file work.

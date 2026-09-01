@@ -208,17 +208,25 @@ activity, and task context. This workflow does not route startup through that
 skill by default, and it does not declare automatic activation for it. Request
 entry belongs to the active project-manager role when it is present.
 
-When the active `project-manager` role is present, meaningful AIX project
-requests route through it before specialist roles, lifecycle skills, or file
-work. Lifecycle skills remain procedures selected by the project-manager or
-delegated roles, not default direct request entrypoints. Each workflow
-lifecycle skill declares a project-manager entry gate: if it receives a direct
-meaningful project request while project-manager is active and no PM routing
-context or PM Context Packet was provided, it should stop and route through
-project-manager first. Allowed bypasses are PM Review, tiny informational
-requests requiring no file reads or commands, bootstrap work before
-project-manager is active, already-routed requests carrying PM context, and
-explicit developer override.
+When the active `project-manager` role is present, repo-changing,
+project-mutating, lifecycle-state, planning, verification, documentation, and
+other meaningful AIX project requests route through it before specialist roles,
+lifecycle skills, or file work. Lifecycle skills remain role-owned procedures
+selected by the project-manager or delegated roles, not default direct request
+entrypoints. Each workflow lifecycle skill declares a project-manager entry
+gate: if it receives a direct user request or parent-context continuation while
+project-manager is active and no PM routing context or PM Context Packet was
+provided, it should stop and route through project-manager first. Allowed
+bypasses are PM Review, tiny informational requests requiring no file reads,
+commands, lifecycle state, specialist judgment, or safety-sensitive decisions,
+bootstrap work before project-manager is active, already-routed requests
+carrying PM context or a PM Context Packet, and explicit developer override.
+
+PM-routed lifecycle work stays with the delegated role that owns the activity.
+The parent context may route, preserve worktree safety, review returned
+evidence, and report results. It must not run lifecycle skills itself to
+implement, verify, change lifecycle state, or perform repo-changing work
+outside delegated roles.
 
 If a future workflow chooses to require automatic activation of
 `get-guidance`, that design depends on external workflow skill dependency

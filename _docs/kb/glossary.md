@@ -24,14 +24,23 @@ or workflow guidance.
 - Companion guidance: Role-adjacent guidance files whose names end in
   `.GUIDANCE.md`. The project-manager role loads adjacent companion guidance
   beside its active `GUIDANCE.md` before routing.
-- Project manager: The top-level AIX entry role that classifies meaningful
-  project requests, chooses an ordered minimal role list, and delegates bounded
-  work without becoming a broad executor.
+- Project manager: The top-level AIX entry role that classifies repo-changing,
+  project-mutating, lifecycle-state, planning, verification, documentation,
+  and other meaningful project requests, chooses a per-request ordered minimal
+  role list from available active roles, and delegates bounded work without
+  becoming a broad executor.
 - Project-manager entry gate: The lifecycle skill contract that requires
   meaningful AIX project requests to route through active project-manager
   before specialist roles, lifecycle skills, or file work unless PM Review, a
   tiny informational answer, bootstrap-before-activation work, already-routed
-  PM context, or explicit developer override applies.
+  PM context or PM Context Packet, or explicit developer override applies.
+- PM delegation cycle: The repo-work handoff contract where the parent context
+  routes through project-manager, project-manager delegates bounded work to
+  roles, delegated roles perform assigned implementation, verification,
+  documentation, review, or lifecycle-skill procedures, and the parent context
+  reviews evidence and reports results without doing repo-changing work itself.
+  Parent review trusts delegated role evidence and re-reads files only for
+  concrete exceptions.
 - PM Review: A project-manager dry-run mode triggered by a case-insensitive
   `pm review` prompt prefix. It emits startup classification and guidance
   planning, then stops before delegation, file edits, command execution,
@@ -42,6 +51,9 @@ or workflow guidance.
   avoid repeated generic orientation while still re-reading authority files.
 - Startup classification: The project-manager routing summary containing
   `roles`, `activities`, `task_context`, and `sequencing_notes`.
+- Role sequence: The project-manager's per-request ordered role list. It uses
+  the smallest adequate set from available active roles and may contain zero
+  roles with handback, one role, or multiple roles in dependency order.
 - Activity guidance: Workflow-owned guidance for a lifecycle activity such as
   planning, implementation, verification, review, or documentation.
 - Guidance metadata: Advisory front matter, such as `applies_to` or

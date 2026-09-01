@@ -17,8 +17,10 @@ guidance is editable beside each active role's `ROLE.md`.
 
 The public `aix guidance` command family lists, publishes, diffs, and resets
 the active guidance set. The optional `get-guidance` skill resolves bounded
-reading lists, but default request-entry routing is deferred to the
-project-manager plan.
+reading lists for delegated roles. It does not route project-manager startup.
+When the active `project-manager` role is present, repo-changing and other
+meaningful AIX project requests route through project-manager before
+specialist roles, lifecycle skills, or file work.
 
 ## Context
 
@@ -52,8 +54,9 @@ origins from project-owned overrides.
   commands instead of silent package rewrites.
 - Negative or tradeoff: projects now have another instruction layer to review
   and keep current.
-- Follow-up: the project-manager plan must decide whether and how guidance is
-  resolved during default request startup.
+- Follow-up: future workflow dependency work may decide whether any skills
+  require automatic activation, but `get-guidance` remains a delegated-role
+  guidance resolver rather than the project-manager startup path.
 
 ## Owners
 
@@ -72,5 +75,6 @@ origins from project-owned overrides.
   `_docs/plans/backlog/workflow-external-skill-dependencies.md`.
 - Verification or review: Phase 7 documentation review and final plan
   verification.
-- Open conflicts: none. Default request-entry routing is intentionally deferred
-  rather than claimed by this decision.
+- Open conflicts: none. The active `project-manager` role now owns entry
+  routing for repo-changing and other meaningful AIX project requests, while
+  `get-guidance` remains optional delegated-role guidance support.

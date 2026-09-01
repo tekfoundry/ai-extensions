@@ -10,19 +10,30 @@ commands alone do not establish that plan success criteria are complete.
 
 ## Project-Manager Entry Gate
 
-When the active `project-manager` role is present, meaningful AIX project
-requests should reach this skill only after project-manager routing or a
-delegated role selects it as the procedure for bounded work. Lifecycle skills
-are procedures selected by the project-manager or delegated roles, not default
+When the active `project-manager` role is present, repo-changing,
+project-mutating, lifecycle-state, planning, verification, documentation, or
+other meaningful AIX project requests should reach this skill only after
+project-manager routing and only when the project-manager or a delegated
+role selects it as the procedure for bounded work.
+Lifecycle skills are role-owned procedures, not default
 direct request entrypoints.
 
-If a direct user request reaches this skill without PM routing context or a PM
-Context Packet, stop and route through project-manager first.
+If a direct user request or parent-context continuation reaches this skill
+without PM routing context or a PM Context Packet, stop and route through
+project-manager first. A parent context that received a PM Context Packet may
+route, preserve worktree safety, review returned evidence, and report results;
+parent review is minimal and exception-driven, trusting delegated role evidence
+unless uncertainty, out-of-scope changes, failed tests, incomplete evidence,
+safety-sensitive changes, or another role's need for exact file content gives a
+concrete reason to re-read files. It must not run this lifecycle skill itself
+to implement, verify, change lifecycle state, or perform repo-changing work
+outside the delegated role.
 
 Allowed bypasses are PM Review, tiny informational requests that require no
-file reads or commands, bootstrapping before project-manager is active,
-already-routed requests carrying PM routing context or a PM Context Packet,
-and explicit developer override.
+file reads, commands, lifecycle state, specialist judgment, or safety-sensitive
+decisions, bootstrapping before project-manager is active, already-routed
+requests carrying PM routing context or a PM Context Packet, and explicit
+developer override.
 
 ## Role Collaboration
 

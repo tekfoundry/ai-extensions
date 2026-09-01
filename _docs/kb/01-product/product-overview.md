@@ -76,8 +76,9 @@ Projects can inspect the active guidance set with `aix guidance list`, publish
 editable workflow guidance overrides with `aix guidance publish`, compare local
 customizations with `aix guidance diff`, and reset selected guidance with
 `aix guidance reset`. The `get-guidance` skill is available as an optional
-read-only resolver, but default request-entry routing is deferred to the
-project-manager plan.
+read-only resolver for delegated role guidance. When the active
+`project-manager` role is present, meaningful AIX project requests start
+through that role before specialist roles, lifecycle skills, or file work.
 
 ## Strategic Boundaries
 

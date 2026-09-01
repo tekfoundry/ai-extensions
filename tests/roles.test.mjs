@@ -183,6 +183,8 @@ test("resolveRoleDelegation resolves explicit role prompts and builds prompt-ove
   assert.match(prompt, /Mode: prompt-overlay fallback/);
   assert.match(prompt, /Name: quality-engineer/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
+  assert.match(prompt, /parent context may route, preserve worktree safety, review returned evidence, and report results only/);
+  assert.match(prompt, /must not run lifecycle skills, implementation, verification, lifecycle-state changes, or repo-changing work outside delegated roles/);
   assert.match(prompt, /Plan verification for the role workflow changes/);
   assert.match(prompt, /# Purpose/);
   assert.match(prompt, /Return findings, recommended next actions/);
@@ -397,8 +399,16 @@ function projectManagerGuidance() {
   return readFileSync(join(repoRoot, "aix/roles/project-manager/GUIDANCE.md"), "utf8");
 }
 
+function projectManagerRole() {
+  return readFileSync(join(repoRoot, "aix/roles/project-manager/ROLE.md"), "utf8");
+}
+
 function projectManagerAppend() {
   return readFileSync(join(repoRoot, "aix/roles/project-manager/AGENTS.append.md"), "utf8");
+}
+
+function projectManagerWorkflowGuidance() {
+  return readFileSync(join(repoRoot, "aix/roles/project-manager/workflow.GUIDANCE.md"), "utf8");
 }
 
 function routingProbeBlock(guidance, heading) {
@@ -448,11 +458,11 @@ test("bundled project-manager append enforces role-first entry routing", () => {
   const append = projectManagerAppend();
 
   assert.match(append, /When the active `project-manager` role is present/);
-  assert.match(append, /route meaningful AIX\s+project requests through it before specialist roles, lifecycle skills, or file\s+work/);
-  assert.match(append, /Lifecycle skills are procedures selected by the project-manager or\s+delegated roles, not default direct request entrypoints/);
+  assert.match(append, /route repo-changing,\s+project-mutating, lifecycle-state, planning, verification, documentation, and\s+other meaningful AIX project requests through it before specialist roles,\s+lifecycle skills, or file work/);
+  assert.match(append, /Lifecycle skills are role-owned procedures\s+selected by the project-manager or delegated roles, not default direct request\s+entrypoints/);
   assert.match(append, /Allowed bypasses are narrow/);
   assert.match(append, /PM Review/);
-  assert.match(append, /tiny informational answers that require\s+no file reads or commands/);
+  assert.match(append, /tiny informational answers that require\s+no file reads, commands, lifecycle state, specialist judgment, or\s+safety-sensitive decisions/);
   assert.match(append, /bootstrapping before project-manager is active/);
   assert.match(append, /already-routed requests carrying PM routing context or a PM Context Packet/);
   assert.match(append, /explicit developer override/);
@@ -462,8 +472,8 @@ test("bundled project-manager guidance defines entry routing enforcement", () =>
   const guidance = projectManagerGuidance();
 
   assert.match(guidance, /## Entry Routing Enforcement/);
-  assert.match(guidance, /meaningful AIX project\s+requests start through it before specialist roles, lifecycle skills, or file\s+work/);
-  assert.match(guidance, /Lifecycle skills are procedures selected by the project-manager or\s+delegated roles/);
+  assert.match(guidance, /repo-changing,\s+project-mutating, lifecycle-state, planning, verification, documentation, and\s+other meaningful AIX project requests start through it before specialist roles,\s+lifecycle skills, or file work/);
+  assert.match(guidance, /Lifecycle skills are role-owned procedures\s+selected by the project-manager or delegated roles/);
   assert.match(guidance, /Allowed bypasses are narrow:/);
   assert.match(guidance, /PM Review mode/);
   assert.match(guidance, /tiny informational or conversational answers that require no file reads,\s+commands, lifecycle state, specialist judgment, or safety-sensitive decisions/);
@@ -471,6 +481,36 @@ test("bundled project-manager guidance defines entry routing enforcement", () =>
   assert.match(guidance, /requests already carrying PM routing context or a PM Context Packet/);
   assert.match(guidance, /explicit developer override/);
   assert.match(guidance, /stop and route through\s+`project-manager` first/);
+});
+
+test("bundled project-manager guidance defines delegation-cycle parent constraints", () => {
+  const role = projectManagerRole();
+  const guidance = projectManagerGuidance();
+  const workflowGuidance = projectManagerWorkflowGuidance();
+
+  assert.match(role, /repo-changing, project-mutating, lifecycle-state, planning, verification,\s+documentation, or other meaningful AIX project work, keep the cycle explicit/);
+  assert.match(role, /The parent context must not\s+run lifecycle skills or perform\s+repo-changing work outside delegated roles/);
+
+  assert.match(guidance, /## Delegation Cycle/);
+  assert.match(guidance, /The calling parent context routes the request to `project-manager`/);
+  assert.match(guidance, /`project-manager` classifies the request, chooses the smallest adequate\s+role sequence per request from available active roles, prepares\s+role-specific PM Context Packets, and delegates bounded work or review to\s+selected roles/);
+  assert.match(guidance, /Delegated roles own the implementation, verification, documentation, review,\s+or lifecycle-skill procedure named in their assignment/);
+  assert.match(guidance, /The calling parent context may route, preserve worktree safety, review returned\s+evidence, ask blocking questions, and report results/);
+  assert.match(guidance, /It must not implement,\s+verify, run lifecycle skills, change lifecycle state, edit repository files, or\s+perform other repo-changing work outside the delegated roles/);
+  assert.match(guidance, /Parent review is minimal and exception-driven/);
+  assert.match(guidance, /Trust delegated role evidence unless a role reports uncertainty, changed files\s+are out of scope, tests fail, evidence is incomplete, safety-sensitive behavior\s+changed, or another role needs exact file content/);
+  assert.match(guidance, /Re-read delegated files only\s+for those concrete exceptions/);
+  assert.match(guidance, /`project-manager` stays a thin router/);
+  assert.match(guidance, /should not become the executor for\s+implementation, verification, documentation refreshes, lifecycle-skill work, or\s+repo changes/);
+  assert.match(guidance, /Choose roles dynamically per request from available active roles/);
+  assert.match(guidance, /zero roles with\s+handback when no team role fits, one role when one role can own the work, or\s+multiple roles in dependency order/);
+
+  assert.match(workflowGuidance, /Skills are role-owned procedures/);
+  assert.match(workflowGuidance, /delegated role\s+may use the lifecycle skill named by the assignment/);
+  assert.match(workflowGuidance, /calling parent context\s+must not run lifecycle skills directly to implement, verify, change lifecycle\s+state, or perform repo-changing work outside delegated roles/);
+  assert.match(workflowGuidance, /Parent review should trust delegated role evidence and stay exception-driven/);
+  assert.match(workflowGuidance, /Re-read delegated files only when a role\s+reports uncertainty, changed files are out of scope, tests fail, evidence is\s+incomplete, safety-sensitive behavior changed, or another role needs exact file\s+content/);
+  assert.match(workflowGuidance, /project-manager chooses the smallest adequate role sequence per\s+request/);
 });
 
 test("bundled project-manager guidance has exact PM Review routing probes", () => {
@@ -578,6 +618,18 @@ test("bundled project-manager guidance defines PM Context Packets", () => {
   assert.match(guidance, /Do not pass a full running transcript/);
 });
 
+test("bundled project-manager guidance keeps parent review evidence-first", () => {
+  const role = projectManagerRole();
+  const guidance = projectManagerGuidance();
+
+  assert.match(role, /Parent review should be\s+minimal and exception-driven/);
+  assert.match(role, /trust delegated role evidence unless uncertainty,\s+out-of-scope changes, failed tests, incomplete evidence, safety-sensitive\s+changes, or another role's need for exact file content gives a concrete reason\s+to re-read files/);
+  assert.match(guidance, /The parent may inspect status,\s+summaries, returned evidence, and command or diff metadata to route next steps/);
+  assert.match(guidance, /Trust delegated role evidence unless a role reports uncertainty/);
+  assert.doesNotMatch(guidance, /must re-read delegated files/i);
+  assert.doesNotMatch(guidance, /always re-read delegated files/i);
+});
+
 test("shipped workflow roles support conditional PM Context Packet orientation", () => {
   const roleFiles = [
     "documentation-specialist",
@@ -640,6 +692,9 @@ test("resolveRoleDelegation delegates to the shipped implementation engineer rol
   assert.match(prompt, /GUIDANCE\.md/);
   assert.match(prompt, /Consider `task-execute`/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
+  assert.match(prompt, /Parent review is minimal and exception-driven/);
+  assert.match(prompt, /trust delegated role evidence unless uncertainty, out-of-scope changes, failed tests, incomplete evidence, safety-sensitive changes, or another role's need for exact file content gives a concrete reason to re-read files/);
+  assert.match(prompt, /must not run lifecycle skills, implementation, verification, lifecycle-state changes, or repo-changing work outside delegated roles/);
 });
 
 test("resolveRoleDelegation delegates to the shipped documentation specialist role", () => {

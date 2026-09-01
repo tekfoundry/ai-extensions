@@ -289,8 +289,23 @@ Bundled workflow and skill requirements are organized separately:
   task context.
   Acceptance signals: `get-guidance` is read-only, requires all caller context
   fields, reports missing or conflicting guidance, uses metadata as advisory
-  hints, and does not participate in default routing until a later
-  project-manager design adopts it.
+  hints, does not load project-manager startup guidance, and is used after PM
+  startup only for selected delegated roles.
+
+- As an agent runtime, I route meaningful AIX project requests through the
+  active `project-manager` role before specialist roles, lifecycle skills, or
+  file work.
+  Acceptance signals: repo-changing, project-mutating, lifecycle-state,
+  planning, verification, documentation, and other meaningful requests enter
+  through project-manager unless a narrow bypass applies; project-manager
+  delegates bounded work to roles; delegated roles own implementation,
+  verification, documentation, review, or lifecycle-skill procedures; the
+  parent context may route, preserve worktree safety, review evidence, ask
+  blocking questions, and report results, but must not run lifecycle skills or
+  perform repo-changing work outside delegated roles; parent review trusts
+  delegated role evidence and re-reads files only for concrete exceptions such
+  as uncertainty, out-of-scope changes, failed tests, incomplete evidence,
+  safety-sensitive changes, or another role's need for exact content.
 
 ### Reviewer
 

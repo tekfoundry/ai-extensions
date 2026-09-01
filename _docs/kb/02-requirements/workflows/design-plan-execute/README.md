@@ -96,8 +96,9 @@ promotion.
   making guidance part of default startup routing.
   Acceptance signals: workflow activity guidance stays in the active workflow
   package until published, role guidance is editable in active role bundles,
-  `get-guidance` can be used as an optional resolver, and request-entry routing
-  remains deferred to the project-manager plan.
+  `get-guidance` can be used as an optional resolver for delegated-role
+  guidance, and active project-manager startup reads its own guidance before
+  routing meaningful AIX project requests.
 
 ## Required Skills
 
@@ -156,8 +157,22 @@ promotion.
 - Guidance must stay lower priority than user requests, repository
   instructions, workflow rules, skill procedures, role contracts, and safety
   boundaries.
-- Default guidance routing is not part of this workflow. The project-manager
-  plan owns future request-entry routing and guidance payload design.
+- `get-guidance` is not a default request-entry router. The active
+  `project-manager` role loads its own guidance at startup, then may use
+  `get-guidance` to prepare tailored guidance for selected delegated roles.
+- When the active `project-manager` role is present, repo-changing,
+  project-mutating, lifecycle-state, planning, verification, documentation, and
+  other meaningful AIX project requests must route through it before specialist
+  roles, lifecycle skills, or file work unless a narrow bypass applies.
+- The project-manager delegation cycle keeps execution role-owned:
+  project-manager classifies and delegates bounded work, delegated roles run
+  the assigned implementation, verification, documentation, review, or
+  lifecycle-skill procedure, and the parent context reviews evidence and
+  reports results without doing repo-changing work itself. Parent review is
+  minimal and exception-driven: it trusts delegated role evidence and re-reads
+  files only for concrete exceptions such as uncertainty, out-of-scope changes,
+  failed tests, incomplete evidence, safety-sensitive changes, or another
+  role's need for exact content.
 
 ## Template Requirements
 

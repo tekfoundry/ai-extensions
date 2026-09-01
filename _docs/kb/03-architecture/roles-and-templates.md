@@ -167,14 +167,32 @@ per-role guidance plan, then stops. PM Review must not delegate, edit files,
 run commands, change lifecycle state, verify work, or update plan state.
 
 When `project-manager` is active, it is the documented default entry path for
-meaningful AIX project requests. Its activation-owned `AGENTS.md` append block
-routes those requests through project-manager before specialist roles,
-lifecycle skills, or file work. Lifecycle skills are procedures selected by
-the project-manager or delegated roles, not default direct request
-entrypoints. The allowed bypasses are PM Review, tiny informational answers
-requiring no file reads or commands, bootstrap work before project-manager is
-active, already-routed requests carrying PM routing context or a PM Context
-Packet, and explicit developer override.
+repo-changing, project-mutating, lifecycle-state, planning, verification,
+documentation, and other meaningful AIX project requests. Its activation-owned
+`AGENTS.md` append block routes those requests through project-manager before
+specialist roles, lifecycle skills, or file work. Lifecycle skills are
+role-owned procedures selected by the project-manager or delegated roles, not
+default direct request entrypoints. The allowed bypasses are PM Review, tiny
+informational answers requiring no file reads, commands, lifecycle state,
+specialist judgment, or safety-sensitive decisions, bootstrap work before
+project-manager is active, already-routed requests carrying PM routing context
+or a PM Context Packet, and explicit developer override.
+
+The PM delegation cycle has four owners. The calling parent context routes the
+request to project-manager. Project-manager classifies the request, chooses the
+smallest adequate role sequence per request from available active roles,
+prepares role-specific PM Context Packets, and delegates bounded work or
+review. The selected sequence may be zero roles with handback, one role, or
+multiple roles in dependency order. Delegated roles own the assigned
+implementation, verification, documentation, review, or lifecycle-skill
+procedure and return evidence. The parent context reviews returned evidence,
+preserves worktree safety, asks blocking questions when needed, and reports
+results. Parent review is minimal and exception-driven: it trusts delegated
+role evidence and re-reads files only when a role reports uncertainty, changed
+files are out of scope, tests fail, evidence is incomplete, safety-sensitive
+behavior changed, or another role needs exact file content. The parent context
+must not implement, verify, run lifecycle skills, change lifecycle state, edit
+repository files, or perform other repo-changing work outside delegated roles.
 
 For delegated work, the project-manager may pass a PM Context Packet. The
 packet carries the original prompt, work mode, active plan, selected phase or
@@ -224,7 +242,14 @@ Resolution rules:
 
 The built prompt overlay includes selected role metadata, parent-owned
 boundaries, the bounded task, the role operating prompt, and required return
-evidence. It does not create host-native agent files.
+evidence. Parent-owned boundaries state that the parent context owns plan
+state, worktree safety, verification review, and final decisions. When PM
+routing delegated the task, the parent may route, preserve worktree safety,
+review returned evidence, and report results only. Parent review trusts
+delegated role evidence and stays exception-driven; it re-reads files only for
+concrete exceptions. The parent must not run lifecycle skills, implementation,
+verification, lifecycle-state changes, or repo-changing work outside delegated
+roles. The prompt overlay does not create host-native agent files.
 
 ## Workflow Template Shape
 

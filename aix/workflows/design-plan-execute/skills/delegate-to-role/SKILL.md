@@ -38,7 +38,14 @@ authoritative over the task, plan, worktree, verification, or final decision.
    - required return evidence
 5. Preserve parent-context ownership. The parent context owns plan state,
    worktree safety, verification review, final decisions, and user-facing
-   reporting.
+   reporting. When PM routing delegated the task, the parent context may
+   route, preserve worktree safety, review returned evidence, and report
+   results only. It must not run lifecycle skills, implementation,
+   verification, lifecycle-state changes, or repo-changing work outside
+   delegated roles. Parent review is minimal and exception-driven: trust
+   delegated role evidence unless uncertainty, out-of-scope changes, failed
+   tests, incomplete evidence, safety-sensitive changes, or another role's need
+   for exact file content gives a concrete reason to re-read files.
 6. After the delegated work returns, review the evidence before acting on it.
    Apply only the parts that fit the active plan, design intent, and worktree
    safety constraints.
@@ -78,6 +85,15 @@ Description: <role-description>
 
 - The parent context owns plan state, worktree safety, verification review, and
   final decisions.
+- When PM routing delegated the task, the parent context may route, preserve
+  worktree safety, review returned evidence, and report results only.
+- Parent review is minimal and exception-driven: trust delegated role evidence
+  unless uncertainty, out-of-scope changes, failed tests, incomplete evidence,
+  safety-sensitive changes, or another role's need for exact file content gives
+  a concrete reason to re-read files.
+- The parent context must not run lifecycle skills, implementation,
+  verification, lifecycle-state changes, or repo-changing work outside
+  delegated roles.
 - Do not broaden scope, change lifecycle status, or claim completion for the
   parent.
 - Stop and return a blocking question when authorization, safety, or product

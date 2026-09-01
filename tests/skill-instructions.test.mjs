@@ -154,9 +154,13 @@ test("workflow lifecycle skills declare the project-manager entry gate", () => {
     assert.match(skill, /## Project-Manager Entry Gate/, lifecycleSkillPath);
     assert.match(skill, /Use as a lifecycle procedure selected by project-manager or a delegated role/, lifecycleSkillPath);
     assert.match(skill, /When the active `project-manager` role is present/, lifecycleSkillPath);
-    assert.match(skill, /Lifecycle skills\s+are procedures selected by the project-manager or delegated roles, not default\s+direct request entrypoints/, lifecycleSkillPath);
-    assert.match(skill, /without PM routing context or a PM\s+Context Packet, stop and route through project-manager first/, lifecycleSkillPath);
-    assert.match(skill, /Allowed bypasses are PM Review, tiny informational requests that require no\s+file reads or commands, bootstrapping before project-manager is active,\s+already-routed requests carrying PM routing context or a PM Context Packet,\s+and explicit developer override/, lifecycleSkillPath);
+    assert.match(skill, /repo-changing,\s+project-mutating, lifecycle-state, planning, verification, documentation, or\s+other meaningful AIX project requests should reach this skill only after\s+project-manager routing/, lifecycleSkillPath);
+    assert.match(skill, /Lifecycle skills are role-owned procedures,?\s+not default\s+direct request entrypoints/, lifecycleSkillPath);
+    assert.match(skill, /If a direct user request or parent-context continuation reaches this skill\s+without PM routing context or a PM Context Packet, stop and route through\s+project-manager first/, lifecycleSkillPath);
+    assert.match(skill, /A parent context that received a PM Context Packet may\s+route, preserve worktree safety, review returned evidence, and report results/, lifecycleSkillPath);
+    assert.match(skill, /parent review is minimal and exception-driven, trusting delegated role evidence\s+unless uncertainty, out-of-scope changes, failed tests, incomplete evidence,\s+safety-sensitive changes, or another role's need for exact file content gives a\s+concrete reason to re-read files/, lifecycleSkillPath);
+    assert.match(skill, /must not run this lifecycle skill itself\s+to implement, verify, change\s+lifecycle state, or perform\s+repo-changing work outside the delegated role/, lifecycleSkillPath);
+    assert.match(skill, /Allowed bypasses are PM Review, tiny informational requests that require no\s+file reads, commands, lifecycle state, specialist judgment, or safety-sensitive\s+decisions, bootstrapping before project-manager is active, already-routed\s+requests carrying PM routing context or a PM Context Packet, and explicit\s+developer override/, lifecycleSkillPath);
   }
 });
 
@@ -174,6 +178,9 @@ test("delegate-to-role declares bounded role delegation contract", () => {
   assert.match(skill, /Do not write host-native agent files as part of routine\s+delegation/);
   assert.match(skill, /Use prompt-overlay fallback when native handoff is unavailable/);
   assert.match(skill, /The parent context owns plan state,\s+worktree safety, verification review, final decisions/);
+  assert.match(skill, /When PM routing delegated the task, the parent context may\s+route, preserve worktree safety, review returned evidence, and report\s+results only/);
+  assert.match(skill, /Parent review is minimal and exception-driven: trust\s+delegated role evidence unless uncertainty, out-of-scope changes, failed\s+tests, incomplete evidence, safety-sensitive changes, or another role's need\s+for exact file content gives a concrete reason to re-read files/);
+  assert.match(skill, /must not run lifecycle skills, implementation,\s+verification, lifecycle-state changes, or repo-changing work outside\s+delegated roles/);
   assert.match(skill, /Do Not Delegate When/);
   assert.match(skill, /Prompt-Overlay Shape/);
   assert.match(skill, /Required Return Evidence/);

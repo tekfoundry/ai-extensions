@@ -13,10 +13,12 @@ Use the project manager role as a narrow router, not as a catch-all executor.
 
 ## Entry Routing Enforcement
 
-When the active `project-manager` role is present, meaningful AIX project
-requests start through it before specialist roles, lifecycle skills, or file
-work. Lifecycle skills are procedures selected by the project-manager or
-delegated roles; they are not default direct request entrypoints.
+When the active `project-manager` role is present, repo-changing,
+project-mutating, lifecycle-state, planning, verification, documentation, and
+other meaningful AIX project requests start through it before specialist roles,
+lifecycle skills, or file work. Lifecycle skills are role-owned procedures
+selected by the project-manager or delegated roles; they are not default direct
+request entrypoints.
 
 Allowed bypasses are narrow:
 
@@ -32,6 +34,39 @@ directly while `project-manager` is active, and the request has no PM routing
 context or PM Context Packet, that skill or role should stop and route through
 `project-manager` first. Treat explicit developer override as a conscious
 instruction to bypass the entry gate for that request only.
+
+## Delegation Cycle
+
+Use this cycle for repo-changing, project-mutating, lifecycle-state, planning,
+verification, documentation, and other meaningful AIX project requests:
+
+1. The calling parent context routes the request to `project-manager`.
+2. `project-manager` classifies the request, chooses the smallest adequate
+   role sequence per request from available active roles, prepares
+   role-specific PM Context Packets, and delegates bounded work or review to
+   selected roles.
+3. Delegated roles own the implementation, verification, documentation, review,
+   or lifecycle-skill procedure named in their assignment. They return evidence
+   rather than claiming parent-level completion.
+4. The calling parent context reviews returned evidence, preserves worktree
+   safety, reconciles scope or risk, and reports results.
+
+The calling parent context may route, preserve worktree safety, review returned
+evidence, ask blocking questions, and report results. It must not implement,
+verify, run lifecycle skills, change lifecycle state, edit repository files, or
+perform other repo-changing work outside the delegated roles.
+
+Parent review is minimal and exception-driven. The parent may inspect status,
+summaries, returned evidence, and command or diff metadata to route next steps.
+Trust delegated role evidence unless a role reports uncertainty, changed files
+are out of scope, tests fail, evidence is incomplete, safety-sensitive behavior
+changed, or another role needs exact file content. Re-read delegated files only
+for those concrete exceptions.
+
+`project-manager` stays a thin router. It should not become the executor for
+implementation, verification, documentation refreshes, lifecycle-skill work, or
+repo changes unless a narrow PM-owned guidance or routing artifact is itself
+the delegated task.
 
 ## Startup Classification
 
@@ -107,7 +142,11 @@ delegate work during PM Review.
 
 ## Role Selection
 
-Prefer the smallest role sequence that can handle the request:
+Choose roles dynamically per request from available active roles. Prefer the
+smallest adequate sequence that can handle the request: zero roles with
+handback when no team role fits, one role when one role can own the work, or
+multiple roles in dependency order when the request scope or inspected evidence
+requires it.
 
 - `requirements-engineer` for actors, workflows, constraints, non-goals,
   acceptance signals, and open decisions
@@ -129,7 +168,7 @@ Prefer the smallest role sequence that can handle the request:
 - `ux-writer` for command help, prompts, labels, errors, onboarding copy,
   README language, workflow instructions, and developer-facing wording
 
-Respect dependency order when it matters. Requirements usually come before
+Respect dependency order when it matters. Requirements may need to come before
 architecture, architecture before implementation, implementation before
 verification, and implementation evidence before documentation promotion.
 

@@ -108,10 +108,18 @@ behavior.
 - When the active `project-manager` role is present, meaningful AIX project
   requests must route through it before specialist roles, lifecycle skills, or
   file work unless a narrow bypass applies. The allowed bypasses are PM Review,
-  tiny informational answers that require no file reads or commands,
-  bootstrapping before project-manager is active, already-routed requests
-  carrying PM routing context or a PM Context Packet, and explicit developer
-  override.
+  tiny informational answers that require no file reads, commands, lifecycle
+  state, specialist judgment, or safety-sensitive decisions, bootstrapping
+  before project-manager is active, already-routed requests carrying PM routing
+  context or a PM Context Packet, and explicit developer override.
+- PM-routed work preserves the parent/delegate boundary. The parent context may
+  route, preserve worktree safety, review returned evidence, ask blocking
+  questions, and report results, but must not implement, verify, run lifecycle
+  skills, change lifecycle state, edit repository files, or perform other
+  repo-changing work outside delegated roles. Parent review trusts delegated
+  role evidence and re-reads files only for concrete exceptions: reported
+  uncertainty, out-of-scope changed files, failed tests, incomplete evidence,
+  safety-sensitive behavior changes, or another role's need for exact content.
 - Guidance metadata is advisory and must not create hidden dependency,
   activation, or routing behavior.
 - The lockfile is the integrity record for accepted package and active files,
