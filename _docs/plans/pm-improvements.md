@@ -1683,9 +1683,10 @@ Tasks:
 - ⬜️ Continue using the PM to orchestrate normal implementation, documentation,
   verification, and provider-hardening work. Use direct parent-context changes
   only for documented bootstrap or recovery exceptions.
-- ⬜️ Define and implement the explicit `managed-local-integration` host
+- 🟨 Define and implement the explicit `managed-local-integration` host
   capability. Require it for every `local-change` and `isolated-change`
   delegation, while keeping read-only/report-only work available without it.
+  Execution note: implementation is delegated; verification is pending.
 - ⬜️ Add a host-adapter workspace integration operation that replaces routine
   raw shell integration where the host supports it. Preserve AIX validation of
   scope, changed files, conflicts, unlanded changes, and cleanup safety.
