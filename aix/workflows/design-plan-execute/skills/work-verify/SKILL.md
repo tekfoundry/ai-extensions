@@ -1,6 +1,9 @@
 ---
 name: work-verify
 description: Select and run targeted verification for a change, then report results, gaps, and whether plan success criteria are satisfied. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Work Verify

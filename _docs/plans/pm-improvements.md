@@ -939,6 +939,11 @@ and workspace may be deleted together when no safety hold remains.
 worktrees, or other user-authored files. Any future worktree cleanup needs a
 separate explicit scope and safety contract.
 
+Cleanup safety also treats `created` delegations as active/unresolved work;
+retention alone must never purge them. The current diagnostic log is protected
+from cleanup; only eligible rotated or explicitly stale diagnostic files may
+be removed.
+
 ### Observability and troubleshooting
 
 Normal user-facing PM output should remain concise. It should explain the
@@ -961,6 +966,40 @@ are local runtime state under `.aix/pm/`, ignored by Git, subject to the raw
 secret prohibition and redaction rules, and bounded by rotation or cleanup.
 Development and test fixtures may enable verbose output by default, but normal
 installed behavior requires explicit opt-in.
+
+### Host authorization and PM-managed integration
+
+Routine PM-managed integration is an authorized project-local operation, not a
+request for the user to approve every generated shell command. The host remains
+the final authorization boundary: AIX cannot grant itself permission or modify
+Codex, Pi, Claude, or another host's settings.
+
+The host adapter must expose an explicit `managed-local-integration`
+capability. A change-producing delegation (`local-change` or `isolated-change`)
+fails closed unless that capability is explicitly `true`. Read-only and
+report-only delegations do not require it.
+
+The preferred integration path is a host-adapter operation over a validated
+workspace. AIX owns scope, changed-file, conflict, and safety validation; the
+adapter hides host-specific workspace and approval mechanics. Routine local
+integration should proceed without user intervention when the user has
+configured the host to allow the narrow project-local operation. User approval
+remains appropriate for conflicts, scope violations, destructive actions,
+external writes, unsafe cleanup, and other material exceptions.
+
+AIX must provide setup and diagnostic guidance without changing host
+configuration. `aix pm doctor` is a local, read-only diagnostic available before
+PM startup or native delegation; `aix pm status` may show a concise summary.
+Diagnostics should identify the provider, harness, model/runtime when available,
+missing capabilities, and the remediation boundary without exposing secrets.
+
+Codex CLI and Codex Mac app are separate host profiles. They may share an
+adapter contract, but each requires independent validation of native
+delegation, authorization, workspace integration, cleanup, and visible status.
+The host UI need not create one tab per worker; correlated durable identity and
+status are the requirement. Claude support may be contract-tested and
+implemented before authenticated live validation is available; that gap must
+remain explicit.
 
 ### Task lifecycle and authority
 
@@ -988,7 +1027,9 @@ The authority boundaries should be explicit:
   verification review, and user-authorized actions.
 - The user retains product decisions, risky or irreversible approvals, and
   final merge or release authority unless a separate accepted policy says
-  otherwise.
+  otherwise. The accepted PM-managed integration policy below authorizes
+  routine project-local integration without per-operation user approval; the
+  user remains the authority for exceptions and irreversible decisions.
 
 The PM should review returned evidence minimally and by exception. It should
 re-read or challenge a result when the worker reports uncertainty, scope
@@ -1035,8 +1076,10 @@ workflow truth.
 - Making AIX depend on one model vendor, model family, or AI harness.
 - Persisting full worker transcripts or turning delegation logs into the
   project's permanent knowledge base.
-- Letting PM delegation bypass user approval for product, destructive, merge,
-  release, or other irreversible decisions.
+- Letting PM delegation bypass user approval for product, destructive, release,
+  or other irreversible decisions. Routine project-local integration is
+  governed by the accepted host-authorization policy and is not a per-operation
+  user approval event.
 - Adding registry, plugin-package, global-install, or publishing behavior to
   the package-manager layer.
 
@@ -1235,7 +1278,7 @@ Verification evidence:
 - `_docs/kb` was intentionally not changed; design promotion remains deferred
   to final plan completion.
 
-### Phase 3: Define the host-execution boundary and capability discovery (status: completed)
+### Phase 3: Define the host-execution boundary and capability discovery (status: completed; follow-on host tasks pending)
 
 Goal: hide vendor, model, harness, worker-session, and event-transport details
 behind one host-neutral interface.
@@ -1267,6 +1310,32 @@ Tasks:
 - ✅ Keep direct Codex or Claude adapters conditional on a later support
   decision identifying native-host behavior that Pi cannot provide. Do not
   create one adapter per model.
+- ✅ Implement and test the Codex host adapter as a supported native host,
+  including native subagent creation, independent execution, status and result
+  correlation, follow-up or stop control where supported, permission behavior,
+  workspace handoff, and capability discovery. Add Codex CLI/app dogfooding
+  prompts for read-only, implementation, verification, failure-recovery, and
+  completed-result flows.
+- ✅ Record the successful Codex Mac app dogfooding evidence, including native
+  subagent creation, parallel execution, role selection from `team.md`,
+  read-only safety, and final PM reconciliation. Include the prior
+  fail-closed regression that prevents PM-routed work from using prompt-overlay
+  lenses when native delegation is unavailable. Evidence: a live Codex Mac app
+  read-only review created multiple native subagents in parallel, selected
+  specialist roles from the workflow team, returned role-scoped findings, and
+  reconciled the results without edits. The earlier prompt-overlay behavior was
+  corrected and covered by the fail-closed regression test.
+- ✅ Improve PM final-result reporting so each delegated specialist includes
+  its AIX role, delegation ID, logical subagent ID, host-generated display
+  name when available, terminal status, and concise result summary. Preserve
+  the host-neutral format so the same report works for Codex, Claude, Pi, and
+  future native hosts.
+- ✅ Implement and test the Claude host adapter as a supported native host,
+  including native subagent creation, independent execution, status and result
+  correlation, follow-up or stop control where supported, permission behavior,
+  workspace handoff, and capability discovery. Add Claude CLI/app dogfooding
+  prompts for read-only, implementation, verification, failure-recovery, and
+  completed-result flows.
 - ✅ Implement the PM preflight decision: required native delegation
   capabilities must be explicitly supported; unsupported or unknown required
   capabilities fail closed for PM orchestration while package-management
@@ -1286,12 +1355,21 @@ Exit criteria:
   for the later PM dogfooding gate.
 
 Verification evidence: `NativeHostAdapter` keeps host implementation details
-behind the AIX interface, `PiHostAdapter` translates Pi worker calls without
-leaking Pi types into PM logic, `FakeNativeHost` proves independent workers and
-correlated results, and capability refusal plus per-session refresh are covered
-by contract tests. AIX does not ship a vendor SDK; Pi integration supplies the
-runtime bridge. Direct Codex or Claude adapters remain intentionally deferred
-unless Pi cannot provide required native behavior.
+behind the AIX interface, `PiHostAdapter` and `CodexHostAdapter` translate
+native worker calls without leaking host types into PM logic, `FakeNativeHost`
+proves independent workers and correlated results, and capability refusal plus
+per-session refresh are covered by contract tests. `CodexCliBridge` runs
+independent `codex exec` workers with stdin prompts, workspace/sandbox binding,
+JSONL session correlation, result capture, stop control, and optional persisted
+follow-up sessions. Codex dogfooding prompts live in the workflow package.
+`ClaudeHostAdapter` and `ClaudeCliBridge` provide the corresponding Claude
+CLI path: independent worker processes, role/brief delivery, read-only versus
+writable permission modes, stream/session correlation, result capture, stop
+control, and optional persisted follow-up sessions. Claude dogfooding prompts
+live in the workflow package. The Claude CLI executable was detected during
+implementation, but no authenticated live Claude prompt has been run yet;
+account/authentication and live-provider behavior remain an explicit manual
+validation step.
 
 ### Phase 4: Package the PM persona and shared delegation protocol (status: completed)
 
@@ -1448,7 +1526,7 @@ Phase 6 verification:
 - `AIX_CACHE_DIR=/tmp/aix-phase6-cache-$$ npm test` (255 passed)
 - `git diff --check`
 
-### Phase 7: Add workspace isolation and integration (status: completed with validation gap)
+### Phase 7: Add workspace isolation and integration (status: completed)
 
 Goal: hide workspace mechanics from the user while making write-producing
 delegations safe to execute and integrate.
@@ -1472,10 +1550,15 @@ Tasks:
 - ✅ Add isolated temporary-project integration tests for clean integration,
   conflicts, scope violations, abandoned worktrees, cleanup refusal, document
   concurrency, and implementation-engineer-only source-code writes.
-- ⚠️ Run the first PM dogfooding change in the AIX repository through the real
+- ✅ Run the first PM dogfooding change in the AIX repository through the real
   provider path. Use a small bounded implementation-engineer task, an isolated
   workspace, durable brief/status/result records, verification, and PM-owned
-  integration. Record the delegation and any recovery or exception path.
+  integration. Record the delegation and any recovery or exception path. A
+  live Pi-backed Codex session completed the capability-snapshot change through
+  an isolated worker worktree, delegated security and quality review, targeted
+  verification, PM integration, and cleanup. The worker-reported native IDs
+  were recorded by the host, while AIX ID exposure remains a Phase 9
+  correlation follow-up.
 
 Exit criteria:
 
@@ -1502,9 +1585,12 @@ Phase 7 execution notes:
 - Added isolated temporary-project coverage for tracked and new files, clean
   integration, scope drift, conflict preservation, unsafe cleanup, and a PM
   dogfood slice using the native-shaped fake provider.
-- The complete automated native-shaped provider path is verified. A live
-  Codex/Claude/Pi host run remains a validation gap and is intentionally left
-  for Phase 9 provider hardening; no live provider SDK is embedded here.
+- The complete automated native-shaped provider path is verified. The first
+  live Pi-backed implementation dogfood completed the Phase 7 gate. The PM
+  preserved the shared workspace and removed the temporary worker worktree
+  only after the worker reported unrelated leftover changes and cleanup was
+  explicitly approved. Live Claude validation remains pending and belongs to
+  Phase 9 provider hardening; no live provider SDK is embedded here.
 
 Phase 7 verification:
 
@@ -1512,6 +1598,8 @@ Phase 7 verification:
 - `node --test tests/pm-workspace.test.mjs tests/pm-orchestrator.test.mjs tests/pm-runtime.test.mjs`
 - `AIX_CACHE_DIR=/tmp/aix-phase7-cache-$$ npm test` (258 passed)
 - `git diff --check`
+- Live Pi-backed PM dogfood: capability-snapshot implementation, delegated
+  review, verification, PM integration, and temporary-worktree cleanup
 
 ### Phase 8: Implement tidy, retention, and completion cleanup (status: accepted)
 
@@ -1519,32 +1607,42 @@ Goal: make PM runtime state maintainable for both planned and inline work.
 
 Tasks:
 
-- ⬜️ After the Phase 7 dogfooding gate, route the implementation of this phase
-  through the PM and record the delegation evidence in the plan's execution
-  notes.
-- ⬜️ Implement `aix pm tidy` as a local command that works without an active PM
+- ✅ Migrate historical project-scoped Pi delegation artifacts into the
+  project-local `.aix/pm/legacy/pi-subagents/` area without moving Pi-owned
+  credentials, settings, general sessions, model data, or package data.
+- ✅ Enforce the documentation promotion gate: active-plan execution records
+  `_docs/kb` impact and promotion candidates in the plan, while an explicitly
+  classified and approved micro-fix may update `_docs/kb` only after its own
+  implementation and verification closeout.
+- ✅ Complete the Phase 8 implementation/process gate. The initial tidy slice
+  was implemented in the parent session rather than through a native PM
+  delegation; that earlier validation gap is retained as historical context.
+- ✅ Implement `aix pm tidy` as a local command that works without an active PM
   session or native delegation. Preview eligible records, workspaces, safety
   holds, references, timestamps, and proposed actions by default.
-- ⬜️ Add interactive confirmation and explicit mutation modes for archive,
+- ✅ Add interactive confirmation and explicit mutation modes for archive,
   apply, and purge. Non-interactive use remains preview-only unless an explicit
   mutation flag is supplied.
-- ⬜️ Implement relevance and retention rules: completed data may be purged
+- ✅ Implement relevance and retention rules: completed data may be purged
   early after it is no longer relevant; stale incomplete delegations reach the
   default 30-day inactivity limit; active work, unlanded changes, unresolved
   integration, destructive-risk holds, and external references block purge.
-- ⬜️ Implement plan-completion integration so durable implementation/design
-  knowledge is promoted once, concisely, into the plan or `_docs/kb`. Do not
-  run chatty per-delegation promotion.
-- ⬜️ Permit full deletion of delegation briefs, results, status events,
+  Workspace and plan-reference holds are covered by the focused verification.
+- ⚠️ Complete plan-completion promotion integration so durable
+  implementation/design knowledge is promoted once, concisely, into the plan
+  or `_docs/kb`. The executable completion authorization/waiver hook exists,
+  but final design promotion and KB refresh remain deferred until all phases
+  and closeout gates finish. Do not run chatty per-delegation promotion.
+- ✅ Permit full deletion of delegation briefs, results, status events,
   indexes, temporary files, and workspaces after promotion or explicit waiver
   and cleared safety holds. Do not retain tombstones by default.
-- ⬜️ Add workflow-deactivation warning and confirmation for active/unlanded
+- ✅ Add workflow-deactivation warning and confirmation for active/unlanded
   delegation datasets; on confirmation delete only the affected workflow-owned
   runtime dataset, preserving project-owned files and unrelated work.
-- ⬜️ Add CLI and integration tests for preview, confirmation, non-interactive
+- ✅ Add CLI and integration tests for preview, confirmation, non-interactive
   refusal, early completed cleanup, 30-day stale cleanup, safety holds,
   deactivation deletion, and plan-completion promotion ordering.
-- ⬜️ Add diagnostic-log rotation and cleanup tests, including redaction,
+- ✅ Add diagnostic-log rotation and cleanup tests, including redaction,
   correlation, bounded size, preview reporting, and purge behavior.
 
 Exit criteria:
@@ -1553,6 +1651,27 @@ Exit criteria:
   permanent project history.
 - Deactivation cannot silently delete active delegation data or project-owned
   files.
+
+Phase 8 execution notes:
+
+- The integrated executable work now provides local `aix pm tidy` preview and
+  explicit archive/apply/purge mutation paths, conservative retention rules,
+  safety holds, workflow-scoped deactivation cleanup, completion
+  authorization/waiver records, and diagnostic-log rotation, redaction,
+  correlation, and cleanup behavior. The implementation preserves project
+  files and unrelated workflow runtime data in the covered paths.
+- Final focused verification recorded `npm run build` plus 36 focused
+  PM/tidy/diagnostic/domain tests passing. A prior quality report recorded the
+  full suite as 279 passing with an isolated `AIX_CACHE_DIR`; `git diff
+  --check` also passed.
+- Phase 8 remains accepted with lifecycle and safety follow-up. Final
+  promotion ordering, transactional cleanup guarantees, and any remaining
+  security findings must be resolved or explicitly recorded before closeout.
+  Final native security sign-off was unavailable, so safety follow-up remains
+  deferred. Final `$design-promote`/knowledge-base refresh, plan archival, and
+  final closeout remain deferred until every Phase 9 task and all full-plan
+  completion gates are complete. `_docs/kb` is intentionally unchanged in this
+  phase update.
 
 ### Phase 9: Connect supported native providers and harden the workflow (status: accepted)
 
@@ -1564,18 +1683,45 @@ Tasks:
 - ⬜️ Continue using the PM to orchestrate normal implementation, documentation,
   verification, and provider-hardening work. Use direct parent-context changes
   only for documented bootstrap or recovery exceptions.
+- ⬜️ Define and implement the explicit `managed-local-integration` host
+  capability. Require it for every `local-change` and `isolated-change`
+  delegation, while keeping read-only/report-only work available without it.
+- ⬜️ Add a host-adapter workspace integration operation that replaces routine
+  raw shell integration where the host supports it. Preserve AIX validation of
+  scope, changed files, conflicts, unlanded changes, and cleanup safety.
+- ⬜️ Add host-authorization diagnostics and `aix pm doctor`; keep `aix pm status`
+  concise. Report missing capability and remediation guidance without changing
+  host configuration or emitting secrets.
+- ⬜️ Fix the Phase 8 tidy retention follow-up so `created` delegations remain
+  protected as active/unresolved work and add a regression test.
+- ⬜️ Fix diagnostic cleanup so the current log is preserved and only eligible
+  rotated or explicitly stale logs are purged; add regression coverage.
+- ⬜️ Validate Codex CLI and Codex Mac app as separate host profiles, including
+  routine integration without approval prompts and exception handling for
+  conflicts, scope violations, destructive actions, and unsafe cleanup. Do not
+  require a particular worker-tab UI.
+- ⬜️ Record Claude live-provider validation as a separate manual gate. Complete
+  it when authenticated Claude access is available, while preserving the
+  contract-tested adapter behavior in the meantime.
 - ⬜️ Normalize and test correlation across AIX delegation IDs, logical
   subagent IDs, host mission or run IDs, and active or completed status
   queries. Persist the mapping, use the correct host status lookup for each
   identifier, and keep completed runs inspectable without treating an
   identifier mismatch as a delegation failure.
+- ✅ Persist an immutable capability snapshot or snapshot reference with each
+  delegation at dispatch so later recovery and audit can explain why the host
+  was accepted for that assignment. Keep the snapshot bounded and free of
+  secrets. Implemented through the PM in an isolated worker worktree, with
+  persistence, recovery/status access, tamper rejection, and bounded
+  normalization tests. Live Claude validation remains separate and pending.
 - ⬜️ Implement one supported native provider adapter against the Phase 3
   interface's complete capability set, extending the Phase 3 minimum adapter
   with the provider's supported status/control, permission, workspace, and
   concurrency operations.
-- ⬜️ Add additional provider adapters only where their native delegation
-  contract satisfies the required PM capabilities. Document unsupported or
-  unknown capability behavior; do not add inline fallback behavior.
+- ⬜️ Add additional provider or harness adapters only where their native
+  delegation contract satisfies the required PM capabilities. Document
+  unsupported or unknown capability behavior; do not add inline fallback
+  behavior.
 - ⬜️ Add a supported-harness capability matrix and diagnostics showing the
   discovered harness, vendor/provider, model, runtime, protocol support, and
   missing capabilities without requiring those metadata fields to be present.

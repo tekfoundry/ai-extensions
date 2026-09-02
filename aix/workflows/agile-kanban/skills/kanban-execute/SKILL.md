@@ -1,6 +1,9 @@
 ---
 name: kanban-execute
 description: Implement one Ready or In Progress Kanban work item, update its state and evidence, run targeted verification, and move it to Review or Blocked.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Kanban Execute

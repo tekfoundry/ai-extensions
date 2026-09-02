@@ -15,7 +15,6 @@ the standalone project-manager is explicitly located at
 
 | Role | Display name | Role directory | What they do |
 | --- | --- | --- | --- |
-| `project-manager` | Project Manager | `aix/roles/project-manager` | Owns request triage, delegation sequencing, result aggregation, and PM recovery. |
 | `implementation-engineer` | Implementation Engineer | `roles/project-dev/implementation-engineer` | Implements scoped source and test changes and reports verification evidence. |
 | `documentation-specialist` | Documentation Specialist | `roles/project-dev/documentation-specialist` | Maintains project documentation, plans, and knowledge-base content when assigned. |
 | `technical-architect` | Technical Architect | `roles/project-dev/technical-architect` | Reviews architecture boundaries, runtime contracts, and maintainability risks. |
@@ -42,18 +41,6 @@ manager is a separately installed role dependency.
     "correlated-results"
   ],
   "roles": [
-    {
-      "name": "project-manager",
-      "displayName": "Project Manager",
-      "directory": "aix/roles/project-manager",
-      "responsibilities": ["request triage", "delegation sequencing", "result aggregation"],
-      "taskModes": ["scout", "review", "verification"],
-      "deliveryModes": ["report-only"],
-      "writeDomains": [".aix/pm/"],
-      "deniedAreas": ["source code", "project documentation", "workflow state"],
-      "requiredCapabilities": ["native-worker-creation", "correlated-results"],
-      "requiredEvidence": ["routing decision", "delegation correlation"]
-    },
     {
       "name": "implementation-engineer",
       "displayName": "Implementation Engineer",

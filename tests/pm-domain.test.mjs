@@ -5,9 +5,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   assertPmPathInsideProject,
+  assertPmRuntimePath,
   delegationPaths,
   ensurePmRuntimeLayout,
   hasPmRuntimeLayout,
+  isPmRuntimePath,
   isTerminalDelegationState,
   pmRuntimePaths,
   writePmJsonAtomic,
@@ -117,6 +119,11 @@ test("PM runtime paths stay inside the project and expose the expected layout", 
   assert.equal(delegation.brief, join(runtime.delegations, "delegation-123", "brief.md"));
   assert.equal(delegation.workspace, join(runtime.workspaces, "delegation-123"));
   assert.doesNotThrow(() => assertPmPathInsideProject(projectRoot, delegation.result));
+  assert.equal(isPmRuntimePath(projectRoot, delegation.result), true);
+  assert.equal(isPmRuntimePath(projectRoot, join(projectRoot, ".aix", "pm-old", "record.json")), false);
+  assert.equal(isPmRuntimePath(projectRoot, join(projectRoot, "outside", "record.json")), false);
+  assert.doesNotThrow(() => assertPmRuntimePath(projectRoot, delegation.result));
+  assert.throws(() => assertPmRuntimePath(projectRoot, join(projectRoot, ".aix", "pm-old", "record.json")), /cannot directly modify project artifacts/);
   assert.throws(() => delegationPaths(projectRoot, "../outside"), /unsafe path segment/);
   assert.throws(() => assertPmPathInsideProject(projectRoot, join(projectRoot, "..", "outside")), /outside project/);
 });
@@ -160,6 +167,14 @@ test("PM JSON records write atomically and reject secrets", async () => {
     state: "working",
   });
   assert.throws(() => writePmJsonAtomic(recordPath, { accessToken: "do-not-persist" }), /raw secret fields/);
+});
+
+test("PM atomic writers reject non-canonical project paths", async () => {
+  const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-boundary-"));
+
+  assert.throws(() => writePmJsonAtomic(join(projectRoot, "_docs", "record.json"), { state: "working" }), /canonical .aix\/pm/);
+  assert.throws(() => writePmJsonAtomic(join(projectRoot, ".aix", "pm-old", "record.json"), { state: "working" }), /canonical .aix\/pm/);
+  assert.throws(() => writePmJsonAtomic(join(projectRoot, ".aix", "pm", "..", "outside.json"), { state: "working" }), /canonical .aix\/pm/);
 });
 
 test("PM atomic writes replace partial crash-left records without leaving temp files", async () => {

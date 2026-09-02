@@ -8,6 +8,7 @@ export {
 export { installBundledWorkflow, installWorkflow, installWorkflowFromDefinitions, listBundledWorkflows } from "./install.js";
 export type { BundledWorkflow } from "./install.js";
 export { removeWorkflow } from "./remove.js";
+export { assertWorkflowPmDeactivationAllowed, deleteWorkflowPmDatasets, workflowPmDatasets, workflowPmWarning } from "./pm-runtime.js";
 export {
   diffWorkflowTemplates,
   listWorkflowTemplates,

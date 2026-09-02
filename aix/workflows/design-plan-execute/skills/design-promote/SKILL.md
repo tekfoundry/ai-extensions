@@ -1,12 +1,19 @@
 ---
 name: design-promote
 description: Transfer accepted durable behavior from a completed implementation plan into the appropriate knowledge-base documentation. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Design Promote
 
 Promote accepted current-state behavior into `_docs/kb`, not speculative plan
-intent or execution history.
+intent or execution history. For active-plan work, this procedure is a
+plan-completion procedure: do not run it or edit `_docs/kb` before the plan's
+implementation, verification, integration, and human-validation gates are
+complete. An explicitly classified and approved micro-fix may use this
+procedure during its same verified closeout.
 
 ## Project-Manager Entry Gate
 
@@ -89,23 +96,27 @@ concerns. Do not use the role to promote unimplemented behavior or bypass
 
 ## Workflow
 
-1. Read the completed or substantially completed plan and identify decisions
-   that are now true in the codebase.
-2. Inspect the design index and ownership rules in `_docs/README.md` and
+1. Confirm the work mode. For a plan, confirm the plan is at completion and
+   all implementation, verification, integration, and human-validation gates
+   are resolved. For a micro-fix, confirm it was explicitly classified and
+   approved as such and that implementation and verification are complete.
+2. Read the completed or substantially completed plan, or the verified
+   micro-fix record, and identify decisions that are now true in the codebase.
+3. Inspect the design index and ownership rules in `_docs/README.md` and
    `_docs/kb/README.md`.
-3. Treat completed plans as inspection guides, not proof. Verify current
+4. Treat completed plans as inspection guides, not proof. Verify current
    behavior against implementation, tests, and accepted knowledge-base docs
    before promotion.
-4. Update the smallest appropriate `_docs/kb` product, requirements,
+5. Update the smallest appropriate `_docs/kb` product, requirements,
    architecture, security, quality, operations, decisions, or glossary document
    and its index links when needed. Use the workflow `kb/*` templates when a
    new knowledge-base document needs a reusable shape.
-5. Remove ambiguity about what is current behavior versus future follow-on
+6. Remove ambiguity about what is current behavior versus future follow-on
    work.
-6. Record unresolved implementation-vs-intent conflicts as open decisions,
+7. Record unresolved implementation-vs-intent conflicts as open decisions,
    risks, or follow-up plan candidates instead of pretending promotion is
    complete.
-7. Report promoted documents, retained historical details, implementation
+8. Report promoted documents, retained historical details, implementation
    evidence inspected, and any gaps that prevent promotion.
 
 ## Guardrails

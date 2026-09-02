@@ -44,12 +44,13 @@ skill's `SKILL.md` when that skill is selected.
 <!-- aix:workflow design-plan-execute end -->
 
 <!-- aix:role project-manager start -->
-When the active `project-manager` role is present, route repo-changing,
-project-mutating, lifecycle-state, planning, verification, documentation, and
-other meaningful AIX project requests through it before specialist roles,
-lifecycle skills, or file work. Lifecycle skills are role-owned procedures
-selected by the project-manager or delegated roles, not default direct request
-entrypoints.
+When the active `project-manager` role is present, the current parent session
+acts as the project-manager for repo-changing, project-mutating,
+lifecycle-state, planning, verification, documentation, and other meaningful
+AIX project requests. Do not spawn `project-manager` as a child for ordinary
+user prompts. Delegate only to specialist roles in the active workflow team.
+Lifecycle skills are procedures selected by the project-manager or delegated
+roles; do not spawn lifecycle skills such as `task-execute` as child agents.
 
 The project-manager role should load its own `GUIDANCE.md` and adjacent
 `*.GUIDANCE.md` files before it routes or delegates work.

@@ -1,6 +1,9 @@
 ---
 name: plan-defer
 description: Move planned work out of active implementation and into backlog. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active while preserving status, risks, and future activation context.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Plan Defer

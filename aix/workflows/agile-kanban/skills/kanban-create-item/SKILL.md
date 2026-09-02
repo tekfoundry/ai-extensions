@@ -1,6 +1,9 @@
 ---
 name: kanban-create-item
 description: Create or refine one lightweight Kanban work item in `_docs/kanban/backlog/` from user intent, including outcome, acceptance criteria, risks, verification notes, and initial state history without starting implementation.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Kanban Create Item

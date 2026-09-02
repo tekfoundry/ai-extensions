@@ -1,6 +1,9 @@
 ---
 name: plan-review
 description: Review an implementation plan for scope, authorization, design completeness, risks, and verification readiness without implementing it. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Plan Review

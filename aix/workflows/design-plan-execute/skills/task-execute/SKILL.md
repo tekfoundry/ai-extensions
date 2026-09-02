@@ -1,6 +1,9 @@
 ---
 name: task-execute
 description: Execute one concrete task from an authorized implementation plan or approved micro-fix. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Task Execute

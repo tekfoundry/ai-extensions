@@ -1,6 +1,9 @@
 ---
 name: discover-skill
 description: Find installable software-development agent skills from a natural-language request. Use when the user wants to discover, compare, or install a skill but does not already know the source URL and path.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Discover Skill

@@ -5,6 +5,7 @@ import { delegationPaths, ensurePmRuntimeLayout, pmRuntimePaths } from "./paths.
 import { writePmJsonAtomic, writePmTextAtomic } from "./records.js";
 import { utcTimestamp } from "./time.js";
 import { assertNoRawSecrets, validateDelegationContract, validateDelegationState } from "./validation.js";
+import { validatePersistedCapabilitySnapshot, type PersistedCapabilitySnapshot } from "./host.js";
 import type { DelegationContract, DelegationState, TaskMode, DeliveryMode } from "./types.js";
 
 export interface CreateDelegationInput {
@@ -25,6 +26,7 @@ export interface CreateDelegationInput {
   stopConditions: string[];
   returnRequirements: string[];
   teamVersion?: string;
+  capabilitySnapshot?: PersistedCapabilitySnapshot;
 }
 
 export interface DelegationRecord {
@@ -37,6 +39,7 @@ export interface DelegationRecord {
   constraints: string[];
   acceptanceSignals: string[];
   returnRequirements: string[];
+  readonly capabilitySnapshot?: PersistedCapabilitySnapshot;
 }
 
 export function createDelegation(input: CreateDelegationInput): DelegationRecord {
@@ -75,7 +78,8 @@ export function createDelegation(input: CreateDelegationInput): DelegationRecord
     goal: input.goal,
     constraints: input.constraints,
     acceptanceSignals: input.acceptanceSignals,
-    returnRequirements: input.returnRequirements
+    returnRequirements: input.returnRequirements,
+    ...(input.capabilitySnapshot ? { capabilitySnapshot: input.capabilitySnapshot } : {})
   };
   assertNoRawSecrets(record);
   writePmJsonAtomic(join(paths.root, "record.json"), record);
@@ -190,7 +194,11 @@ export function publishWorkerResult(projectRoot: string, delegationId: string, r
 
 export function readDelegation(projectRoot: string, delegationId: string): DelegationRecord {
   const path = join(delegationPaths(projectRoot, delegationId).root, "record.json");
-  return JSON.parse(readFileSync(path, "utf8")) as DelegationRecord;
+  const record = JSON.parse(readFileSync(path, "utf8")) as DelegationRecord;
+  if (record.capabilitySnapshot !== undefined) {
+    return { ...record, capabilitySnapshot: validatePersistedCapabilitySnapshot(record.capabilitySnapshot) };
+  }
+  return record;
 }
 
 export function attachHostWorker(projectRoot: string, delegationId: string, hostWorkerId: string): DelegationRecord {

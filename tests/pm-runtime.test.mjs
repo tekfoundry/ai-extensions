@@ -6,8 +6,11 @@ import { join } from "node:path";
 import { test } from "node:test";
 import {
   FakeNativeHost,
+  CodexHostAdapter,
+  ClaudeHostAdapter,
   PiHostAdapter,
   SessionCapabilityDiscovery,
+  createPersistedCapabilitySnapshot,
   assertHostCapabilities,
   createDelegation,
   loadWorkerContext,
@@ -58,6 +61,86 @@ test("Pi adapter translates native subagent calls without changing AIX contracts
   assert.equal((await adapter.discoverCapabilities()).harness, "pi");
 });
 
+test("Codex adapter translates native worker calls and delivery permissions", async () => {
+  const calls = [];
+  const adapter = new CodexHostAdapter({
+    async runtimeInfo() {
+      return {
+        provider: "openai",
+        model: "gpt-5.5",
+        runtime: "codex-cli",
+        version: "codex-cli 0.148.0",
+        capabilities: {
+          "native-worker-creation": true,
+          "correlated-results": true,
+          "worker-follow-up": true,
+          "worker-stop": true,
+          "workspace-binding": true
+        }
+      };
+    },
+    async createSubagent(request) { calls.push(request); return { id: "codex-worker-1" }; },
+    async waitForSubagent() { return { status: "completed", output: "Codex result" }; }
+  });
+  const contract = {
+    recordSchemaVersion: 1, protocolVersion: 1, workflow: "design-plan-execute", workflowVersion: "1", pmRoleVersion: "1",
+    identity: { subagentId: "subagent-codex", delegationId: "delegation-codex", displayName: "Implementation Engineer" },
+    authority: { role: "implementation-engineer", taskMode: "implementation", deliveryMode: "isolated-change", allowedPaths: ["src/"], deniedPaths: [".aix/pm/"], requiredAccess: ["workspace-write"], stopConditions: ["scope unclear"] }
+  };
+  const worker = await adapter.createWorker({ contract, roleInstructions: "role", brief: "brief", workspacePath: "/tmp/aix-worker" });
+  const result = await adapter.waitForResult(worker);
+  assert.equal(calls[0].name, "Implementation Engineer");
+  assert.match(calls[0].prompt, /role/);
+  assert.match(calls[0].prompt, /brief/);
+  assert.equal(calls[0].workspacePath, "/tmp/aix-worker");
+  assert.equal(calls[0].writable, true);
+  assert.equal(result.delegationId, "delegation-codex");
+  const snapshot = await adapter.discoverCapabilities();
+  assert.equal(snapshot.harness, "codex");
+  assert.equal(snapshot.provider, "openai");
+  assert.equal(snapshot.model, "gpt-5.5");
+});
+
+test("Claude adapter translates native worker calls and delivery permissions", async () => {
+  const calls = [];
+  const adapter = new ClaudeHostAdapter({
+    async runtimeInfo() {
+      return {
+        provider: "anthropic",
+        model: "sonnet",
+        runtime: "claude-cli",
+        version: "2.1.235",
+        capabilities: {
+          "native-worker-creation": true,
+          "correlated-results": true,
+          "worker-follow-up": true,
+          "worker-stop": true,
+          "workspace-binding": true
+        }
+      };
+    },
+    async createSubagent(request) { calls.push(request); return { id: "claude-worker-1" }; },
+    async waitForSubagent() { return { status: "completed", output: "Claude result" }; }
+  });
+  const contract = {
+    recordSchemaVersion: 1, protocolVersion: 1, workflow: "design-plan-execute", workflowVersion: "1", pmRoleVersion: "1",
+    identity: { subagentId: "subagent-claude", delegationId: "delegation-claude", displayName: "Security Engineer" },
+    authority: { role: "security-engineer", taskMode: "review", deliveryMode: "report-only", allowedPaths: ["src/"], deniedPaths: [".aix/pm/"], requiredAccess: ["read"], stopConditions: ["scope unclear"] }
+  };
+  const worker = await adapter.createWorker({ contract, roleInstructions: "role", brief: "brief", workspacePath: "/tmp/aix-worker" });
+  const result = await adapter.waitForResult(worker);
+  assert.equal(calls[0].name, "Security Engineer");
+  assert.match(calls[0].prompt, /role/);
+  assert.match(calls[0].prompt, /brief/);
+  assert.equal(calls[0].workspacePath, "/tmp/aix-worker");
+  assert.equal(calls[0].writable, false);
+  assert.equal(result.delegationId, "delegation-claude");
+  const snapshot = await adapter.discoverCapabilities();
+  assert.equal(snapshot.harness, "claude");
+  assert.equal(snapshot.provider, "anthropic");
+  assert.equal(snapshot.model, "sonnet");
+});
+
 test("capability discovery refreshes on a new session or explicit request", async () => {
   let discoveries = 0;
   const host = new FakeNativeHost({ now: () => `2026-09-01T00:00:0${++discoveries}.000Z` });
@@ -69,6 +152,20 @@ test("capability discovery refreshes on a new session or explicit request", asyn
   assert.equal(first.discoveredAt, reused.discoveredAt);
   assert.notEqual(first.discoveredAt, next.discoveredAt);
   assert.notEqual(next.discoveredAt, forced.discoveredAt);
+});
+
+test("persisted capability snapshots are bounded, sorted, immutable, and secret-free", () => {
+  const snapshot = createPersistedCapabilitySnapshot({
+    provider: "host", harness: "native", model: "model", runtime: "runtime", discoveredAt: "2026-09-01T00:00:00.000Z",
+    capabilities: { zeta: false, alpha: true }
+  });
+  assert.deepEqual(Object.keys(snapshot.capabilities), ["alpha", "zeta"]);
+  assert.ok(Object.isFrozen(snapshot));
+  assert.ok(Object.isFrozen(snapshot.capabilities));
+  assert.throws(() => createPersistedCapabilitySnapshot({
+    provider: "host", harness: "native", model: "model", runtime: "runtime", discoveredAt: "2026-09-01T00:00:00.000Z",
+    capabilities: { "api-token": true }
+  }), /raw secret fields/);
 });
 
 test("delegation writes a bounded brief and recoverable worker exchange", async () => {

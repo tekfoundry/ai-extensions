@@ -1,6 +1,9 @@
 ---
 name: plan-update
 description: Update an active or backlog implementation plan without executing it. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Plan Update

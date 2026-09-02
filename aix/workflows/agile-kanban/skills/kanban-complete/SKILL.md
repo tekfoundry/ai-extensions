@@ -1,6 +1,9 @@
 ---
 name: kanban-complete
 description: Close one reviewed Kanban item by confirming acceptance criteria, verification, documentation impact, unresolved risks, and movement to the Done state directory.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Kanban Complete

@@ -1,6 +1,9 @@
 ---
 name: review-and-refresh-docs
 description: Review implementation reality and refresh `_docs/kb` so current-state project knowledge matches the code, accepted plans, and verified evidence. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Review And Refresh Docs

@@ -1,6 +1,9 @@
 ---
 name: design-create
 description: Create a new current-state knowledge-base document in the right _docs/kb area, using workflow kb templates and linking it from the relevant index. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Design Create

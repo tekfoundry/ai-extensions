@@ -12,3 +12,5 @@ export * from "./session.js";
 export * from "./locks.js";
 export * from "./orchestrator.js";
 export * from "./workspace.js";
+export * from "./tidy.js";
+export * from "./completion.js";

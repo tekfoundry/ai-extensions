@@ -1,5 +1,11 @@
 import { randomUUID } from "node:crypto";
+import { execFileSync, spawn, type ChildProcessByStdio, type ChildProcessWithoutNullStreams } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
+import type { Readable } from "node:stream";
 import { AixError } from "../errors.js";
+import { assertNoRawSecrets } from "./validation.js";
 import type { DelegationContract } from "./types.js";
 
 export interface HostCapabilitySnapshot {
@@ -9,6 +15,60 @@ export interface HostCapabilitySnapshot {
   runtime: string;
   discoveredAt: string;
   capabilities: Record<string, boolean | "unknown">;
+}
+
+export type PersistedCapabilitySnapshot = Readonly<HostCapabilitySnapshot>;
+
+const MAX_SNAPSHOT_STRING_LENGTH = 128;
+const MAX_SNAPSHOT_CAPABILITIES = 64;
+
+/** Create the bounded, host-neutral snapshot stored with a delegation record. */
+export function createPersistedCapabilitySnapshot(snapshot: HostCapabilitySnapshot): PersistedCapabilitySnapshot {
+  return normalizePersistedCapabilitySnapshot(snapshot);
+}
+
+/** Validate an untrusted snapshot loaded from PM runtime storage. */
+export function validatePersistedCapabilitySnapshot(value: unknown): PersistedCapabilitySnapshot {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new AixError("Persisted capability snapshot must be an object.");
+  }
+  const snapshot = value as Record<string, unknown>;
+  const fields = ["provider", "harness", "model", "runtime", "discoveredAt", "capabilities"];
+  if (Object.keys(snapshot).some((field) => !fields.includes(field)) || fields.some((field) => !(field in snapshot))) {
+    throw new AixError("Persisted capability snapshot has an invalid shape.");
+  }
+  if (!snapshot.capabilities || typeof snapshot.capabilities !== "object" || Array.isArray(snapshot.capabilities)) {
+    throw new AixError("Persisted capability snapshot capabilities must be an object.");
+  }
+  return normalizePersistedCapabilitySnapshot(snapshot as unknown as HostCapabilitySnapshot);
+}
+
+function normalizePersistedCapabilitySnapshot(snapshot: HostCapabilitySnapshot): PersistedCapabilitySnapshot {
+  assertNoRawSecrets(snapshot, "capabilitySnapshot");
+  const metadata = ["provider", "harness", "model", "runtime", "discoveredAt"] as const;
+  for (const field of metadata) {
+    if (typeof snapshot[field] !== "string" || snapshot[field].length > MAX_SNAPSHOT_STRING_LENGTH) {
+      throw new AixError(`Capability snapshot ${field} must be a string of at most ${MAX_SNAPSHOT_STRING_LENGTH} characters.`);
+    }
+  }
+  const entries = Object.entries(snapshot.capabilities);
+  if (entries.length > MAX_SNAPSHOT_CAPABILITIES) {
+    throw new AixError(`Capability snapshot cannot contain more than ${MAX_SNAPSHOT_CAPABILITIES} capabilities.`);
+  }
+  const capabilities = Object.fromEntries(entries.sort(([left], [right]) => left.localeCompare(right)));
+  for (const [name, value] of Object.entries(capabilities)) {
+    if (name.length === 0 || name.length > MAX_SNAPSHOT_STRING_LENGTH || ![true, false, "unknown"].includes(value)) {
+      throw new AixError("Capability snapshot contains an invalid capability entry.");
+    }
+  }
+  return Object.freeze({
+    provider: snapshot.provider,
+    harness: snapshot.harness,
+    model: snapshot.model,
+    runtime: snapshot.runtime,
+    discoveredAt: snapshot.discoveredAt,
+    capabilities: Object.freeze(capabilities)
+  });
 }
 
 export interface HostWorkerRequest {
@@ -22,6 +82,8 @@ export interface HostWorkerHandle {
   subagentId: string;
   hostWorkerId: string;
   displayName: string;
+  /** Host-assigned name, when the host exposes one separately from AIX's name. */
+  hostDisplayName?: string;
 }
 
 export interface HostWorkerResult {
@@ -64,7 +126,7 @@ export class NativeHostAdapter implements HostExecution {
 
 export interface PiBridge {
   runtimeInfo(): Promise<{ provider?: string; model?: string; runtime?: string; capabilities: Record<string, boolean | "unknown"> }>;
-  createSubagent(request: { name: string; prompt: string }): Promise<{ id: string }>;
+  createSubagent(request: { name: string; prompt: string }): Promise<{ id: string; displayName?: string }>;
   waitForSubagent(id: string): Promise<{ status: "completed" | "blocked" | "failed"; output: string }>;
   inspectSubagent?(id: string): Promise<{ state: string }>;
   stopSubagent?(id: string): Promise<void>;
@@ -100,7 +162,8 @@ export class PiHostAdapter implements HostExecution {
     return {
       subagentId: request.contract.identity.subagentId,
       hostWorkerId: result.id,
-      displayName: request.contract.identity.displayName
+      displayName: request.contract.identity.displayName,
+      ...(result.displayName ? { hostDisplayName: result.displayName } : {})
     };
   }
 
@@ -125,6 +188,432 @@ export class PiHostAdapter implements HostExecution {
 
   async stopWorker(worker: HostWorkerHandle): Promise<void> {
     await this.pi.stopSubagent?.(worker.hostWorkerId);
+  }
+}
+
+export interface CodexBridge {
+  runtimeInfo(): Promise<{ provider?: string; model?: string; runtime?: string; version?: string; capabilities: Record<string, boolean | "unknown"> }>;
+  createSubagent(request: { name: string; prompt: string; workspacePath?: string; writable: boolean }): Promise<{ id: string; displayName?: string }>;
+  waitForSubagent(id: string): Promise<{ status: "completed" | "blocked" | "failed"; output: string }>;
+  sendFollowUp?(id: string, request: { prompt: string; workspacePath?: string }): Promise<void>;
+  inspectSubagent?(id: string): Promise<{ state: string }>;
+  stopSubagent?(id: string): Promise<void>;
+}
+
+/**
+ * Codex-specific translation lives behind this bridge. The PM sees only the
+ * host-neutral worker contract and never receives Codex session objects.
+ */
+export class CodexHostAdapter implements HostExecution {
+  private readonly delegations = new Map<string, string>();
+
+  constructor(private readonly codex: CodexBridge, private readonly now: () => string = () => new Date().toISOString()) {}
+
+  async discoverCapabilities(): Promise<HostCapabilitySnapshot> {
+    const info = await this.codex.runtimeInfo();
+    return {
+      provider: info.provider || "openai",
+      harness: "codex",
+      model: info.model || "unknown",
+      runtime: info.runtime || "codex-cli",
+      discoveredAt: this.now(),
+      capabilities: info.capabilities
+    };
+  }
+
+  async createWorker(request: HostWorkerRequest): Promise<HostWorkerHandle> {
+    const result = await this.codex.createSubagent({
+      name: request.contract.identity.displayName,
+      prompt: [request.roleInstructions, request.brief].filter(Boolean).join("\n\n"),
+      workspacePath: request.workspacePath,
+      writable: request.contract.authority.deliveryMode !== "report-only"
+    });
+    this.delegations.set(result.id, request.contract.identity.delegationId);
+    return {
+      subagentId: request.contract.identity.subagentId,
+      hostWorkerId: result.id,
+      displayName: request.contract.identity.displayName,
+      ...(result.displayName ? { hostDisplayName: result.displayName } : {})
+    };
+  }
+
+  async sendBrief(_worker: HostWorkerHandle, _brief: string): Promise<void> {
+    // Codex receives the bounded role context and brief during process creation.
+  }
+
+  async waitForResult(worker: HostWorkerHandle): Promise<HostWorkerResult> {
+    const result = await this.codex.waitForSubagent(worker.hostWorkerId);
+    return {
+      hostWorkerId: worker.hostWorkerId,
+      subagentId: worker.subagentId,
+      delegationId: this.delegations.get(worker.hostWorkerId) || "unknown",
+      status: result.status,
+      result: result.output
+    };
+  }
+
+  async sendFollowUp(worker: HostWorkerHandle, request: HostWorkerRequest): Promise<void> {
+    if (!this.codex.sendFollowUp) throw new AixError("Codex host does not support worker follow-up delegation.");
+    await this.codex.sendFollowUp(worker.hostWorkerId, {
+      prompt: [request.roleInstructions, request.brief].filter(Boolean).join("\n\n"),
+      workspacePath: request.workspacePath
+    });
+    this.delegations.set(worker.hostWorkerId, request.contract.identity.delegationId);
+    worker.subagentId = request.contract.identity.subagentId;
+  }
+
+  async inspectWorker(worker: HostWorkerHandle): Promise<{ state: string }> {
+    return this.codex.inspectSubagent?.(worker.hostWorkerId) || { state: "unsupported" };
+  }
+
+  async stopWorker(worker: HostWorkerHandle): Promise<void> {
+    await this.codex.stopSubagent?.(worker.hostWorkerId);
+  }
+}
+
+interface CodexCliRun {
+  id: string;
+  cwd: string;
+  child: ChildProcessWithoutNullStreams;
+  outputPath: string;
+  sessionId?: string;
+  state: "working" | "completed" | "failed" | "stopped";
+  result: Promise<{ status: "completed" | "blocked" | "failed"; output: string }>;
+}
+
+/** Process bridge for the installed Codex CLI. Prompts are sent over stdin. */
+export class CodexCliBridge implements CodexBridge {
+  private readonly runs = new Map<string, CodexCliRun>();
+
+  constructor(private readonly options: {
+    command?: string;
+    model?: string;
+    persistSessions?: boolean;
+    now?: () => string;
+  } = {}) {}
+
+  async runtimeInfo(): Promise<{ provider?: string; model?: string; runtime?: string; version?: string; capabilities: Record<string, boolean | "unknown"> }> {
+    const command = this.options.command || "codex";
+    let version: string;
+    try {
+      version = execFileSync(command, ["--version"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new AixError(`Codex host is unavailable: ${command} --version failed (${message})`);
+    }
+    return {
+      provider: "openai",
+      model: this.options.model || "unknown",
+      runtime: "codex-cli",
+      version,
+      capabilities: {
+        "native-worker-creation": true,
+        "correlated-results": true,
+        "worker-streaming": true,
+        "worker-follow-up": this.options.persistSessions !== false,
+        "worker-stop": true,
+        "workspace-binding": true,
+        "workspace-write": true
+      }
+    };
+  }
+
+  async createSubagent(request: { name: string; prompt: string; workspacePath?: string; writable: boolean }): Promise<{ id: string; displayName?: string }> {
+    const id = `codex-worker-${randomUUID()}`;
+    const args = ["exec", "--json", "--color", "never", "--sandbox", request.writable ? "workspace-write" : "read-only", "--ask-for-approval", "never"];
+    if (this.options.persistSessions === false) args.push("--ephemeral");
+    if (this.options.model) args.push("--model", this.options.model);
+    args.push("-o", this.outputPath(id), "-");
+    this.startRun(id, args, request.prompt, request.workspacePath || process.cwd());
+    return { id };
+  }
+
+  async waitForSubagent(id: string): Promise<{ status: "completed" | "blocked" | "failed"; output: string }> {
+    const run = this.runs.get(id);
+    if (!run) throw new AixError(`Unknown Codex worker: ${id}`);
+    return run.result;
+  }
+
+  async sendFollowUp(id: string, request: { prompt: string; workspacePath?: string }): Promise<void> {
+    const previous = this.runs.get(id);
+    if (!previous?.sessionId || this.options.persistSessions === false) {
+      throw new AixError("Codex worker follow-up requires a persisted Codex session.");
+    }
+    const args = ["exec", "resume", previous.sessionId, "--json", "--color", "never"];
+    if (this.options.model) args.push("--model", this.options.model);
+    args.push("-o", this.outputPath(id), "-");
+    this.startRun(id, args, request.prompt, request.workspacePath || previous.cwd);
+  }
+
+  async inspectSubagent(id: string): Promise<{ state: string }> {
+    return { state: this.runs.get(id)?.state || "unknown" };
+  }
+
+  async stopSubagent(id: string): Promise<void> {
+    const run = this.runs.get(id);
+    if (run && run.state === "working") {
+      run.state = "stopped";
+      run.child.kill("SIGTERM");
+    }
+  }
+
+  private outputPath(id: string): string {
+    const directory = join(tmpdir(), "aix-codex-workers");
+    mkdirSync(directory, { recursive: true, mode: 0o700 });
+    return join(directory, `${id}.output.md`);
+  }
+
+  private startRun(id: string, args: string[], prompt: string, cwd: string): void {
+    const outputPath = this.outputPath(id);
+    const child = spawn(this.options.command || "codex", args, { cwd, stdio: ["pipe", "pipe", "pipe"] });
+    let stdout = "";
+    let stderr = "";
+    let stdoutBuffer = "";
+    let sessionId: string | undefined;
+    const result = new Promise<{ status: "completed" | "blocked" | "failed"; output: string }>((resolve) => {
+      child.stdout.on("data", (chunk: Buffer | string) => {
+        const text = chunk.toString();
+        stdout += text;
+        stdoutBuffer += text;
+        const lines = stdoutBuffer.split(/\r?\n/);
+        stdoutBuffer = lines.pop() || "";
+        for (const line of lines) {
+          try {
+            const event = JSON.parse(line) as { type?: string; thread_id?: string; thread?: { id?: string } };
+            if (event.type === "thread.started") sessionId = event.thread_id || event.thread?.id;
+          } catch {
+            // Incomplete JSONL lines are parsed again on the next chunk.
+          }
+        }
+      });
+      child.stderr.on("data", (chunk: Buffer | string) => { stderr += chunk.toString(); });
+      child.once("error", (error) => {
+        const run = this.runs.get(id);
+        if (run) run.state = "failed";
+        resolve({ status: "failed", output: stderr || String(error) });
+      });
+      child.once("close", (code) => {
+        const run = this.runs.get(id);
+        if (run) {
+          run.sessionId = sessionId;
+          run.state = code === 0 ? "completed" : (run.state === "stopped" ? "stopped" : "failed");
+        }
+        const output = existsSync(outputPath) ? readFileSync(outputPath, "utf8") : (stderr || stdout);
+        resolve({ status: code === 0 ? "completed" : "failed", output });
+        try { rmSync(outputPath, { force: true }); } catch { /* best-effort temp cleanup */ }
+      });
+    });
+    const run: CodexCliRun = { id, cwd, child, outputPath, state: "working", result };
+    this.runs.set(id, run);
+    child.stdin.end(prompt);
+  }
+}
+
+export interface ClaudeBridge {
+  runtimeInfo(): Promise<{ provider?: string; model?: string; runtime?: string; version?: string; capabilities: Record<string, boolean | "unknown"> }>;
+  createSubagent(request: { name: string; prompt: string; workspacePath?: string; writable: boolean }): Promise<{ id: string; displayName?: string }>;
+  waitForSubagent(id: string): Promise<{ status: "completed" | "blocked" | "failed"; output: string }>;
+  sendFollowUp?(id: string, request: { prompt: string; workspacePath?: string }): Promise<void>;
+  inspectSubagent?(id: string): Promise<{ state: string }>;
+  stopSubagent?(id: string): Promise<void>;
+}
+
+/**
+ * Claude-specific translation lives behind this bridge. The PM sees only the
+ * host-neutral worker contract and never receives Claude session objects.
+ */
+export class ClaudeHostAdapter implements HostExecution {
+  private readonly delegations = new Map<string, string>();
+
+  constructor(private readonly claude: ClaudeBridge, private readonly now: () => string = () => new Date().toISOString()) {}
+
+  async discoverCapabilities(): Promise<HostCapabilitySnapshot> {
+    const info = await this.claude.runtimeInfo();
+    return {
+      provider: info.provider || "anthropic",
+      harness: "claude",
+      model: info.model || "unknown",
+      runtime: info.runtime || "claude-cli",
+      discoveredAt: this.now(),
+      capabilities: info.capabilities
+    };
+  }
+
+  async createWorker(request: HostWorkerRequest): Promise<HostWorkerHandle> {
+    const result = await this.claude.createSubagent({
+      name: request.contract.identity.displayName,
+      prompt: [request.roleInstructions, request.brief].filter(Boolean).join("\n\n"),
+      workspacePath: request.workspacePath,
+      writable: request.contract.authority.deliveryMode !== "report-only"
+    });
+    this.delegations.set(result.id, request.contract.identity.delegationId);
+    return {
+      subagentId: request.contract.identity.subagentId,
+      hostWorkerId: result.id,
+      displayName: request.contract.identity.displayName,
+      ...(result.displayName ? { hostDisplayName: result.displayName } : {})
+    };
+  }
+
+  async sendBrief(_worker: HostWorkerHandle, _brief: string): Promise<void> {
+    // Claude receives the bounded role context and brief during process creation.
+  }
+
+  async waitForResult(worker: HostWorkerHandle): Promise<HostWorkerResult> {
+    const result = await this.claude.waitForSubagent(worker.hostWorkerId);
+    return {
+      hostWorkerId: worker.hostWorkerId,
+      subagentId: worker.subagentId,
+      delegationId: this.delegations.get(worker.hostWorkerId) || "unknown",
+      status: result.status,
+      result: result.output
+    };
+  }
+
+  async sendFollowUp(worker: HostWorkerHandle, request: HostWorkerRequest): Promise<void> {
+    if (!this.claude.sendFollowUp) throw new AixError("Claude host does not support worker follow-up delegation.");
+    await this.claude.sendFollowUp(worker.hostWorkerId, {
+      prompt: [request.roleInstructions, request.brief].filter(Boolean).join("\n\n"),
+      workspacePath: request.workspacePath
+    });
+    this.delegations.set(worker.hostWorkerId, request.contract.identity.delegationId);
+    worker.subagentId = request.contract.identity.subagentId;
+  }
+
+  async inspectWorker(worker: HostWorkerHandle): Promise<{ state: string }> {
+    return this.claude.inspectSubagent?.(worker.hostWorkerId) || { state: "unsupported" };
+  }
+
+  async stopWorker(worker: HostWorkerHandle): Promise<void> {
+    await this.claude.stopSubagent?.(worker.hostWorkerId);
+  }
+}
+
+interface ClaudeCliRun {
+  id: string;
+  cwd: string;
+  child: ChildProcessByStdio<null, Readable, Readable>;
+  sessionId?: string;
+  state: "working" | "completed" | "failed" | "stopped";
+  result: Promise<{ status: "completed" | "blocked" | "failed"; output: string }>;
+}
+
+/** Process bridge for the installed Claude Code CLI. */
+export class ClaudeCliBridge implements ClaudeBridge {
+  private readonly runs = new Map<string, ClaudeCliRun>();
+
+  constructor(private readonly options: {
+    command?: string;
+    model?: string;
+    persistSessions?: boolean;
+  } = {}) {}
+
+  async runtimeInfo(): Promise<{ provider?: string; model?: string; runtime?: string; version?: string; capabilities: Record<string, boolean | "unknown"> }> {
+    const command = this.options.command || "claude";
+    let version: string;
+    try {
+      version = execFileSync(command, ["--version"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new AixError(`Claude host is unavailable: ${command} --version failed (${message})`);
+    }
+    return {
+      provider: "anthropic",
+      model: this.options.model || "unknown",
+      runtime: "claude-cli",
+      version,
+      capabilities: {
+        "native-worker-creation": true,
+        "correlated-results": true,
+        "worker-streaming": true,
+        "worker-follow-up": this.options.persistSessions !== false,
+        "worker-stop": true,
+        "workspace-binding": true,
+        "workspace-write": true
+      }
+    };
+  }
+
+  async createSubagent(request: { name: string; prompt: string; workspacePath?: string; writable: boolean }): Promise<{ id: string; displayName?: string }> {
+    const id = `claude-worker-${randomUUID()}`;
+    const args = ["--print", "--output-format", "stream-json", "--verbose", "--permission-mode", request.writable ? "acceptEdits" : "plan", "--name", request.name];
+    if (this.options.persistSessions === false) args.push("--no-session-persistence");
+    if (this.options.model) args.push("--model", this.options.model);
+    args.push(request.prompt);
+    this.startRun(id, args, request.workspacePath || process.cwd());
+    return { id };
+  }
+
+  async waitForSubagent(id: string): Promise<{ status: "completed" | "blocked" | "failed"; output: string }> {
+    const run = this.runs.get(id);
+    if (!run) throw new AixError(`Unknown Claude worker: ${id}`);
+    return run.result;
+  }
+
+  async sendFollowUp(id: string, request: { prompt: string; workspacePath?: string }): Promise<void> {
+    const previous = this.runs.get(id);
+    if (!previous?.sessionId || this.options.persistSessions === false) {
+      throw new AixError("Claude worker follow-up requires a persisted Claude session.");
+    }
+    const args = ["--print", "--output-format", "stream-json", "--verbose", "--resume", previous.sessionId];
+    if (this.options.model) args.push("--model", this.options.model);
+    args.push(request.prompt);
+    this.startRun(id, args, request.workspacePath || previous.cwd);
+  }
+
+  async inspectSubagent(id: string): Promise<{ state: string }> {
+    return { state: this.runs.get(id)?.state || "unknown" };
+  }
+
+  async stopSubagent(id: string): Promise<void> {
+    const run = this.runs.get(id);
+    if (run && run.state === "working") {
+      run.state = "stopped";
+      run.child.kill("SIGTERM");
+    }
+  }
+
+  private startRun(id: string, args: string[], cwd: string): void {
+    const child = spawn(this.options.command || "claude", args, { cwd, stdio: ["ignore", "pipe", "pipe"] });
+    let stdout = "";
+    let stderr = "";
+    let stdoutBuffer = "";
+    let finalOutput = "";
+    let sessionId: string | undefined;
+    const result = new Promise<{ status: "completed" | "blocked" | "failed"; output: string }>((resolve) => {
+      child.stdout.on("data", (chunk: Buffer | string) => {
+        const text = chunk.toString();
+        stdout += text;
+        stdoutBuffer += text;
+        const lines = stdoutBuffer.split(/\r?\n/);
+        stdoutBuffer = lines.pop() || "";
+        for (const line of lines) {
+          try {
+            const event = JSON.parse(line) as { type?: string; session_id?: string; result?: string; is_error?: boolean };
+            sessionId = sessionId || event.session_id;
+            if (event.type === "result" && typeof event.result === "string") finalOutput = event.result;
+          } catch {
+            // Ignore non-JSON diagnostics; the final result is still captured below.
+          }
+        }
+      });
+      child.stderr.on("data", (chunk: Buffer | string) => { stderr += chunk.toString(); });
+      child.once("error", (error) => {
+        const run = this.runs.get(id);
+        if (run) run.state = "failed";
+        resolve({ status: "failed", output: stderr || String(error) });
+      });
+      child.once("close", (code) => {
+        const run = this.runs.get(id);
+        if (run) {
+          run.sessionId = sessionId;
+          run.state = code === 0 ? "completed" : (run.state === "stopped" ? "stopped" : "failed");
+        }
+        resolve({ status: code === 0 ? "completed" : "failed", output: finalOutput || stderr || stdout });
+      });
+    });
+    const run: ClaudeCliRun = { id, cwd, child, state: "working", result };
+    this.runs.set(id, run);
   }
 }
 

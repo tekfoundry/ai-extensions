@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, realpathSync } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { AixError } from "../errors.js";
 
@@ -90,13 +90,63 @@ export function delegationPaths(projectRoot: string, delegationId: string): Dele
   };
 }
 
+function isPathWithin(root: string, candidatePath: string): boolean {
+  const resolvedRoot = resolve(root);
+  const resolvedCandidate = resolve(candidatePath);
+  const relativeCandidate = relative(resolvedRoot, resolvedCandidate);
+  return relativeCandidate === "" || (relativeCandidate !== ".." && !relativeCandidate.startsWith(`..${sep}`) && !isAbsolute(relativeCandidate));
+}
+
+function assertNoSymlinkEscape(root: string, candidatePath: string): void {
+  if (!existsSync(root)) return;
+
+  const resolvedRoot = resolve(root);
+  const realRoot = realpathSync(resolvedRoot);
+
+  let existing = resolve(candidatePath);
+  while (!existsSync(existing)) {
+    const parent = resolve(existing, "..");
+    if (parent === existing) return;
+    existing = parent;
+  }
+
+  if (!isPathWithin(realRoot, realpathSync(existing))) {
+    throw new AixError(`Invalid PM path: resolved path escapes ${resolvedRoot}.`);
+  }
+}
+
+/** Return whether a path resolves to the canonical project-local PM runtime. */
+export function isPmRuntimePath(projectRoot: string, candidatePath: string): boolean {
+  const root = pmRuntimePaths(projectRoot).root;
+  return isPathWithin(root, candidatePath) && (() => {
+    try {
+      assertNoSymlinkEscape(root, candidatePath);
+      return true;
+    } catch {
+      return false;
+    }
+  })();
+}
+
 export function assertPmPathInsideProject(projectRoot: string, candidatePath: string): void {
   const project = resolve(projectRoot);
   const candidate = resolve(candidatePath);
-  const relativeCandidate = relative(project, candidate);
 
-  if (relativeCandidate === ".." || relativeCandidate.startsWith(`..${sep}`) || isAbsolute(relativeCandidate)) {
+  if (!isPathWithin(project, candidate)) {
     throw new AixError(`Invalid PM path: ${candidate} is outside project ${project}.`);
+  }
+  assertNoSymlinkEscape(project, candidate);
+}
+
+/** Reject parent writes unless their target is inside canonical .aix/pm state. */
+export function assertPmRuntimePath(projectRoot: string, candidatePath: string): void {
+  assertPmPathInsideProject(projectRoot, candidatePath);
+  const runtimeRoot = pmRuntimePaths(projectRoot).root;
+  if (existsSync(runtimeRoot) && lstatSync(runtimeRoot).isSymbolicLink()) {
+    throw new AixError(`Invalid PM path: canonical PM root must not be a symlink: ${runtimeRoot}`);
+  }
+  if (!isPathWithin(runtimeRoot, candidatePath)) {
+    throw new AixError(`PM and parent contexts cannot directly modify project artifacts: ${candidatePath}`);
   }
 }
 

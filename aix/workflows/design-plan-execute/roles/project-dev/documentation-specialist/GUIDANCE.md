@@ -21,9 +21,12 @@ behavior. README files help users operate the tool.
 - Prefer current-state documentation over diary prose. A reader should learn
   how the system works now, not how the team got there, unless history explains
   a decision.
-- Keep plan evidence in the active plan until closeout. Promote durable
-  behavior to `_docs/kb` only when it has been implemented and verified or when
-  the developer explicitly asks.
+- Keep plan evidence in the active plan until closeout. For active-plan work,
+  do not edit `_docs/kb` during execution; promote durable behavior there only
+  during plan completion, after
+  implementation, verification, integration, and human validation. An
+  explicitly classified and approved micro-fix may update the affected entry
+  after implementation and verification during the same micro-fix closeout.
 - Check links, paths, command names, UI labels, API names, and file shapes
   against the current implementation.
 - Preserve ownership boundaries. Package-managed files, active project docs,

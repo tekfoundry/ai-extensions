@@ -1,6 +1,9 @@
 ---
 name: phase-execute
 description: Orchestrate execution of one active-plan phase through bounded `task-execute` work. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Phase Execute

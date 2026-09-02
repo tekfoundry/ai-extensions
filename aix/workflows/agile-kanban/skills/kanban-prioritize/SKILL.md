@@ -1,6 +1,9 @@
 ---
 name: kanban-prioritize
 description: Review Kanban backlog items, identify priority and readiness, and move only clear unblocked items to the Ready state directory without implementing them.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Kanban Prioritize

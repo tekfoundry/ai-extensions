@@ -20,10 +20,10 @@ import {
 } from "./delegation.js";
 import { acquireArtifactLock, acquirePmLock } from "./locks.js";
 import { createDiagnosticLogger, type DiagnosticLogger } from "./diagnostics.js";
-import { assertHostCapabilities, type HostExecution, type HostWorkerHandle, type HostWorkerRequest } from "./host.js";
+import { assertHostCapabilities, createPersistedCapabilitySnapshot, type HostExecution, type HostWorkerHandle, type HostWorkerRequest, type HostWorkerResult } from "./host.js";
 import { startPmSession, updatePmSession, type PmSessionHandle } from "./session.js";
 import type { DeliveryMode, TaskMode } from "./types.js";
-import { assertPmPathInsideProject } from "./paths.js";
+import { pmRuntimePaths } from "./paths.js";
 import { createGitWorkspaceManager, type WorkspaceManager, type WorkspaceRecord } from "./workspace.js";
 
 export interface PmOrchestratorOptions {
@@ -63,8 +63,32 @@ export interface DelegationRunResult {
   record: DelegationRecord;
   worker: HostWorkerHandle;
   reused: boolean;
+  report: DelegationReport;
 }
 
+export interface DelegationReport {
+  role: string;
+  delegationId: string;
+  subagentId: string;
+  hostWorkerId: string;
+  displayName: string;
+  hostDisplayName?: string;
+  status: HostWorkerResult["status"];
+  summary: string;
+}
+
+export function createDelegationReport(record: DelegationRecord, worker: HostWorkerHandle, result: HostWorkerResult): DelegationReport {
+  return {
+    role: record.contract.authority.role,
+    delegationId: record.contract.identity.delegationId,
+    subagentId: record.contract.identity.subagentId,
+    hostWorkerId: worker.hostWorkerId,
+    displayName: record.contract.identity.displayName,
+    ...(worker.hostDisplayName ? { hostDisplayName: worker.hostDisplayName } : {}),
+    status: result.status,
+    summary: result.result
+  };
+}
 export interface RecoveryNotice {
   delegationId: string;
   previousState: string;
@@ -79,18 +103,11 @@ export interface PmStatus {
   workflowVersion: string;
   capabilities: Record<string, boolean | "unknown">;
   host: { provider: string; harness: string; model: string; runtime: string };
-  delegations: Array<{ delegationId: string; subagentId: string; displayName: string; role: string; state: string; updatedAt: string }>;
+  delegations: Array<{ delegationId: string; subagentId: string; displayName: string; role: string; state: string; updatedAt: string; capabilitySnapshot?: DelegationRecord["capabilitySnapshot"] }>;
 }
 
 export function assertPmArtifactWriteForbidden(candidatePath: string): never {
   throw new AixError(`PM and parent contexts cannot directly modify project artifacts: ${candidatePath}`);
-}
-
-export function assertPmRuntimePath(projectRoot: string, candidatePath: string): void {
-  assertPmPathInsideProject(projectRoot, candidatePath);
-  if (!candidatePath.includes(`${join(projectRoot, ".aix/pm")}/`)) {
-    assertPmArtifactWriteForbidden(candidatePath);
-  }
 }
 
 function activeWorkflow(projectRoot: string, workflowPackageRoot?: string) {
@@ -117,7 +134,7 @@ function pathInDeclaredDomain(path: string, domains: string[]): boolean {
 }
 
 function loggerFor(projectRoot: string, verbose: boolean): DiagnosticLogger {
-  return createDiagnosticLogger(join(projectRoot, ".aix/pm/diagnostics/pm.jsonl"), { minLevel: verbose ? "debug" : "info" });
+  return createDiagnosticLogger(join(pmRuntimePaths(projectRoot).diagnostics, "pm.jsonl"), { minLevel: verbose ? "debug" : "info" });
 }
 
 export async function createPmOrchestrator(options: PmOrchestratorOptions): Promise<PmOrchestrator> {
@@ -193,7 +210,8 @@ export async function createPmOrchestrator(options: PmOrchestratorOptions): Prom
           allowedPaths: requestedPaths,
           deniedPaths: input.deniedPaths || role.deniedAreas,
           requiredAccess: input.requiredAccess || role.requiredCapabilities,
-          stopConditions: input.stopConditions || ["Scope or authority is unclear."]
+          stopConditions: input.stopConditions || ["Scope or authority is unclear."],
+          capabilitySnapshot: createPersistedCapabilitySnapshot(capabilities)
         });
         const roleDirectory = input.roleDirectory || join(active.packageRoot, role.directory);
         const protocolPath = join(active.packageRoot, "delegation-protocol.md");
@@ -236,7 +254,7 @@ export async function createPmOrchestrator(options: PmOrchestratorOptions): Prom
           logger.info("PM integrated and cleaned isolated workspace", { sessionId: session.record.sessionId, delegationId: record.contract.identity.delegationId, workspaceId: workspace.workspaceId });
         }
         logger.info("Delegation result received", { sessionId: session.record.sessionId, delegationId: record.contract.identity.delegationId, hostWorkerId: worker.hostWorkerId }, { status: result.status });
-        return { record: finalRecord, worker, reused };
+        return { record: finalRecord, worker, reused, report: createDelegationReport(finalRecord, worker, result) };
       } finally {
         artifactReleases.reverse().forEach((releaseArtifact) => releaseArtifact());
         release();
@@ -290,7 +308,7 @@ export async function createPmOrchestrator(options: PmOrchestratorOptions): Prom
         workflowVersion: active.lock.resolvedCommit || "1",
         capabilities: capabilities.capabilities,
         host: { provider: capabilities.provider, harness: capabilities.harness, model: capabilities.model, runtime: capabilities.runtime },
-        delegations: listDelegations(projectRoot).map((record) => ({ delegationId: record.contract.identity.delegationId, subagentId: record.contract.identity.subagentId, displayName: record.contract.identity.displayName, role: record.contract.authority.role, state: record.state, updatedAt: record.updatedAt }))
+        delegations: listDelegations(projectRoot).map((record) => ({ delegationId: record.contract.identity.delegationId, subagentId: record.contract.identity.subagentId, displayName: record.contract.identity.displayName, role: record.contract.authority.role, state: record.state, updatedAt: record.updatedAt, ...(record.capabilitySnapshot ? { capabilitySnapshot: record.capabilitySnapshot } : {}) }))
       };
     },
     close() {

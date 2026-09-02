@@ -1,6 +1,9 @@
 ---
 name: brainstorming-skill
 description: Run project-grounded brainstorming sessions that produce approved and in-flight ideas in `_docs/ideas.md`. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Brainstorming Skill

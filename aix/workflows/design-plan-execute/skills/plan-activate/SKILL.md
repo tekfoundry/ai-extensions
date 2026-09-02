@@ -1,6 +1,9 @@
 ---
 name: plan-activate
 description: Move a human-authorized backlog plan into active implementation. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active; never use to autonomously activate backlog work.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Plan Activate

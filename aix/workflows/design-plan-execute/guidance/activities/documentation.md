@@ -24,6 +24,11 @@ truth after behavior is accepted.
 - Update `_docs/kb` when product behavior, requirements, architecture,
   security posture, quality strategy, operations, decisions, or terminology
   changes.
+- During active-plan execution, record the documentation impact and proposed
+  promotion in the active plan; do not edit `_docs/kb` until plan completion.
+- An explicitly classified and approved micro-fix may update the affected
+  `_docs/kb` entry after implementation and verification during the same
+  micro-fix closeout. Do not treat every patch as a micro-fix.
 - Keep package-managed workflow instructions under `.agents/` separate from
   project-owned knowledge under `_docs/`.
 - Write current-state docs as facts about what the project does now. Keep

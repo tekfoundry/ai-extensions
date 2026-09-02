@@ -38,23 +38,34 @@ instruction to bypass the entry gate for that request only.
 ## Delegation Cycle
 
 Use this cycle for repo-changing, project-mutating, lifecycle-state, planning,
-verification, documentation, and other meaningful AIX project requests:
+verification, documentation, and other meaningful AIX project requests. The
+current parent session is the project-manager; do not spawn the PM as a child
+for an ordinary user prompt:
 
-1. The calling parent context routes the request to `project-manager`.
-2. `project-manager` classifies the request, chooses the smallest adequate
+1. The parent session acting as `project-manager` classifies the request,
+   chooses the smallest adequate
    role sequence per request from available active roles, prepares
    role-specific PM Context Packets, and delegates bounded work or review to
    selected roles.
-3. Delegated roles own the implementation, verification, documentation, review,
+2. Delegated roles own the implementation, verification, documentation, review,
    or lifecycle-skill procedure named in their assignment. They return evidence
    rather than claiming parent-level completion.
-4. The calling parent context reviews returned evidence, preserves worktree
+3. The parent context reviews returned evidence, preserves worktree
    safety, reconciles scope or risk, and reports results.
 
-The calling parent context may route, preserve worktree safety, review returned
-evidence, ask blocking questions, and report results. It must not implement,
-verify, run lifecycle skills, change lifecycle state, edit repository files, or
-perform other repo-changing work outside the delegated roles.
+The parent context may preserve worktree safety, review returned evidence, ask
+blocking questions, and report results. It must not implement, verify, run
+lifecycle skills directly, change lifecycle state, edit repository files, or
+perform other repo-changing work outside delegated roles.
+
+For PM-routed work, never invoke the `delegate-to-role` prompt-overlay mode.
+If native subagent delegation is unavailable or unknown, stop with a clear
+capability failure instead of applying role instructions in the parent
+context.
+
+Only roles listed in the active workflow `team.md` are eligible child agents.
+Lifecycle skills, including `task-execute`, are procedures used by an assigned
+role and are never child-agent targets.
 
 Parent review is minimal and exception-driven. The parent may inspect status,
 summaries, returned evidence, and command or diff metadata to route next steps.

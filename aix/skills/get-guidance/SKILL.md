@@ -1,6 +1,9 @@
 ---
 name: get-guidance
 description: Resolve a bounded read-only guidance list for an active role, skill, workflow activity, and task context.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Get Guidance

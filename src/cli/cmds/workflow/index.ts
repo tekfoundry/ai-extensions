@@ -14,6 +14,9 @@ import {
 import { promptForSelection } from "../../../ui/selection-prompt.js";
 import { CliError, EXIT_USAGE } from "../../errors.js";
 import type { CliResult, Command } from "../../types.js";
+import { createInterface } from "node:readline";
+import { readLockfileJson } from "../../../activation/lockfile.js";
+import { workflowPmDatasets, workflowPmWarning } from "../../../workflows/pm-runtime.js";
 
 function renderInstallWorkflowResult(result: InstallWorkflowResult): string {
   return [
@@ -80,11 +83,17 @@ function runWorkflowInstall(argv: string[]): CliResult {
 }
 
 function runWorkflowUninstall(argv: string[]): CliResult {
-  if (argv.length > 2) {
-    throw new CliError("Usage: aix workflow uninstall", EXIT_USAGE);
+  if (argv.length > 3 || (argv[2] && argv[2] !== "--confirm-pm-data")) {
+    throw new CliError("Usage: aix workflow uninstall [--confirm-pm-data]", EXIT_USAGE);
   }
 
-  return { exitCode: 0, stdout: renderRemoveWorkflowResult(removeWorkflow()) };
+  return { exitCode: 0, stdout: renderRemoveWorkflowResult(removeWorkflow({ confirmPmData: argv[2] === "--confirm-pm-data" })) };
+}
+
+async function confirmWorkflowPmData(input: Readable, output: Writable, workflowName: string, count: number): Promise<boolean> {
+  output.write(`Workflow ${workflowName} has ${count} active or unlanded PM delegation dataset(s). Delete only those runtime datasets before uninstall? [y/N] `);
+  const reader = createInterface({ input, output });
+  return new Promise((resolve) => reader.once("line", (answer) => { reader.close(); resolve(/^y(?:es)?$/i.test(answer.trim())); }));
 }
 
 function runWorkflowUpdate(argv: string[]): CliResult {
@@ -157,6 +166,17 @@ export const workflowCommand: Command = {
   async runInteractive(argv, context) {
     if (argv[1] === "install" && argv[2] === undefined) {
       return promptForWorkflowInstall(context.input, context.output);
+    }
+
+    if (argv[1] === "uninstall" && argv.length === 2 && "isTTY" in context.input && context.input.isTTY === true && "isTTY" in context.output && context.output.isTTY === true) {
+      const workflow = readLockfileJson().workflows?.[0];
+      if (workflow) {
+        const warning = workflowPmWarning(workflowPmDatasets(process.cwd(), workflow.name));
+        if (warning.length > 0 && !(await confirmWorkflowPmData(context.input, context.output, workflow.name, warning.length))) {
+          return { exitCode: 0, stdout: "Workflow uninstall cancelled. No changes made." };
+        }
+        return { exitCode: 0, stdout: renderRemoveWorkflowResult(removeWorkflow({ confirmPmData: warning.length > 0 })) };
+      }
     }
 
     return runWorkflowCommand(argv);

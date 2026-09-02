@@ -1,6 +1,9 @@
 ---
 name: plan-complete
 description: Close an implementation plan only after tasks, verification, design promotion, risks, and documentation impact are resolved or explicitly recorded. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Plan Complete

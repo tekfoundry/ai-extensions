@@ -18,9 +18,8 @@ test("bundled design-plan-execute workflow exposes a validated team roster", () 
   assert.equal(team.workflow, "design-plan-execute");
   assert.equal(team.version, "1");
   assert.ok(team.requiredCapabilities.includes("native-worker-creation"));
-  assert.ok(team.roles.some((role) => role.name === "project-manager"));
   assert.ok(team.roles.some((role) => role.name === "implementation-engineer" && role.writeDomains.includes("src/")));
-  assert.equal(team.roles.find((role) => role.name === "project-manager")?.displayName, "Project Manager");
+  assert.equal(team.roles.some((role) => role.name === "project-manager"), false);
   assert.ok(team.roles.every((role) => role.displayName && role.directory));
   assert.ok(team.roles.every((role) => existsSync(`${workflowRoot}/${role.directory}`) || role.name === "project-manager"));
   assert.equal(hash?.path, "team.md");

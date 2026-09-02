@@ -1,6 +1,9 @@
 ---
 name: delegate-to-role
 description: Select an installed project role and prepare a bounded delegation prompt while preserving parent-context ownership. Use when the developer asks to use or delegate to a named role.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Delegate To Role
@@ -25,12 +28,16 @@ authoritative over the task, plan, worktree, verification, or final decision.
      missing-role message.
    - If role intent is only implied, do not guess. Continue without delegation
      or ask one concise question when delegation is necessary.
-3. Prefer native subagent handoff only when the current host has a clear,
-   available mechanism for bounded subagents and the role file can be provided
-   to that mechanism. Do not write host-native agent files as part of routine
-   delegation.
-4. Use prompt-overlay fallback when native handoff is unavailable. In fallback
-   mode, load the role file and construct a bounded prompt containing:
+3. For a request routed through an active project-manager workflow, native
+   subagent handoff is mandatory. If the host reports native delegation as
+   unavailable or unknown, stop and report that PM orchestration cannot
+   proceed. Never substitute a prompt overlay for an independent worker.
+   Do not write host-native agent files as part of routine delegation.
+4. Prompt-overlay fallback is allowed only during bootstrap before
+   project-manager activation or under an explicit developer override. It is
+   not an independent delegation and must never be presented as one. In that
+   narrow fallback mode, load the role file and construct a bounded prompt
+   containing:
    - selected role name and description
    - the role operating prompt
    - the bounded task
@@ -64,7 +71,7 @@ authoritative over the task, plan, worktree, verification, or final decision.
   `.agents/agents`, or another host-native agent directory without an explicit
   integration command or configuration that owns that compatibility output.
 
-## Prompt-Overlay Shape
+## Prompt-Overlay Shape (bootstrap or explicit override only)
 
 Use this shape when native subagent handoff is unavailable:
 

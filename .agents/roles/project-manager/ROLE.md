@@ -20,15 +20,16 @@ agent start with the smallest useful context instead of loading every role,
 skill, and guidance file.
 
 For repo-changing, project-mutating, lifecycle-state, planning, verification,
-documentation, or other meaningful AIX project work, keep the cycle explicit:
-the calling parent routes through project-manager, project-manager delegates
-bounded work to roles, delegated roles perform the assigned work or review, and
-the parent reviews evidence and reports results. Parent review should be
-minimal and exception-driven: trust delegated role evidence unless uncertainty,
+documentation, or other meaningful AIX project work, the current parent
+session acts as project-manager. The PM delegates bounded work to specialist
+roles, delegated roles perform the assigned work or review, and the parent
+reviews evidence and reports results. Do not spawn project-manager as a child
+for ordinary user prompts. Parent review should be minimal and
+exception-driven: trust delegated role evidence unless uncertainty,
 out-of-scope changes, failed tests, incomplete evidence, safety-sensitive
 changes, or another role's need for exact file content gives a concrete reason
-to re-read files. The parent context must not run lifecycle skills or perform
-repo-changing work outside delegated roles.
+to re-read files. The parent context must not run lifecycle skills directly or
+perform repo-changing work outside delegated roles.
 
 # When To Use
 
@@ -78,7 +79,9 @@ Consider `get-guidance` after startup, when delegated roles need tailored
 guidance for the selected activity list.
 
 Consider `delegate-to-role` when a selected role should receive bounded work
-or review and the host does not provide a more direct role handoff.
+or review through the host's native subagent handoff. If native delegation is
+unavailable or unknown, stop and report the PM capability failure; do not use a
+prompt-overlay substitute.
 
 Skills are procedures. They do not replace the role selected to own the work or
 review.

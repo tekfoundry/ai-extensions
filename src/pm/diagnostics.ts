@@ -80,13 +80,24 @@ function truncateEvent(event: DiagnosticEvent, maxBytes: number): DiagnosticEven
     return event;
   }
 
-  return {
+  const truncated: DiagnosticEvent = {
     ...event,
     data: {
       truncated: true,
       originalBytes: Buffer.byteLength(serialized, "utf8")
     }
   };
+
+  if (Buffer.byteLength(JSON.stringify(truncated), "utf8") <= maxBytes) {
+    return truncated;
+  }
+
+  let message = truncated.message;
+  while (message.length > 0 && Buffer.byteLength(JSON.stringify({ ...truncated, message }), "utf8") > maxBytes) {
+    message = message.slice(0, Math.max(0, message.length - Math.max(1, Math.ceil(message.length / 10))));
+  }
+
+  return { ...truncated, message, context: {} };
 }
 
 function rotateLog(path: string, maxRotations: number): void {
@@ -110,7 +121,8 @@ function rotateLog(path: string, maxRotations: number): void {
 
 export function createDiagnosticLogger(path: string, options: DiagnosticLoggerOptions = {}): DiagnosticLogger {
   const minLevel = options.minLevel || "info";
-  const maxBytes = options.maxBytes || 1024 * 1024;
+  const maxBytes = options.maxBytes ?? 1024 * 1024;
+  if (!Number.isInteger(maxBytes) || maxBytes < 0) throw new Error("Diagnostic maxBytes must be a non-negative integer.");
   const maxRotations = options.maxRotations ?? 2;
   const knownSecrets = options.knownSecrets || [];
   const now = options.now || (() => utcTimestamp());
@@ -129,6 +141,12 @@ export function createDiagnosticLogger(path: string, options: DiagnosticLoggerOp
     const line = `${JSON.stringify(event)}\n`;
 
     mkdirSync(dirname(path), { recursive: true });
+
+    if (Buffer.byteLength(line, "utf8") > maxBytes) {
+      if (existsSync(path)) rmSync(path, { force: true });
+      for (let index = 1; index <= maxRotations; index += 1) rmSync(`${path}.${index}`, { force: true });
+      return event;
+    }
 
     if (existsSync(path) && statSync(path).size + Buffer.byteLength(line, "utf8") > maxBytes) {
       rotateLog(path, maxRotations);

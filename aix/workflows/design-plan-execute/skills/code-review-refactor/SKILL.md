@@ -1,6 +1,9 @@
 ---
 name: code-review-refactor
 description: Review project code for maintainability risks, recommend focused refactors, and route substantial changes through developer-approved planning before implementation. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Code Review Refactor

@@ -1,6 +1,9 @@
 ---
 name: project-init
 description: Initialize or repair a project's `_docs` documentation structure without overwriting existing project-owned content. Use as a lifecycle procedure selected by project-manager or a delegated role, or for bootstrapping before project-manager is active.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Project Init

@@ -1,6 +1,9 @@
 ---
 name: plan-create
 description: Start and refine a backlog implementation plan from user intent, repository context, and explicit success criteria. Use as a lifecycle procedure selected by project-manager or a delegated role, or when project-manager is not active.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Plan Create

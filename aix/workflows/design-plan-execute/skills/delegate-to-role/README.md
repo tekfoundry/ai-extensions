@@ -42,5 +42,6 @@ role.
 
 The skill resolves the named role, stops on missing or ambiguous role requests,
 uses native subagent handoff when the host supports it, otherwise builds a
-prompt-overlay fallback, and requires the delegated work to return evidence for
+the narrowly authorized bootstrap/override prompt-overlay fallback, and
+requires the delegated work to return evidence for
 parent review.

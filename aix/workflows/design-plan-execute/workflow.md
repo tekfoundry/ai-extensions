@@ -95,6 +95,19 @@ will need little or no documentation change, but the agent must decide that by
 checking the changed behavior against `_docs/kb` rather than assuming docs are
 unaffected.
 
+Active-plan work has a stricter promotion gate: do not edit or promote
+`_docs/kb` while the plan is still in progress. Record documentation impact,
+candidate updates, and implementation evidence in the active plan instead.
+Promote accepted durable behavior once, during plan completion, after
+implementation, verification, integration, and human validation are resolved.
+
+An explicitly classified and approved micro-fix is the narrow exception. After
+the micro-fix is implemented and verified, it may update the affected
+`_docs/kb` entry during the same micro-fix closeout when the behavior changes
+current-state knowledge. A patch is not automatically a micro-fix; work that
+changes design intent, architecture, persistence, security, or multiple
+workflow subsystems remains plan work and must use the active-plan gate.
+
 Escalate a micro-fix to a new plan or an existing active plan when its scope
 expands, it changes accepted design intent, crosses subsystem boundaries,
 requires a meaningful new workflow or contract, carries material production
@@ -515,6 +528,11 @@ and active execution.
 
 When plan work is completed, durable current-state knowledge must be moved into `_docs/kb`, and useful lessons should be harvested to improve this workflow.
 
+Do not interpret a documentation-impact review as permission to update
+`_docs/kb` during active-plan execution. Until plan completion, `_docs/kb` is
+read-only for plan work; the active plan is the place for incomplete findings,
+proposed wording, and promotion candidates.
+
 ## Plan Mode Default
 
 Plan mode is the default starting point for non-trivial work.
@@ -571,8 +589,10 @@ Micro-fix record:
 - Escalation:
 ```
 
-Update `_docs/kb` when the fix changes accepted current-state behavior or
-clarifies behavior that future agents should treat as stable truth. Update
+Update `_docs/kb` when an explicitly approved micro-fix changes accepted
+current-state behavior or clarifies behavior that future agents should treat
+as stable truth. Active-plan work must defer that update until plan completion.
+Update
 `_docs/lessons-learned.md` when the fix reveals a reusable product or
 architecture lesson. Update focused role or activity guidance, or this
 workflow, when the fix changes how agents or engineers should work.

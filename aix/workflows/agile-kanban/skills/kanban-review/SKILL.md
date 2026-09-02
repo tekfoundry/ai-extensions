@@ -1,6 +1,9 @@
 ---
 name: kanban-review
 description: Review one Kanban item in Review or In Progress for correctness, tests, risks, maintainability, and documentation gaps before completion.
+metadata:
+  type: skill
+version: "1"
 ---
 
 # Kanban Review

@@ -9,6 +9,7 @@ import { PassThrough } from "node:stream";
 import { test } from "node:test";
 import { run, runInteractive } from "../dist/cli.js";
 import { discoverWorkflowGuidance, installWorkflowFromDefinitions, validateWorkflowGuidance } from "../dist/workflows/index.js";
+import { createDelegation, delegationPaths } from "../dist/pm/index.js";
 
 function git(args, cwd) {
   return execFileSync("git", args, {
@@ -626,6 +627,51 @@ test("runInteractive workflow install prompts for a bundled workflow when no URL
         process.env.AIX_SOURCE_AIX_WORKFLOW_PATH = previousWorkflowPath;
       }
     }
+  });
+});
+
+test("workflow uninstall warns before deleting only its active PM datasets", async () => {
+  const source = await createWorkflowRepo("aix-workflow-pm-runtime-source-");
+
+  await withProject(async (projectPath) => {
+    run(["workflow", "install", source, "fixture"]);
+    const makeDelegation = (workflow) => createDelegation({
+      projectRoot: projectPath,
+      workflow,
+      workflowVersion: "1",
+      pmRoleVersion: "1",
+      role: "implementation-engineer",
+      taskMode: "implementation",
+      deliveryMode: "isolated-change",
+      goal: "workflow deactivation test",
+      constraints: [],
+      acceptanceSignals: [],
+      allowedPaths: ["src/"],
+      deniedPaths: [".aix/"],
+      requiredAccess: ["workspace-write"],
+      stopConditions: [],
+      returnRequirements: []
+    });
+    const owned = makeDelegation("fixture-workflow");
+    const unrelated = makeDelegation("other-workflow");
+    const ownedRecord = delegationPaths(projectPath, owned.contract.identity.delegationId).record;
+    const unrelatedRecord = delegationPaths(projectPath, unrelated.contract.identity.delegationId).record;
+    const refused = run(["workflow", "uninstall"]);
+    assert.notEqual(refused.exitCode, 0);
+    assert.match(refused.stderr, /explicit confirmation is required/);
+    assert.equal(existsSync(ownedRecord), true);
+    assert.equal(existsSync(unrelatedRecord), true);
+
+    const input = new PassThrough();
+    const output = new PassThrough();
+    input.isTTY = true;
+    output.isTTY = true;
+    input.end("y\n");
+    const confirmed = await runInteractive(["workflow", "uninstall"], input, output);
+    assert.equal(confirmed.exitCode, 0);
+    assert.equal(existsSync(ownedRecord), false);
+    assert.equal(existsSync(unrelatedRecord), true);
+    assert.equal(existsSync(join(projectPath, "aix.json")), true);
   });
 });
 

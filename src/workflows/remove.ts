@@ -14,8 +14,9 @@ import { assertWorkflowPackageUnmodified, replaceWorkflowSkillEntries, workflowS
 import { assertWorkflowTemplatesUnmodified } from "./templates.js";
 import { removeRoleFile, removeRolePackageFile, assertActiveRoleFilesMatchLockfile, assertRolePackageFilesMatchLockfile } from "../roles/files.js";
 import type { RemoveWorkflowResult } from "./types.js";
+import { assertWorkflowPmDeactivationAllowed, deleteWorkflowPmDatasets } from "./pm-runtime.js";
 
-export function removeWorkflow(): RemoveWorkflowResult {
+export function removeWorkflow(options: { confirmPmData?: boolean } = {}): RemoveWorkflowResult {
   const manifestJson = readJsonObject(MANIFEST_FILE_NAME);
   parseManifest(manifestJson);
 
@@ -26,6 +27,8 @@ export function removeWorkflow(): RemoveWorkflowResult {
   if (!workflow) {
     throw new AixError("No active workflow is installed.");
   }
+
+  assertWorkflowPmDeactivationAllowed(process.cwd(), workflow.name, options.confirmPmData === true);
 
   const ownedSkills = workflowSkills(lockfile, workflow.name);
   const ownedRoles = workflowRoles(lockfile, workflow.name);
@@ -56,6 +59,10 @@ export function removeWorkflow(): RemoveWorkflowResult {
   assertWorkflowDocsUnmodified(workflow);
   assertWorkflowTemplatesUnmodified(workflow);
   assertAgentsMdBlockUnmodified(workflow.agentsMd);
+
+  if (options.confirmPmData === true) {
+    deleteWorkflowPmDatasets(process.cwd(), workflow.name);
+  }
 
   const nextLockfile = structuredClone(lockfile);
   replaceWorkflowSkillEntries(nextLockfile, workflow.name, []);

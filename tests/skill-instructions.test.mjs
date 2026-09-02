@@ -26,6 +26,7 @@ const planTemplatePath = join(process.cwd(), "aix/workflows/design-plan-execute/
 const completionChecklistTemplatePath = join(process.cwd(), "aix/workflows/design-plan-execute/templates/sections/completion-checklist.md");
 const securityReviewTemplatePath = join(process.cwd(), "aix/workflows/design-plan-execute/templates/sections/security-review.md");
 const workflowAppendPath = join(process.cwd(), "aix/workflows/design-plan-execute/AGENTS.append.md");
+const workflowPath = join(process.cwd(), "aix/workflows/design-plan-execute/workflow.md");
 const workflowManifestPath = join(process.cwd(), "aix/workflows/design-plan-execute/workflow.json");
 
 const lifecycleSkillPaths = [
@@ -71,6 +72,21 @@ test("code-review-refactor skill declares workflow review contract", () => {
   assert.match(skill, /Fold returned evidence into the normal review findings/);
   assert.match(skill, /Do not require\s+`technical-architect` for direct use/);
   assert.match(skill, /The role must not choose findings, approve refactors,\s+edit files, or bypass the developer confirmation gate/);
+});
+
+test("bundled skills declare skill metadata for host discovery", () => {
+  const skillPaths = [
+    discoverSkillPath,
+    getGuidancePath,
+    ...lifecycleSkillPaths
+  ];
+
+  for (const path of skillPaths) {
+    const skill = readFileSync(path, "utf8");
+    assert.match(skill, /^metadata:\s*$/m, path);
+    assert.match(skill, /^  type: skill\s*$/m, path);
+    assert.match(skill, /^version: "1"\s*$/m, path);
+  }
 });
 
 test("discover-skill declares conservative discovery and install routing", () => {
@@ -174,9 +190,11 @@ test("delegate-to-role declares bounded role delegation contract", () => {
   assert.match(skill, /If more than one role is named, stop/);
   assert.match(skill, /If the named role does not exist under `.agents\/roles\/`, stop/);
   assert.match(skill, /If role intent is only implied, do not guess/);
-  assert.match(skill, /Prefer native subagent handoff only when the current host has a clear,\s+available mechanism/);
   assert.match(skill, /Do not write host-native agent files as part of routine\s+delegation/);
-  assert.match(skill, /Use prompt-overlay fallback when native handoff is unavailable/);
+  assert.match(skill, /For a request routed through an active project-manager workflow, native\s+subagent handoff is mandatory/);
+  assert.match(skill, /If the host reports native delegation as\s+unavailable or unknown, stop and report/);
+  assert.match(skill, /Never substitute a prompt overlay for an independent worker/);
+  assert.match(skill, /Prompt-overlay fallback is allowed only during bootstrap before\s+project-manager activation or under an explicit developer override/);
   assert.match(skill, /The parent context owns plan state,\s+worktree safety, verification review, final decisions/);
   assert.match(skill, /When PM routing delegated the task, the parent context may\s+route, preserve worktree safety, review returned evidence, and report\s+results only/);
   assert.match(skill, /Parent review is minimal and exception-driven: trust\s+delegated role evidence unless uncertainty, out-of-scope changes, failed\s+tests, incomplete evidence, safety-sensitive changes, or another role's need\s+for exact file content gives a concrete reason to re-read files/);
@@ -260,7 +278,21 @@ test("design-promote declares technical architecture and UX writing collaboratio
   assert.match(skill, /Do not require `documentation-specialist` for direct use/);
   assert.match(skill, /Do not use the role to promote unimplemented behavior or bypass\s+`review-and-refresh-docs`/);
   assert.match(skill, /Treat completed plans as inspection guides, not proof/);
+  assert.match(skill, /For active-plan work, this procedure is a\s+plan-completion procedure/);
+  assert.match(skill, /An explicitly classified and approved micro-fix may use this\s+procedure during its same verified closeout/);
   assert.match(skill, /Record unresolved implementation-vs-intent conflicts/);
+});
+
+test("documentation guidance gates active-plan knowledge-base promotion", () => {
+  const workflow = readFileSync(workflowPath, "utf8");
+  const activity = readFileSync(join(process.cwd(), "aix/workflows/design-plan-execute/guidance/activities/documentation.md"), "utf8");
+  const specialist = readFileSync(join(process.cwd(), "aix/workflows/design-plan-execute/roles/project-dev/documentation-specialist/GUIDANCE.md"), "utf8");
+
+  for (const guidance of [workflow, activity, specialist]) {
+    assert.match(guidance, /active-plan[\s\S]*(?:execution|work)/i);
+    assert.match(guidance, /_docs\/kb[\s\S]*(?:do not edit|do not update|defer)|(?:do not edit|do not update|defer)[\s\S]*_docs\/kb/i);
+    assert.match(guidance, /micro-fix[\s\S]*(?:may update|exception)/i);
+  }
 });
 
 test("plan-create declares gated planning and role collaboration", () => {
