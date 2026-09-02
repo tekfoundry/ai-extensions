@@ -6,6 +6,7 @@ import { CliError, EXIT_USAGE } from "../../errors.js";
 import type { CliResult, Command } from "../../types.js";
 import type { Readable, Writable } from "node:stream";
 import { createInterface } from "node:readline";
+import { readHostAuthorizationReport, renderHostAuthorizationReport } from "../../../pm/doctor.js";
 
 function runPmStatus(argv: string[]): CliResult {
   if (argv.length > 3) throw new CliError("Usage: aix pm status", EXIT_USAGE);
@@ -26,6 +27,12 @@ function runPmStatus(argv: string[]): CliResult {
         : delegations.map((record) => `  ${record.contract.identity.displayName} (${record.contract.identity.delegationId}): ${record.state}`))
     ].join("\n")
   };
+}
+
+function runPmDoctor(argv: string[]): CliResult {
+  if (argv.length > 3) throw new CliError("Usage: aix pm doctor", EXIT_USAGE);
+  const report = readHostAuthorizationReport();
+  return { exitCode: report.ok ? 0 : 1, stdout: renderHostAuthorizationReport(report) };
 }
 
 function runPmTidy(argv: string[]): CliResult {
@@ -72,13 +79,14 @@ function confirm(input: Readable, output: Writable, mutation: string): Promise<b
 
 export const pmCommand: Command = {
   name: "pm",
-  usage: "pm <status|tidy>",
+  usage: "pm <status|doctor|tidy>",
   summary: "Inspect and maintain PM runtime state",
-  splash: [{ usage: "pm status", summary: "Inspect PM session and delegations" }, { usage: "pm tidy", summary: "Preview or purge stale PM runtime data" }],
+  splash: [{ usage: "pm status", summary: "Inspect PM session and delegations" }, { usage: "pm doctor", summary: "Audit host capabilities and remediation" }, { usage: "pm tidy", summary: "Preview or purge stale PM runtime data" }],
   run(argv) {
     if (argv[1] === "status") return runPmStatus(argv);
+    if (argv[1] === "doctor") return runPmDoctor(argv);
     if (argv[1] === "tidy") return runPmTidy(argv);
-    throw new CliError("Usage: aix pm <status|tidy>", EXIT_USAGE);
+    throw new CliError("Usage: aix pm <status|doctor|tidy>", EXIT_USAGE);
   },
   async runInteractive(argv, context) {
     const mutation = argv.includes("--purge") ? "purge" : argv.includes("--apply") ? "apply" : argv.includes("--archive") ? "archive" : undefined;

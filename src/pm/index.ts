@@ -14,3 +14,4 @@ export * from "./orchestrator.js";
 export * from "./workspace.js";
 export * from "./tidy.js";
 export * from "./completion.js";
+export * from "./doctor.js";
