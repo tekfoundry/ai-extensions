@@ -197,7 +197,14 @@ export function activateRoleFromDefinitions(
   target: string,
   alias: string | undefined,
   sourceDefinitions: Record<string, SourceDefinition> = getDefaultRoleSources(),
-  cacheRoot = defaultCacheRoot()
+  cacheRoot = defaultCacheRoot(),
+  resolvedSource?: {
+    definition: SourceDefinition;
+    sourceType: SourceType;
+    sourcePath: string;
+    sourceRolePath: string;
+    resolvedCommit?: string;
+  }
 ): RoleActivationResult {
   const { source, sourcePath } = roleTargetFromInput(target);
   const manifestJson = existsSync(MANIFEST_FILE_NAME)
@@ -207,7 +214,7 @@ export function activateRoleFromDefinitions(
     ...sourceDefinitions,
     ...manifestRoleSourceDefinitions(manifestJson)
   };
-  const localPath = localAixRolePath(source, sourcePath);
+  const localPath = resolvedSource ? false : localAixRolePath(source, sourcePath);
   const definition = localPath
     ? {
         type: "git" as const,
@@ -224,7 +231,14 @@ export function activateRoleFromDefinitions(
     assertRoleName(alias, "role alias");
   }
 
-  const resolved = localPath
+  const resolved = resolvedSource
+    ? {
+        name: source,
+        definition: resolvedSource.definition,
+        rootPath: dirname(resolvedSource.sourceRolePath),
+        resolvedCommit: resolvedSource.resolvedCommit
+      }
+    : localPath
     ? {
         name: source,
         definition,
@@ -232,8 +246,8 @@ export function activateRoleFromDefinitions(
         resolvedCommit: undefined
       }
     : resolveSourceFromDefinitions(source, definitions, cacheRoot);
-  const resolvedSourcePath = localPath ? sourcePath : remoteAixRolePath(source, sourcePath);
-  const sourceRolePath = join(resolved.rootPath, resolvedSourcePath);
+  const resolvedSourcePath = resolvedSource?.sourcePath || (localPath ? sourcePath : remoteAixRolePath(source, sourcePath));
+  const sourceRolePath = resolvedSource?.sourceRolePath || join(resolved.rootPath, resolvedSourcePath);
   const role = parseRoleFileFromPath(roleEntrypointPath(sourceRolePath), { requireContract: true });
 
   if (source === "aix") {
@@ -259,7 +273,7 @@ export function activateRoleFromDefinitions(
   const entry = roleLockfileEntry(
     source,
     definition,
-    localPath ? "local" : "git",
+    resolvedSource?.sourceType || (localPath ? "local" : "git"),
     resolvedSourcePath,
     sourceRolePath,
     resolved.resolvedCommit,

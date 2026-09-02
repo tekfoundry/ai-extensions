@@ -384,6 +384,7 @@ test("published bundled templates preserve output guardrails", async () => {
   const sourceRoot = await mkdtemp(join(tmpdir(), "aix-bundled-template-source-"));
 
   cpSync(join(process.cwd(), "aix/workflows/design-plan-execute"), sourceRoot, { recursive: true });
+  cpSync(join(process.cwd(), "aix/roles"), join(sourceRoot, "aix/roles"), { recursive: true });
   git(["init", "-b", "master"], sourceRoot);
   git(["add", "."], sourceRoot);
   git(["commit", "-m", "workflow"], sourceRoot);

@@ -13,5 +13,22 @@
   ],
   "guidanceDir": "guidance",
   "templatesDir": "templates",
-  "skillsDir": "skills"
+  "skillsDir": "skills",
+  "dependencies": {
+    "roles": [
+      {
+        "source": "aix",
+        "path": "roles/project-manager",
+        "activeName": "project-manager"
+      }
+    ]
+  },
+  "team": {
+    "path": "team.md",
+    "version": "1"
+  },
+  "requiredCapabilities": [
+    "native-worker-creation",
+    "correlated-results"
+  ]
 }

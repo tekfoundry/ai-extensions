@@ -1,5 +1,6 @@
-import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { AixError } from "../errors.js";
 import { assertInstalledAppendBlockUnmodified, lockfileAppendBlocks, type AppendBlockDefinition } from "../agents-md.js";
@@ -18,12 +19,16 @@ import {
 } from "../schema.js";
 import { readJsonObject, writeJsonObjectAtomic } from "../activation/json.js";
 import { readLockfileJson } from "../activation/lockfile.js";
+import { manifestRoleSourceDefinitions } from "../activation/manifest.js";
 import { assertFolderNameSafe } from "../activation/naming.js";
 import { defaultCacheRoot, getDefaultWorkflowSources, resolveSourceFromDefinitions } from "../sources/index.js";
+import { activateRoleFromDefinitions } from "../roles/activation.js";
+import { getDefaultRoleSources } from "../sources/index.js";
 import { assertAgentsMdBlockSafe, workflowAppendDefinition } from "./agents-md.js";
 import { assertWorkflowDocsSafe, installWorkflowDocs, scaffoldProjectDocs } from "./docs.js";
 import { discoverWorkflowGuidance, validateWorkflowGuidance, workflowGuidanceHashes } from "./guidance.js";
 import { readWorkflowManifest } from "./manifest.js";
+import { readWorkflowTeam, workflowTeamHash } from "./team.js";
 import { assertWorkflowActiveRolesUnmodified, assertWorkflowRolesSafe, installWorkflowRoles, replaceWorkflowRoleEntries, workflowRoles } from "./roles.js";
 import { assertWorkflowActiveSkillsUnmodified, assertWorkflowSkillsSafe, installWorkflowSkills } from "./skills.js";
 import { deriveWorkflowSourceName, parseSourceInput, sourceManifestEntry, workflowSourcesJson } from "./source.js";
@@ -69,6 +74,9 @@ function preflightWorkflowInstall(
   assertWorkflowRolesSafe(workflow, source, stagedPackagePath, finalPackagePath, lockfile);
   validateWorkflowGuidance(discoverWorkflowGuidance(workflow, stagedPackagePath));
   validateWorkflowTemplates(discoverWorkflowTemplates(workflow, stagedPackagePath));
+  if (workflow.team) {
+    readWorkflowTeam(workflow, stagedPackagePath);
+  }
 
   return existingWorkflow;
 }
@@ -148,6 +156,7 @@ export function installResolvedWorkflow(
           : {}),
         ...(templates.length > 0 ? { templates } : {}),
         ...(guidance.length > 0 ? { guidance } : {}),
+        ...(workflow.team ? { team: workflowTeamHash(workflow, packagePath) } : {}),
         packageFiles
       }
     ];
@@ -179,6 +188,125 @@ export function installResolvedWorkflow(
   }
 }
 
+function activateWorkflowDependencies(
+  workflow: ReturnType<typeof readWorkflowManifest>,
+  cacheRoot: string,
+  context?: { source: string; definition: SourceDefinition; resolvedRoot: string; sourceType: SourceType; resolvedCommit?: string }
+): string[] {
+  const dependencies = workflow.dependencies?.roles || [];
+
+  if (dependencies.length === 0 && !workflow.requiredCapabilities) {
+    return [];
+  }
+
+  const sourceDefinitions = {
+    ...getDefaultRoleSources(),
+    ...manifestRoleSourceDefinitions(readWorkflowInstallManifestJson())
+  };
+  const activatedRoles = dependencies.map((dependency) => {
+    const canonicalSourcePath = dependency.source === "aix" && dependency.path.startsWith("roles/")
+      ? dependency.path.slice("roles/".length)
+      : dependency.path;
+    const beforeLockfile = readLockfileJson();
+    const wasAlreadyActive = (beforeLockfile.roles || []).some(
+      (role) => role.source === dependency.source && role.sourcePath === canonicalSourcePath
+    );
+    const roleDefinition = sourceDefinitions[dependency.source] || (
+      context && dependency.source === context.source
+        ? { ...context.definition, path: "." }
+        : undefined
+    );
+
+    if (!roleDefinition) {
+      throw new AixError(`Unknown role source: ${dependency.source}`);
+    }
+
+    const effectiveSourceDefinitions = {
+      ...sourceDefinitions,
+      [dependency.source]: roleDefinition
+    };
+
+    if (context && dependency.source === context.source) {
+      const sourceRoot = resolve(context.resolvedRoot, relative(context.definition.path || ".", "."));
+      const sourceRolePath = dependency.source === "aix" && dependency.path.startsWith("roles/")
+        ? resolve(sourceRoot, "aix", "roles", dependency.path.slice("roles/".length))
+        : resolve(sourceRoot, roleDefinition.path || ".", dependency.path);
+      const result = activateRoleFromDefinitions(
+        `${dependency.source}/${dependency.path}`,
+        dependency.activeName,
+        effectiveSourceDefinitions,
+        cacheRoot,
+        {
+          definition: roleDefinition,
+          sourceType: context.sourceType,
+          sourcePath: canonicalSourcePath,
+          sourceRolePath,
+          resolvedCommit: context.resolvedCommit
+        }
+      );
+
+      if (!wasAlreadyActive) {
+        const lockfile = readLockfileJson();
+        const entry = lockfile.roles?.find(
+          (role) => role.source === result.source && role.sourcePath === result.sourcePath
+        );
+
+        if (entry) {
+          entry.owner = { kind: "workflow", name: workflow.name };
+          entry.requested = false;
+          writeJsonObjectAtomic(LOCKFILE_FILE_NAME, lockfile);
+        }
+      }
+
+      return {
+        source: result.source,
+        sourcePath: result.sourcePath,
+        activeName: result.activeName
+      };
+    }
+
+    const result = activateRoleFromDefinitions(
+      `${dependency.source}/${dependency.path}`,
+      dependency.activeName,
+      effectiveSourceDefinitions,
+      cacheRoot
+    );
+
+    return {
+      source: result.source,
+      sourcePath: result.sourcePath,
+      activeName: result.activeName
+    };
+  });
+  const lockfile = readLockfileJson();
+  const activeWorkflow = lockfile.workflows?.find((entry) => entry.name === workflow.name);
+
+  if (!activeWorkflow) {
+    throw new AixError(`Unable to record dependencies for active workflow: ${workflow.name}`);
+  }
+
+  activeWorkflow.dependencies = {
+    roles: activatedRoles,
+    ...(workflow.requiredCapabilities ? { requiredCapabilities: workflow.requiredCapabilities } : {})
+  };
+  writeJsonObjectAtomic(LOCKFILE_FILE_NAME, lockfile);
+
+  return activatedRoles.map((role) => role.activeName);
+}
+
+function completeWorkflowInstallation(
+  result: InstallWorkflowResult,
+  cacheRoot: string,
+  context?: { source: string; definition: SourceDefinition; resolvedRoot: string; sourceType: SourceType; resolvedCommit?: string }
+): InstallWorkflowResult {
+  const workflow = readWorkflowManifest(result.packagePath);
+  const dependencyRoles = activateWorkflowDependencies(workflow, cacheRoot, context);
+
+  return dependencyRoles.length === 0
+    ? result
+    : { ...result, activatedRoles: [...result.activatedRoles, ...dependencyRoles] };
+}
+
 function emptyManifestJson(): Record<string, unknown> {
   return {
     sources: {
@@ -187,6 +315,38 @@ function emptyManifestJson(): Record<string, unknown> {
     },
     skills: []
   };
+}
+
+const INSTALL_TRANSACTION_PATHS = ["aix.json", "aix.lock.json", "AGENTS.md", ".agents", "_docs"];
+
+function withWorkflowInstallTransaction<T>(operation: () => T): T {
+  const snapshotRoot = mkdtempSync(join(tmpdir(), "aix-workflow-transaction-"));
+  const existingPaths = new Set<string>();
+
+  try {
+    for (const path of INSTALL_TRANSACTION_PATHS) {
+      if (!existsSync(path)) {
+        continue;
+      }
+
+      existingPaths.add(path);
+      cpSync(path, join(snapshotRoot, path), { recursive: true });
+    }
+
+    return operation();
+  } catch (error) {
+    for (const path of INSTALL_TRANSACTION_PATHS) {
+      rmSync(path, { recursive: true, force: true });
+    }
+
+    for (const path of existingPaths) {
+      cpSync(join(snapshotRoot, path), path, { recursive: true });
+    }
+
+    throw error;
+  } finally {
+    rmSync(snapshotRoot, { recursive: true, force: true });
+  }
 }
 
 function readWorkflowInstallManifestJson(): Record<string, unknown> {
@@ -206,8 +366,9 @@ function installLocalAixWorkflow(
   cacheRoot: string,
   options: { allowExistingWorkflow?: boolean } = {}
 ): InstallWorkflowResult {
-  const manifestJson = readWorkflowInstallManifestJson();
-  parseManifest(manifestJson);
+  return withWorkflowInstallTransaction(() => {
+    const manifestJson = readWorkflowInstallManifestJson();
+    parseManifest(manifestJson);
 
   const definition: SourceDefinition = {
     type: "git",
@@ -232,7 +393,14 @@ function installLocalAixWorkflow(
   writeJsonObjectAtomic(MANIFEST_FILE_NAME, manifestJson);
   writeJsonObjectAtomic(LOCKFILE_FILE_NAME, lockfile);
 
-  return result;
+    return completeWorkflowInstallation(result, cacheRoot, {
+      source: "aix",
+      definition,
+      resolvedRoot: sourcePath,
+      sourceType: "local",
+      resolvedCommit: undefined
+    });
+  });
 }
 
 function installDefaultAixWorkflowPath(
@@ -259,8 +427,9 @@ export function installWorkflowFromDefinitions(
   cacheRoot = defaultCacheRoot(),
   options: { allowExistingWorkflow?: boolean } = {}
 ): InstallWorkflowResult {
-  const manifestJson = readWorkflowInstallManifestJson();
-  parseManifest(manifestJson);
+  return withWorkflowInstallTransaction(() => {
+    const manifestJson = readWorkflowInstallManifestJson();
+    parseManifest(manifestJson);
 
   const source = Object.keys(sourceDefinitions)[0];
   const definition = sourceDefinitions[source];
@@ -288,7 +457,14 @@ export function installWorkflowFromDefinitions(
   writeJsonObjectAtomic(MANIFEST_FILE_NAME, manifestJson);
   writeJsonObjectAtomic(LOCKFILE_FILE_NAME, lockfile);
 
-  return result;
+    return completeWorkflowInstallation(result, cacheRoot, {
+      source,
+      definition,
+      resolvedRoot: resolved.rootPath,
+      sourceType: "git",
+      resolvedCommit: resolved.resolvedCommit
+    });
+  });
 }
 
 export function installWorkflow(input?: string, alias?: string, cacheRoot = defaultCacheRoot()): InstallWorkflowResult {

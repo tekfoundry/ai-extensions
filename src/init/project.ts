@@ -2,8 +2,10 @@ import { existsSync, statSync } from "node:fs";
 import { AixError } from "../errors.js";
 import { AGENTS_DIR } from "../paths/agents.js";
 import { activateSkillFromDefinitions } from "../activation/index.js";
-import { defaultCacheRoot, getDefaultSources, getDefaultWorkflowSources } from "../sources/index.js";
-import { installWorkflowFromDefinitions } from "../workflows/index.js";
+import { readJsonObject, writeJsonObjectAtomic } from "../activation/json.js";
+import { readLockfileJson } from "../activation/lockfile.js";
+import { MANIFEST_FILE_NAME, LOCKFILE_FILE_NAME } from "../schema.js";
+import { defaultCacheRoot, getDefaultSources } from "../sources/index.js";
 import { defaultStandaloneSkillTargets } from "./default-skills.js";
 import type { InitOptions, InitResult } from "./types.js";
 
@@ -14,10 +16,23 @@ export function initProject(options: InitOptions = {}): InitResult {
 
   const cacheRoot = options.cacheRoot || defaultCacheRoot();
 
-  const workflow = installWorkflowFromDefinitions(options.workflowSources || getDefaultWorkflowSources(), cacheRoot, {
-    allowExistingWorkflow: true
-  });
   const defaultSources = options.sources || getDefaultSources();
+  const manifestJson = existsSync(MANIFEST_FILE_NAME)
+    ? readJsonObject(MANIFEST_FILE_NAME)
+    : {
+        sources: { skills: {} },
+        skills: []
+      };
+  manifestJson.sources = {
+    ...(typeof manifestJson.sources === "object" && manifestJson.sources !== null ? manifestJson.sources : {}),
+    skills: Object.fromEntries(Object.entries(defaultSources).map(([name, definition]) => [name, definition]))
+  };
+  manifestJson.skills = Array.isArray(manifestJson.skills) ? manifestJson.skills : [];
+  writeJsonObjectAtomic(MANIFEST_FILE_NAME, manifestJson);
+  if (!existsSync(LOCKFILE_FILE_NAME)) {
+    writeJsonObjectAtomic(LOCKFILE_FILE_NAME, readLockfileJson());
+  }
+
   const standaloneSkills = defaultStandaloneSkillTargets(defaultSources, cacheRoot);
 
   for (const target of standaloneSkills) {
@@ -25,11 +40,11 @@ export function initProject(options: InitOptions = {}): InitResult {
   }
 
   return {
-    declaredCount: 1,
-    materializedCount: workflow.installedDocs.length + workflow.installedTemplates + workflow.activatedSkills.length,
-    activatedCount: workflow.activatedSkills.length,
+    declaredCount: 0,
+    materializedCount: 0,
+    activatedCount: 0,
     standaloneActivatedCount: standaloneSkills.length,
-    manifestPath: workflow.manifestPath,
-    lockfilePath: workflow.lockfilePath
+    manifestPath: MANIFEST_FILE_NAME,
+    lockfilePath: LOCKFILE_FILE_NAME
   };
 }

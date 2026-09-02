@@ -10,6 +10,18 @@ export interface WorkflowManifestFile {
   guidanceDir?: string;
   templatesDir?: string;
   skillsDir: string;
+  dependencies?: {
+    roles: Array<{
+      source: string;
+      path: string;
+      activeName?: string;
+    }>;
+  };
+  team?: {
+    path: string;
+    version: string;
+  };
+  requiredCapabilities?: string[];
 }
 
 export interface InstallWorkflowResult {

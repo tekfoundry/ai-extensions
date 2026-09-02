@@ -60,6 +60,7 @@ temp/
 .agents/tmp/
 aix-cache/
 .aix-cache/
+.aix/pm/
 
 # Local package artifacts
 *.tgz

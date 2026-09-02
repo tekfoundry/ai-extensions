@@ -191,6 +191,8 @@ function renderWorkflow(status: WorkspaceStatus, options: RenderStatusOptions): 
       { header: "Templates", value: () => String(workflow.templateCount) },
       { header: "Skills", value: () => String(workflow.skillCount) },
       { header: "Roles", value: () => String(workflow.roleCount) },
+      { header: "Dependencies", value: () => String(workflow.dependencyRoleCount) },
+      { header: "Team", value: () => valueOrDash(workflow.teamVersion) },
       { header: "Status", value: () => workflowStatus(status, useColor) }
     ],
     [workflow],

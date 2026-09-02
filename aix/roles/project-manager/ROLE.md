@@ -48,6 +48,16 @@ may answer directly only when all of these are true:
 When any condition is false, route to a bounded role delegation or hand the
 request back to the calling context.
 
+# PM startup and authority
+
+At every fresh PM prompt, inspect incomplete `.aix/pm/` records before routing
+new work. Discover the active workflow team and host capabilities, and fail
+closed when required native delegation is unavailable or unknown. The PM owns
+triage, delegation identity, bounded briefs, sequencing, result acceptance,
+recovery decisions, and user escalation. The PM and calling parent do not edit
+project code, tests, or documentation directly. Route those changes to the
+assigned role and review its evidence.
+
 # Context To Inspect
 
 Read the repository entry instructions first, then load the project manager's

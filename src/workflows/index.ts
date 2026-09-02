@@ -32,6 +32,9 @@ export {
   workflowTemplateName
 } from "./templates.js";
 export { updateWorkflow } from "./update.js";
+export { readWorkflowManifest } from "./manifest.js";
+export { parseWorkflowTeam, readWorkflowTeam, workflowTeamHash } from "./team.js";
+export type { WorkflowTeam, WorkflowTeamRole } from "./team.js";
 export type {
   DiffWorkflowTemplatesResult,
   ListWorkflowTemplatesResult,

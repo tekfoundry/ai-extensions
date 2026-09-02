@@ -129,7 +129,8 @@ function writeWorkflow(directory, title, skillBody, workflowName = "fixture-work
         docs: ["README.md", "workflow.md"],
         ...(options.guidance ? { guidanceDir: "guidance" } : {}),
         templatesDir: "templates",
-        skillsDir: "skills"
+        skillsDir: "skills",
+        ...(options.dependencies ? { dependencies: options.dependencies } : {})
       },
       null,
       2
@@ -203,6 +204,66 @@ test("run workflow install installs docs, managed AGENTS block, and workflow-own
     assert.ok(existsSync(join(projectPath, "_docs/plans/backlog")));
     assert.match(agents, /Keep this project text/);
     assert.match(agents, /<!-- aix:workflow fixture-workflow start -->/);
+  });
+});
+
+test("workflow dependencies activate from the workflow source and uninstall cascades owned roles", async () => {
+  const source = await createWorkflowRepo("aix-workflow-dependency-source-");
+  const cacheRoot = join(tmpdir(), `aix-workflow-dependency-cache-${Date.now()}`);
+  const rolePath = join(source, "roles/project-manager");
+
+  mkdirSync(rolePath, { recursive: true });
+  writeFileSync(join(rolePath, "ROLE.md"), validRoleMarkdown("project-manager"), "utf8");
+  writeFileSync(join(rolePath, "GUIDANCE.md"), validRoleGuidanceMarkdown(), "utf8");
+  const workflowManifestPath = join(source, "workflow.json");
+  const workflowManifest = JSON.parse(readFileSync(workflowManifestPath, "utf8"));
+  workflowManifest.dependencies = {
+    roles: [{ source: "fixture", path: "roles/project-manager", activeName: "project-manager" }]
+  };
+  writeFileSync(workflowManifestPath, JSON.stringify(workflowManifest, null, 2) + "\n", "utf8");
+  git(["add", "."], source);
+  git(["commit", "-m", "add project manager dependency"], source);
+
+  await withProject(async () => {
+    const result = installWorkflowFromDefinitions(
+      { fixture: { type: "git", url: source, path: ".", ref: "master" } },
+      cacheRoot
+    );
+    const lockfile = JSON.parse(readFileSync("aix.lock.json", "utf8"));
+    const dependency = lockfile.roles.find((role) => role.activeName === "project-manager");
+
+    assert.equal(result.exitCode ?? 0, 0);
+    assert.ok(dependency);
+    assert.deepEqual(dependency.owner, { kind: "workflow", name: "fixture-workflow" });
+    assert.deepEqual(lockfile.workflows[0].dependencies.roles, [{
+      source: "fixture",
+      sourcePath: "roles/project-manager",
+      activeName: "project-manager"
+    }]);
+
+    const uninstall = run(["workflow", "uninstall"]);
+    assert.equal(uninstall.exitCode, 0);
+    assert.equal(existsSync(".agents/roles/project-manager"), false);
+  });
+});
+
+test("workflow dependency activation rolls back managed state on failure", async () => {
+  const source = await createWorkflowRepo("aix-workflow-dependency-rollback-");
+  const manifestPath = join(source, "workflow.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  manifest.dependencies = { roles: [{ source: "fixture", path: "roles/missing" }] };
+  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n", "utf8");
+  git(["add", "."], source);
+  git(["commit", "-m", "add missing dependency"], source);
+
+  await withProject(async () => {
+    assert.throws(
+      () => installWorkflowFromDefinitions({ fixture: { type: "git", url: source, path: ".", ref: "master" } }, join(tmpdir(), `aix-workflow-rollback-cache-${Date.now()}`)),
+      /Missing role file/
+    );
+    assert.equal(existsSync("aix.json"), false);
+    assert.equal(existsSync("aix.lock.json"), false);
+    assert.equal(existsSync(".agents"), false);
   });
 });
 

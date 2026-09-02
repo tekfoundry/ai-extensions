@@ -44,7 +44,7 @@ test("run renders help with a zero exit code", () => {
 test("command registry owns splash command metadata", () => {
   assert.deepEqual(
     commands.map((command) => command.name),
-    ["init", "verify", "status", "update", "workflow", "guidance", "templates", "roles", "role", "skills", "skill"]
+    ["init", "verify", "status", "update", "workflow", "guidance", "templates", "roles", "role", "skills", "skill", "pm"]
   );
 
   const result = run([]);

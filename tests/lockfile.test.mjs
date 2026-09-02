@@ -156,6 +156,37 @@ test("parseLockfile supports standalone and workflow-owned roles", () => {
   assert.equal(lockfile.workflows[0].guidance[0].path, "guidance/shared.md");
 });
 
+test("parseLockfile accepts workflow dependencies, team metadata, and required capabilities", () => {
+  const lockfile = parseLockfile({
+    lockfileVersion: 1,
+    skills: [],
+    workflows: [
+      {
+        kind: "workflow",
+        source: "aix",
+        sourceType: "git",
+        sourcePath: "aix/workflows/design-plan-execute",
+        packagePath: ".agents/packages/workflows/aix/design-plan-execute",
+        name: "design-plan-execute",
+        docs: [],
+        skills: [],
+        dependencies: {
+          roles: [{ source: "aix", sourcePath: "roles/project-manager", activeName: "project-manager" }],
+          requiredCapabilities: ["native-worker-creation"]
+        },
+        team: { path: "team.md", version: "1", sha256: "abc123" },
+        packageFiles: []
+      }
+    ]
+  });
+
+  assert.deepEqual(lockfile.workflows[0].dependencies, {
+    roles: [{ source: "aix", sourcePath: "roles/project-manager", activeName: "project-manager" }],
+    requiredCapabilities: ["native-worker-creation"]
+  });
+  assert.deepEqual(lockfile.workflows[0].team, { path: "team.md", version: "1", sha256: "abc123" });
+});
+
 test("parseLockfile repairs generated legacy workflow append metadata", () => {
   const lockfile = parseLockfile({
     lockfileVersion: 1,

@@ -4,6 +4,7 @@ import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { ManifestError, loadManifest, parseManifest } from "../dist/manifest.js";
+import { readWorkflowManifest } from "../dist/workflows/manifest.js";
 
 test("parseManifest accepts git sources and compact skill requests", () => {
   assert.deepEqual(
@@ -108,6 +109,83 @@ test("parseManifest accepts role sources and compact role requests", () => {
         }
       ]
     }
+  );
+});
+
+test("readWorkflowManifest accepts PM dependencies, team metadata, and capabilities", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "aix-workflow-manifest-"));
+  await writeFile(
+    join(directory, "workflow.json"),
+    JSON.stringify({
+      name: "design-plan-execute",
+      docs: [],
+      skillsDir: "skills",
+      workflowOptions: "ignored",
+      dependencies: {
+        roles: [
+          {
+            source: "aix",
+            path: "roles/project-manager",
+            activeName: "project-manager"
+          }
+        ]
+      },
+      team: {
+        path: "team.md",
+        version: "1"
+      },
+      requiredCapabilities: ["native-worker-creation", "correlated-results"]
+    }),
+    "utf8"
+  );
+
+  assert.deepEqual(
+    readWorkflowManifest(directory),
+    {
+      dependencies: {
+        roles: [
+          {
+            source: "aix",
+            path: "roles/project-manager",
+            activeName: "project-manager"
+          }
+        ]
+      },
+      team: {
+        path: "team.md",
+        version: "1"
+      },
+      requiredCapabilities: ["native-worker-creation", "correlated-results"],
+      name: "design-plan-execute",
+      docs: [],
+      skillsDir: "skills"
+    }
+  );
+});
+
+test("readWorkflowManifest rejects malformed workflow dependency metadata", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "aix-workflow-manifest-invalid-"));
+
+  async function readManifest(manifest) {
+    await writeFile(join(directory, "workflow.json"), JSON.stringify(manifest), "utf8");
+    return readWorkflowManifest(directory);
+  }
+
+  assert.throws(
+    () => readWorkflowManifest(directory),
+    /Missing workflow manifest/
+  );
+  await assert.rejects(
+    () => readManifest({ name: "fixture", docs: [], skillsDir: "skills", dependencies: { roles: [{ source: "aix" }] } }),
+    (error) => error instanceof Error && error.message.includes("dependencies.roles[0].path")
+  );
+  await assert.rejects(
+    () => readManifest({ name: "fixture", docs: [], skillsDir: "skills", team: { path: "team.md" } }),
+    (error) => error instanceof Error && error.message.includes("team.version")
+  );
+  await assert.rejects(
+    () => readManifest({ name: "fixture", docs: [], skillsDir: "skills", requiredCapabilities: ["native", ""] }),
+    (error) => error instanceof Error && error.message.includes("requiredCapabilities")
   );
 });
 

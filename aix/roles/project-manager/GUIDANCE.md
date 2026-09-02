@@ -529,3 +529,21 @@ context with:
 - the suggested next action
 
 Do not complete out-of-team work under the project-manager role.
+
+## Native delegation and durable exchange
+
+Before the first delegation in a PM session, discover the host capability
+snapshot and require the workflow's declared native worker capabilities. The
+PM creates a unique `subagent_id` and `delegation_id`, gives the worker a
+meaningful display name, and writes the bounded `brief.md` before dispatch.
+
+The worker receives its role, role guidance, shared workflow protocol,
+relevant team excerpt, and brief. It does not receive the full PM transcript.
+Workers publish concise status and result records. The PM accepts or rejects
+results using evidence, while AIX owns identity, timestamps, sequencing,
+atomic writes, and validation. Never persist secret values. Use only ephemeral
+secret references when a provider supports them.
+
+If the PM restarts, inspect incomplete delegations before accepting new work.
+Recover from durable records and provider state. Do not silently guess what a
+lost worker did.

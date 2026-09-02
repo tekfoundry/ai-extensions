@@ -6,6 +6,7 @@ import { skillsCommand } from "./cmds/skills/index.js";
 import { templatesCommand } from "./cmds/templates/index.js";
 import { workflowCommand } from "./cmds/workflow/index.js";
 import { initCommand, statusCommand, updateCommand, verifyCommand } from "./cmds/workspace/index.js";
+import { pmCommand } from "./cmds/pm/index.js";
 import type { Command } from "./types.js";
 
 export const commands: Command[] = [
@@ -19,7 +20,8 @@ export const commands: Command[] = [
   rolesCommand,
   roleCommand,
   skillsCommand,
-  skillCommand
+  skillCommand,
+  pmCommand
 ];
 
 export function findCommand(name: string): Command | undefined {

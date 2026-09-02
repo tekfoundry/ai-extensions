@@ -10,6 +10,8 @@ import { addWorkflowDocVerifyIssues } from "./docs.js";
 import { addWorkflowGuidanceVerifyIssues } from "./guidance.js";
 import { addWorkflowSkillVerifyIssues } from "./skills.js";
 import { addWorkflowTemplateVerifyIssues } from "./templates.js";
+import { readWorkflowTeam, workflowTeamHash } from "./team.js";
+import { readWorkflowManifest } from "./manifest.js";
 import type { DiffWorkflowResult, VerifyWorkflowResult } from "./types.js";
 
 export function diffWorkflow(cacheRoot = defaultCacheRoot()): DiffWorkflowResult {
@@ -61,6 +63,31 @@ export function verifyWorkflow(): VerifyWorkflowResult {
     addWorkflowTemplateVerifyIssues(issues, workflow);
     addAgentsMdVerifyIssues(issues, workflow.agentsMd);
     addWorkflowSkillVerifyIssues(issues, workflow, lockfile);
+
+    if (workflow.team) {
+      try {
+        const packageWorkflow = readWorkflowManifest(workflow.packagePath);
+        readWorkflowTeam(packageWorkflow, workflow.packagePath);
+        const expectedTeam = workflowTeamHash(packageWorkflow, workflow.packagePath);
+
+        if (!expectedTeam || workflow.team.sha256 !== expectedTeam.sha256) {
+          issues.push(`Workflow team metadata has drift: ${workflow.packagePath}/${workflow.team.path}`);
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        issues.push(`Workflow team verification unavailable: ${message}`);
+      }
+    }
+
+    for (const dependency of workflow.dependencies?.roles || []) {
+      const role = (lockfile.roles || []).find(
+        (entry) => entry.source === dependency.source && entry.sourcePath === dependency.sourcePath && entry.activeName === dependency.activeName
+      );
+
+      if (!role) {
+        issues.push(`Workflow dependency is not active: ${dependency.source}/${dependency.sourcePath}`);
+      }
+    }
   }
 
   return { issues };

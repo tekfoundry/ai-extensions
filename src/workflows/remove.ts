@@ -12,6 +12,7 @@ import { assertWorkflowRolesUnmodified, removeWorkflowActiveRoles, replaceWorkfl
 import { removeWorkflowActiveSkills } from "./skills.js";
 import { assertWorkflowPackageUnmodified, replaceWorkflowSkillEntries, workflowSkills } from "./shared.js";
 import { assertWorkflowTemplatesUnmodified } from "./templates.js";
+import { removeRoleFile, removeRolePackageFile, assertActiveRoleFilesMatchLockfile, assertRolePackageFilesMatchLockfile } from "../roles/files.js";
 import type { RemoveWorkflowResult } from "./types.js";
 
 export function removeWorkflow(): RemoveWorkflowResult {
@@ -28,6 +29,18 @@ export function removeWorkflow(): RemoveWorkflowResult {
 
   const ownedSkills = workflowSkills(lockfile, workflow.name);
   const ownedRoles = workflowRoles(lockfile, workflow.name);
+  const dependencyRoles = (workflow.dependencies?.roles || [])
+    .map((dependency) => {
+      const sourcePath = dependency.source === "aix" && dependency.sourcePath.startsWith("roles/")
+        ? dependency.sourcePath.slice("roles/".length)
+        : dependency.sourcePath;
+
+      return (lockfile.roles || []).find(
+        (role) => role.source === dependency.source && role.sourcePath === sourcePath && role.activeName === dependency.activeName
+      );
+    })
+    .filter((role): role is NonNullable<typeof role> => Boolean(role && role.owner?.kind === "workflow" && role.owner.name === workflow.name));
+  const rolesToRemove = [...ownedRoles, ...dependencyRoles.filter((role) => !ownedRoles.includes(role))];
   assertWorkflowPackageUnmodified(workflow, "remove");
 
   for (const skill of ownedSkills) {
@@ -35,6 +48,10 @@ export function removeWorkflow(): RemoveWorkflowResult {
     assertPackageFilesMatchLockfile(skill);
   }
   assertWorkflowRolesUnmodified(ownedRoles);
+  for (const role of dependencyRoles) {
+    assertActiveRoleFilesMatchLockfile(role);
+    assertRolePackageFilesMatchLockfile(role);
+  }
 
   assertWorkflowDocsUnmodified(workflow);
   assertWorkflowTemplatesUnmodified(workflow);
@@ -42,17 +59,21 @@ export function removeWorkflow(): RemoveWorkflowResult {
 
   const nextLockfile = structuredClone(lockfile);
   replaceWorkflowSkillEntries(nextLockfile, workflow.name, []);
-  replaceWorkflowRoleEntries(nextLockfile, workflow.name, []);
+  replaceWorkflowRoleEntries(nextLockfile, workflow.name, [], { removeDependencies: true });
   nextLockfile.workflows = [];
   writeExtensionAppendBlocks(previousLockfile, nextLockfile, []);
 
   removeWorkflowActiveSkills(ownedSkills);
   removeWorkflowActiveRoles(ownedRoles);
+  for (const role of dependencyRoles) {
+    removeRoleFile(role.activationPath);
+    removeRolePackageFile(role.packagePath);
+  }
   removeWorkflowDocs(workflow);
 
   removePackagePath(workflow.packagePath);
   replaceWorkflowSkillEntries(lockfile, workflow.name, []);
-  replaceWorkflowRoleEntries(lockfile, workflow.name, []);
+  replaceWorkflowRoleEntries(lockfile, workflow.name, [], { removeDependencies: true });
   lockfile.workflows = [];
   delete manifestJson.workflow;
 
@@ -65,7 +86,7 @@ export function removeWorkflow(): RemoveWorkflowResult {
     lockfilePath: LOCKFILE_FILE_NAME,
     removedDocs: workflow.docs.map((doc) => doc.targetPath),
     removedSkills: ownedSkills.map((skill) => skill.activeName),
-    removedRoles: ownedRoles.map((role) => role.activeName),
+    removedRoles: rolesToRemove.map((role) => role.activeName),
     removedAgentsMdBlock: Boolean(workflow.agentsMd || ownedSkills.some((skill) => skill.agentsMd) || ownedRoles.some((role) => role.agentsMd))
   };
 }

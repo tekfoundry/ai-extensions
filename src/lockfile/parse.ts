@@ -337,6 +337,30 @@ function parseWorkflowRole(value: unknown, path: string): NonNullable<LockfileWo
   };
 }
 
+function parseWorkflowDependencyRole(value: unknown, path: string): NonNullable<LockfileWorkflowEntry["dependencies"]>["roles"][number] {
+  if (!isRecord(value)) {
+    throw new LockfileError(`${path} must be an object.`);
+  }
+
+  return {
+    source: requireString(value.source, `${path}.source`),
+    sourcePath: requireString(value.sourcePath, `${path}.sourcePath`),
+    activeName: requireString(value.activeName, `${path}.activeName`)
+  };
+}
+
+function parseWorkflowTeam(value: unknown, path: string): LockfileWorkflowEntry["team"] {
+  if (!isRecord(value)) {
+    throw new LockfileError(`${path} must be an object.`);
+  }
+
+  return {
+    path: requireString(value.path, `${path}.path`),
+    version: requireString(value.version, `${path}.version`),
+    sha256: requireString(value.sha256, `${path}.sha256`)
+  };
+}
+
 function parseWorkflowEntry(value: unknown, path: string): LockfileWorkflowEntry {
   if (!isRecord(value)) {
     throw new LockfileError(`${path} must be an object.`);
@@ -390,6 +414,26 @@ function parseWorkflowEntry(value: unknown, path: string): LockfileWorkflowEntry
   const templates = Array.isArray(value.templates) ? value.templates : undefined;
   const guidance = Array.isArray(value.guidance) ? value.guidance : undefined;
   const roles = Array.isArray(value.roles) ? value.roles : undefined;
+  const dependencies = value.dependencies;
+
+  if (dependencies !== undefined && !isRecord(dependencies)) {
+    throw new LockfileError(`${path}.dependencies must be an object when provided.`);
+  }
+
+  if (isRecord(dependencies) && dependencies.roles !== undefined && !Array.isArray(dependencies.roles)) {
+    throw new LockfileError(`${path}.dependencies.roles must be an array when provided.`);
+  }
+
+  const requiredCapabilities = isRecord(dependencies) && dependencies.requiredCapabilities !== undefined
+    ? dependencies.requiredCapabilities
+    : undefined;
+  const dependencyRoles = isRecord(dependencies) && Array.isArray(dependencies.roles) ? dependencies.roles : [];
+
+  if (requiredCapabilities !== undefined && (!Array.isArray(requiredCapabilities) || requiredCapabilities.some((capability) => typeof capability !== "string" || capability.trim() === ""))) {
+    throw new LockfileError(`${path}.dependencies.requiredCapabilities must be an array of non-empty strings when provided.`);
+  }
+
+  const team = value.team === undefined ? undefined : parseWorkflowTeam(value.team, `${path}.team`);
 
   return {
     kind,
@@ -408,6 +452,15 @@ function parseWorkflowEntry(value: unknown, path: string): LockfileWorkflowEntry
     ...(roles ? { roles: roles.map((role, index) => parseWorkflowRole(role, `${path}.roles[${index}]`)) } : {}),
     ...(templates ? { templates: templates.map((file, index) => parseFileHash(file, `${path}.templates[${index}]`)) } : {}),
     ...(guidance ? { guidance: guidance.map((file, index) => parseFileHash(file, `${path}.guidance[${index}]`)) } : {}),
+    ...(isRecord(dependencies)
+      ? {
+          dependencies: {
+            roles: dependencyRoles.map((role, index) => parseWorkflowDependencyRole(role, `${path}.dependencies.roles[${index}]`)),
+            ...(requiredCapabilities ? { requiredCapabilities: requiredCapabilities.map((capability) => capability.trim()) } : {})
+          }
+        }
+      : {}),
+    ...(team ? { team } : {}),
     packageFiles: value.packageFiles.map((file, index) => parseFileHash(file, `${path}.packageFiles[${index}]`))
   };
 }

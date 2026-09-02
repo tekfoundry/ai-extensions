@@ -159,10 +159,19 @@ export function workflowRoles(lockfile: { roles?: LockfileRoleEntry[] }, workflo
 export function replaceWorkflowRoleEntries(
   lockfile: { roles?: LockfileRoleEntry[] },
   workflowName: string,
-  roleEntries: LockfileRoleEntry[]
+  roleEntries: LockfileRoleEntry[],
+  options: { removeDependencies?: boolean } = {}
 ): void {
+  const workflow = (lockfile as { workflows?: LockfileWorkflowEntry[] }).workflows?.find((entry) => entry.name === workflowName);
+  const directRoleKeys = new Set(workflow?.roles?.map((role) => `${workflowName}:${role.activeName}`) || []);
   lockfile.roles = [
-    ...(lockfile.roles || []).filter((role) => role.owner?.kind !== "workflow" || role.owner.name !== workflowName),
+    ...(lockfile.roles || []).filter((role) => {
+      if (role.owner?.kind !== "workflow" || role.owner.name !== workflowName) {
+        return true;
+      }
+
+      return options.removeDependencies !== true && !directRoleKeys.has(`${workflowName}:${role.activeName}`);
+    }),
     ...roleEntries
   ];
 }

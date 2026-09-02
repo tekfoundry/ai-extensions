@@ -159,6 +159,19 @@ export interface LockfileWorkflowEntry {
   }>;
   templates?: FileHash[];
   guidance?: FileHash[];
+  dependencies?: {
+    roles: Array<{
+      source: string;
+      sourcePath: string;
+      activeName: string;
+    }>;
+    requiredCapabilities?: string[];
+  };
+  team?: {
+    path: string;
+    version: string;
+    sha256: string;
+  };
   packageFiles: FileHash[];
 }
 

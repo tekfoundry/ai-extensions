@@ -4,6 +4,7 @@ import { readLockfileJson } from "../activation/lockfile.js";
 import { parseManifest } from "../manifest.js";
 import { diffRoles, verifyRoles } from "../roles/index.js";
 import { diffWorkflow, verifyWorkflow } from "../workflows/index.js";
+import { readWorkflowTeam, workflowTeamHash } from "../workflows/team.js";
 import {
   LOCKFILE_FILE_NAME,
   MANIFEST_FILE_NAME,
@@ -55,6 +56,9 @@ export interface WorkspaceStatus {
     templateCount: number;
     skillCount: number;
     roleCount: number;
+    dependencyRoleCount: number;
+    teamVersion?: string;
+    requiredCapabilities: string[];
   };
   skillSources: Array<{
     name: string;
@@ -247,7 +251,10 @@ export function collectWorkspaceStatus(): WorkspaceStatus {
             guidanceCount: activeWorkflow.guidance?.length || 0,
             templateCount: activeWorkflow.templates?.length || 0,
             skillCount: activeWorkflow.skills.length,
-            roleCount: activeWorkflow.roles?.length || 0
+            roleCount: activeWorkflow.roles?.length || 0,
+            dependencyRoleCount: activeWorkflow.dependencies?.roles.length || 0,
+            ...(activeWorkflow.team ? { teamVersion: activeWorkflow.team.version } : {}),
+            requiredCapabilities: activeWorkflow.dependencies?.requiredCapabilities || []
           }
         }
       : {}),

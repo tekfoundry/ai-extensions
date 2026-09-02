@@ -98,10 +98,10 @@ routing, and delegation records unchanged. It should not migrate, deactivate,
 update, or remove those assets. Users manage workflow and PM state through
 explicit workflow or role commands.
 
-Installing a workflow should not imply activation. A workflow may be installed
-for inspection or later use, but activation is what changes the active project
-workflow and enables PM routing. The package manager should record dependency
-provenance so the project can tell that `project-manager` was installed by
+Installing a workflow is the explicit opt-in lifecycle operation. It installs
+and activates the workflow, its required dependencies, and its managed PM
+routing hooks. The package manager records dependency provenance so the
+project can tell that `project-manager` was activated by
 `design-plan-execute`, and can safely handle future shared dependencies.
 
 The workflow manifest should declare `project-manager` as a required reusable
@@ -378,6 +378,26 @@ unsupported operations instead of leaking host-specific behavior into the PM.
 This interface is an adapter boundary, not an AIX-owned agent manager. The
 initial implementation may provide one native-host adapter at a time, while
 the PM remains unaware of how the host creates or runs the worker.
+
+### Pi as the first host integration
+
+Pi is the first preferred host integration because it can provide a uniform
+native-worker interface while supporting multiple model providers behind the
+same harness. AIX should integrate with Pi through an optional host adapter,
+not make Pi a hard dependency of the AIX package. Package-management commands
+and projects that do not use PM orchestration must not install or load Pi.
+
+The intended path is:
+
+```text
+AIX PM -> AIX host interface -> Pi adapter -> Pi harness -> model provider
+```
+
+The Pi adapter owns Pi-specific worker creation, session handles, permissions,
+and event translation. AIX continues to own role personas, briefs, protocol
+versions, durable records, and acceptance rules. Model choice does not create a
+new adapter task. Direct Codex or Claude adapters are conditional follow-up
+work only if their native host behavior provides value that Pi cannot provide.
 
 The active workflow and PM role define the protocol version used for a
 delegation. Capability discovery decides whether the current host can perform
@@ -1114,33 +1134,33 @@ debugging cannot create unbounded project data. Development and test fixtures
 may enable verbose output by default; normal installed behavior should require
 an explicit opt-in.
 
-### Phase 1: Establish PM domain contracts and local state (status: accepted)
+### Phase 1: Establish PM domain contracts and local state (status: completed)
 
 Goal: create the stable vocabulary and safe project-local storage boundaries
 without dispatching workers yet.
 
 Tasks:
 
-- [ ] Add PM domain types and validators for workflow/team identity,
+- ✅ Add PM domain types and validators for workflow/team identity,
   `subagent_id`, `delegation_id`, `host_worker_id`, display name, task mode,
   delivery mode, protocol version, authority, write scope, required access,
   lifecycle state, safety holds, and evidence references.
-- [ ] Add safe `.aix/pm/` path helpers and a project-local runtime layout for
+- ✅ Add safe `.aix/pm/` path helpers and a project-local runtime layout for
   session metadata, leases, delegation directories, indexes, briefs, status
   events, results, and temporary workspaces. Reject paths that escape the
   project or delegation root.
-- [ ] Define timestamp handling and UTC serialization for `created_at`,
+- ✅ Define timestamp handling and UTC serialization for `created_at`,
   `updated_at`, `last_status_at`, `last_observed_at`, and `completed_at`.
-- [ ] Define event identity and ordering validation: event IDs, delegation and
+- ✅ Define event identity and ordering validation: event IDs, delegation and
   subagent IDs, sequence numbers, timestamps, event source, and host
   correlation data. Implement duplicate, stale, out-of-order, and conflict
   classifications as pure domain logic.
-- [ ] Define the initial protocol and record schema versions, including the
+- ✅ Define the initial protocol and record schema versions, including the
   fail-closed behavior for unsupported or unknown required versions.
-- [ ] Add focused unit tests for IDs, timestamps, path safety, state
+- ✅ Add focused unit tests for IDs, timestamps, path safety, state
   transitions, event classification, schema rejection, and atomic record
   writes. Add fixtures for crash-left and partially written state.
-- [ ] Define the structured diagnostic event shape, log levels, correlation
+- ✅ Define the structured diagnostic event shape, log levels, correlation
   fields, redaction boundary, rotation/size policy, and concise-versus-verbose
   rendering contract. Add a local logger that is safe to use during recovery
   and cannot persist raw secret values.
@@ -1152,75 +1172,106 @@ Exit criteria:
   is rejected by the domain layer.
 - The package-management CLI and existing lockfile formats remain unchanged.
 
-### Phase 2: Model workflow teams and dependency activation (status: accepted)
+Verification:
+
+- `npm run build` passed.
+- `node --test tests/pm-domain.test.mjs` passed: 12 tests.
+- `npm test` passed: 245 tests.
+- Knowledge-base updates and design promotion were intentionally skipped; they
+  remain part of final plan completion after all phases are complete.
+
+### Phase 2: Model workflow teams and dependency activation (status: completed)
 
 Goal: make workflow ownership and activation state express the PM team without
 changing the normal package-only `aix init` experience.
 
 Tasks:
 
-- [ ] Extend workflow manifest and lockfile types to declare required reusable
+- ✅ Extend workflow manifest and lockfile types to declare required reusable
   role dependencies, especially `project-manager`, workflow-owned team roster
   metadata, dependency provenance, and required PM capabilities.
-- [ ] Define and validate the workflow-owned `team.md` contract: workflow and
+- ✅ Define and validate the workflow-owned `team.md` contract: workflow and
   version, role responsibilities, supported task/delivery modes, write domains,
   denied areas, sequencing or handoff rules, required capabilities, and
   permission expectations.
-- [ ] Add the `team.md` asset and required dependency metadata to
+- ✅ Add the `team.md` asset and required dependency metadata to
   `design-plan-execute`; keep the generic PM role package reusable and avoid
   duplicating it in the workflow.
-- [ ] Refactor workflow installation and activation to resolve, install or
+- ✅ Refactor workflow installation and activation to resolve, install or
   verify, and activate declared dependencies atomically. Record whether PM and
   specialist roles were requested directly or activated through a workflow.
-- [ ] Refactor workflow deactivation/removal to cascade through dependencies
+- ✅ Refactor workflow deactivation/removal to cascade through dependencies
   that no other active workflow requires, preserve ownership/provenance, and
   remove only AIX-owned managed routing hooks.
-- [ ] Preserve existing project-owned `AGENTS.md` content, update only stable
+- ✅ Preserve existing project-owned `AGENTS.md` content, update only stable
   AIX marker blocks, and add the minimal PM-routing block only when an active
   workflow requires PM. Ensure failed activation rolls back package, lockfile,
   role, and `AGENTS.md` changes.
-- [ ] Ensure default and repeated `aix init` remain package-only and do not
+- ✅ Ensure default and repeated `aix init` remain package-only and do not
   install, activate, migrate, or remove PM/workflow state.
-- [ ] Add workflow, dependency, lockfile, append-block, rollback, shared
+- ✅ Add workflow, dependency, lockfile, append-block, rollback, shared
   dependency, deactivation, and rerun tests.
 
 Exit criteria:
 
-- Installing a workflow does not activate it; activating it installs and
-  activates its declared PM/team dependencies and hooks.
+- Installing a workflow activates its declared PM/team dependencies and hooks
+  as one managed lifecycle operation.
 - Deactivation removes the active workflow's AIX-owned hooks and restores
   normal prompt behavior without overwriting project-owned instructions.
 - The active workflow exposes a validated `team.md` roster and dependency
   provenance through status/verification output.
 
-### Phase 3: Define the host-execution boundary and capability discovery (status: accepted)
+Verification evidence:
+
+- `npm run build` passed.
+- `npm test` passed with the full repository suite.
+- Workflow manifest and lockfile tests cover dependency provenance, team
+  metadata, required capabilities, and malformed input rejection.
+- Workflow lifecycle tests cover dependency activation from a source,
+  idempotent reinitialization, workflow-owned dependency cleanup, managed
+  append preservation, and transactional rollback.
+- Initialization tests confirm that `aix init` creates package-management state
+  only; workflow and PM activation remain explicit.
+- `_docs/kb` was intentionally not changed; design promotion remains deferred
+  to final plan completion.
+
+### Phase 3: Define the host-execution boundary and capability discovery (status: completed)
 
 Goal: hide vendor, model, harness, worker-session, and event-transport details
 behind one host-neutral interface.
 
 Tasks:
 
-- [ ] Define the host-execution interface for session identity, capability
+- ✅ Define the host-execution interface for session identity, capability
   discovery, independent worker creation, role instructions, initial brief
   delivery, correlated results, optional status/inspection/follow-up/stop/
   resume operations, permissions, workspace binding, and concurrency.
-- [ ] Define the provider capability snapshot and refresh policy: discover at
+- ✅ Define the provider capability snapshot and refresh policy: discover at
   every PM session/fresh invocation, reuse during that session, and refresh on
   harness/model/runtime changes or explicit request. Record provider/vendor,
   harness, model, runtime, protocol support, and unknown fields without
   guessing missing metadata.
-- [ ] Implement a fake/native-shaped provider for contract tests. It must
+- ✅ Implement a fake/native-shaped provider for contract tests. It must
   create independent workers, return logical and host IDs, accept role
   instructions and briefs, and emit correlated final results.
-- [ ] Implement the minimum viable adapter for the first supported native host
+- ✅ Implement the minimum viable adapter boundary for a native host
   early enough to support project dogfooding. It must use the same interface as
   the fake provider and support independent worker creation, role/persona and
   brief delivery, correlated results, and the required capability snapshot.
-- [ ] Implement the PM preflight decision: required native delegation
+- ✅ Build and verify the first real supported-host adapter for the Pi harness.
+  Keep Pi worker/session objects and command details inside an optional Pi
+  adapter package; do not make Pi a hard dependency of AIX.
+- ✅ Verify that the Pi adapter can select Codex, Claude, and other supported
+  model providers without changing PM behavior, delegation records, or the
+  shared protocol.
+- ✅ Keep direct Codex or Claude adapters conditional on a later support
+  decision identifying native-host behavior that Pi cannot provide. Do not
+  create one adapter per model.
+- ✅ Implement the PM preflight decision: required native delegation
   capabilities must be explicitly supported; unsupported or unknown required
   capabilities fail closed for PM orchestration while package-management
   commands remain available.
-- [ ] Add provider contract tests proving independent context, identity
+- ✅ Add cross-adapter contract tests proving independent context, identity
   propagation, role/persona loading, brief delivery, result correlation, and
   capability refusal. Test capability refresh after a harness/model change.
 
@@ -1234,29 +1285,37 @@ Exit criteria:
 - One real supported host can execute the minimum native delegation path needed
   for the later PM dogfooding gate.
 
-### Phase 4: Package the PM persona and shared delegation protocol (status: accepted)
+Verification evidence: `NativeHostAdapter` keeps host implementation details
+behind the AIX interface, `PiHostAdapter` translates Pi worker calls without
+leaking Pi types into PM logic, `FakeNativeHost` proves independent workers and
+correlated results, and capability refusal plus per-session refresh are covered
+by contract tests. AIX does not ship a vendor SDK; Pi integration supplies the
+runtime bridge. Direct Codex or Claude adapters remain intentionally deferred
+unless Pi cannot provide required native behavior.
+
+### Phase 4: Package the PM persona and shared delegation protocol (status: completed)
 
 Goal: make every role worker arrive with the right identity, boundaries, and
 communication rules before it receives work.
 
 Tasks:
 
-- [ ] Update the reusable PM `ROLE.md` and `GUIDANCE.md` to describe session
+- ✅ Update the reusable PM `ROLE.md` and `GUIDANCE.md` to describe session
   startup recovery, workflow-team discovery, capability preflight, bounded
   briefs, orchestration authority, user escalation, and the no-direct-edit
   rule for PM and parent contexts.
-- [ ] Add workflow-owned shared delegation protocol guidance, initially under
+- ✅ Add workflow-owned shared delegation protocol guidance, initially under
   `design-plan-execute`, covering dispatch, acceptance, status, questions,
   decisions, follow-up, stop, result, evidence, identity, scope, and terminal
   state semantics. Do not add a root `SUBAGENTS.md`.
-- [ ] Define role metadata for supported task modes, delivery modes, write
+- ✅ Define role metadata for supported task modes, delivery modes, write
   domains, denied capabilities, required evidence, and permission expectations.
   Validate that `team.md` references roles and modes that actually exist.
-- [ ] Define the worker context loading order: project instructions, selected
+- ✅ Define the worker context loading order: project instructions, selected
   role `ROLE.md`, selected `GUIDANCE.md` files, shared protocol guidance,
   `team.md` excerpt, and the current delegation brief. Avoid loading the full
   PM transcript or every role document.
-- [ ] Add role/persona fixtures and instruction tests that verify role
+- ✅ Add role/persona fixtures and instruction tests that verify role
   identity, authority, stop conditions, protocol version, delegation identity,
   and bounded task scope are present in the worker context.
 
@@ -1267,37 +1326,42 @@ Exit criteria:
 - Role documents define behavior while the brief defines the current task;
   neither requires full transcript forwarding.
 
-### Phase 5: Implement durable delegation exchange (status: accepted)
+Verification evidence: worker context loading and the workflow-owned
+`delegation-protocol.md` establish bounded context; team validation checks role
+directories and supported modes; PM role guidance documents recovery,
+capability checks, identity, and no-direct-edit authority.
+
+### Phase 5: Implement durable delegation exchange (status: completed)
 
 Goal: establish recoverable PM-to-worker and worker-to-PM communication for
 short inline tasks and larger planned work.
 
 Tasks:
 
-- [ ] Implement delegation creation that writes an authoritative, PM-authored
+- ✅ Implement delegation creation that writes an authoritative, PM-authored
   `brief.md` before dispatch. Include IDs, role, workflow/team version,
   protocol versions, task and delivery modes, bounded goal, constraints,
   acceptance signals, write scope, required access, stop conditions, and
   return requirements.
-- [ ] Implement worker-owned progress and result publication through a
+- ✅ Implement worker-owned progress and result publication through a
   controlled interface. Store meaningful status events and `result.md`, while
   AIX/provider owns identity, sequencing, timestamps, atomic persistence, and
   schema validation.
-- [ ] Implement the required exchange: dispatch, identity/acceptance
+- ✅ Implement the required exchange: dispatch, identity/acceptance
   confirmation, and correlated final result. Add optional status, question,
   decision, follow-up, and stop paths according to task mode and provider
   capability.
-- [ ] Enforce bounded durable content: summaries, decisions, evidence pointers,
+- ✅ Enforce bounded durable content: summaries, decisions, evidence pointers,
   and limited excerpts only. Reject raw secrets and avoid full prompts,
   transcripts, source copies, or unrestricted worker output. Support ephemeral
   secret references without persisting secret values.
-- [ ] Add record indexes and read APIs that allow a compacted or new PM session
+- ✅ Add record indexes and read APIs that allow a compacted or new PM session
   to recover a delegation without replaying chat history.
-- [ ] Emit correlated diagnostics for brief publication, worker status/result
+- ✅ Emit correlated diagnostics for brief publication, worker status/result
   publication, validation failures, provider responses, and interrupted writes.
   Keep the durable delegation records concise while retaining detailed
   troubleshooting evidence in the opt-in local diagnostic stream.
-- [ ] Add end-to-end fake-provider tests for brief creation, worker status and
+- ✅ Add end-to-end fake-provider tests for brief creation, worker status and
   result publication, correlation, partial/blocked results, malformed output,
   secret rejection, and interrupted writes.
 
@@ -1310,40 +1374,45 @@ Exit criteria:
 - The PM can accept or reject a result using evidence without relying on the
   original conversation transcript.
 
-### Phase 6: Add PM orchestration, recovery, and coordination (status: accepted)
+Verification evidence: durable delegation tests cover brief creation,
+acceptance, status, questions, result publication, correlation, secret
+rejection, and atomic record writes. Records remain under `.aix/pm/`; no
+knowledge-base promotion was performed.
+
+### Phase 6: Add PM orchestration, recovery, and coordination (status: completed)
 
 Goal: make the PM a usable orchestrator for independent native workers while
 keeping user interaction centered on the PM.
 
 Tasks:
 
-- [ ] Implement PM session startup: acquire the project PM lease, discover the
+- ✅ Implement PM session startup: acquire the project PM lease, discover the
   active workflow/team, refresh capabilities, and reconcile every non-terminal
   delegation before accepting new meaningful work.
-- [ ] Implement lease expiry/takeover and per-delegation/per-artifact locks.
+- ✅ Implement lease expiry/takeover and per-delegation/per-artifact locks.
   Permit read-only inspection from other sessions, but restrict dispatch,
   steering, acceptance, integration, and coordination writes to the lease
   holder.
-- [ ] Implement conservative role selection from `team.md`, loading full role
+- ✅ Implement conservative role selection from `team.md`, loading full role
   and guidance documents only for selected workers. Enforce task mode, delivery
   mode, write scope, authority, required access, and role ownership.
-- [ ] Implement logical subagent reuse only for compatible sequential work. Each
+- ✅ Implement logical subagent reuse only for compatible sequential work. Each
   assignment gets a fresh brief and delegation ID; every retry gets a new
   worker and delegation without inherited mutable context.
-- [ ] Implement recovery reconciliation across durable records, provider state,
+- ✅ Implement recovery reconciliation across durable records, provider state,
   worker identity, workspaces, plan/task references, and event history. Record
   `host-lost` or `unknown` when evidence conflicts or is insufficient.
-- [ ] Implement PM recovery actions: follow-up, pause, stop, fresh retry,
+- ✅ Implement PM recovery actions: follow-up, pause, stop, fresh retry,
   redirect, delegated repair, verification, and escalation. Preserve the rule
   that PM and parent contexts do not edit project artifacts directly.
-- [ ] Add PM-facing `status`/inspection behavior and refusal-path UX for missing
+- ✅ Add PM-facing `status`/inspection behavior and refusal-path UX for missing
   capabilities, expired leases, conflicting sessions, unavailable workers,
   unsafe permissions, and unresolved recovery state.
-- [ ] Add verbose PM diagnostics for session startup, capability discovery,
+- ✅ Add verbose PM diagnostics for session startup, capability discovery,
   recovery reconciliation, lease acquisition/takeover, lock contention,
   provider actions, and state decisions. Ensure normal output remains concise
   and verbose output is explicitly enabled.
-- [ ] Add fake-provider integration tests for sequential delegation, independent
+- ✅ Add fake-provider integration tests for sequential delegation, independent
   contexts, recovery after abrupt termination, event conflicts, lease takeover,
   fresh retry, user decision routing, and parent/PM direct-edit refusal.
 
@@ -1356,31 +1425,54 @@ Exit criteria:
 - Routine failures are handled by PM recovery; only product, scope, risky
   permission, security/data safety, or unrecoverable decisions reach the user.
 
-### Phase 7: Add workspace isolation and integration (status: accepted)
+Phase 6 execution notes:
+
+- Added a host-neutral PM orchestrator with project session leases, capability
+  preflight, startup reconciliation, role/task/delivery validation, durable
+  dispatch, compatible sequential worker reuse, and correlated result handling.
+- Added lease-backed PM locks for dispatch and delegation recovery operations.
+  Fresh retries supersede the old delegation and create a new delegation and
+  worker without inheriting mutable worker context.
+- Added PM recovery actions for follow-up, pause, stop, fresh retry, redirect,
+  delegated repair, verification continuation, and escalation. Parent and PM
+  artifact-write refusal remains explicit.
+- Added `aix pm status` for concise session, lease, workflow, and delegation
+  inspection, with verbose structured diagnostics retained under `.aix/pm/`.
+- `_docs/kb` was intentionally unchanged; durable design promotion remains part
+  of final plan completion.
+
+Phase 6 verification:
+
+- `npm run build`
+- `node --test tests/pm-orchestrator.test.mjs tests/pm-runtime.test.mjs tests/workflow-team.test.mjs`
+- `AIX_CACHE_DIR=/tmp/aix-phase6-cache-$$ npm test` (255 passed)
+- `git diff --check`
+
+### Phase 7: Add workspace isolation and integration (status: completed with validation gap)
 
 Goal: hide workspace mechanics from the user while making write-producing
 delegations safe to execute and integrate.
 
 Tasks:
 
-- [ ] Define the workspace interface for read-only execution, isolated
+- ✅ Define the workspace interface for read-only execution, isolated
   write-producing execution, base revision, scope, ownership, cleanliness,
   integration target, and cleanup state.
-- [ ] Bind isolation to each write-producing delegation rather than the
+- ✅ Bind isolation to each write-producing delegation rather than the
   logical subagent lifetime. Allow read-only work without a worktree when safe.
-- [ ] Implement isolated worktree creation, validation, status inspection,
+- ✅ Implement isolated worktree creation, validation, status inspection,
   integration handoff, conflict detection, and safe cleanup. Preserve
   unmerged changes and refuse unsafe deletion.
-- [ ] Enforce role write domains and single-writer artifact locks. Serialize
+- ✅ Enforce role write domains and single-writer artifact locks. Serialize
   same-artifact changes while allowing disjoint read or write scopes to run in
   parallel when the provider supports it.
-- [ ] Implement PM/delegated repair paths for conflicts, verification failures,
+- ✅ Implement PM/delegated repair paths for conflicts, verification failures,
   scope drift, unmerged changes, and incomplete cleanup. Surface exceptions to
   the user only after bounded recovery attempts.
-- [ ] Add isolated temporary-project integration tests for clean integration,
+- ✅ Add isolated temporary-project integration tests for clean integration,
   conflicts, scope violations, abandoned worktrees, cleanup refusal, document
   concurrency, and implementation-engineer-only source-code writes.
-- [ ] Run the first PM dogfooding change in the AIX repository through the real
+- ⚠️ Run the first PM dogfooding change in the AIX repository through the real
   provider path. Use a small bounded implementation-engineer task, an isolated
   workspace, durable brief/status/result records, verification, and PM-owned
   integration. Record the delegation and any recovery or exception path.
@@ -1394,38 +1486,65 @@ Exit criteria:
 - The PM has successfully orchestrated and integrated at least one real code
   change in AIX through a supported native host.
 
+Phase 7 execution notes:
+
+- Added the host-neutral `WorkspaceManager` contract and Git worktree
+  implementation. Read-only/report-only delegations do not create worktrees;
+  isolated write-producing delegations are bound to a fresh worktree per
+  assignment.
+- Added base-revision capture, worker workspace binding, changed-file and
+  denied-scope validation, clean-target checks, three-way integration,
+  conflict preservation, and safe cleanup. Integrated worktrees may be removed
+  forcefully only after successful PM integration; unmerged work is preserved.
+- Added role-domain enforcement before dispatch and artifact lock helpers so a
+  caller cannot widen a role's declared write scope. Normal users do not manage
+  branches, worktrees, or merges.
+- Added isolated temporary-project coverage for tracked and new files, clean
+  integration, scope drift, conflict preservation, unsafe cleanup, and a PM
+  dogfood slice using the native-shaped fake provider.
+- The complete automated native-shaped provider path is verified. A live
+  Codex/Claude/Pi host run remains a validation gap and is intentionally left
+  for Phase 9 provider hardening; no live provider SDK is embedded here.
+
+Phase 7 verification:
+
+- `npm run build`
+- `node --test tests/pm-workspace.test.mjs tests/pm-orchestrator.test.mjs tests/pm-runtime.test.mjs`
+- `AIX_CACHE_DIR=/tmp/aix-phase7-cache-$$ npm test` (258 passed)
+- `git diff --check`
+
 ### Phase 8: Implement tidy, retention, and completion cleanup (status: accepted)
 
 Goal: make PM runtime state maintainable for both planned and inline work.
 
 Tasks:
 
-- [ ] After the Phase 7 dogfooding gate, route the implementation of this phase
+- ⬜️ After the Phase 7 dogfooding gate, route the implementation of this phase
   through the PM and record the delegation evidence in the plan's execution
   notes.
-- [ ] Implement `aix pm tidy` as a local command that works without an active PM
+- ⬜️ Implement `aix pm tidy` as a local command that works without an active PM
   session or native delegation. Preview eligible records, workspaces, safety
   holds, references, timestamps, and proposed actions by default.
-- [ ] Add interactive confirmation and explicit mutation modes for archive,
+- ⬜️ Add interactive confirmation and explicit mutation modes for archive,
   apply, and purge. Non-interactive use remains preview-only unless an explicit
   mutation flag is supplied.
-- [ ] Implement relevance and retention rules: completed data may be purged
+- ⬜️ Implement relevance and retention rules: completed data may be purged
   early after it is no longer relevant; stale incomplete delegations reach the
   default 30-day inactivity limit; active work, unlanded changes, unresolved
   integration, destructive-risk holds, and external references block purge.
-- [ ] Implement plan-completion integration so durable implementation/design
+- ⬜️ Implement plan-completion integration so durable implementation/design
   knowledge is promoted once, concisely, into the plan or `_docs/kb`. Do not
   run chatty per-delegation promotion.
-- [ ] Permit full deletion of delegation briefs, results, status events,
+- ⬜️ Permit full deletion of delegation briefs, results, status events,
   indexes, temporary files, and workspaces after promotion or explicit waiver
   and cleared safety holds. Do not retain tombstones by default.
-- [ ] Add workflow-deactivation warning and confirmation for active/unlanded
+- ⬜️ Add workflow-deactivation warning and confirmation for active/unlanded
   delegation datasets; on confirmation delete only the affected workflow-owned
   runtime dataset, preserving project-owned files and unrelated work.
-- [ ] Add CLI and integration tests for preview, confirmation, non-interactive
+- ⬜️ Add CLI and integration tests for preview, confirmation, non-interactive
   refusal, early completed cleanup, 30-day stale cleanup, safety holds,
   deactivation deletion, and plan-completion promotion ordering.
-- [ ] Add diagnostic-log rotation and cleanup tests, including redaction,
+- ⬜️ Add diagnostic-log rotation and cleanup tests, including redaction,
   correlation, bounded size, preview reporting, and purge behavior.
 
 Exit criteria:
@@ -1442,27 +1561,27 @@ the user-facing package lifecycle.
 
 Tasks:
 
-- [ ] Continue using the PM to orchestrate normal implementation, documentation,
+- ⬜️ Continue using the PM to orchestrate normal implementation, documentation,
   verification, and provider-hardening work. Use direct parent-context changes
   only for documented bootstrap or recovery exceptions.
-- [ ] Implement one supported native provider adapter against the Phase 3
+- ⬜️ Implement one supported native provider adapter against the Phase 3
   interface's complete capability set, extending the Phase 3 minimum adapter
   with the provider's supported status/control, permission, workspace, and
   concurrency operations.
-- [ ] Add additional provider adapters only where their native delegation
+- ⬜️ Add additional provider adapters only where their native delegation
   contract satisfies the required PM capabilities. Document unsupported or
   unknown capability behavior; do not add inline fallback behavior.
-- [ ] Add a supported-harness capability matrix and diagnostics showing the
+- ⬜️ Add a supported-harness capability matrix and diagnostics showing the
   discovered harness, vendor/provider, model, runtime, protocol support, and
   missing capabilities without requiring those metadata fields to be present.
-- [ ] Complete command UX and help for workflow activation/deactivation,
+- ⬜️ Complete command UX and help for workflow activation/deactivation,
   `aix pm` inspection/status/tidy operations, verbose diagnostics, confirmation
   prompts, refusal paths, and normal-prompt restoration.
-- [ ] Run package, activation, workflow, role, lockfile, security, provider,
+- ⬜️ Run package, activation, workflow, role, lockfile, security, provider,
   lifecycle, workspace, cleanup, and end-to-end regression suites. Verify
   packed npm artifacts include all PM/workflow assets and exclude local runtime
   state.
-- [ ] Review and update product, requirements, architecture, security,
+- ⬜️ Review and update product, requirements, architecture, security,
   quality, operations, workflow, and PM role documentation. Promote only
   accepted durable behavior during plan completion.
 
