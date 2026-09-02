@@ -1,7 +1,7 @@
 ---
 name: implementation-engineer
 description: Reviews implementation task boundaries, sequencing, likely changed areas, code-change readiness, verification handoff, documentation impact, and residual risk before planned work moves into or through execution.
-tools: Read, Glob, Grep
+tools: read, grep, find, ls
 model: inherit
 skills:
   - plan-create

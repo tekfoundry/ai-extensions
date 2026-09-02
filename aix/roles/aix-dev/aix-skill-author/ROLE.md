@@ -1,7 +1,7 @@
 ---
 name: aix-skill-author
 description: Authors, maintains, and reviews AIX skills for trigger clarity, procedural completeness, and safe standalone use.
-tools: Read, Glob, Grep, Bash
+tools: read, grep, find, ls, bash
 model: inherit
 color: green
 ---

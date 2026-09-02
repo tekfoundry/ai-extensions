@@ -1,7 +1,7 @@
 ---
 name: aix-agent-instructions-auditor
 description: Reviews cross-tool agent instruction files for drift, conflicts, and ownership problems.
-tools: Read, Glob, Grep, Bash
+tools: read, grep, find, ls, bash
 model: inherit
 color: yellow
 ---

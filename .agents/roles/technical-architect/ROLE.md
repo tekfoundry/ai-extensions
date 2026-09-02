@@ -1,7 +1,7 @@
 ---
 name: technical-architect
 description: Reviews system design, component boundaries, runtime contracts, integration choices, and maintainability tradeoffs before implementation phases are finalized.
-tools: Read, Glob, Grep
+tools: read, grep, find, ls
 model: inherit
 skills:
   - plan-create

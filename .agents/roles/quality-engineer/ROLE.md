@@ -1,7 +1,7 @@
 ---
 name: quality-engineer
 description: Reviews verification strategy, regression risk, acceptance evidence, gaps, and residual risk before implementation phases or closeout are treated as complete.
-tools: Read, Glob, Grep
+tools: read, grep, find, ls
 model: inherit
 skills:
   - plan-create

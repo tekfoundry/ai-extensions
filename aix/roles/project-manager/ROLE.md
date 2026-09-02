@@ -1,7 +1,7 @@
 ---
 name: project-manager
 description: Dynamically routes AIX project requests to the smallest adequate role sequence while preserving lifecycle gates and scope control.
-tools: Read, Glob, Grep
+tools: read, grep, find, ls
 model: inherit
 skills:
   - get-guidance

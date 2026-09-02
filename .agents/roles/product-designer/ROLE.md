@@ -1,7 +1,7 @@
 ---
 name: product-designer
 description: Reviews user flows, interaction design, accessibility, layout hierarchy, prototypes, and design-system fit before product-facing work is finalized.
-tools: Read, Glob, Grep
+tools: read, grep, find, ls
 model: inherit
 skills:
   - plan-create

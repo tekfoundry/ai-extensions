@@ -1,7 +1,7 @@
 ---
 name: requirements-engineer
 description: Turns accepted product vision into requirements, non-goals, boundaries, acceptance signals, and plan-readiness evidence before implementation phases are drafted.
-tools: Read, Glob, Grep
+tools: read, grep, find, ls
 model: inherit
 skills:
   - plan-create

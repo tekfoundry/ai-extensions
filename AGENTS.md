@@ -1,87 +1,62 @@
-# AGENTS.md
+## Project
 
-This file is the repo-specific entrypoint for AI coding agents working in
-`aix`. Keep project-specific facts and constraints here.
+AIX is a TypeScript/Node.js CLI for managing project-local AI-agent skills,
+roles, workflows, templates, and metadata.
 
-## Read Order
+## Map
 
-1. Read this file first.
-2. Read any appended managed sections below.
+`aix/` bundled assets · `src/` implementation · `bin/aix.js` CLI entrypoint ·
+`tests/` test suite · `_docs/` project documentation.
 
-## Project Snapshot
+## Safety
 
-`aix` is the CLI for AI Extensions, a package-manager-style tool for managing
-AI-agent extensions in software projects.
+- Preserve user files and unrelated worktree changes.
+- Never silently overwrite local edits or managed agent assets.
+- Treat lockfiles, activation files, and managed instruction blocks as
+  safety-sensitive.
+- Do not add registry, plugin, global-install, or publishing behavior without
+  explicit approval.
+- Keep runtime state and secrets out of committed files.
 
-The CLI command is `aix`. Common commands include:
+## Verify
 
-```bash
-aix skills add
-aix skills remove
-aix skill activate
-aix skill deactivate
-aix verify
-aix status
-```
+Prefer targeted tests; for broad changes run `npm run build` and `npm test`.
+Use `npm run verify` for the complete TypeScript and test suite.
 
-The package is implemented in TypeScript on Node.js and distributed as a scoped
-npm package while installing the short `aix` binary.
+## Docs
 
-## Repository Map
+Read `_docs/README.md` for routing, `_docs/plans/` for active work, and
+`_docs/plans/backlog/` for inactive plans.
 
-- `aix/`: bundled AI Extension assets shipped by the package
-- `src/`: TypeScript CLI source
-- `tests/`: Node test suite
-- `bin/aix.js`: executable CLI entrypoint
-- `package.json`: npm package metadata, scripts, dependencies, and binary
-  mapping
-
-## Current Design Priorities
-
-1. Provide package-manager-style commands for project-local AI assets.
-2. Install skills with natural names by default.
-3. Detect naming collisions clearly and require explicit aliases.
-4. Lock resolved Git commits and installed file hashes.
-5. Refuse to overwrite local edits silently.
-6. Keep the MVP focused on Git-backed sources and project-local installs.
-
-## Repo-Specific Safety Rules
-
-- Preserve user-authored files and unrelated worktree changes.
-- Treat lockfile writes, skill installs, updates, aliases, and removals as
-  safety-sensitive because they can overwrite project-local agent behavior.
-- Never silently overwrite local edits in `.agents/skills`.
-- Do not add registry, plugin-package, global-install, or publishing behavior
-  to the MVP unless approved project documentation explicitly authorizes it.
-- Prefer `npm run build` and `npm test` for broad verification. Use targeted
-  tests first when the change is narrow.
+<!-- Managed workflow sections may be appended below. -->
 
 <!-- aix:workflow design-plan-execute start -->
-## AI Agent Workflow
+## Workflow
 
-Read `.agents/README.md` for the reusable process router.
-Read `.agents/workflow.md` before substantial implementation work.
+Read `.agents/README.md` for routing and `.agents/workflow.md` for the process
+contract.
 
-Use root `AGENTS.md` for repo-specific project facts, commands, and safety rules.
-Use `_docs/kb/README.md` for current implemented project knowledge when it exists.
-Use `_docs/plans/` for active implementation plans and `_docs/plans/backlog/` for backlog plans.
+Read `_docs/kb/README.md` and the relevant plan before work that depends on
+current project knowledge or lifecycle state.
 
-Treat `.agents/` as package-managed workflow content and `_docs/` as project-owned documentation.
-
-Repository-local skills live under `.agents/skills/`. When a task invokes a skill, read that skill's `SKILL.md` and follow it.
+`.agents/` is package-managed; `_docs/` is project-owned. Read a repository
+skill's `SKILL.md` when that skill is selected.
 <!-- aix:workflow design-plan-execute end -->
 
 <!-- aix:role project-manager start -->
-When the active `project-manager` role is present, route meaningful AIX
-project requests through it before specialist roles, lifecycle skills, or file
-work. Lifecycle skills are procedures selected by the project-manager or
-delegated roles, not default direct request entrypoints.
+When the active `project-manager` role is present, route repo-changing,
+project-mutating, lifecycle-state, planning, verification, documentation, and
+other meaningful AIX project requests through it before specialist roles,
+lifecycle skills, or file work. Lifecycle skills are role-owned procedures
+selected by the project-manager or delegated roles, not default direct request
+entrypoints.
 
 The project-manager role should load its own `GUIDANCE.md` and adjacent
 `*.GUIDANCE.md` files before it routes or delegates work.
 
 Allowed bypasses are narrow: PM Review, tiny informational answers that require
-no file reads or commands, bootstrapping before project-manager is active,
-already-routed requests carrying PM routing context or a PM Context Packet,
-and explicit developer override.
+no file reads, commands, lifecycle state, specialist judgment, or
+safety-sensitive decisions, bootstrapping before project-manager is active,
+already-routed requests carrying PM routing context or a PM Context Packet, and
+explicit developer override.
 <!-- aix:role project-manager end -->

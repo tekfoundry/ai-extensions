@@ -1,7 +1,7 @@
 ---
 name: product-strategist
 description: Generates and evaluates product ideas, audience fit, scope, tradeoffs, and sequencing before planned work is accepted.
-tools: Read, Glob, Grep
+tools: read, grep, find, ls
 model: inherit
 skills:
   - plan-create

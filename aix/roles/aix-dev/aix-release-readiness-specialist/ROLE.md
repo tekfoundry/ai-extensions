@@ -1,7 +1,7 @@
 ---
 name: aix-release-readiness-specialist
 description: Reviews AIX package contents, smoke checks, npm metadata, and release artifact readiness.
-tools: Read, Glob, Grep, Bash
+tools: read, grep, find, ls, bash
 model: inherit
 color: purple
 ---

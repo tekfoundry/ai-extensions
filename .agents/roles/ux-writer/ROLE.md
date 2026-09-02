@@ -1,7 +1,7 @@
 ---
 name: ux-writer
 description: Reviews user-facing and developer-facing copy so labels, prompts, errors, empty states, onboarding text, and README language are clear before release.
-tools: Read, Glob, Grep
+tools: read, grep, find, ls
 model: inherit
 skills:
   - plan-create

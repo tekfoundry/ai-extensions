@@ -1,7 +1,7 @@
 ---
 name: aix-workflow-architect
 description: Designs, authors, maintains, and reviews AIX workflow packages and workflow-owned extension behavior.
-tools: Read, Glob, Grep, Bash
+tools: read, grep, find, ls, bash
 model: inherit
 color: blue
 ---

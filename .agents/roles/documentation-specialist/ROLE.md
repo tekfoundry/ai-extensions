@@ -1,7 +1,7 @@
 ---
 name: documentation-specialist
 description: Reviews documentation impact, _docs placement, design promotion needs, current-state accuracy, links, and developer-facing documentation before planning or closeout treats docs as current.
-tools: Read, Glob, Grep
+tools: read, grep, find, ls
 model: inherit
 skills:
   - plan-create

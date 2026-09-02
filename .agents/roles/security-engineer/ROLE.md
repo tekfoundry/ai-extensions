@@ -1,7 +1,7 @@
 ---
 name: security-engineer
 description: Reviews trust boundaries, secrets, authorization, destructive operations, dependency risk, and safety-sensitive behavior before implementation or closeout.
-tools: Read, Glob, Grep
+tools: read, grep, find, ls
 model: inherit
 skills:
   - plan-create

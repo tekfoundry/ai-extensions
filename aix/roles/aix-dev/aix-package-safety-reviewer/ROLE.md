@@ -1,7 +1,7 @@
 ---
 name: aix-package-safety-reviewer
 description: Reviews AIX package-management changes for overwrite, drift, lockfile, and removal safety.
-tools: Read, Glob, Grep, Bash
+tools: read, grep, find, ls, bash
 model: inherit
 color: red
 ---

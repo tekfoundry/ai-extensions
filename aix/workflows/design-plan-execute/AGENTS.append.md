@@ -1,12 +1,10 @@
-## AI Agent Workflow
+## Workflow
 
-Read `.agents/README.md` for the reusable process router.
-Read `.agents/workflow.md` before substantial implementation work.
+Read `.agents/README.md` for routing and `.agents/workflow.md` for the process
+contract.
 
-Use root `AGENTS.md` for repo-specific project facts, commands, and safety rules.
-Use `_docs/kb/README.md` for current implemented project knowledge when it exists.
-Use `_docs/plans/` for active implementation plans and `_docs/plans/backlog/` for backlog plans.
+Read `_docs/kb/README.md` and the relevant plan before work that depends on
+current project knowledge or lifecycle state.
 
-Treat `.agents/` as package-managed workflow content and `_docs/` as project-owned documentation.
-
-Repository-local skills live under `.agents/skills/`. When a task invokes a skill, read that skill's `SKILL.md` and follow it.
+`.agents/` is package-managed; `_docs/` is project-owned. Read a repository
+skill's `SKILL.md` when that skill is selected.

@@ -1564,6 +1564,11 @@ Tasks:
 - ⬜️ Continue using the PM to orchestrate normal implementation, documentation,
   verification, and provider-hardening work. Use direct parent-context changes
   only for documented bootstrap or recovery exceptions.
+- ⬜️ Normalize and test correlation across AIX delegation IDs, logical
+  subagent IDs, host mission or run IDs, and active or completed status
+  queries. Persist the mapping, use the correct host status lookup for each
+  identifier, and keep completed runs inspectable without treating an
+  identifier mismatch as a delegation failure.
 - ⬜️ Implement one supported native provider adapter against the Phase 3
   interface's complete capability set, extending the Phase 3 minimum adapter
   with the provider's supported status/control, permission, workspace, and

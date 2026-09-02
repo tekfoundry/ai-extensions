@@ -150,6 +150,31 @@ test("role path helpers return canonical package and active paths", () => {
   assert.equal(bundledAixRolePackPath("aix-dev"), "aix/roles/aix-dev");
 });
 
+test("bundled roles declare Pi-compatible child tool names", () => {
+  const rolePaths = [
+    "aix/roles/project-manager/ROLE.md",
+    "aix/roles/aix-dev/aix-agent-instructions-auditor/ROLE.md",
+    "aix/roles/aix-dev/aix-package-safety-reviewer/ROLE.md",
+    "aix/roles/aix-dev/aix-workflow-architect/ROLE.md",
+    "aix/roles/aix-dev/aix-release-readiness-specialist/ROLE.md",
+    "aix/roles/aix-dev/aix-skill-author/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/security-engineer/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/quality-engineer/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/requirements-engineer/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/ux-writer/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/implementation-engineer/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/technical-architect/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/product-strategist/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/documentation-specialist/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/product-designer/ROLE.md"
+  ];
+
+  for (const rolePath of rolePaths) {
+    const role = parseRoleFileFromPath(rolePath);
+    assert.match(role.hints.tools, /^(read, grep, find, ls|read, grep, find, ls, bash)$/u, rolePath);
+  }
+});
+
 test("parseRoleFile preserves front matter hints and body", () => {
   const role = parseRoleFile(validRoleMarkdown("routing: explicit\n"), "quality-engineer/ROLE.md");
 
