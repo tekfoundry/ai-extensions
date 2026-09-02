@@ -186,7 +186,8 @@ export async function createPmOrchestrator(options: PmOrchestratorOptions): Prom
       if (requestedPaths.some((path) => !pathInDeclaredDomain(path, role.writeDomains))) {
         throw new AixError(`Delegation write scope exceeds the declared domain for role ${input.role}.`);
       }
-      assertHostCapabilities(capabilities, [...new Set([...role.requiredCapabilities, "native-worker-creation", "correlated-results"])]);
+      const deliveryCapabilities = requiredHostCapabilitiesForDeliveryMode(input.deliveryMode);
+      assertHostCapabilities(capabilities, [...new Set([...role.requiredCapabilities, "native-worker-creation", "correlated-results", ...deliveryCapabilities])]);
       const release = acquirePmLock(projectRoot, `dispatch:${input.role}:${input.goal}`, session.record.sessionId);
       const artifactReleases: Array<() => void> = [];
       try {
@@ -220,6 +221,7 @@ export async function createPmOrchestrator(options: PmOrchestratorOptions): Prom
         const workspaceManager = options.workspaceManager || (input.deliveryMode === "isolated-change" ? createGitWorkspaceManager(projectRoot, options.now || (() => new Date().toISOString())) : undefined);
         if (input.deliveryMode === "isolated-change") {
           if (!workspaceManager) throw new AixError("No workspace manager is available for an isolated delegation.");
+          if (!options.host.integrateWorkspace) throw new AixError("Host does not support managed workspace integration; refusing isolated-change dispatch.");
           workspace = workspaceManager.create({ delegationId: record.contract.identity.delegationId, ownerSessionId: session.record.sessionId, allowedPaths: record.contract.authority.allowedPaths, deniedPaths: record.contract.authority.deniedPaths });
           logger.debug("Isolated workspace created", { sessionId: session.record.sessionId, delegationId: record.contract.identity.delegationId, workspaceId: workspace.workspaceId }, { path: workspace.path, baseRevision: workspace.baseRevision });
         }
@@ -249,7 +251,7 @@ export async function createPmOrchestrator(options: PmOrchestratorOptions): Prom
         }
         const finalRecord = publishWorkerResult(projectRoot, record.contract.identity.delegationId, { status: result.status, summary: result.result, evidence: ["Host returned a correlated result."], gaps: result.status === "completed" ? [] : ["Worker did not complete normally."], residualRisk: [] });
         if (workspace && workspaceManager && result.status === "completed") {
-          workspace = workspaceManager.integrate(workspace);
+          workspace = await workspaceManager.integrate(workspace, (request) => options.host.integrateWorkspace!(request));
           workspaceManager.cleanup(workspace);
           logger.info("PM integrated and cleaned isolated workspace", { sessionId: session.record.sessionId, delegationId: record.contract.identity.delegationId, workspaceId: workspace.workspaceId });
         }

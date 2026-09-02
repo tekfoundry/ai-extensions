@@ -71,6 +71,46 @@ test("workspace manager preserves an integration conflict for PM repair", async 
   assert.equal(readWorkspace(root, "delegation-conflict").state, "conflict");
 });
 
+test("managed host adapter integrates only after AIX validation and cleanup remains safe", async () => {
+  const root = await gitProject();
+  const manager = createGitWorkspaceManager(root);
+  const calls = [];
+  const workspace = manager.create({ delegationId: "delegation-adapter", ownerSessionId: "session-test", allowedPaths: ["src/target.txt"], deniedPaths: [".aix/"] });
+  await writeFile(join(workspace.path, "src/target.txt"), "adapter\n");
+  const integrated = await manager.integrate(workspace, async (request) => {
+    calls.push({ changedPaths: request.changedPaths, hasPatch: request.patch.length > 0 });
+    request.applyPatch();
+  });
+  assert.deepEqual(calls, [{ changedPaths: ["src/target.txt"], hasPatch: true }]);
+  assert.equal(integrated.state, "integrated");
+  assert.equal((await manager.cleanup(integrated)).state, "cleaned");
+  assert.equal(await readFile(join(root, "src/target.txt"), "utf8"), "adapter\n");
+});
+
+test("managed host adapter refusal preserves scope and unlanded changes", async () => {
+  const root = await gitProject();
+  const manager = createGitWorkspaceManager(root);
+  const workspace = manager.create({ delegationId: "delegation-adapter-refusal", ownerSessionId: "session-test", allowedPaths: ["src/target.txt"], deniedPaths: [".aix/"] });
+  await writeFile(join(workspace.path, "forbidden.txt"), "nope\n");
+  assert.throws(() => manager.integrate(workspace, async () => {
+    throw new Error("must not be called");
+  }), /outside its delegated scope/);
+  assert.equal(readWorkspace(root, "delegation-adapter-refusal").state, "scope-violation");
+  assert.throws(() => manager.cleanup(workspace), /unmerged changes/);
+});
+
+test("managed host adapter exceptions preserve the workspace for repair", async () => {
+  const root = await gitProject();
+  const manager = createGitWorkspaceManager(root);
+  const workspace = manager.create({ delegationId: "delegation-adapter-error", ownerSessionId: "session-test", allowedPaths: ["src/target.txt"], deniedPaths: [".aix/"] });
+  await writeFile(join(workspace.path, "src/target.txt"), "adapter-error\n");
+  await assert.rejects(() => manager.integrate(workspace, async () => {
+    throw new Error("native integration unavailable");
+  }), /Host workspace integration failed/);
+  assert.equal(readWorkspace(root, "delegation-adapter-error").state, "conflict");
+  assert.throws(() => manager.cleanup(workspace), /unmerged changes/);
+});
+
 test("PM dogfoods a bounded implementation change through an isolated workspace", async () => {
   const root = await gitProject();
   const host = new FakeNativeHost({

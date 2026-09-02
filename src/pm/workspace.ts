@@ -5,6 +5,7 @@ import { AixError } from "../errors.js";
 import { delegationPaths, assertPmPathInsideProject } from "./paths.js";
 import { writePmJsonAtomic } from "./records.js";
 import { utcTimestamp } from "./time.js";
+import type { HostWorkspaceIntegrationRequest } from "./host.js";
 
 export type WorkspaceState = "active" | "integrated" | "conflict" | "scope-violation" | "cleanup-pending" | "cleaned";
 
@@ -33,7 +34,7 @@ export interface WorkspaceStatus {
 export interface WorkspaceManager {
   create(input: { delegationId: string; ownerSessionId: string; allowedPaths: string[]; deniedPaths: string[]; integrationTarget?: string }): WorkspaceRecord;
   status(workspace: WorkspaceRecord): WorkspaceStatus;
-  integrate(workspace: WorkspaceRecord): WorkspaceRecord;
+  integrate(workspace: WorkspaceRecord, operation?: (request: HostWorkspaceIntegrationRequest) => Promise<void>): WorkspaceRecord | Promise<WorkspaceRecord>;
   cleanup(workspace: WorkspaceRecord): WorkspaceRecord;
 }
 
@@ -116,7 +117,7 @@ export function createGitWorkspaceManager(projectRoot: string, now: () => string
       const outOfScopePaths = changedPaths.filter((path) => !inScope(path, workspace.allowedPaths) || inScope(path, workspace.deniedPaths));
       return { clean: changedPaths.length === 0, changedPaths, outOfScopePaths };
     },
-    integrate(workspace) {
+    integrate(workspace, operation) {
       const status = this.status(workspace);
       if (status.outOfScopePaths.length > 0) {
         const updated = { ...workspace, state: "scope-violation" as const, updatedAt: now(), changedPaths: status.changedPaths };
@@ -141,9 +142,31 @@ export function createGitWorkspaceManager(projectRoot: string, now: () => string
         git(workspace.path, ["add", "-N", "--", ...untracked]);
       }
       const patch = execFileSync("git", ["diff", "--binary", workspace.baseRevision, "--", "."], { cwd: workspace.path, encoding: "utf8" });
+      const applyPatch = () => {
+        execFileSync("git", ["apply", "--3way"], { cwd: root, input: patch, encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] });
+      };
+      if (operation) {
+        const request: HostWorkspaceIntegrationRequest = {
+          workspacePath: workspace.path,
+          integrationTarget: workspace.integrationTarget,
+          baseRevision: workspace.baseRevision,
+          changedPaths: status.changedPaths,
+          patch,
+          applyPatch
+        };
+        return operation(request).then(() => {
+          const updated = { ...workspace, state: "integrated" as const, updatedAt: now(), changedPaths: status.changedPaths };
+          writePmJsonAtomic(workspaceFile(root, workspace.delegationId), updated);
+          return updated;
+        }).catch(() => {
+          const updated = { ...workspace, state: "conflict" as const, updatedAt: now(), changedPaths: status.changedPaths };
+          writePmJsonAtomic(workspaceFile(root, workspace.delegationId), updated);
+          throw new AixError("Host workspace integration failed; the PM must delegate repair before cleanup.");
+        });
+      }
       try {
         execFileSync("git", ["apply", "--3way", "--check"], { cwd: root, input: patch, encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] });
-        execFileSync("git", ["apply", "--3way"], { cwd: root, input: patch, encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] });
+        applyPatch();
       } catch {
         const updated = { ...workspace, state: "conflict" as const, updatedAt: now(), changedPaths: status.changedPaths };
         writePmJsonAtomic(workspaceFile(root, workspace.delegationId), updated);

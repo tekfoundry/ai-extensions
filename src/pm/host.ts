@@ -94,6 +94,17 @@ export interface HostWorkerResult {
   result: string;
 }
 
+/** Bounded, already-validated workspace data passed to a native integrator. */
+export interface HostWorkspaceIntegrationRequest {
+  workspacePath: string;
+  integrationTarget: string;
+  baseRevision: string;
+  changedPaths: string[];
+  patch: string;
+  /** A test/in-process host may apply the PM-prepared patch through AIX. */
+  applyPatch?: () => void;
+}
+
 export interface HostExecution {
   discoverCapabilities(): Promise<HostCapabilitySnapshot>;
   createWorker(request: HostWorkerRequest): Promise<HostWorkerHandle>;
@@ -102,6 +113,7 @@ export interface HostExecution {
   sendFollowUp?(worker: HostWorkerHandle, request: HostWorkerRequest): Promise<void>;
   inspectWorker?(worker: HostWorkerHandle): Promise<{ state: string }>;
   stopWorker?(worker: HostWorkerHandle): Promise<void>;
+  integrateWorkspace?(request: HostWorkspaceIntegrationRequest): Promise<void>;
 }
 
 /** Adapter boundary for a real native host. AIX never sees vendor objects. */
@@ -122,6 +134,10 @@ export class NativeHostAdapter implements HostExecution {
   stopWorker(worker: HostWorkerHandle): Promise<void> {
     return this.implementation.stopWorker?.(worker) || Promise.resolve();
   }
+  integrateWorkspace(request: HostWorkspaceIntegrationRequest): Promise<void> {
+    if (!this.implementation.integrateWorkspace) return Promise.reject(new AixError("Host does not support managed workspace integration."));
+    return this.implementation.integrateWorkspace(request);
+  }
 }
 
 export interface PiBridge {
@@ -130,6 +146,7 @@ export interface PiBridge {
   waitForSubagent(id: string): Promise<{ status: "completed" | "blocked" | "failed"; output: string }>;
   inspectSubagent?(id: string): Promise<{ state: string }>;
   stopSubagent?(id: string): Promise<void>;
+  integrateWorkspace?(request: HostWorkspaceIntegrationRequest): Promise<void>;
 }
 
 /**
@@ -189,6 +206,11 @@ export class PiHostAdapter implements HostExecution {
   async stopWorker(worker: HostWorkerHandle): Promise<void> {
     await this.pi.stopSubagent?.(worker.hostWorkerId);
   }
+
+  async integrateWorkspace(request: HostWorkspaceIntegrationRequest): Promise<void> {
+    if (!this.pi.integrateWorkspace) throw new AixError("Pi host does not support managed workspace integration.");
+    await this.pi.integrateWorkspace(request);
+  }
 }
 
 export interface CodexBridge {
@@ -198,6 +220,7 @@ export interface CodexBridge {
   sendFollowUp?(id: string, request: { prompt: string; workspacePath?: string }): Promise<void>;
   inspectSubagent?(id: string): Promise<{ state: string }>;
   stopSubagent?(id: string): Promise<void>;
+  integrateWorkspace?(request: HostWorkspaceIntegrationRequest): Promise<void>;
 }
 
 /**
@@ -268,6 +291,11 @@ export class CodexHostAdapter implements HostExecution {
 
   async stopWorker(worker: HostWorkerHandle): Promise<void> {
     await this.codex.stopSubagent?.(worker.hostWorkerId);
+  }
+
+  async integrateWorkspace(request: HostWorkspaceIntegrationRequest): Promise<void> {
+    if (!this.codex.integrateWorkspace) throw new AixError("Codex host does not support managed workspace integration.");
+    await this.codex.integrateWorkspace(request);
   }
 }
 
@@ -416,6 +444,7 @@ export interface ClaudeBridge {
   sendFollowUp?(id: string, request: { prompt: string; workspacePath?: string }): Promise<void>;
   inspectSubagent?(id: string): Promise<{ state: string }>;
   stopSubagent?(id: string): Promise<void>;
+  integrateWorkspace?(request: HostWorkspaceIntegrationRequest): Promise<void>;
 }
 
 /**
@@ -486,6 +515,11 @@ export class ClaudeHostAdapter implements HostExecution {
 
   async stopWorker(worker: HostWorkerHandle): Promise<void> {
     await this.claude.stopSubagent?.(worker.hostWorkerId);
+  }
+
+  async integrateWorkspace(request: HostWorkspaceIntegrationRequest): Promise<void> {
+    if (!this.claude.integrateWorkspace) throw new AixError("Claude host does not support managed workspace integration.");
+    await this.claude.integrateWorkspace(request);
   }
 }
 
@@ -661,6 +695,8 @@ export class FakeNativeHost implements HostExecution {
       workerResult?: (request: HostWorkerRequest) => string;
       workerAction?: (request: HostWorkerRequest) => void | Promise<void>;
       now?: () => string;
+      capabilities?: Record<string, boolean | "unknown">;
+      integrationAction?: (request: HostWorkspaceIntegrationRequest) => void | Promise<void>;
     } = {}
   ) {
     this.now = options.now || (() => new Date().toISOString());
@@ -680,7 +716,9 @@ export class FakeNativeHost implements HostExecution {
         "worker-follow-up": true,
         "worker-stop": true,
         "workspace-binding": true,
-        "workspace-write": true
+        "workspace-write": true,
+        [MANAGED_LOCAL_INTEGRATION_CAPABILITY]: true,
+        ...this.options.capabilities
       }
     };
   }
@@ -740,5 +778,13 @@ export class FakeNativeHost implements HostExecution {
 
   async stopWorker(worker: HostWorkerHandle): Promise<void> {
     this.handles.delete(worker.hostWorkerId);
+  }
+
+  async integrateWorkspace(request: HostWorkspaceIntegrationRequest): Promise<void> {
+    if (this.options.integrationAction) {
+      await this.options.integrationAction(request);
+      return;
+    }
+    request.applyPatch?.();
   }
 }
