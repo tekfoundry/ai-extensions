@@ -1690,12 +1690,18 @@ Tasks:
   require it, while report-only remains available without it. Verification
   passed: `npm run build`; `node --test tests/pm-orchestrator.test.mjs
   tests/pm-runtime.test.mjs`; `git diff --check`.
-- ⬜️ Add a host-adapter workspace integration operation that replaces routine
+- ✅ Add a host-adapter workspace integration operation that replaces routine
   raw shell integration where the host supports it. Preserve AIX validation of
   scope, changed files, conflicts, unlanded changes, and cleanup safety.
-- ⬜️ Add host-authorization diagnostics and `aix pm doctor`; keep `aix pm status`
+  Execution note: The explicit adapter operation was implemented; supported
+  hosts route through it while AIX validation and cleanup safeguards remain.
+  Unsupported integration refuses clearly. Verification passed: `npm run build`;
+  `node --test tests/pm-workspace.test.mjs tests/pm-orchestrator.test.mjs
+  tests/pm-runtime.test.mjs`; `git diff --check`.
+- 🟨 Add host-authorization diagnostics and `aix pm doctor`; keep `aix pm status`
   concise. Report missing capability and remediation guidance without changing
   host configuration or emitting secrets.
+  Execution note: Implementation delegated; verification pending.
 - ⬜️ Fix the Phase 8 tidy retention follow-up so `created` delegations remain
   protected as active/unresolved work and add a regression test.
 - ⬜️ Fix diagnostic cleanup so the current log is preserved and only eligible
