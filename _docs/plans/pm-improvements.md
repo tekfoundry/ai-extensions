@@ -2192,6 +2192,9 @@ Design Intent:
 - The PM may use “Boss” naturally in acknowledgments, progress updates,
   recommendations, completion reports, decision requests, and exception
   handoffs.
+- At the beginning of each fresh PM session, the managed `AGENTS.md` block
+  should invite the human with “Hey Boss! What are we working on?” and then
+  continue with normal startup and recovery checks.
 - Use is occasional rather than mechanical: normally at most once in a
   meaningful direct response, and less often in dense technical explanations,
   repeated polling, tool output, errors, and machine-readable content.
@@ -2203,15 +2206,20 @@ Design Intent:
 
 Tasks:
 
-- ✅ Update the canonical PM role, guidance, and workflow guidance with the
-  restrained conversational Boss policy and representative examples.
+- ✅ Update the canonical PM role, guidance, workflow guidance, and managed
+  `AGENTS.md` block with the restrained conversational Boss policy and
+  representative examples.
 - ✅ Synchronize the active PM role files and managed instruction block with
   the canonical guidance without overwriting unrelated user edits.
-- 🟨 Add regression coverage for allowed conversational use, restrained
+- ✅ Add regression coverage for allowed conversational use, restrained
   frequency guidance, respectful approval handoffs, and exclusion from worker
-  prompts and durable records.
-- ⬜️ Run targeted instruction and PM tests plus the full verification suite,
-  then record any manual validation limits for fresh-session testing.
+  prompts and durable records. The fresh-session greeting is also asserted in
+  the canonical and active `AGENTS.md` append content.
+- ✅ Run targeted instruction and PM tests plus the full verification suite,
+  then record any manual validation limits for fresh-session testing. Targeted
+  tests passed 88/88; `npm run verify` passed 352/352; `git diff --check`,
+  `aix workflow diff`, and `aix verify` passed. Fresh-session behavior still
+  requires manual validation in each supported harness.
 
 Exit criteria:
 
@@ -2220,6 +2228,86 @@ Exit criteria:
 - Approval boundaries remain explicit and unchanged.
 - Durable worker and delegation artifacts remain free of conversational Boss
   phrasing.
+
+Phase 12 evidence:
+
+- The canonical PM role, guidance, workflow guidance, and managed
+  `AGENTS.md` append now define occasional, respectful Boss language and the
+  exact fresh-session greeting. The active `AGENTS.md` contains the generated
+  managed block.
+- Regression coverage verifies the greeting, restrained frequency guidance,
+  approval handoffs, and exclusion from worker prompts and durable records.
+- Native harness behavior remains a manual validation item; no CLI start/stop
+  commands were added.
+
+Phase 12 closeout status:
+
+Phase 12 is complete. The implementation is guidance-driven, synchronized into
+the local project files, and fully verified. Fresh-session behavior remains
+subject to manual testing in each supported harness.
+
+### Phase 13: Document PM orchestration and workflow roles (status: accepted)
+
+Goal: explain PM orchestration at the product level and document how the
+Design-Plan-Execute workflow uses its installed roles for specialist
+delegation, without changing runtime behavior or the PM contract.
+
+Tasks:
+
+- ⬜️ Update the top-level `README.md` with concise, user-facing PM
+  orchestration onboarding: the PM's purpose, the single PM contact model,
+  specialist delegation, human authority, workflow opt-in, and native-host
+  capability limitations.
+- ⬜️ Update the canonical
+  `aix/workflows/design-plan-execute/README.md` with the workflow's available
+  roles, role responsibilities, PM delegation flow, authority boundaries,
+  durable evidence, and links to deeper role and protocol contracts.
+- ⬜️ Keep the root README and workflow README complementary: the root page
+  should provide generic orchestration/product context, while the workflow
+  page should explain concrete role ownership and delegation mechanics without
+  duplicating the full PM runtime or protocol specification.
+- ⬜️ Synchronize or verify the installed `.agents/README.md` copy against the
+  canonical workflow README through the normal workflow installation/update
+  path, preserving project-owned edits and recording any generated-copy
+  limitation.
+- ⬜️ Have `ux-writer` and `documentation-specialist` review the copy,
+  placement, terminology, links, and source-versus-installed ownership before
+  the phase is closed.
+
+Exit criteria:
+
+- A new user can understand what PM orchestration is, why it exists, how to
+  opt into it, and where human authority remains from the top-level README.
+- A user who installs `design-plan-execute` can identify its roles and
+  understand how the PM delegates bounded work to them from the workflow
+  README.
+- The documentation accurately describes native delegation requirements and
+  does not imply that inline prompts create independent workers.
+- Canonical and installed workflow documentation are synchronized or the
+  verified reason for divergence is recorded.
+- README links, expected PM terminology, and documentation-focused checks
+  pass, with no runtime or implementation changes included in this phase.
+
+Verification:
+
+- ⬜️ Run link and formatting checks appropriate to the README files, including
+  `git diff --check`.
+- ⬜️ Compare the canonical workflow README with the installed
+  `.agents/README.md` after synchronization or verification, and manually
+  review the two-level onboarding path for accuracy and duplication.
+- ⬜️ Record any host-specific or generated-copy behavior that cannot be
+  validated in the local environment as a phase validation gap.
+
+Documentation impact:
+
+- Product: add PM orchestration onboarding and explain workflow opt-in,
+  specialist delegation, and human decision authority in `README.md`.
+- Workflow documentation: add the concrete Design-Plan-Execute role roster,
+  delegation model, source ownership, and installed-copy expectations to the
+  canonical workflow README and its verified installed representation.
+- Other knowledge-base areas: no `_docs/kb` update is expected because this
+  phase documents already accepted behavior and introduces no implementation
+  change; durable current-state promotion remains part of plan closeout.
 
 ## Open Questions / Decisions
 

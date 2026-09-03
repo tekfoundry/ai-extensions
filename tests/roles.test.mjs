@@ -673,7 +673,8 @@ test("project-manager defines restrained conversational Boss language", () => {
     assert.match(text, /worker prompts|durable (?:operational )?records/);
   }
   assert.match(role, /acknowledgments, progress updates,\s+recommendations, completion reports/);
-  assert.match(guidance, /decision requests,\s+and exception handbacks/);
+  assert.match(guidance, /decision requests/);
+  assert.match(guidance, /exception\s+handbacks/);
 });
 
 test("shipped workflow roles support conditional PM Context Packet orientation", () => {

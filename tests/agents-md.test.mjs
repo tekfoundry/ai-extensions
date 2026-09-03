@@ -48,6 +48,19 @@ test("lockfile append block records owner, source, source hash, rendered hash, a
   });
 });
 
+test("project-manager AGENTS append defines conditional fresh-session Boss openings", () => {
+  const source = readFileSync("aix/roles/project-manager/AGENTS.append.md", "utf8");
+  const active = readFileSync("AGENTS.md", "utf8");
+
+  for (const text of [source, active]) {
+    assert.match(text, /At the beginning of a fresh project-manager session/);
+    assert.match(text, /Hey Boss! What are we working on\?/);
+    assert.match(text, /concrete project request/);
+    assert.match(text, /Okay Boss! Let me delegate that work\./);
+    assert.match(text, /Do not use a canned Boss greeting\s+for follow-ups/);
+  }
+});
+
 test("managed append blocks compose in workflow, role, then skill order", () => {
   const updated = composeManagedAppendBlocks("# Project Rules\n", [
     block("skill", "get-guidance", "skills/get-guidance"),
