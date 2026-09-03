@@ -2258,10 +2258,32 @@ Tasks:
   orchestration onboarding: the PM's purpose, the single PM contact model,
   specialist delegation, human authority, workflow opt-in, and native-host
   capability limitations.
+- ⬜️ Generate and add a concise PM orchestration summary image for the
+  top-level `README.md`. Aim it at new or evaluating users, and show the
+  relationship between the user, the PM, the workflow, and bounded specialist
+  delegation at a product-overview level. Keep it distinct from the detailed
+  workflow role map rather than repeating role responsibilities or execution
+  mechanics.
 - ⬜️ Update the canonical
   `aix/workflows/design-plan-execute/README.md` with the workflow's available
   roles, role responsibilities, PM delegation flow, authority boundaries,
   durable evidence, and links to deeper role and protocol contracts.
+- ⬜️ Generate and add a detailed PM roles and delegation image for the
+  canonical workflow README and its installed `.agents/README.md`
+  representation. Aim it at users operating the Design-Plan-Execute workflow,
+  and show the available role groups, delegation boundaries, work isolation or
+  sequencing where relevant, and return of evidence to the PM. Keep it
+  complementary to the concise root summary image and avoid duplicating its
+  general product introduction.
+- ⬜️ Define accessible text for both images, including informative alt text
+  and a nearby caption or explanatory link. The text must preserve the key
+  orchestration relationships if an image is unavailable and must link to the
+  relevant README or canonical role and workflow documentation.
+- ⬜️ Resolve the image-generation method, source or prompt artifacts, output
+  format, filenames, and canonical asset paths during phase execution. Record
+  the chosen paths and any generated-versus-installed asset ownership so the
+  images remain maintainable and do not overwrite unrelated or project-owned
+  assets.
 - ⬜️ Keep the root README and workflow README complementary: the root page
   should provide generic orchestration/product context, while the workflow
   page should explain concrete role ownership and delegation mechanics without
@@ -2287,6 +2309,11 @@ Exit criteria:
   verified reason for divergence is recorded.
 - README links, expected PM terminology, and documentation-focused checks
   pass, with no runtime or implementation changes included in this phase.
+- Both images are present at their documented asset paths, render at useful
+  sizes, and have accessible alt text, captions or explanatory links. The root
+  image communicates the overview without workflow-specific detail, and the
+  workflow image communicates role and delegation detail without repeating the
+  root image's summary.
 
 Verification:
 
@@ -2295,6 +2322,9 @@ Verification:
 - ⬜️ Compare the canonical workflow README with the installed
   `.agents/README.md` after synchronization or verification, and manually
   review the two-level onboarding path for accuracy and duplication.
+- ⬜️ Verify both image references, asset paths, rendering, captions or
+  explanatory links, and alt text. Check that the images remain legible and
+  useful when viewed independently from the surrounding README sections.
 - ⬜️ Record any host-specific or generated-copy behavior that cannot be
   validated in the local environment as a phase validation gap.
 
@@ -2302,9 +2332,14 @@ Documentation impact:
 
 - Product: add PM orchestration onboarding and explain workflow opt-in,
   specialist delegation, and human decision authority in `README.md`.
+- Product visual: add a concise PM orchestration summary image with accessible
+  text and a documented asset-generation and ownership decision.
 - Workflow documentation: add the concrete Design-Plan-Execute role roster,
   delegation model, source ownership, and installed-copy expectations to the
   canonical workflow README and its verified installed representation.
+- Workflow visual: add a detailed PM roles and delegation image to the
+  canonical and installed workflow README representations, with accessible
+  text, links, and documented asset-generation and ownership decisions.
 - Other knowledge-base areas: no `_docs/kb` update is expected because this
   phase documents already accepted behavior and introduces no implementation
   change; durable current-state promotion remains part of plan closeout.
