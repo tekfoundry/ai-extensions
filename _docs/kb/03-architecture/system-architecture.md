@@ -20,6 +20,12 @@ current architecture. Each command reads the current workspace, performs
 preflight checks, mutates files when authorized, and returns a structured
 `CliResult` for rendering.
 
+PM conversational state is separate from worker state. `src/pm/conversation.ts`
+normalizes case-insensitive PM aliases, selects a first-session opening, and
+keeps the direct “Boss” address out of worker-facing content. Open PM approval
+decisions are persisted under `.aix/pm/decisions/<decision-id>/` so recovery
+does not depend on chat history.
+
 ## Command Dispatch
 
 `src/cli/index.ts` owns command dispatch:

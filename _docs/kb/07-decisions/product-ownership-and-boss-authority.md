@@ -26,6 +26,13 @@ for Boss and delegates bounded analysis or implementation to specialists; Boss
 is not dispatched as a worker and does not appear as a delegation-record
 identity.
 
+The direct conversational contract is asymmetric by design. Boss may refer to
+the active project manager as `pm`, `project manager`, `manager`, or
+`project-manager`, with any casing. The PM normalizes those aliases to the
+single active PM role and addresses the human as “Boss” in direct responses.
+That conversational address does not enter worker prompts, status events,
+delegation IDs, or other machine-readable records.
+
 ## Migration consequence
 
 `product-strategist` is legacy terminology for this workflow. Existing state

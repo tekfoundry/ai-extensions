@@ -49,6 +49,11 @@ or workflow guidance.
   project-manager. It carries baseline request context, source pointers,
   guidance planning, stop conditions, and return requirements so roles can
   avoid repeated generic orientation while still re-reading authority files.
+- Boss: The human decision principal. In direct conversation, the PM addresses
+  this principal as “Boss”; machine-readable and worker-facing records remain
+  neutral.
+- PM conversational aliases: Case-insensitive direct references to the active
+  project manager: `pm`, `project manager`, `manager`, and `project-manager`.
 - Startup classification: The project-manager routing summary containing
   `roles`, `activities`, `task_context`, and `sequencing_notes`.
 - Role sequence: The project-manager's per-request ordered role list. It uses

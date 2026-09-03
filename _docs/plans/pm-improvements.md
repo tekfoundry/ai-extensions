@@ -2192,9 +2192,15 @@ Design Intent:
 - The PM may use “Boss” naturally in acknowledgments, progress updates,
   recommendations, completion reports, decision requests, and exception
   handoffs.
-- At the beginning of each fresh PM session, the managed `AGENTS.md` block
-  should invite the human with “Hey Boss! What are we working on?” and then
-  continue with normal startup and recovery checks.
+- In direct PM conversation, the human may refer to the PM as `pm`, `project
+  manager`, `manager`, or `project-manager`, without regard to casing. These
+  are conversational aliases for the active PM, not additional roles and not
+  delegation targets.
+- In direct PM conversation, the PM addresses the human decision principal as
+  “Boss”. A concrete first request may receive a brief acknowledgment such as
+  “Okay Boss! Let me delegate that work.” A conversational opener may receive
+  “Hey Boss! What are we working on?” A substantive request should not receive
+  an irrelevant welcome message.
 - Use is occasional rather than mechanical: normally at most once in a
   meaningful direct response, and less often in dense technical explanations,
   repeated polling, tool output, errors, and machine-readable content.
@@ -2203,6 +2209,8 @@ Design Intent:
   request when one is required.
 - Worker briefs, prompts, delegation records, IDs, status events, and other
   durable metadata remain neutral and must not contain conversational filler.
+  “Always” applies to direct PM-to-Boss conversation, not to machine-readable
+  content or specialist-facing text.
 
 Tasks:
 
@@ -2242,9 +2250,68 @@ Phase 12 evidence:
 
 Phase 12 closeout status:
 
-Phase 12 is complete. The implementation is guidance-driven, synchronized into
-the local project files, and fully verified. Fresh-session behavior remains
-subject to manual testing in each supported harness.
+The original Phase 12 scope is complete and fully verified. Phase 12 is
+reopened for the following follow-up work; these tasks are planned only and
+have not been started.
+
+Reopened follow-up tasks:
+
+- ✅ Define one PM interaction protocol for direct conversational responses,
+  including first-prompt classification, the Boss address rule, concrete-work
+  acknowledgments, conversational openers, follow-ups, progress, completion,
+  approval requests, and exception handbacks.
+- ✅ Add case-insensitive recognition for the Boss's PM aliases: `pm`, `project
+  manager`, `manager`, and `project-manager`. Normalize aliases before routing,
+  preserve the active PM as the sole orchestration role, and reject ambiguous
+  or out-of-scope uses without silently dispatching work.
+- ⚠️ Add a PM-facing response boundary that consistently addresses the human
+  as “Boss” in direct conversational responses while excluding the address
+  from worker prompts, tool output, errors, IDs, status events, and durable
+  records.
+- ✅ Define durable open-decision and approval records so a restarted PM can
+  recover unanswered Boss decisions without relying on conversation memory or
+  inferring approval from a casual message.
+- ⚠️ Align session-start and recovery behavior across supported harnesses with
+  the PM interaction protocol. Keep harness-specific startup mechanics behind
+  adapters and do not add `aix pm start` or `aix pm stop` unless a later design
+  decision establishes a concrete cross-harness need.
+- ✅ Add regression coverage for alias recognition and casing, direct Boss
+  address behavior, first-prompt response selection, follow-up suppression,
+  durable-record neutrality, and restart recovery of open decisions.
+- ✅ Update the relevant product, requirements, architecture, quality, and
+  decision documentation after implementation so the knowledge base describes
+  the verified PM/Boss interaction contract.
+
+Reopened execution evidence:
+
+- Added `src/pm/conversation.ts` with alias normalization, first-prompt
+  classification, restrained direct-response addressing, and durable open
+  decision create/list/resolve operations.
+- Added project-local decision storage under `.aix/pm/decisions/`, including
+  `record.json` and `events.jsonl`, and included it in the PM runtime layout.
+- Synchronized the canonical and active PM role/guidance files and the managed
+  `AGENTS.md` block.
+- Added `tests/pm-conversation.test.mjs`; the full verification run passed
+  356/356 tests, the build passed, `git diff --check` passed, and `aix verify`
+  passed.
+
+Reopened exit criteria:
+
+- The PM recognizes all four PM aliases case-insensitively without creating a
+  second PM role or routing work to an alias.
+- Direct PM responses address the human as “Boss” while remaining natural and
+  non-repetitive.
+- Concrete requests receive action-oriented acknowledgments; conversational
+  openers receive the welcome; follow-ups do not receive canned openings.
+- Open Boss decisions survive PM restart with explicit resolution state.
+- Worker-facing and machine-readable artifacts remain free of conversational
+  Boss language.
+
+The implementation is complete for the project-owned protocol and durable
+decision model. The response boundary and cross-harness startup behavior retain
+a known manual validation gap: AIX does not own the native harness chat
+renderer, so each supported harness must still be tested to confirm that it
+loads the active guidance and presents the PM response exactly once.
 
 ### Phase 13: Document PM orchestration and workflow roles (status: accepted)
 

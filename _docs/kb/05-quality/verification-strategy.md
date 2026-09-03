@@ -65,6 +65,11 @@ Most changes need one or more targeted unit, integration, CLI, or refusal-path
 tests first. Smoke and release checks are broader confidence gates, not
 substitutes for targeted coverage of the changed behavior.
 
+PM interaction changes require targeted checks for alias normalization,
+first-prompt classification, direct Boss addressing, worker-record neutrality,
+and restart-safe open-decision recovery. Manual harness checks remain useful
+for confirming how each supported host presents the resulting conversation.
+
 ## Common Commands
 
 Use targeted tests first for the changed subsystem:

@@ -660,16 +660,15 @@ test("bundled project-manager guidance keeps parent review evidence-first", () =
   assert.doesNotMatch(guidance, /always re-read delegated files/i);
 });
 
-test("project-manager defines restrained conversational Boss language", () => {
+test("project-manager defines direct Boss address and restrained language", () => {
   const role = projectManagerRole();
   const guidance = projectManagerGuidance();
   const workflowGuidance = readFileSync(join(repoRoot, "aix/roles/project-manager/workflow.GUIDANCE.md"), "utf8");
 
   for (const text of [role, guidance, workflowGuidance]) {
     assert.match(text, /Boss/);
-    assert.match(text, /occasionally|occasional/);
-    assert.match(text, /warm and respectful|respectful and restrained/);
-    assert.match(text, /at most once|no more than once/);
+    assert.match(text, /every direct|once per response|respectful and restrained/);
+    assert.match(text, /warm and\s+respectful|respectful and restrained/);
     assert.match(text, /worker prompts|durable (?:operational )?records/);
   }
   assert.match(role, /acknowledgments, progress updates,\s+recommendations, completion reports/);

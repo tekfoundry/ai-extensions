@@ -797,32 +797,32 @@
         "sourcePath": "roles/project-manager",
         "marker": "aix:role project-manager",
         "path": "AGENTS.md",
-        "sourceSha256": "06e799ad3f9c572c2d77bec3efdf58b2406eb72c4656b7299a18744780315942",
-        "renderedSha256": "b368b7b9df9dfafd42d6a426716f1ca6cbac5751d9c05ae90457eeeca77f419e",
-        "installedSha256": "b368b7b9df9dfafd42d6a426716f1ca6cbac5751d9c05ae90457eeeca77f419e"
+        "sourceSha256": "84478d79095098d8e482a2cd46aa260399bc8d378ee96e6b57ae93a5d36958b0",
+        "renderedSha256": "6dfc92a068451879652a7e81e38363b8c4e7b3110c0e1281fbadb5ec49fb6d8d",
+        "installedSha256": "6dfc92a068451879652a7e81e38363b8c4e7b3110c0e1281fbadb5ec49fb6d8d"
       },
       "packageFiles": [
         {
           "path": "AGENTS.append.md",
-          "sha256": "06e799ad3f9c572c2d77bec3efdf58b2406eb72c4656b7299a18744780315942"
+          "sha256": "84478d79095098d8e482a2cd46aa260399bc8d378ee96e6b57ae93a5d36958b0"
         },
         {
           "path": "GUIDANCE.md",
-          "sha256": "f226197598d9676eafe30d99fb8a31ad2caa33df80316ded670e4fb88c1cdee3"
+          "sha256": "6b016489e9894d558d2a2a88a19abc3c066d98ce6ddfe03f7f5d7fd730ae5804"
         },
         {
           "path": "ROLE.md",
-          "sha256": "eccdc08d3f96983c2cf494049d59c7bc44137062c81499d1f7de4ffaac71918f"
+          "sha256": "66c763b06ddb3bd3c9b2fe93bf7d8ead61c609e2e3a975cb73a63bba8306a5a9"
         },
         {
           "path": "workflow.GUIDANCE.md",
-          "sha256": "a958de6c5c4905261b7b65e83f0737c0f525478d666eaa6a72d213768efaae75"
+          "sha256": "e87a7c0815dbf7dc621b119367fdf6aec1599b9d4e26796a024eec33268c8b02"
         }
       ],
       "activeFiles": [
         {
           "path": "ROLE.md",
-          "sha256": "eccdc08d3f96983c2cf494049d59c7bc44137062c81499d1f7de4ffaac71918f"
+          "sha256": "66c763b06ddb3bd3c9b2fe93bf7d8ead61c609e2e3a975cb73a63bba8306a5a9"
         }
       ]
     },

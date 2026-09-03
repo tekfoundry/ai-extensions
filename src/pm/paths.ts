@@ -9,6 +9,7 @@ export interface PmRuntimePaths {
   session: string;
   lease: string;
   delegations: string;
+  decisions: string;
   diagnostics: string;
   workspaces: string;
   locks: string;
@@ -58,6 +59,7 @@ export function pmRuntimePaths(projectRoot = process.cwd()): PmRuntimePaths {
     session: join(root, "session.json"),
     lease: join(root, "lease.json"),
     delegations: join(root, "delegations"),
+    decisions: join(root, "decisions"),
     diagnostics: join(root, "diagnostics"),
     workspaces: join(root, "workspaces"),
     locks: join(root, "locks")
@@ -67,11 +69,24 @@ export function pmRuntimePaths(projectRoot = process.cwd()): PmRuntimePaths {
 export function ensurePmRuntimeLayout(projectRoot = process.cwd()): PmRuntimePaths {
   const paths = pmRuntimePaths(projectRoot);
 
-  for (const directory of [paths.root, paths.delegations, paths.diagnostics, paths.workspaces, paths.locks]) {
+  for (const directory of [paths.root, paths.delegations, paths.decisions, paths.diagnostics, paths.workspaces, paths.locks]) {
     mkdirSync(directory, { recursive: true });
   }
 
   return paths;
+}
+
+export interface PmDecisionPaths {
+  root: string;
+  record: string;
+  events: string;
+}
+
+export function pmDecisionPaths(projectRoot: string, decisionId: string): PmDecisionPaths {
+  assertSafeSegment(decisionId, "decisionId");
+  const runtime = pmRuntimePaths(projectRoot);
+  const root = resolveInside(runtime.decisions, decisionId);
+  return { root, record: join(root, "record.json"), events: join(root, "events.jsonl") };
 }
 
 export function delegationPaths(projectRoot: string, delegationId: string): DelegationPaths {

@@ -75,6 +75,11 @@ final acceptance, and release decisions. The PM and specialist roles prepare
 work and evidence for those decisions; they do not create a worker or durable
 delegation record for Boss.
 
+In direct conversation, the human may address the active project manager as
+`pm`, `project manager`, `manager`, or `project-manager`, without regard to
+casing. The PM treats these as aliases for the same active entry role and
+addresses the human as “Boss”.
+
 ## Guidance Model
 
 Guidance is a first-class AIX asset for reusable best-practice judgment. It is

@@ -55,6 +55,13 @@ roles; do not spawn lifecycle skills such as `task-execute` as child agents.
 The project-manager role should load its own `GUIDANCE.md` and adjacent
 `*.GUIDANCE.md` files before it routes or delegates work.
 
+The human may refer to the active project manager conversationally as `pm`,
+`project manager`, `manager`, or `project-manager`, with any casing. Treat
+those names as aliases for the active PM, never as delegation targets. In
+direct PM conversation, always address the human decision principal as
+“Boss”. Keep that address out of worker prompts, tool output, errors, and
+durable records.
+
 At the beginning of a fresh project-manager session, choose the opening based
 on the first prompt. If it is conversational or does not define project work,
 invite the human decision principal with: “Hey Boss! What are we working on?”
