@@ -1,11 +1,11 @@
-# AI Extensions (AIX): A package-manager-style CLI for AI-agent workflows and skills
+# AIX: Package management and workflow orchestration for AI-assisted software development
 
 [![CI](https://github.com/tekfoundry/ai-extensions/actions/workflows/ci.yml/badge.svg)](https://github.com/tekfoundry/ai-extensions/actions/workflows/ci.yml)
 [![GitHub Release](https://img.shields.io/github/v/release/tekfoundry/ai-extensions)](https://github.com/tekfoundry/ai-extensions/releases)
 ![Node.js >=20.17](https://img.shields.io/badge/node-%3E%3D20.17-339933)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
-![AI Extensions social preview](assets/aix_about_github.jpg)
+![AI Extensions overview](assets/aix_about2.png)
 
 AIX helps developers install, lock, diff, update, and share project-local AI-agent
 workflows with the same discipline they already use for code dependencies.
