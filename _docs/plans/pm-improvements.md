@@ -143,6 +143,42 @@ and active, the full team workflow should report that native delegation is
 unavailable rather than pretending that inline role prompts are independent
 agents.
 
+### Product ownership and the human principal
+
+The workflow's product-strategy responsibility should become a complete
+`product-owner` role rather than remain a narrower `product-strategist` role.
+The product-owner owns product intent, user value, prioritization, product
+scope, product-level acceptance, and product tradeoffs. The role collaborates
+with the project-manager, but does not replace the human's authority or own
+technical execution.
+
+This is a role migration, not merely a display-name change. The stable role
+name, role directory, team roster, manifests, lockfiles, guidance, prompts,
+tests, and documentation should use `product-owner`. Existing installed
+`product-strategist` state must be handled by an explicit, safe migration path
+or a clearly reported reinstallation requirement; AIX must not silently leave
+stale role metadata or active files behind.
+
+The human who directs the project is a formal human principal named `boss` in
+the interaction model, displayed conversationally as “Boss.” Boss is not a
+delegated role, worker, or runtime process, and no delegation record is created
+for Boss. Boss retains product decisions, priorities, risky or irreversible
+approvals, exception decisions, and final acceptance or release authority.
+The PM coordinates work for Boss and should consult Boss only when that
+authority is genuinely required.
+
+The PM may address the human as “Boss” selectively in conversational
+acknowledgments, milestone or completion updates, decision requests, and
+exceptions. It should not repeat the address mechanically in every response,
+and the address must not add unnecessary prompt or output length.
+
+The workflow team should also add a `release-engineer` role. This role owns
+release and platform concerns such as CI, build and package validation, npm
+artifact contents, supported-host environment integration, cross-platform
+compatibility, and operational release diagnostics. It complements the
+implementation, architecture, quality, and security roles without owning
+product decisions or PM orchestration.
+
 ### `AGENTS.md`
 
 Revise the AIX-managed `AGENTS.md` project entrypoint so it establishes the
@@ -1001,6 +1037,43 @@ status are the requirement. Claude support may be contract-tested and
 implemented before authenticated live validation is available; that gap must
 remain explicit.
 
+### Selective parallelism and conflict-aware scheduling
+
+Completing a phase does not imply that every task should run concurrently. The
+PM should schedule work from task dependencies, role write domains, artifact
+ownership, and host capabilities. Parallelism is allowed selectively where it
+reduces latency without creating avoidable merge risk.
+
+The scheduling unit is a cohesive task group, not necessarily an individual
+task. Related tasks that share context, files, contracts, acceptance criteria,
+or an implementation sequence should be assigned together to one worker and
+run sequentially within that assignment. Independent task groups may run in
+parallel when their scopes and dependencies are disjoint.
+
+Read-only investigation, independent architecture/security/quality reviews,
+and test-design work may run in parallel. Change-producing work may run in
+parallel only when its declared write domains and dependencies are disjoint.
+Tasks that modify a shared contract, orchestrator, CLI entrypoint, workflow
+metadata, or common test fixture should be serialized.
+
+Worker execution may be parallel, but integration into the parent workspace is
+serialized. The PM must integrate one completed worker at a time, verify the
+result, and update ownership/state before releasing the next dependent task.
+Isolated workspaces contain worker changes; they do not remove the need for
+changed-file overlap checks, integration locks, conflict handling, or cleanup
+safety.
+
+The PM should preserve group context across the full group and should not split
+closely related tasks merely to increase fan-out. A group may be split only
+when doing so is safe, useful, and supported by explicit ownership and
+dependency evidence.
+
+The PM role and workflow guidance describe the scheduling policy, while the PM
+orchestrator and workspace manager enforce it. Role and team metadata declare
+write domains and likely ownership; runtime checks must reject or queue work
+when ownership is missing, overlapping, or ambiguous. Native host concurrency
+is an input to scheduling, not permission to bypass AIX conflict policy.
+
 ### Task lifecycle and authority
 
 The delegation lifecycle should separate task progress from worker liveness:
@@ -1680,7 +1753,7 @@ the user-facing package lifecycle.
 
 Tasks:
 
-- ⬜️ Continue using the PM to orchestrate normal implementation, documentation,
+- ✅ Continue using the PM to orchestrate normal implementation, documentation,
   verification, and provider-hardening work. Use direct parent-context changes
   only for documented bootstrap or recovery exceptions.
 - ✅ Define and implement the explicit `managed-local-integration` host
@@ -1698,22 +1771,28 @@ Tasks:
   Unsupported integration refuses clearly. Verification passed: `npm run build`;
   `node --test tests/pm-workspace.test.mjs tests/pm-orchestrator.test.mjs
   tests/pm-runtime.test.mjs`; `git diff --check`.
-- 🟨 Add host-authorization diagnostics and `aix pm doctor`; keep `aix pm status`
+- ✅ Add host-authorization diagnostics and `aix pm doctor`; keep `aix pm status`
   concise. Report missing capability and remediation guidance without changing
   host configuration or emitting secrets.
-  Execution note: Implementation delegated; verification pending.
-- ⬜️ Fix the Phase 8 tidy retention follow-up so `created` delegations remain
+  Execution note: Implemented through the PM; `aix pm doctor` reports missing
+  capabilities and remediation without changing host configuration or exposing
+  secrets. Build and focused doctor/runtime/orchestrator tests passed.
+- ✅ Fix the Phase 8 tidy retention follow-up so `created` delegations remain
   protected as active/unresolved work and add a regression test.
-- ⬜️ Fix diagnostic cleanup so the current log is preserved and only eligible
+- ✅ Fix diagnostic cleanup so the current log is preserved and only eligible
   rotated or explicitly stale logs are purged; add regression coverage.
-- ⬜️ Validate Codex CLI and Codex Mac app as separate host profiles, including
+- ⚠️ Validate Codex CLI and Codex Mac app as separate host profiles, including
   routine integration without approval prompts and exception handling for
   conflicts, scope violations, destructive actions, and unsafe cleanup. Do not
-  require a particular worker-tab UI.
-- ⬜️ Record Claude live-provider validation as a separate manual gate. Complete
+  require a particular worker-tab UI. Contract tests and the adapter build
+  passed, but authenticated CLI execution and Codex Mac validation were not
+  run; those remain manual gates.
+- ⚠️ Record Claude live-provider validation as a separate manual gate. Complete
   it when authenticated Claude access is available, while preserving the
-  contract-tested adapter behavior in the meantime.
-- ⬜️ Normalize and test correlation across AIX delegation IDs, logical
+  contract-tested adapter behavior in the meantime. Authenticated Claude
+  execution and provider-side restart recovery were not run, so live
+  validation remains deferred.
+- ✅ Normalize and test correlation across AIX delegation IDs, logical
   subagent IDs, host mission or run IDs, and active or completed status
   queries. Persist the mapping, use the correct host status lookup for each
   identifier, and keep completed runs inspectable without treating an
@@ -1724,27 +1803,62 @@ Tasks:
   secrets. Implemented through the PM in an isolated worker worktree, with
   persistence, recovery/status access, tamper rejection, and bounded
   normalization tests. Live Claude validation remains separate and pending.
-- ⬜️ Implement one supported native provider adapter against the Phase 3
+- ✅ Implement one supported native provider adapter against the Phase 3
   interface's complete capability set, extending the Phase 3 minimum adapter
   with the provider's supported status/control, permission, workspace, and
-  concurrency operations.
-- ⬜️ Add additional provider or harness adapters only where their native
-  delegation contract satisfies the required PM capabilities. Document
-  unsupported or unknown capability behavior; do not add inline fallback
-  behavior.
-- ⬜️ Add a supported-harness capability matrix and diagnostics showing the
+  concurrency operations. The Codex CLI contract adapter covers these
+  operations; authenticated live execution remains a manual gate.
+- ✅ Add additional provider or harness adapters only where their native
+  delegation contract satisfies the required PM capabilities. No additional
+  adapter is required for this phase; unsupported and unknown capabilities
+  refuse clearly without inline fallback behavior.
+- ✅ Add a supported-harness capability matrix and diagnostics showing the
   discovered harness, vendor/provider, model, runtime, protocol support, and
   missing capabilities without requiring those metadata fields to be present.
-- ⬜️ Complete command UX and help for workflow activation/deactivation,
+  Matrix and doctor diagnostics are bounded and secret-safe.
+- ✅ Complete command UX and help for workflow activation/deactivation,
   `aix pm` inspection/status/tidy operations, verbose diagnostics, confirmation
-  prompts, refusal paths, and normal-prompt restoration.
-- ⬜️ Run package, activation, workflow, role, lockfile, security, provider,
+  prompts, refusal paths, and normal-prompt restoration. Build and focused CLI,
+  workflow, PM, and safety tests passed.
+- ✅ Run package, activation, workflow, role, lockfile, security, provider,
   lifecycle, workspace, cleanup, and end-to-end regression suites. Verify
   packed npm artifacts include all PM/workflow assets and exclude local runtime
-  state.
-- ⬜️ Review and update product, requirements, architecture, security,
-  quality, operations, workflow, and PM role documentation. Promote only
-  accepted durable behavior during plan completion.
+  state. Full verification passed with 300 tests, the explicit risk-surface
+  suite passed with 178 tests, packed-artifact and local-smoke checks passed,
+  and `git diff --check` passed.
+- ⚠️ Review and update product, requirements, architecture, security,
+  quality, operations, workflow, and PM role documentation. The final
+  documentation review and `_docs/kb` promotion are deferred until plan
+  completion; `_docs/kb` must remain unchanged in this phase.
+
+Phase 9 execution notes:
+
+- PM-routed implementation workers completed managed-local integration and
+  host-adapter workspace integration (worker identity: implementation-engineer;
+  delegation IDs `01a06461-73df-76a3-9275-84ce6389a105` and
+  `01a06466-8531-7691-8658-1a1bb47a2cda`). Documentation-specialist workers
+  reconciled plan status in isolated forks (worker identity:
+  documentation-specialist; delegation IDs `01a06461-7383-7ed0-a9e5-bf23bb53e456`,
+  `01a06466-84e2-71c0-ad35-d97fbb05c0e0`, `01a0646b-620a-7392-ae0a-1e5847e998c4`,
+  `01a0646f-7bc6-7e72-8bdc-b5aaf8b2fb98`, `01a06476-2eaa-73a2-a132-78e25d576ad6`,
+  `01a0647f-2ec1-7cc1-9f53-76d19c49e4a4`, `01a06485-333e-7881-be0c-e88b89c8a633`,
+  `01a0648f-c295-7f30-aa3c-d856a0561951`, `01a06496-41fd-7ce3-adb9-315b8ad5f4cf`,
+  and `01a0649d-7fb0-7350-9836-7b0ec10717e5`).
+- Host diagnostics, tidy retention, diagnostic cleanup, correlation, the
+  bounded capability snapshot, the Codex adapter, capability matrix, and
+  command UX were implemented by implementation-engineer workers and checked
+  by quality-engineer workers. Implementation delegation IDs include
+  `01a0646d-d276-77b2-a61f-8c077a16ca39`, `01a0646f-7b76-7a91-b2e9-14b8c61f6cc1`,
+  `01a06477-bec3-7ea3-91b6-f740d5844414`,
+  `01a06480-61ee-7d93-9a6c-7d61cd690c65`, `01a06487-660b-7d31-84e5-8975a7931064`,
+  `01a06492-4e1b-7470-bc65-caa0dace6384`, `01a06493-c5f2-7f40-b7c7-bf28fce3e599`,
+  and `01a06497-d6fe-7a50-803b-7fa39f589740`.
+- Automated evidence: `npm run verify` passed with 300 tests; the explicit
+  risk-surface suite passed with 178 tests; package preview, packed-artifact
+  inspection, and local-smoke checks passed; focused provider/correlation,
+  doctor, tidy, diagnostics, workspace, CLI, and PM regression tests passed.
+  Provider executables were present, but authenticated Codex/Claude runs,
+  provider-side restart recovery, and Codex Mac UI validation were not run.
 
 Exit criteria:
 
@@ -1752,6 +1866,106 @@ Exit criteria:
 - Package-only users remain unaffected, and unsupported hosts fail clearly.
 - The plan's verification and security gates pass with no unowned runtime or
   cleanup behavior.
+
+### Phase 10: Add selective parallelism and conflict-aware scheduling (status: accepted)
+
+Goal: allow safe parallel worker execution without allowing conflicting changes
+to race through the parent workspace or silently collide during integration.
+
+Tasks:
+
+- ⬜️ Define the scheduling model for task dependencies, role write domains,
+  artifact ownership, shared-resource claims, and host concurrency limits.
+- ⬜️ Define task-group formation rules so related tasks are bundled into one
+  worker assignment and run sequentially, while independent groups remain
+  eligible for parallel execution.
+- ⬜️ Extend workflow/team/role metadata where needed to declare write domains,
+  read-only behavior, shared artifacts, and serialization requirements.
+- ⬜️ Implement PM scheduling that parallelizes independent read-only work and
+  disjoint change-producing work, while queuing dependent or overlapping tasks
+  and preserving sequential execution within each cohesive task group.
+- ⬜️ Add runtime ownership and conflict checks for shared contracts,
+  orchestrator code, CLI entrypoints, workflow metadata, common fixtures, and
+  other declared shared artifacts.
+- ⬜️ Add integration serialization and locking so parent-workspace integration
+  occurs one worker at a time, with verification and state updates between
+  integrations.
+- ⬜️ Incorporate host concurrency and managed-integration capabilities into
+  scheduling decisions. Unknown or insufficient capabilities must reduce
+  parallelism or fail closed rather than trigger unsafe fallback behavior.
+- ⬜️ Preserve isolated workspace guarantees, changed-file overlap detection,
+  conflict recovery, unlanded-change protection, and cleanup safety when
+  multiple workers are active.
+- ⬜️ Add scheduler and integration tests for independent parallel work,
+  overlapping write domains, dependency queues, shared-resource serialization,
+  host capacity limits, failed workers, restart recovery, and integration
+  conflicts.
+- ⬜️ Add concise PM status and verbose diagnostic coverage for queued, grouped,
+  active, blocked, serialized, integrated, and conflict-recovery work.
+- ⬜️ Document that phase-level execution uses dependency-aware selective
+  parallelism across task groups rather than unconditional task fan-out;
+  document the grouping rationale and any host-specific limitations.
+
+Exit criteria:
+
+- Independent work can execute concurrently without conflicting parent
+  workspace writes.
+- Conflicting or dependent work is queued or serialized with durable evidence.
+- Parent-workspace integration is serialized, verified, and recoverable.
+- The PM can explain why work was parallelized, queued, or held.
+- The PM can explain why tasks were grouped together, kept sequential, or split
+  into separate parallel workstreams.
+
+### Phase 11: Migrate product strategy to product ownership and formalize Boss (status: accepted)
+
+Goal: clarify product decision ownership by replacing the narrow
+`product-strategist` role with a complete `product-owner` role and formalizing
+the human principal in the PM interaction model.
+
+Tasks:
+
+- ⬜️ Define the `product-owner` role contract, including product intent, user
+  value, prioritization, scope, product-level acceptance, and tradeoffs.
+- ⬜️ Define the `release-engineer` role contract, including CI, build and
+  package validation, npm artifact contents, supported-host environment
+  integration, cross-platform compatibility, and release diagnostics.
+- ⬜️ Rename the role bundle, activation name, display name, team roster entry,
+  manifests, lockfiles, guidance, prompts, and related references from
+  `product-strategist` to `product-owner`.
+- ⬜️ Define and implement a safe migration for projects with installed or
+  active `product-strategist` state, including stale active-file, manifest,
+  lockfile, dependency, and provenance handling. Never leave ambiguous dual
+  ownership or silently orphaned files.
+- ⬜️ Update PM delegation routing and workflow-team discovery so the PM can
+  select `product-owner` for product decisions without treating it as a
+  project-management or implementation role.
+- ⬜️ Add `release-engineer` to the workflow team roster and delegation routing,
+  with bounded release/platform write domains and clear interaction with
+  implementation, architecture, quality, security, and PM roles.
+- ⬜️ Formalize `boss` as the human principal in the PM interaction contract.
+  Keep Boss outside the delegated-role roster and delegation lifecycle while
+  preserving authority for product decisions, priorities, risky approvals,
+  exceptions, final acceptance, and release decisions.
+- ⬜️ Define concise conversational use of “Boss” for acknowledgments,
+  milestones, completion updates, decision requests, and exceptions without
+  repeating it in every response or durable record.
+- ⬜️ Add role-migration, routing, authority, UX-copy, and regression tests for
+  clean installs, existing installations, deactivation, reactivation,
+  delegation selection, and Boss interaction behavior.
+- ⬜️ Update final workflow, role, product, requirements, and PM documentation
+  during plan completion; do not promote current-state knowledge into `_docs/kb`
+  before the full plan closeout.
+
+Exit criteria:
+
+- The workflow has one unambiguous `product-owner` role with complete product
+  ownership responsibilities.
+- Existing `product-strategist` installations migrate safely or fail with a
+  clear recovery path and no stale managed state.
+- The PM recognizes Boss as the human decision principal without creating a
+  worker or delegation for that interaction.
+- Boss-facing language is concise, intentional, and excluded from durable
+  worker records.
 
 ## Open Questions / Decisions
 

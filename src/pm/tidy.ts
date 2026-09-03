@@ -44,7 +44,12 @@ export interface TidyArchiveResult {
 }
 
 const DEFAULT_RETENTION_DAYS = 30;
-const ACTIVE_STATES = new Set(["dispatched", "working", "needs-decision", "blocked", "paused", "unknown", "host-lost"]);
+const ACTIVE_STATES = new Set(["created", "dispatched", "working", "needs-decision", "blocked", "paused", "unknown", "host-lost"]);
+const ELIGIBLE_DIAGNOSTIC_PATTERN = /^.+\.(?:log|jsonl)(?:\.\d+|\.stale)$/;
+
+function isEligibleDiagnostic(name: string): boolean {
+  return ELIGIBLE_DIAGNOSTIC_PATTERN.test(name);
+}
 
 function readWorkspaceIfPresent(projectRoot: string, delegationId: string): WorkspaceRecord | undefined {
   const path = delegationPaths(projectRoot, delegationId).root;
@@ -108,7 +113,7 @@ export function previewPmTidy(options: TidyOptions = {}): TidyReport {
   const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
   const runtime = pmRuntimePaths(projectRoot);
   const diagnostics = existsSync(runtime.diagnostics)
-    ? readdirSync(runtime.diagnostics).filter((name) => /^.+\.(?:log|jsonl)(?:\.\d+)?$/.test(name)).map((name) => join(runtime.diagnostics, name))
+    ? readdirSync(runtime.diagnostics).filter(isEligibleDiagnostic).map((name) => join(runtime.diagnostics, name))
     : [];
   return {
     projectRoot,

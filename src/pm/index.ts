@@ -15,3 +15,5 @@ export * from "./workspace.js";
 export * from "./tidy.js";
 export * from "./completion.js";
 export * from "./doctor.js";
+export * from "./correlation.js";
+export * from "./capability-matrix.js";

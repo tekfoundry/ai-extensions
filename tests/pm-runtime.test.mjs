@@ -101,6 +101,52 @@ test("Codex adapter translates native worker calls and delivery permissions", as
   assert.equal(snapshot.model, "gpt-5.5");
 });
 
+test("Codex adapter exposes the complete supported status, control, permission, workspace, and concurrency contract", async () => {
+  const calls = [];
+  let stopped = false;
+  const adapter = new CodexHostAdapter({
+    async runtimeInfo() {
+      return { provider: "openai", model: "gpt-5.5", runtime: "codex-cli", capabilities: {
+        "native-worker-creation": true, "correlated-results": true, "worker-stop": true,
+        "permission-control": true, "workspace-binding": true, "workspace-write": true,
+        "workspace-integration": true, "concurrency-reporting": true
+      } };
+    },
+    async createSubagent() { return { id: "codex-contract-worker" }; },
+    async waitForSubagent() { return { status: "completed", output: "done" }; },
+    async inspectSubagent(id) { calls.push(["inspect", id]); return { state: "working" }; },
+    async stopSubagent(id) { calls.push(["stop", id]); stopped = true; },
+    async resolvePermissions(request) { calls.push(["permissions", request]); return { mode: request.writable ? "workspace-write" : "read-only", workspacePath: request.workspacePath, access: [...request.requiredAccess] }; },
+    async integrateWorkspace(request) { calls.push(["workspace", request.workspacePath, request.changedPaths]); },
+    async reportConcurrency() { calls.push(["concurrency"]); return { active: 2, limit: 4 }; }
+  });
+  const contract = {
+    recordSchemaVersion: 1, protocolVersion: 1, workflow: "design-plan-execute", workflowVersion: "1", pmRoleVersion: "1",
+    identity: { subagentId: "subagent-codex-contract", delegationId: "delegation-codex-contract", displayName: "Implementation Engineer" },
+    authority: { role: "implementation-engineer", taskMode: "implementation", deliveryMode: "isolated-change", allowedPaths: ["src/"], deniedPaths: [".aix/pm/"], requiredAccess: ["workspace-write"], stopConditions: ["scope unclear"] }
+  };
+  const worker = await adapter.createWorker({ contract, roleInstructions: "role", brief: "brief", workspacePath: "/tmp/aix-worker" });
+  assert.deepEqual(await adapter.inspectWorker(worker), { state: "working" });
+  await adapter.stopWorker(worker);
+  assert.equal(stopped, true);
+  assert.deepEqual(await adapter.resolvePermissions({ workspacePath: "/tmp/aix-worker", writable: true, requiredAccess: ["workspace-write"] }), { mode: "workspace-write", workspacePath: "/tmp/aix-worker", access: ["workspace-write"] });
+  await adapter.integrateWorkspace({ workspacePath: "/tmp/aix-worker", integrationTarget: "/tmp/project", baseRevision: "abc", changedPaths: ["src/a.ts"], patch: "" });
+  assert.deepEqual(await adapter.reportConcurrency(), { active: 2, limit: 4 });
+  assert.deepEqual(calls.map(([name]) => name), ["inspect", "stop", "permissions", "workspace", "concurrency"]);
+});
+
+test("Codex adapter refuses unknown optional provider operations instead of falling back", async () => {
+  const adapter = new CodexHostAdapter({
+    async runtimeInfo() { return { capabilities: { "native-worker-creation": true, "correlated-results": true, "permission-control": "unknown", "concurrency-reporting": "unknown" } }; },
+    async createSubagent() { return { id: "codex-worker-unknown" }; },
+    async waitForSubagent() { return { status: "completed", output: "done" }; }
+  });
+  await assert.rejects(() => adapter.resolvePermissions({ writable: false, requiredAccess: ["read"] }), /does not support task-scoped permission/);
+  await assert.rejects(() => adapter.reportConcurrency(), /does not report worker concurrency/);
+  const snapshot = await adapter.discoverCapabilities();
+  assert.throws(() => assertHostCapabilities(snapshot, ["permission-control"]), /requires native host capabilities/);
+});
+
 test("Claude adapter translates native worker calls and delivery permissions", async () => {
   const calls = [];
   const adapter = new ClaudeHostAdapter({

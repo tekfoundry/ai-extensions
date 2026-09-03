@@ -17,6 +17,9 @@ export interface HostCapabilitySnapshot {
   capabilities: Record<string, boolean | "unknown">;
 }
 
+/** Capability required before PM may authorize host-managed local integration. */
+export const MANAGED_LOCAL_INTEGRATION_CAPABILITY = "managed-local-integration" as const;
+
 export type PersistedCapabilitySnapshot = Readonly<HostCapabilitySnapshot>;
 
 const MAX_SNAPSHOT_STRING_LENGTH = 128;
@@ -81,6 +84,8 @@ export interface HostWorkerRequest {
 export interface HostWorkerHandle {
   subagentId: string;
   hostWorkerId: string;
+  hostMissionId?: string;
+  hostRunId?: string;
   displayName: string;
   /** Host-assigned name, when the host exposes one separately from AIX's name. */
   hostDisplayName?: string;
@@ -90,6 +95,8 @@ export interface HostWorkerResult {
   hostWorkerId: string;
   subagentId: string;
   delegationId: string;
+  hostMissionId?: string;
+  hostRunId?: string;
   status: "completed" | "blocked" | "failed";
   result: string;
 }
@@ -105,6 +112,23 @@ export interface HostWorkspaceIntegrationRequest {
   applyPatch?: () => void;
 }
 
+export interface HostPermissionRequest {
+  workspacePath?: string;
+  writable: boolean;
+  requiredAccess: readonly string[];
+}
+
+export interface HostPermissionGrant {
+  mode: "read-only" | "workspace-write";
+  workspacePath?: string;
+  access: string[];
+}
+
+export interface HostConcurrencyReport {
+  active: number;
+  limit?: number;
+}
+
 export interface HostExecution {
   discoverCapabilities(): Promise<HostCapabilitySnapshot>;
   createWorker(request: HostWorkerRequest): Promise<HostWorkerHandle>;
@@ -113,7 +137,9 @@ export interface HostExecution {
   sendFollowUp?(worker: HostWorkerHandle, request: HostWorkerRequest): Promise<void>;
   inspectWorker?(worker: HostWorkerHandle): Promise<{ state: string }>;
   stopWorker?(worker: HostWorkerHandle): Promise<void>;
+  resolvePermissions?(request: HostPermissionRequest): Promise<HostPermissionGrant>;
   integrateWorkspace?(request: HostWorkspaceIntegrationRequest): Promise<void>;
+  reportConcurrency?(): Promise<HostConcurrencyReport>;
 }
 
 /** Adapter boundary for a real native host. AIX never sees vendor objects. */
@@ -134,6 +160,10 @@ export class NativeHostAdapter implements HostExecution {
   stopWorker(worker: HostWorkerHandle): Promise<void> {
     return this.implementation.stopWorker?.(worker) || Promise.resolve();
   }
+  resolvePermissions(request: HostPermissionRequest): Promise<HostPermissionGrant> {
+    if (!this.implementation.resolvePermissions) return Promise.reject(new AixError("Host does not support task-scoped permission inspection."));
+    return this.implementation.resolvePermissions(request);
+  }
   integrateWorkspace(request: HostWorkspaceIntegrationRequest): Promise<void> {
     if (!this.implementation.integrateWorkspace) return Promise.reject(new AixError("Host does not support managed workspace integration."));
     return this.implementation.integrateWorkspace(request);
@@ -142,7 +172,7 @@ export class NativeHostAdapter implements HostExecution {
 
 export interface PiBridge {
   runtimeInfo(): Promise<{ provider?: string; model?: string; runtime?: string; capabilities: Record<string, boolean | "unknown"> }>;
-  createSubagent(request: { name: string; prompt: string }): Promise<{ id: string; displayName?: string }>;
+  createSubagent(request: { name: string; prompt: string }): Promise<{ id: string; displayName?: string; missionId?: string; runId?: string }>;
   waitForSubagent(id: string): Promise<{ status: "completed" | "blocked" | "failed"; output: string }>;
   inspectSubagent?(id: string): Promise<{ state: string }>;
   stopSubagent?(id: string): Promise<void>;
@@ -180,6 +210,8 @@ export class PiHostAdapter implements HostExecution {
       subagentId: request.contract.identity.subagentId,
       hostWorkerId: result.id,
       displayName: request.contract.identity.displayName,
+      ...(result.missionId ? { hostMissionId: result.missionId } : {}),
+      ...(result.runId ? { hostRunId: result.runId } : {}),
       ...(result.displayName ? { hostDisplayName: result.displayName } : {})
     };
   }
@@ -195,7 +227,9 @@ export class PiHostAdapter implements HostExecution {
       subagentId: worker.subagentId,
       delegationId: this.delegations.get(worker.hostWorkerId) || "unknown",
       status: result.status,
-      result: result.output
+      result: result.output,
+      ...(worker.hostMissionId ? { hostMissionId: worker.hostMissionId } : {}),
+      ...(worker.hostRunId ? { hostRunId: worker.hostRunId } : {})
     };
   }
 
@@ -215,11 +249,13 @@ export class PiHostAdapter implements HostExecution {
 
 export interface CodexBridge {
   runtimeInfo(): Promise<{ provider?: string; model?: string; runtime?: string; version?: string; capabilities: Record<string, boolean | "unknown"> }>;
-  createSubagent(request: { name: string; prompt: string; workspacePath?: string; writable: boolean }): Promise<{ id: string; displayName?: string }>;
+  createSubagent(request: { name: string; prompt: string; workspacePath?: string; writable: boolean }): Promise<{ id: string; displayName?: string; missionId?: string; runId?: string }>;
   waitForSubagent(id: string): Promise<{ status: "completed" | "blocked" | "failed"; output: string }>;
   sendFollowUp?(id: string, request: { prompt: string; workspacePath?: string }): Promise<void>;
   inspectSubagent?(id: string): Promise<{ state: string }>;
   stopSubagent?(id: string): Promise<void>;
+  resolvePermissions?(request: HostPermissionRequest): Promise<HostPermissionGrant>;
+  reportConcurrency?(): Promise<HostConcurrencyReport>;
   integrateWorkspace?(request: HostWorkspaceIntegrationRequest): Promise<void>;
 }
 
@@ -256,6 +292,8 @@ export class CodexHostAdapter implements HostExecution {
       subagentId: request.contract.identity.subagentId,
       hostWorkerId: result.id,
       displayName: request.contract.identity.displayName,
+      ...(result.missionId ? { hostMissionId: result.missionId } : {}),
+      ...(result.runId ? { hostRunId: result.runId } : {}),
       ...(result.displayName ? { hostDisplayName: result.displayName } : {})
     };
   }
@@ -271,7 +309,9 @@ export class CodexHostAdapter implements HostExecution {
       subagentId: worker.subagentId,
       delegationId: this.delegations.get(worker.hostWorkerId) || "unknown",
       status: result.status,
-      result: result.output
+      result: result.output,
+      ...(worker.hostMissionId ? { hostMissionId: worker.hostMissionId } : {}),
+      ...(worker.hostRunId ? { hostRunId: worker.hostRunId } : {})
     };
   }
 
@@ -293,9 +333,19 @@ export class CodexHostAdapter implements HostExecution {
     await this.codex.stopSubagent?.(worker.hostWorkerId);
   }
 
+  async resolvePermissions(request: HostPermissionRequest): Promise<HostPermissionGrant> {
+    if (!this.codex.resolvePermissions) throw new AixError("Codex host does not support task-scoped permission inspection.");
+    return this.codex.resolvePermissions(request);
+  }
+
   async integrateWorkspace(request: HostWorkspaceIntegrationRequest): Promise<void> {
     if (!this.codex.integrateWorkspace) throw new AixError("Codex host does not support managed workspace integration.");
     await this.codex.integrateWorkspace(request);
+  }
+
+  async reportConcurrency(): Promise<HostConcurrencyReport> {
+    if (!this.codex.reportConcurrency) throw new AixError("Codex host does not report worker concurrency.");
+    return this.codex.reportConcurrency();
   }
 }
 
@@ -340,13 +390,16 @@ export class CodexCliBridge implements CodexBridge {
         "worker-streaming": true,
         "worker-follow-up": this.options.persistSessions !== false,
         "worker-stop": true,
+        "permission-control": true,
         "workspace-binding": true,
-        "workspace-write": true
+        "workspace-write": true,
+        "workspace-integration": true,
+        "concurrency-reporting": true
       }
     };
   }
 
-  async createSubagent(request: { name: string; prompt: string; workspacePath?: string; writable: boolean }): Promise<{ id: string; displayName?: string }> {
+  async createSubagent(request: { name: string; prompt: string; workspacePath?: string; writable: boolean }): Promise<{ id: string; displayName?: string; missionId?: string; runId?: string }> {
     const id = `codex-worker-${randomUUID()}`;
     const args = ["exec", "--json", "--color", "never", "--sandbox", request.writable ? "workspace-write" : "read-only", "--ask-for-approval", "never"];
     if (this.options.persistSessions === false) args.push("--ephemeral");
@@ -383,6 +436,24 @@ export class CodexCliBridge implements CodexBridge {
       run.state = "stopped";
       run.child.kill("SIGTERM");
     }
+  }
+
+  async resolvePermissions(request: HostPermissionRequest): Promise<HostPermissionGrant> {
+    const mode = request.writable ? "workspace-write" : "read-only";
+    if (request.writable && !request.workspacePath) {
+      throw new AixError("Codex workspace-write permission requires an isolated workspace path.");
+    }
+    return { mode, ...(request.workspacePath ? { workspacePath: request.workspacePath } : {}), access: [...request.requiredAccess] };
+  }
+
+  async reportConcurrency(): Promise<HostConcurrencyReport> {
+    const active = [...this.runs.values()].filter((run) => run.state === "working").length;
+    return { active };
+  }
+
+  async integrateWorkspace(request: HostWorkspaceIntegrationRequest): Promise<void> {
+    if (!request.applyPatch) throw new AixError("Codex managed workspace integration requires an AIX-validated integration operation.");
+    request.applyPatch();
   }
 
   private outputPath(id: string): string {
@@ -439,7 +510,7 @@ export class CodexCliBridge implements CodexBridge {
 
 export interface ClaudeBridge {
   runtimeInfo(): Promise<{ provider?: string; model?: string; runtime?: string; version?: string; capabilities: Record<string, boolean | "unknown"> }>;
-  createSubagent(request: { name: string; prompt: string; workspacePath?: string; writable: boolean }): Promise<{ id: string; displayName?: string }>;
+  createSubagent(request: { name: string; prompt: string; workspacePath?: string; writable: boolean }): Promise<{ id: string; displayName?: string; missionId?: string; runId?: string }>;
   waitForSubagent(id: string): Promise<{ status: "completed" | "blocked" | "failed"; output: string }>;
   sendFollowUp?(id: string, request: { prompt: string; workspacePath?: string }): Promise<void>;
   inspectSubagent?(id: string): Promise<{ state: string }>;
@@ -480,6 +551,8 @@ export class ClaudeHostAdapter implements HostExecution {
       subagentId: request.contract.identity.subagentId,
       hostWorkerId: result.id,
       displayName: request.contract.identity.displayName,
+      ...(result.missionId ? { hostMissionId: result.missionId } : {}),
+      ...(result.runId ? { hostRunId: result.runId } : {}),
       ...(result.displayName ? { hostDisplayName: result.displayName } : {})
     };
   }
@@ -495,7 +568,9 @@ export class ClaudeHostAdapter implements HostExecution {
       subagentId: worker.subagentId,
       delegationId: this.delegations.get(worker.hostWorkerId) || "unknown",
       status: result.status,
-      result: result.output
+      result: result.output,
+      ...(worker.hostMissionId ? { hostMissionId: worker.hostMissionId } : {}),
+      ...(worker.hostRunId ? { hostRunId: worker.hostRunId } : {})
     };
   }
 
@@ -568,7 +643,7 @@ export class ClaudeCliBridge implements ClaudeBridge {
     };
   }
 
-  async createSubagent(request: { name: string; prompt: string; workspacePath?: string; writable: boolean }): Promise<{ id: string; displayName?: string }> {
+  async createSubagent(request: { name: string; prompt: string; workspacePath?: string; writable: boolean }): Promise<{ id: string; displayName?: string; missionId?: string; runId?: string }> {
     const id = `claude-worker-${randomUUID()}`;
     const args = ["--print", "--output-format", "stream-json", "--verbose", "--permission-mode", request.writable ? "acceptEdits" : "plan", "--name", request.name];
     if (this.options.persistSessions === false) args.push("--no-session-persistence");

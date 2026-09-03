@@ -20,7 +20,7 @@ import {
 } from "./delegation.js";
 import { acquireArtifactLock, acquirePmLock } from "./locks.js";
 import { createDiagnosticLogger, type DiagnosticLogger } from "./diagnostics.js";
-import { assertHostCapabilities, createPersistedCapabilitySnapshot, type HostExecution, type HostWorkerHandle, type HostWorkerRequest, type HostWorkerResult } from "./host.js";
+import { assertHostCapabilities, createPersistedCapabilitySnapshot, MANAGED_LOCAL_INTEGRATION_CAPABILITY, type HostExecution, type HostWorkerHandle, type HostWorkerRequest, type HostWorkerResult } from "./host.js";
 import { startPmSession, updatePmSession, type PmSessionHandle } from "./session.js";
 import type { DeliveryMode, TaskMode } from "./types.js";
 import { pmRuntimePaths } from "./paths.js";
@@ -110,6 +110,10 @@ export function assertPmArtifactWriteForbidden(candidatePath: string): never {
   throw new AixError(`PM and parent contexts cannot directly modify project artifacts: ${candidatePath}`);
 }
 
+export function requiredHostCapabilitiesForDeliveryMode(deliveryMode: DeliveryMode): readonly string[] {
+  return deliveryMode === "report-only" ? [] : [MANAGED_LOCAL_INTEGRATION_CAPABILITY];
+}
+
 function activeWorkflow(projectRoot: string, workflowPackageRoot?: string) {
   if (workflowPackageRoot) {
     const manifest = readWorkflowManifest(workflowPackageRoot);
@@ -166,7 +170,7 @@ export async function createPmOrchestrator(options: PmOrchestratorOptions): Prom
           continue;
         }
         const state = await (options.host.inspectWorker
-          ? options.host.inspectWorker({ subagentId: record.contract.identity.subagentId, hostWorkerId, displayName: record.contract.identity.displayName })
+          ? options.host.inspectWorker({ subagentId: record.contract.identity.subagentId, hostWorkerId, ...(record.contract.identity.hostMissionId ? { hostMissionId: record.contract.identity.hostMissionId } : {}), ...(record.contract.identity.hostRunId ? { hostRunId: record.contract.identity.hostRunId } : {}), displayName: record.contract.identity.displayName })
           : Promise.resolve({ state: "unsupported" }));
         if (["unknown", "unsupported"].includes(state.state)) {
           updateDelegationState(projectRoot, record.contract.identity.delegationId, "host-lost", `Host could not confirm worker state: ${state.state}.`, "provider");
@@ -241,12 +245,12 @@ export async function createPmOrchestrator(options: PmOrchestratorOptions): Prom
           reusableWorkers.set(reuseKey, { worker, role: input.role, taskMode: input.taskMode, deliveryMode: input.deliveryMode });
         }
         await options.host.sendBrief(worker, context.brief);
-        attachHostWorker(projectRoot, record.contract.identity.delegationId, worker.hostWorkerId);
+        attachHostWorker(projectRoot, record.contract.identity.delegationId, worker);
         acceptDelegation(projectRoot, record.contract.identity.delegationId);
         publishWorkerStatus(projectRoot, record.contract.identity.delegationId, "working", reused ? "Existing compatible worker received a fresh delegation." : "Worker started with a fresh delegation.");
         logger.info("Delegation dispatched", { sessionId: session.record.sessionId, delegationId: record.contract.identity.delegationId, subagentId: record.contract.identity.subagentId, hostWorkerId: worker.hostWorkerId }, { role: input.role, reused });
         const result = await options.host.waitForResult(worker);
-        if (result.delegationId !== record.contract.identity.delegationId || result.subagentId !== record.contract.identity.subagentId) {
+        if (result.delegationId !== record.contract.identity.delegationId || result.subagentId !== record.contract.identity.subagentId || result.hostWorkerId !== worker.hostWorkerId || (worker.hostMissionId && result.hostMissionId !== worker.hostMissionId) || (worker.hostRunId && result.hostRunId !== worker.hostRunId)) {
           throw new AixError("Host returned a result with mismatched delegation identity.");
         }
         const finalRecord = publishWorkerResult(projectRoot, record.contract.identity.delegationId, { status: result.status, summary: result.result, evidence: ["Host returned a correlated result."], gaps: result.status === "completed" ? [] : ["Worker did not complete normally."], residualRisk: [] });

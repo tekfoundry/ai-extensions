@@ -201,9 +201,14 @@ export function readDelegation(projectRoot: string, delegationId: string): Deleg
   return record;
 }
 
-export function attachHostWorker(projectRoot: string, delegationId: string, hostWorkerId: string): DelegationRecord {
+export function attachHostWorker(projectRoot: string, delegationId: string, worker: string | { hostWorkerId: string; hostMissionId?: string; hostRunId?: string }): DelegationRecord {
   const record = readDelegation(projectRoot, delegationId);
+  const hostWorkerId = typeof worker === "string" ? worker : worker.hostWorkerId;
   record.contract.identity.hostWorkerId = hostWorkerId;
+  if (typeof worker !== "string") {
+    if (worker.hostMissionId) record.contract.identity.hostMissionId = worker.hostMissionId;
+    if (worker.hostRunId) record.contract.identity.hostRunId = worker.hostRunId;
+  }
   record.updatedAt = utcTimestamp();
   assertNoRawSecrets(record);
   writePmJsonAtomic(join(delegationPaths(projectRoot, delegationId).root, "record.json"), record);

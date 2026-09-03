@@ -10,6 +10,7 @@ import {
   createDelegation,
   createDelegationReport,
   createPmOrchestrator,
+  requiredHostCapabilitiesForDeliveryMode,
   readPmSession,
   readDelegation
 } from "../dist/pm/index.js";
@@ -46,7 +47,8 @@ test("PM starts with a lease, reconciles, dispatches, and reuses compatible work
     discoveredAt: first.record.capabilitySnapshot.discoveredAt,
     capabilities: {
       "correlated-results": true, "native-worker-creation": true, "worker-follow-up": true,
-      "worker-stop": true, "worker-streaming": true, "workspace-binding": true, "workspace-write": true
+      "worker-stop": true, "worker-streaming": true, "workspace-binding": true, "workspace-write": true,
+      "managed-local-integration": true
     }
   });
   assert.deepEqual(JSON.parse(readFileSync(`${projectRoot}/.aix/pm/delegations/${first.record.contract.identity.delegationId}/record.json`, "utf8")).capabilitySnapshot, first.record.capabilitySnapshot);
@@ -135,5 +137,48 @@ test("tampered capability snapshots are rejected by recovery and audit access", 
   writeFileSync(recordPath, `${JSON.stringify(persisted)}\n`);
   assert.throws(() => pm.status(), /raw secret fields/);
   await assert.rejects(() => pm.recover(dispatched.record.contract.identity.delegationId, "verify"), /raw secret fields/);
+  pm.close();
+});
+
+test("write-producing delegations require managed local integration while report-only remains available", async () => {
+  const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-managed-local-capability-"));
+  const host = new FakeNativeHost({ capabilities: { "managed-local-integration": false } });
+  const pm = await createPmOrchestrator({ projectRoot, workflowPackageRoot: workflowRoot, host });
+
+  await assert.rejects(() => pm.dispatch({
+    role: "implementation-engineer", taskMode: "implementation", deliveryMode: "isolated-change",
+    goal: "Apply an isolated change.", constraints: [], acceptanceSignals: [], returnRequirements: []
+  }), /managed-local-integration/);
+  assert.deepEqual(requiredHostCapabilitiesForDeliveryMode("local-change"), ["managed-local-integration"]);
+  assert.deepEqual(requiredHostCapabilitiesForDeliveryMode("isolated-change"), ["managed-local-integration"]);
+  assert.deepEqual(requiredHostCapabilitiesForDeliveryMode("report-only"), []);
+
+  const report = await pm.dispatch({
+    role: "quality-engineer", taskMode: "verification", deliveryMode: "report-only",
+    goal: "Inspect the implementation.", constraints: [], acceptanceSignals: [], returnRequirements: []
+  });
+  assert.equal(report.record.state, "completed");
+  pm.close();
+});
+
+test("host-provided managed local integration authorizes an isolated-change delegation", async () => {
+  const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-managed-local-success-"));
+  const host = new FakeNativeHost();
+  const workspaceManager = {
+    create(input) {
+      return { workspaceId: `workspace-${input.delegationId}`, delegationId: input.delegationId, path: projectRoot, baseRevision: "test", integrationTarget: "test", ownerSessionId: input.ownerSessionId, allowedPaths: input.allowedPaths, deniedPaths: input.deniedPaths, state: "active", createdAt: "2026-09-02T00:00:00.000Z", updatedAt: "2026-09-02T00:00:00.000Z", changedPaths: [] };
+    },
+    integrate(workspace) { return { ...workspace, state: "integrated" }; },
+    cleanup(workspace) { return { ...workspace, state: "cleaned" }; },
+    status() { return { clean: true, changedPaths: [], outOfScopePaths: [] }; }
+  };
+  const pm = await createPmOrchestrator({ projectRoot, workflowPackageRoot: workflowRoot, host, workspaceManager });
+
+  const result = await pm.dispatch({
+    role: "implementation-engineer", taskMode: "implementation", deliveryMode: "isolated-change",
+    goal: "Apply an isolated change.", constraints: [], acceptanceSignals: [], returnRequirements: []
+  });
+  assert.equal(result.record.state, "completed");
+  assert.equal(host.workers[0].contract.authority.deliveryMode, "isolated-change");
   pm.close();
 });

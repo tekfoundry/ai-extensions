@@ -18,6 +18,8 @@ import { createInterface } from "node:readline";
 import { readLockfileJson } from "../../../activation/lockfile.js";
 import { workflowPmDatasets, workflowPmWarning } from "../../../workflows/pm-runtime.js";
 
+const WORKFLOW_HELP = "Usage: aix workflow <install|uninstall|update|diff> [options]\n\nManage the active AI workflow. Uninstall warns before removing active or unlanded PM data and requires explicit confirmation.";
+
 function renderInstallWorkflowResult(result: InstallWorkflowResult): string {
   return [
     `Installed workflow ${result.name}.`,
@@ -162,7 +164,10 @@ export const workflowCommand: Command = {
     { usage: "workflow update", summary: "Refresh the active workflow" },
     { usage: "workflow diff", summary: "Show pending workflow changes" }
   ],
-  run: runWorkflowCommand,
+  run(argv) {
+    if (argv.includes("--help") || argv.includes("-h")) return { exitCode: 0, stdout: WORKFLOW_HELP };
+    return runWorkflowCommand(argv);
+  },
   async runInteractive(argv, context) {
     if (argv[1] === "install" && argv[2] === undefined) {
       return promptForWorkflowInstall(context.input, context.output);

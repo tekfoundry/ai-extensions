@@ -24,11 +24,16 @@ test("diagnostic logs stay redacted, correlated, bounded, and tidy can preview a
   assert.equal(Buffer.byteLength(contents, "utf8") <= 220, true);
 
   await writeFile(join(diagnosticDirectory, "events.jsonl.1"), "rotated\n");
+  await writeFile(join(diagnosticDirectory, "events.jsonl.stale"), "explicitly stale\n");
+  await writeFile(join(diagnosticDirectory, "events.jsonl.tmp"), "unrelated\n");
   const report = previewPmTidy({ projectRoot });
-  assert.deepEqual(report.diagnostics.sort(), [logPath, join(diagnosticDirectory, "events.jsonl.1")].sort());
+  assert.deepEqual(report.diagnostics.sort(), [join(diagnosticDirectory, "events.jsonl.1"), join(diagnosticDirectory, "events.jsonl.stale")].sort());
   const result = applyPmTidy(report);
-  assert.equal(result.purgedDiagnostics.length, 2);
-  assert.equal((await import("node:fs")).existsSync(logPath), false);
+  assert.deepEqual(result.purgedDiagnostics.sort(), report.diagnostics.sort());
+  assert.equal((await import("node:fs")).existsSync(logPath), true);
+  assert.equal((await import("node:fs")).existsSync(join(diagnosticDirectory, "events.jsonl.tmp")), true);
+  assert.equal((await import("node:fs")).existsSync(join(diagnosticDirectory, "events.jsonl.1")), false);
+  assert.equal((await import("node:fs")).existsSync(join(diagnosticDirectory, "events.jsonl.stale")), false);
 });
 
 test("diagnostic logger does not emit files when the configured bound is too small", async () => {

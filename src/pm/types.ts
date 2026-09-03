@@ -38,6 +38,8 @@ export interface DelegationIdentity {
   subagentId: string;
   delegationId: string;
   hostWorkerId?: string;
+  hostMissionId?: string;
+  hostRunId?: string;
   displayName: string;
 }
 

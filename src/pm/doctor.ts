@@ -9,6 +9,7 @@ import {
   validatePersistedCapabilitySnapshot,
   type HostCapabilitySnapshot
 } from "./host.js";
+import { createHarnessCapabilityMatrix, renderHarnessCapabilityMatrix, type HarnessCapabilityMatrix } from "./capability-matrix.js";
 
 export const PM_DOCTOR_CORE_CAPABILITIES = [
   "native-worker-creation",
@@ -26,6 +27,7 @@ export interface HostAuthorizationReport {
   ok: boolean;
   snapshot?: Pick<HostCapabilitySnapshot, "provider" | "harness" | "model" | "runtime" | "discoveredAt">;
   checks: HostAuthorizationCheck[];
+  matrix?: HarnessCapabilityMatrix;
   error?: string;
 }
 
@@ -71,19 +73,22 @@ export function inspectHostAuthorization(
       ...(value === true ? {} : { guidance: guidance(capability) })
     } as HostAuthorizationCheck;
   });
+  const matrix = createHarnessCapabilityMatrix(snapshot, required);
   try {
     assertHostCapabilities(snapshot, required);
   } catch {
     return {
       ok: false,
       snapshot: { provider: snapshot.provider, harness: snapshot.harness, model: snapshot.model, runtime: snapshot.runtime, discoveredAt: snapshot.discoveredAt },
-      checks
+      checks,
+      matrix
     };
   }
   return {
     ok: true,
     snapshot: { provider: snapshot.provider, harness: snapshot.harness, model: snapshot.model, runtime: snapshot.runtime, discoveredAt: snapshot.discoveredAt },
-    checks
+    checks,
+    matrix
   };
 }
 
@@ -105,6 +110,7 @@ export function renderHostAuthorizationReport(report: HostAuthorizationReport): 
     lines.push(`Host: ${report.snapshot.harness}/${report.snapshot.provider} (${report.snapshot.runtime})`);
     lines.push(`Model: ${report.snapshot.model}`);
   }
+  if (report.matrix) lines.push(renderHarnessCapabilityMatrix(report.matrix));
   if (report.error) lines.push(`Error: ${report.error}`);
   for (const check of report.checks) {
     lines.push(`- ${check.capability}: ${check.status}`);

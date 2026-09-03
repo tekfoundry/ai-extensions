@@ -8,8 +8,11 @@ import type { Readable, Writable } from "node:stream";
 import { createInterface } from "node:readline";
 import { readHostAuthorizationReport, renderHostAuthorizationReport } from "../../../pm/doctor.js";
 
+const PM_HELP = "Usage: aix pm <status|doctor|tidy> [options]\n\nCommands:\n  status [--verbose]   Inspect PM session and delegations\n  doctor [--verbose]   Audit host capabilities and remediation\n  tidy [options]       Preview or clean PM runtime data";
+
 function runPmStatus(argv: string[]): CliResult {
-  if (argv.length > 3) throw new CliError("Usage: aix pm status", EXIT_USAGE);
+  const verbose = argv.includes("--verbose");
+  if (argv.length > 3 || (argv.length === 3 && !verbose)) throw new CliError("Usage: aix pm status [--verbose]", EXIT_USAGE);
   const { session, lease } = readPmSession();
   const workflow = readLockfileJson().workflows?.[0];
   const delegations = listDelegations();
@@ -24,7 +27,8 @@ function runPmStatus(argv: string[]): CliResult {
       `Delegations: ${delegations.length}`,
       ...(delegations.length === 0
         ? ["  none"]
-        : delegations.map((record) => `  ${record.contract.identity.displayName} (${record.contract.identity.delegationId}): ${record.state}`))
+        : delegations.map((record) => `  ${record.contract.identity.displayName} (${record.contract.identity.delegationId}): ${record.state}`)),
+      ...(verbose ? ["", "Verbose diagnostics:", renderHostAuthorizationReport(readHostAuthorizationReport())] : [])
     ].join("\n")
   };
 }
@@ -83,6 +87,8 @@ export const pmCommand: Command = {
   summary: "Inspect and maintain PM runtime state",
   splash: [{ usage: "pm status", summary: "Inspect PM session and delegations" }, { usage: "pm doctor", summary: "Audit host capabilities and remediation" }, { usage: "pm tidy", summary: "Preview or purge stale PM runtime data" }],
   run(argv) {
+    if (argv[1] === "--help" || argv[1] === "-h") return { exitCode: 0, stdout: PM_HELP };
+    if (argv.includes("--help") || argv.includes("-h")) return { exitCode: 0, stdout: PM_HELP };
     if (argv[1] === "status") return runPmStatus(argv);
     if (argv[1] === "doctor") return runPmDoctor(argv);
     if (argv[1] === "tidy") return runPmTidy(argv);

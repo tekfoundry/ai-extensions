@@ -48,9 +48,13 @@ test("tidy uses explicit completed cleanup, stale retention, and conservative ho
   publishWorkerResult(projectRoot, completed.contract.identity.delegationId, { summary: "done", evidence: [], gaps: [], residualRisk: [], status: "completed" });
   const stale = delegation(projectRoot, "stale");
   const staleRecord = JSON.parse(await readFile(stale.recordPath, "utf8"));
+  staleRecord.state = "failed";
   staleRecord.updatedAt = "2026-01-01T00:00:00.000Z";
   await writeFile(stale.recordPath, JSON.stringify(staleRecord));
   const held = delegation(projectRoot, "held");
+  const heldRecord = JSON.parse(await readFile(held.recordPath, "utf8"));
+  heldRecord.state = "failed";
+  await writeFile(held.recordPath, JSON.stringify(heldRecord));
   await writeFile(join(delegationPaths(projectRoot, held.contract.identity.delegationId).root, "result.md"), "destructive-risk hold\n");
 
   const now = new Date("2026-09-02T00:00:00.000Z");
@@ -66,6 +70,7 @@ test("tidy requires promotion or an explicit waiver before purge", async () => {
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-tidy-gate-"));
   const record = delegation(projectRoot, "ordered");
   const json = JSON.parse(await readFile(record.recordPath, "utf8"));
+  json.state = "failed";
   json.updatedAt = "2026-01-01T00:00:00.000Z";
   await writeFile(record.recordPath, JSON.stringify(json));
   const now = new Date("2026-09-02T00:00:00.000Z");
@@ -78,6 +83,7 @@ test("tidy accepts an explicit cleanup waiver with a recorded reason", async () 
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-tidy-waiver-"));
   const record = delegation(projectRoot, "waived");
   const json = JSON.parse(await readFile(record.recordPath, "utf8"));
+  json.state = "failed";
   json.updatedAt = "2026-01-01T00:00:00.000Z";
   await writeFile(record.recordPath, JSON.stringify(json));
   recordPmCleanupWaiver(projectRoot, { delegationIds: [record.contract.identity.delegationId] }, "Plan promotion is intentionally waived for this local cleanup.");
@@ -106,12 +112,31 @@ test("tidy rechecks current state before applying a previously previewed purge",
   assert.equal((await readFile(record.recordPath)).length > 0, true);
 });
 
+test("created delegations stay held in preview and cannot be purged at apply time", async () => {
+  const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-tidy-created-"));
+  const record = delegation(projectRoot, "created");
+  recordPmCleanupWaiver(projectRoot, { delegationIds: [record.contract.identity.delegationId] }, "created delegation protection regression test");
+  const json = JSON.parse(await readFile(record.recordPath, "utf8"));
+  json.updatedAt = "2026-01-01T00:00:00.000Z";
+  await writeFile(record.recordPath, JSON.stringify(json));
+
+  const report = previewPmTidy({ projectRoot, now: new Date("2026-09-02T00:00:00.000Z") });
+  assert.equal(report.candidates[0].state, "created");
+  assert.equal(report.candidates[0].action, "hold");
+  assert.match(report.candidates[0].reason, /active or unresolved delegation/);
+
+  const forgedPurge = { ...report, candidates: report.candidates.map((item) => ({ ...item, action: "purge" })) };
+  const result = applyPmTidy(forgedPurge);
+  assert.deepEqual(result.purged, []);
+  assert.equal((await readFile(record.recordPath)).length > 0, true);
+});
+
 test("archive is explicit and leaves live eligible data reversible", async () => {
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-tidy-archive-"));
   const record = delegation(projectRoot, "archive");
   recordPmCleanupWaiver(projectRoot, { delegationIds: [record.contract.identity.delegationId] }, "archive test waiver");
   const json = JSON.parse(await readFile(record.recordPath, "utf8"));
-  await writeFile(record.recordPath, JSON.stringify({ ...json, updatedAt: "2026-01-01T00:00:00.000Z" }));
+  await writeFile(record.recordPath, JSON.stringify({ ...json, state: "failed", updatedAt: "2026-01-01T00:00:00.000Z" }));
   const report = previewPmTidy({ projectRoot, now: new Date("2026-09-02T00:00:00.000Z") });
   const result = archivePmTidy(report);
   assert.deepEqual(result.archived, [record.contract.identity.delegationId]);
@@ -123,6 +148,7 @@ test("tidy purge removes the delegation dataset and its index entry", async () =
   recordPmCleanupWaiver(projectRoot, { workflow: "design-plan-execute" }, "focused purge test waiver");
   const record = delegation(projectRoot, "purge");
   const recordJson = JSON.parse(await readFile(record.recordPath, "utf8"));
+  recordJson.state = "failed";
   recordJson.updatedAt = "2026-01-01T00:00:00.000Z";
   await writeFile(record.recordPath, JSON.stringify(recordJson));
   const report = previewPmTidy({ projectRoot, now: new Date("2026-09-02T00:00:00.000Z") });
@@ -141,6 +167,7 @@ test("pm tidy previews by default and refuses mutation without an explicit flag"
     const record = delegation(projectRoot, "cli");
     recordPmCleanupWaiver(projectRoot, { workflow: "design-plan-execute" }, "focused CLI test waiver");
     const json = JSON.parse(await readFile(record.recordPath, "utf8"));
+    json.state = "failed";
     json.updatedAt = "2026-01-01T00:00:00.000Z";
     await writeFile(record.recordPath, JSON.stringify(json));
     const preview = run(["pm", "tidy", "--older-than", "30"]);

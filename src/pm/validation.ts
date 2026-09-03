@@ -135,6 +135,12 @@ export function validateDelegationContract(value: unknown): DelegationContract {
       ...(identityRecord.hostWorkerId === undefined
         ? {}
         : { hostWorkerId: requireString(identityRecord.hostWorkerId, "identity.hostWorkerId", { identifier: true }) }),
+      ...(identityRecord.hostMissionId === undefined
+        ? {}
+        : { hostMissionId: requireString(identityRecord.hostMissionId, "identity.hostMissionId", { identifier: true }) }),
+      ...(identityRecord.hostRunId === undefined
+        ? {}
+        : { hostRunId: requireString(identityRecord.hostRunId, "identity.hostRunId", { identifier: true }) }),
       displayName: requireString(identityRecord.displayName, "identity.displayName")
     },
     authority: {
