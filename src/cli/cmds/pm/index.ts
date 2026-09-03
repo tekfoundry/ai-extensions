@@ -16,6 +16,9 @@ function runPmStatus(argv: string[]): CliResult {
   const { session, lease } = readPmSession();
   const workflow = readLockfileJson().workflows?.[0];
   const delegations = listDelegations();
+  const counts = new Map();
+  for (const record of delegations) counts.set(record.state, (counts.get(record.state) || 0) + 1);
+  const schedulerSummary = ["created", "queued", "dispatched", "working", "serialized", "paused", "needs-decision", "blocked", "failed", "completed", "cancelled", "expired", "superseded", "host-lost", "unknown"].map((state) => `${state}=${counts.get(state) || 0}`).join(" ");
 
   return {
     exitCode: 0,
@@ -25,10 +28,11 @@ function runPmStatus(argv: string[]): CliResult {
       `Lease: ${lease && lease.expiresAt > new Date().toISOString() ? `active until ${lease.expiresAt}` : "inactive"}`,
       `Workflow: ${workflow?.name || "none"}`,
       `Delegations: ${delegations.length}`,
+      `Scheduler: ${schedulerSummary}`,
       ...(delegations.length === 0
         ? ["  none"]
-        : delegations.map((record) => `  ${record.contract.identity.displayName} (${record.contract.identity.delegationId}): ${record.state}`)),
-      ...(verbose ? ["", "Verbose diagnostics:", renderHostAuthorizationReport(readHostAuthorizationReport())] : [])
+        : delegations.map((record) => `  ${record.contract.identity.displayName} (${record.contract.identity.delegationId}): ${record.state}${record.scheduling?.decision ? ` [decision ${record.scheduling.decision}${record.scheduling.decisionKind ? `/${record.scheduling.decisionKind}` : ""}]` : ""}${record.scheduling?.groupId ? ` [group ${record.scheduling.groupId}]` : ""}${verbose && record.scheduling?.reason ? ` — ${record.scheduling.reason}` : ""}${verbose && record.scheduling?.rationale ? `\n    rationale: ${record.scheduling.rationale}` : ""}`)),
+      ...(verbose ? ["", "Scheduler details:", "  Queueing is dependency, scope, group, and host-capacity aware.", "", "Host diagnostics:", renderHostAuthorizationReport(readHostAuthorizationReport())] : [])
     ].join("\n")
   };
 }

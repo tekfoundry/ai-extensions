@@ -44,7 +44,7 @@ export interface TidyArchiveResult {
 }
 
 const DEFAULT_RETENTION_DAYS = 30;
-const ACTIVE_STATES = new Set(["created", "dispatched", "working", "needs-decision", "blocked", "paused", "unknown", "host-lost"]);
+const ACTIVE_STATES = new Set(["created", "queued", "serialized", "dispatched", "working", "needs-decision", "blocked", "paused", "unknown", "host-lost"]);
 const ELIGIBLE_DIAGNOSTIC_PATTERN = /^.+\.(?:log|jsonl)(?:\.\d+|\.stale)$/;
 
 function isEligibleDiagnostic(name: string): boolean {

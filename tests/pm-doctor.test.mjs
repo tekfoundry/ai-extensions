@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { mkdtemp, writeFile } from "node:fs/promises";
+import { createDelegation, updateDelegationState } from "../dist/pm/index.js";
 import { test } from "node:test";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -65,6 +66,24 @@ test("pm status stays concise and does not print capability snapshots", async ()
     assert.match(result.stdout, /^PM status/);
     assert.equal(result.stdout.includes("Capabilities:"), false);
     assert.equal(result.stdout.includes("fixture-secret"), false);
+  } finally {
+    process.chdir(oldRoot);
+  }
+});
+
+test("pm status summarizes scheduler states and verbose group reasons", async () => {
+  const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-status-scheduler-"));
+  const record = createDelegation({ projectRoot, workflow: "design-plan-execute", workflowVersion: "1", pmRoleVersion: "1", role: "quality-engineer", taskMode: "verification", deliveryMode: "report-only", goal: "Queue me", constraints: [], acceptanceSignals: [], returnRequirements: [], allowedPaths: [], deniedPaths: ["src/"], requiredAccess: ["read"], stopConditions: ["scope unclear"], scheduling: { groupId: "verification-group", dependencies: [], writeDomains: [], sharedArtifacts: [] } });
+  updateDelegationState(projectRoot, record.contract.identity.delegationId, "queued", "Waiting for host capacity.");
+  const oldRoot = process.cwd();
+  process.chdir(projectRoot);
+  try {
+    const concise = run(["pm", "status"]);
+    assert.match(concise.stdout, /Scheduler: .*queued=1/);
+    assert.match(concise.stdout, /\[group verification-group\]/);
+    const verbose = run(["pm", "status", "--verbose"]);
+    assert.match(verbose.stdout, /Waiting for host capacity/);
+    assert.match(verbose.stdout, /Scheduler details:/);
   } finally {
     process.chdir(oldRoot);
   }

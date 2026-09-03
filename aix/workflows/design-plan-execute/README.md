@@ -53,6 +53,20 @@ aix status
 aix verify
 ```
 
+## Selective PM execution
+
+The project-manager schedules cohesive task groups from declared role scopes,
+dependencies, shared artifacts, and host capacity. Related work stays in one
+group with a persisted rationale and runs sequentially; independent groups may
+run in parallel when their claims do not overlap. Parent-workspace integration
+is always serialized. Queued, held, conflict, and recovery decisions remain in
+the local PM runtime so the PM can explain why work waited or split.
+
+Native hosts that report limited, unknown, or changed concurrency reduce
+parallelism. Missing workspace or managed-integration capabilities fail closed
+for change-producing work. Host-specific worker names and UI may differ, but
+the AIX grouping, isolation, lock, and recovery rules remain the same.
+
 After initialization or workflow installation, `aix` updates the project:
 
 1. `AGENTS.md` gets a managed block marked

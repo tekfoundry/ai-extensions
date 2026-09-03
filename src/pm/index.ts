@@ -17,3 +17,4 @@ export * from "./completion.js";
 export * from "./doctor.js";
 export * from "./correlation.js";
 export * from "./capability-matrix.js";
+export * from "./scheduler.js";

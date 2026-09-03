@@ -27,6 +27,18 @@ export interface CreateDelegationInput {
   returnRequirements: string[];
   teamVersion?: string;
   capabilitySnapshot?: PersistedCapabilitySnapshot;
+  scheduling?: DelegationScheduling;
+}
+
+export interface DelegationScheduling {
+  groupId: string;
+  rationale: string;
+  dependencies: string[];
+  writeDomains: string[];
+  sharedArtifacts: string[];
+  decision?: "active" | "queued";
+  decisionKind?: "parallel" | "grouped" | "split" | "queued" | "serialized" | "held" | "recovery";
+  reason?: string;
 }
 
 export interface DelegationRecord {
@@ -40,6 +52,7 @@ export interface DelegationRecord {
   acceptanceSignals: string[];
   returnRequirements: string[];
   readonly capabilitySnapshot?: PersistedCapabilitySnapshot;
+  readonly scheduling?: DelegationScheduling;
 }
 
 export function createDelegation(input: CreateDelegationInput): DelegationRecord {
@@ -79,7 +92,8 @@ export function createDelegation(input: CreateDelegationInput): DelegationRecord
     constraints: input.constraints,
     acceptanceSignals: input.acceptanceSignals,
     returnRequirements: input.returnRequirements,
-    ...(input.capabilitySnapshot ? { capabilitySnapshot: input.capabilitySnapshot } : {})
+    ...(input.capabilitySnapshot ? { capabilitySnapshot: input.capabilitySnapshot } : {}),
+    ...(input.scheduling ? { scheduling: input.scheduling } : {})
   };
   assertNoRawSecrets(record);
   writePmJsonAtomic(join(paths.root, "record.json"), record);
@@ -149,10 +163,14 @@ function readEventCount(path: string): number {
 }
 
 export function publishWorkerStatus(projectRoot: string, delegationId: string, state: DelegationState, summary: string): DelegationRecord {
-  const record = readDelegation(projectRoot, delegationId);
+  const current = readDelegation(projectRoot, delegationId);
   const nextState = validateDelegationState(state);
   if (nextState === "created") throw new Error("Worker cannot publish created state.");
-  record.state = nextState;
+  const record: DelegationRecord = {
+    ...current,
+    state: nextState,
+    ...(current.scheduling ? { scheduling: { ...current.scheduling, decision: ["queued", "serialized"].includes(nextState) ? "queued" : "active", ...(summary ? { reason: summary } : {}) } } : {})
+  };
   record.updatedAt = utcTimestamp();
   writePmJsonAtomic(join(delegationPaths(projectRoot, delegationId).root, "record.json"), record);
   const paths = delegationPaths(projectRoot, delegationId);
@@ -163,8 +181,8 @@ export function publishWorkerStatus(projectRoot: string, delegationId: string, s
 }
 
 export function acceptDelegation(projectRoot: string, delegationId: string, summary = "Worker accepted the delegation."): DelegationRecord {
-  const record = readDelegation(projectRoot, delegationId);
-  record.state = "dispatched";
+  const current = readDelegation(projectRoot, delegationId);
+  const record: DelegationRecord = { ...current, state: "dispatched", ...(current.scheduling ? { scheduling: { ...current.scheduling, decision: "active", reason: summary } } : {}) };
   record.updatedAt = utcTimestamp();
   writePmJsonAtomic(join(delegationPaths(projectRoot, delegationId).root, "record.json"), record);
   appendEvent(projectRoot, record, "acceptance", "worker", { summary });
@@ -217,8 +235,13 @@ export function attachHostWorker(projectRoot: string, delegationId: string, work
 }
 
 export function updateDelegationState(projectRoot: string, delegationId: string, state: DelegationState, summary?: string, source: "pm" | "provider" | "aix" = "pm"): DelegationRecord {
-  const record = readDelegation(projectRoot, delegationId);
-  record.state = validateDelegationState(state);
+  const current = readDelegation(projectRoot, delegationId);
+  const nextState = validateDelegationState(state);
+  const record: DelegationRecord = {
+    ...current,
+    state: nextState,
+    ...(current.scheduling ? { scheduling: { ...current.scheduling, decision: ["queued", "serialized"].includes(nextState) ? "queued" : "active", ...(summary && ["queued", "serialized", "blocked", "failed", "host-lost", "unknown", "paused"].includes(nextState) ? { reason: summary } : {}), ...(summary && ["queued"].includes(nextState) ? { decisionKind: "queued" as const } : {}), ...(summary && ["serialized"].includes(nextState) ? { decisionKind: "serialized" as const } : {}), ...(summary && ["paused"].includes(nextState) ? { decisionKind: "held" as const } : {}), ...(summary && ["blocked", "failed", "host-lost", "unknown"].includes(nextState) ? { decisionKind: "recovery" as const } : {}) } } : {})
+  };
   record.updatedAt = utcTimestamp();
   writePmJsonAtomic(join(delegationPaths(projectRoot, delegationId).root, "record.json"), record);
   appendEvent(projectRoot, record, "state", source, { state: record.state, ...(summary ? { summary } : {}) });

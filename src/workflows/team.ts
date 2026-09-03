@@ -19,6 +19,9 @@ export interface WorkflowTeamRole {
   deniedAreas: string[];
   requiredCapabilities: string[];
   requiredEvidence: string[];
+  sharedArtifacts: string[];
+  readOnly: boolean;
+  serialization: "none" | "group" | "shared-artifact" | "integration";
 }
 
 export interface WorkflowTeam {
@@ -54,6 +57,12 @@ function requireEnumArray<T extends string>(value: unknown, values: readonly T[]
   }
 
   return value as T[];
+}
+
+function optionalBoolean(value: unknown, fallback: boolean, path: string): boolean {
+  if (value === undefined) return fallback;
+  if (typeof value !== "boolean") fail(path, "must be a boolean.");
+  return value;
 }
 
 export function parseWorkflowTeam(markdown: string, path = "team.md"): WorkflowTeam {
@@ -104,9 +113,19 @@ export function parseWorkflowTeam(markdown: string, path = "team.md"): WorkflowT
       writeDomains: requireStringArray(role.writeDomains, `${rolePath}.writeDomains`),
       deniedAreas: requireStringArray(role.deniedAreas, `${rolePath}.deniedAreas`),
       requiredCapabilities: requireStringArray(role.requiredCapabilities, `${rolePath}.requiredCapabilities`),
-      requiredEvidence: requireStringArray(role.requiredEvidence, `${rolePath}.requiredEvidence`)
+      requiredEvidence: requireStringArray(role.requiredEvidence, `${rolePath}.requiredEvidence`),
+      sharedArtifacts: requireStringArray(role.sharedArtifacts ?? [], `${rolePath}.sharedArtifacts`),
+      readOnly: optionalBoolean(role.readOnly, false, `${rolePath}.readOnly`),
+      serialization: role.serialization === undefined ? "none" : requireEnumArray([role.serialization], ["none", "group", "shared-artifact", "integration"], `${rolePath}.serialization`)[0]
     };
   });
+
+  for (const [index, role] of roles.entries()) {
+    const rolePath = `${path}.roles[${index}]`;
+    if (role.readOnly && role.deliveryModes.some((mode) => mode !== "report-only")) fail(rolePath, "readOnly roles may only support report-only delivery.");
+    if (role.serialization === "shared-artifact" && role.sharedArtifacts.length === 0) fail(rolePath, "shared-artifact serialization requires sharedArtifacts.");
+    if (role.serialization === "integration" && !role.deliveryModes.includes("isolated-change")) fail(rolePath, "integration serialization requires isolated-change delivery.");
+  }
 
   return {
     workflow: requireString(raw.workflow, `${path}.workflow`),

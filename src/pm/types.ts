@@ -9,6 +9,8 @@ export type DeliveryMode = (typeof DELIVERY_MODES)[number];
 
 export const DELEGATION_STATES = [
   "created",
+  "queued",
+  "serialized",
   "dispatched",
   "working",
   "needs-decision",

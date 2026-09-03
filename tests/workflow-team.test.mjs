@@ -19,6 +19,8 @@ test("bundled design-plan-execute workflow exposes a validated team roster", () 
   assert.equal(team.version, "1");
   assert.ok(team.requiredCapabilities.includes("native-worker-creation"));
   assert.ok(team.roles.some((role) => role.name === "implementation-engineer" && role.writeDomains.includes("src/")));
+  assert.ok(team.roles.some((role) => role.name === "quality-engineer" && role.serialization === "shared-artifact"));
+  assert.equal(team.roles.find((role) => role.name === "technical-architect")?.readOnly, true);
   assert.equal(team.roles.some((role) => role.name === "project-manager"), false);
   assert.ok(team.roles.every((role) => role.displayName && role.directory));
   assert.ok(team.roles.every((role) => existsSync(`${workflowRoot}/${role.directory}`) || role.name === "project-manager"));
@@ -38,6 +40,22 @@ test("parseWorkflowTeam rejects duplicate roles and unsupported modes", () => {
   assert.throws(
     () => parseWorkflowTeam(markdown({ ...base, roles: [{ ...base.roles[0], taskModes: ["unknown"] }] })),
     /taskModes.*scout/
+  );
+  assert.throws(
+    () => parseWorkflowTeam(markdown({ ...base, roles: [{ ...base.roles[0], serialization: "unknown" }] })),
+    /serialization.*none/
+  );
+  assert.throws(
+    () => parseWorkflowTeam(markdown({ ...base, roles: [{ ...base.roles[0], readOnly: "yes" }] })),
+    /readOnly.*boolean/
+  );
+  assert.throws(
+    () => parseWorkflowTeam(markdown({ ...base, roles: [{ ...base.roles[0], serialization: "shared-artifact", sharedArtifacts: [] }] })),
+    /shared-artifact serialization requires sharedArtifacts/
+  );
+  assert.throws(
+    () => parseWorkflowTeam(markdown({ ...base, roles: [{ ...base.roles[0], readOnly: true, deliveryModes: ["report-only", "isolated-change"] }] })),
+    /readOnly roles may only support report-only/
   );
 });
 

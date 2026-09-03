@@ -1867,44 +1867,62 @@ Exit criteria:
 - The plan's verification and security gates pass with no unowned runtime or
   cleanup behavior.
 
-### Phase 10: Add selective parallelism and conflict-aware scheduling (status: accepted)
+### Phase 10: Add selective parallelism and conflict-aware scheduling (status: completed)
 
 Goal: allow safe parallel worker execution without allowing conflicting changes
 to race through the parent workspace or silently collide during integration.
 
 Tasks:
 
-- ⬜️ Define the scheduling model for task dependencies, role write domains,
+- ✅ Define the scheduling model for task dependencies, role write domains,
   artifact ownership, shared-resource claims, and host concurrency limits.
-- ⬜️ Define task-group formation rules so related tasks are bundled into one
+- ✅ Define task-group formation rules so related tasks are bundled into one
   worker assignment and run sequentially, while independent groups remain
   eligible for parallel execution.
-- ⬜️ Extend workflow/team/role metadata where needed to declare write domains,
+- ✅ Extend workflow/team/role metadata where needed to declare write domains,
   read-only behavior, shared artifacts, and serialization requirements.
-- ⬜️ Implement PM scheduling that parallelizes independent read-only work and
+- ✅ Implement PM scheduling that parallelizes independent read-only work and
   disjoint change-producing work, while queuing dependent or overlapping tasks
   and preserving sequential execution within each cohesive task group.
-- ⬜️ Add runtime ownership and conflict checks for shared contracts,
+- ✅ Add runtime ownership and conflict checks for shared contracts,
   orchestrator code, CLI entrypoints, workflow metadata, common fixtures, and
   other declared shared artifacts.
-- ⬜️ Add integration serialization and locking so parent-workspace integration
+- ✅ Add integration serialization and locking so parent-workspace integration
   occurs one worker at a time, with verification and state updates between
   integrations.
-- ⬜️ Incorporate host concurrency and managed-integration capabilities into
+- ✅ Incorporate host concurrency and managed-integration capabilities into
   scheduling decisions. Unknown or insufficient capabilities must reduce
   parallelism or fail closed rather than trigger unsafe fallback behavior.
-- ⬜️ Preserve isolated workspace guarantees, changed-file overlap detection,
+- ✅ Preserve isolated workspace guarantees, changed-file overlap detection,
   conflict recovery, unlanded-change protection, and cleanup safety when
   multiple workers are active.
-- ⬜️ Add scheduler and integration tests for independent parallel work,
+- ✅ Add scheduler and integration tests for independent parallel work,
   overlapping write domains, dependency queues, shared-resource serialization,
   host capacity limits, failed workers, restart recovery, and integration
   conflicts.
-- ⬜️ Add concise PM status and verbose diagnostic coverage for queued, grouped,
+- ✅ Add concise PM status and verbose diagnostic coverage for queued, grouped,
   active, blocked, serialized, integrated, and conflict-recovery work.
-- ⬜️ Document that phase-level execution uses dependency-aware selective
+- ✅ Document that phase-level execution uses dependency-aware selective
   parallelism across task groups rather than unconditional task fan-out;
   document the grouping rationale and any host-specific limitations.
+
+Execution status: Phase 10 implementation and closeout evidence are complete
+across the scheduler, orchestrator, locks, team metadata, documentation, and
+tests. Canonical task grouping derives cohesive groups from dependency,
+overlapping-scope, shared-artifact, and serialization relationships; caller
+group IDs remain non-authoritative. Cross-session artifact claims are acquired
+before worker creation, while parent-workspace integration is serialized and
+retains conflict recovery state. Scheduler decisions persist concise state and
+verbose event diagnostics with the claims and rationale used. Host capacity is
+refreshed from dynamic reports and change-producing work fails closed when
+required capabilities are unknown or insufficient.
+
+Phase 10 verification:
+
+- `npm run build`
+- `node --test tests/pm-scheduler.test.mjs tests/pm-orchestrator.test.mjs tests/pm-doctor.test.mjs tests/workflow-team.test.mjs` (42 passed)
+- `npm test` (327 passed)
+- `git diff --check`
 
 Exit criteria:
 
@@ -1922,26 +1940,78 @@ Goal: clarify product decision ownership by replacing the narrow
 `product-strategist` role with a complete `product-owner` role and formalizing
 the human principal in the PM interaction model.
 
+Design Intent:
+
+- `product-owner` is the workflow's product-decision role. It owns product
+  intent, user value, prioritization, scope, product-level acceptance, and
+  tradeoffs, while returning implementation, architecture, security, and
+  release decisions to the appropriate specialists or Boss.
+- `release-engineer` is an experienced or senior DevOps engineer, not a
+  generic release assistant. The role owns delivery-system reliability,
+  CI/CD, build and package validation, artifact integrity, supported-host
+  integration, cross-platform release concerns, operational diagnostics, and
+  safe automation tradeoffs. Its default authority excludes publishing,
+  unrestricted external changes, and raw credential handling.
+- The workflow's `team.md` is the authoritative, versioned roster contract.
+  The final roster contains exactly one product-decision role named
+  `product-owner`, one release/platform role named `release-engineer`, and no
+  ambiguous `product-strategist` ownership. Roster metadata must declare each
+  role's responsibilities, task and delivery modes, write domains, denied
+  areas, required capabilities, evidence, and serialization policy.
+- Existing `product-strategist` state must migrate transactionally or fail
+  clearly. The migration must preserve user edits, provenance, lockfile and
+  manifest integrity, managed instruction ownership, and a recoverable path
+  for standalone-role collisions; it must never leave dual ownership or an
+  orphaned active role.
+- Boss is the human decision principal, outside the delegated-role roster and
+  worker lifecycle. Boss retains authority for product decisions, priorities,
+  risky approvals, exceptions, final acceptance, and release decisions.
+  Conversational Boss language is concise and intentional; Boss is not a
+  durable worker, delegation, or persisted record identity.
+
 Tasks:
 
 - ⬜️ Define the `product-owner` role contract, including product intent, user
   value, prioritization, scope, product-level acceptance, and tradeoffs.
-- ⬜️ Define the `release-engineer` role contract, including CI, build and
-  package validation, npm artifact contents, supported-host environment
-  integration, cross-platform compatibility, and release diagnostics.
-- ⬜️ Rename the role bundle, activation name, display name, team roster entry,
+- ⬜️ Create the `product-owner` role bundle with `ROLE.md` and `GUIDANCE.md`,
+  preserving the product-strategy responsibilities that remain in scope while
+  making product-decision authority and escalation boundaries explicit.
+- ⬜️ Define the `release-engineer` role contract and persona as an experienced
+  or senior DevOps engineer. The contract includes CI, build and package
+  validation, npm artifact contents, supported-host environment integration,
+  cross-platform compatibility, release diagnostics, operational reliability,
+  deployment safety, and release automation tradeoffs.
+- ⬜️ Create the `release-engineer` role bundle with `ROLE.md` and
+  `GUIDANCE.md`; describe the senior DevOps perspective, responsibilities,
+  authority boundaries, evidence expectations, and refusal/escalation rules in
+  both documents. Keep publishing, credential access, and unrestricted
+  external-release actions outside the default role authority.
+- ⬜️ Rename the product-strategy role bundle, activation name, display name,
   manifests, lockfiles, guidance, prompts, and related references from
-  `product-strategist` to `product-owner`.
+  `product-strategist` to `product-owner`, including package and active-role
+  discovery expectations.
+- ⬜️ Update `aix/workflows/design-plan-execute/team.md` as the authoritative
+  workflow roster contract: replace `product-strategist`, add
+  `product-owner` and `release-engineer`, declare their bounded metadata,
+  bump the team contract version when required, and keep workflow manifest and
+  lockfile team hashes/provenance consistent.
 - ⬜️ Define and implement a safe migration for projects with installed or
   active `product-strategist` state, including stale active-file, manifest,
-  lockfile, dependency, and provenance handling. Never leave ambiguous dual
-  ownership or silently orphaned files.
+  lockfile, dependency, managed-append, package, active-file, collision, and
+  provenance handling. Cover workflow-owned and standalone installations,
+  edited-file refusal, transactional rollback, update, reinstall,
+  deactivation, and reactivation. Never leave ambiguous dual ownership or
+  silently orphaned files.
 - ⬜️ Update PM delegation routing and workflow-team discovery so the PM can
-  select `product-owner` for product decisions without treating it as a
-  project-management or implementation role.
-- ⬜️ Add `release-engineer` to the workflow team roster and delegation routing,
-  with bounded release/platform write domains and clear interaction with
-  implementation, architecture, quality, security, and PM roles.
+  select `product-owner` for product decisions and `release-engineer` for
+  release/platform work without treating either as a project-management or
+  implementation role. Update project-manager role guidance and reject stale
+  or ambiguous role names.
+- ⬜️ Define and enforce `release-engineer` write domains, denied areas,
+  required capabilities, evidence requirements, and serialization with
+  implementation, architecture, quality, security, and PM work. Keep registry,
+  publishing, global-install, and unrestricted external-release behavior out
+  of scope unless separately authorized.
 - ⬜️ Formalize `boss` as the human principal in the PM interaction contract.
   Keep Boss outside the delegated-role roster and delegation lifecycle while
   preserving authority for product decisions, priorities, risky approvals,
@@ -1951,10 +2021,16 @@ Tasks:
   repeating it in every response or durable record.
 - ⬜️ Add role-migration, routing, authority, UX-copy, and regression tests for
   clean installs, existing installations, deactivation, reactivation,
-  delegation selection, and Boss interaction behavior.
-- ⬜️ Update final workflow, role, product, requirements, and PM documentation
-  during plan completion; do not promote current-state knowledge into `_docs/kb`
-  before the full plan closeout.
+  delegation selection, roster validation, lockfile/provenance integrity,
+  package smoke, release-engineer boundaries, and Boss interaction behavior.
+- ⬜️ Perform manual acceptance for clean installation, existing-state
+  migration, edited-file and collision refusal, PM routing, installed role
+  guidance, concise Boss-facing language, and release-engineer DevOps scope.
+- ⬜️ Update final workflow, role, product, requirements, architecture,
+  security, quality, operations, decisions, and PM documentation, including
+  indexes and package-facing README/help text, during plan completion; do not
+  promote current-state knowledge into `_docs/kb` before the full plan
+  closeout.
 
 Exit criteria:
 

@@ -51,7 +51,8 @@ manager is a separately installed role dependency.
       "writeDomains": ["src/", "tests/", "bin/"],
       "deniedAreas": [".aix/pm/", "AGENTS.md", "_docs/kb/"],
       "requiredCapabilities": ["workspace-write"],
-      "requiredEvidence": ["files changed", "verification commands", "risks"]
+      "requiredEvidence": ["files changed", "verification commands", "risks"],
+      "sharedArtifacts": ["src/pm/types.ts", "src/pm/orchestrator.ts", "tests/fixtures/"], "readOnly": false, "serialization": "group"
     },
     {
       "name": "documentation-specialist",
@@ -63,7 +64,8 @@ manager is a separately installed role dependency.
       "writeDomains": ["_docs/", "README.md"],
       "deniedAreas": ["src/", "tests/", ".aix/pm/"],
       "requiredCapabilities": ["workspace-write"],
-      "requiredEvidence": ["links checked", "documents changed", "unresolved gaps"]
+      "requiredEvidence": ["links checked", "documents changed", "unresolved gaps"],
+      "sharedArtifacts": ["_docs/plans/"], "readOnly": false, "serialization": "group"
     },
     {
       "name": "technical-architect",
@@ -75,7 +77,8 @@ manager is a separately installed role dependency.
       "writeDomains": [],
       "deniedAreas": ["src/", "tests/", "_docs/"],
       "requiredCapabilities": ["correlated-results"],
-      "requiredEvidence": ["findings", "tradeoffs", "risks"]
+      "requiredEvidence": ["findings", "tradeoffs", "risks"],
+      "sharedArtifacts": [], "readOnly": true, "serialization": "none"
     },
     {
       "name": "requirements-engineer",
@@ -87,7 +90,8 @@ manager is a separately installed role dependency.
       "writeDomains": [],
       "deniedAreas": ["src/", "tests/", "_docs/"],
       "requiredCapabilities": ["correlated-results"],
-      "requiredEvidence": ["requirements", "acceptance signals", "open questions"]
+      "requiredEvidence": ["requirements", "acceptance signals", "open questions"],
+      "sharedArtifacts": [], "readOnly": true, "serialization": "none"
     },
     {
       "name": "quality-engineer",
@@ -99,7 +103,8 @@ manager is a separately installed role dependency.
       "writeDomains": ["tests/"],
       "deniedAreas": ["src/", ".aix/pm/", "_docs/kb/"],
       "requiredCapabilities": ["correlated-results"],
-      "requiredEvidence": ["commands run", "results", "validation gaps"]
+      "requiredEvidence": ["commands run", "results", "validation gaps"],
+      "sharedArtifacts": ["tests/fixtures/"], "readOnly": false, "serialization": "shared-artifact"
     },
     {
       "name": "security-engineer",
@@ -111,7 +116,8 @@ manager is a separately installed role dependency.
       "writeDomains": [],
       "deniedAreas": ["src/", "tests/", "_docs/"],
       "requiredCapabilities": ["correlated-results"],
-      "requiredEvidence": ["findings", "threats", "mitigations"]
+      "requiredEvidence": ["findings", "threats", "mitigations"],
+      "sharedArtifacts": [], "readOnly": true, "serialization": "none"
     },
     {
       "name": "product-designer",
@@ -123,7 +129,8 @@ manager is a separately installed role dependency.
       "writeDomains": [],
       "deniedAreas": ["src/", "tests/", "_docs/"],
       "requiredCapabilities": ["correlated-results"],
-      "requiredEvidence": ["flow findings", "edge states", "accessibility risks"]
+      "requiredEvidence": ["flow findings", "edge states", "accessibility risks"],
+      "sharedArtifacts": [], "readOnly": true, "serialization": "none"
     },
     {
       "name": "product-strategist",
@@ -135,7 +142,8 @@ manager is a separately installed role dependency.
       "writeDomains": [],
       "deniedAreas": ["src/", "tests/", "_docs/"],
       "requiredCapabilities": ["correlated-results"],
-      "requiredEvidence": ["recommendation", "tradeoffs", "scope risks"]
+      "requiredEvidence": ["recommendation", "tradeoffs", "scope risks"],
+      "sharedArtifacts": [], "readOnly": true, "serialization": "none"
     },
     {
       "name": "ux-writer",
@@ -147,7 +155,8 @@ manager is a separately installed role dependency.
       "writeDomains": ["README.md", "src/cli/"],
       "deniedAreas": ["src/pm/", ".aix/pm/", "_docs/kb/"],
       "requiredCapabilities": ["correlated-results"],
-      "requiredEvidence": ["copy changed", "command examples", "clarity gaps"]
+      "requiredEvidence": ["copy changed", "command examples", "clarity gaps"],
+      "sharedArtifacts": ["src/cli/"], "readOnly": false, "serialization": "group"
     }
   ]
 }
