@@ -89,6 +89,22 @@ When a workflow update removes a workflow-owned skill or role, the install
 helpers compare previous and next active names and remove active files that no
 longer exist in the workflow package.
 
+## Workflow role migration
+
+The `design-plan-execute` roster uses `product-owner` and
+`release-engineer`; `product-strategist` is legacy workflow state, not a
+current roster role. Workflow installation and update treat legacy role
+replacement as a lifecycle operation: package files, active files, managed
+append blocks, manifest entries, and lockfile entries must remain ownership-
+consistent or the operation refuses with recovery guidance. Edited or
+ambiguous files are preserved and cause refusal rather than silent overwrite.
+
+The workflow roster, manifest, and lockfile are a consistency set. A completed
+installation must agree on role names, workflow ownership, team contract
+version, and package provenance. See [roles and templates](roles-and-templates.md)
+and the [workflow requirements](../02-requirements/workflows/design-plan-execute/README.md)
+for the role contract and acceptance rules.
+
 ## Diff Flow
 
 ```text

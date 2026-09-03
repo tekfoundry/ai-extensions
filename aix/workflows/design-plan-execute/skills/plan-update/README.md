@@ -49,6 +49,6 @@ preserves lifecycle boundaries, repairs task status marker syntax when the
 intended state is clear, runs targeted document verification, and reports
 files changed, documentation impact, skipped checks, and escalation status.
 When the matching workflow-owned role is installed, the skill can use bounded
-role input for product strategy, product design, requirements, architecture,
+role input for product ownership, product design, requirements, architecture,
 security, or UX writing changes while still remaining directly runnable
 without role context.

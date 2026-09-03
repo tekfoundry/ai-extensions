@@ -51,10 +51,10 @@ can supply bounded specialist judgment, but they do not own template
 resolution, file placement, lifecycle state, accepted gates, final task
 breakdown, or user-facing handoff.
 
-When `.agents/roles/product-strategist/ROLE.md` exists and the plan needs stronger
+When `.agents/roles/product-owner/ROLE.md` exists and the plan needs stronger
 vision, audience, value, scope, tradeoff, sequencing, or product-fit judgment,
 use `delegate-to-role` or a prompt-overlay delegation to request a bounded
-product-strategy pass. Fold the returned evidence into `Context`,
+product-owner pass. Fold the returned evidence into `Context`,
 `High-Level Goal`, open questions, risks, and later scope boundaries as
 appropriate.
 
@@ -149,7 +149,7 @@ use the role to authorize execution, edit files, mark tasks ready without
 developer acceptance, or bypass `plan-review`, `plan-activate`,
 `plan-execute`, `phase-execute`, `task-execute`, or `work-verify`.
 
-Do not require `product-strategist` for direct use. If the role is unavailable
+Do not require `product-owner` for direct use. If the role is unavailable
 or the host cannot delegate, continue the planning session yourself by asking
 concise product-vision questions and recording the answers in the living plan.
 Do not require `product-designer` for direct use either. If the role is
@@ -216,7 +216,7 @@ Intent is accepted.
 6. Run the vision gate first. Relentlessly clarify the high-level goal until
    both the agent and user agree on the product intent. Focus this stage on
    the "what" and "why"; avoid prematurely committing to the "how" unless it
-   constrains the goal. Use `product-strategist` for a bounded vision pass when
+   constrains the goal. Use `product-owner` for a bounded vision pass when
    that role is installed and product strategy would materially improve the
    plan.
 7. Record acceptance on the `High-Level Goal` heading only after the user

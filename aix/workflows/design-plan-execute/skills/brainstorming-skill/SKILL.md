@@ -52,10 +52,10 @@ developer override.
 
 This skill owns the brainstorming procedure and the `_docs/ideas.md`
 checkpoint. Product strategy judgment belongs in a role when the project has
-one installed. If `.agents/roles/product-strategist/ROLE.md` exists and the session
+one installed. If `.agents/roles/product-owner/ROLE.md` exists and the session
 needs vision, audience, value, scope, tradeoff, or sequencing judgment, use
 `delegate-to-role` or a bounded prompt-overlay delegation to
-`product-strategist`, then fold the returned evidence into the idea list. If
+`product-owner`, then fold the returned evidence into the idea list. If
 that role is not installed, continue with the standalone procedure below and
 ask concise product-vision questions yourself.
 
@@ -88,8 +88,8 @@ implementation plan.
    - Inspect relevant source layout and marketing artifacts such as README
      files when they may reveal gaps or stale messaging.
 3. Bring in product strategy when it would improve the session.
-   - If `.agents/roles/product-strategist/ROLE.md` is installed, delegate a bounded
-     product-strategy pass for audience, user problem, product value, scope,
+   - If `.agents/roles/product-owner/ROLE.md` is installed, delegate a bounded
+     product-owner pass for audience, user problem, product value, scope,
      tradeoffs, sequencing, and open questions.
    - Keep the parent brainstorming context responsible for `_docs/ideas.md`,
      approval rules, file edits, and final session output.
@@ -106,7 +106,7 @@ implementation plan.
 5. Generate an in-flight idea list.
    - Include useful existing in-flight ideas.
    - Preserve approved ideas unless the developer asks to revisit them.
-   - Add new candidates grounded in the project review, product-strategy
+   - Add new candidates grounded in the project review, product-owner
      evidence, and research.
 6. Checkpoint the session before review.
    - Create or update `_docs/ideas.md` as soon as the first useful in-flight
@@ -183,7 +183,7 @@ prioritization changes the order.
 ## Prioritization
 
 Prioritize approved ideas by practical value-to-effort. When a
-`product-strategist` delegation was used, base prioritization on that returned
+`product-owner` delegation was used, base prioritization on that returned
 evidence. Otherwise use the lightweight standalone factors below:
 
 1. likely business or developer value

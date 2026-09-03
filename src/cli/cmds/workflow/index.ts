@@ -18,7 +18,7 @@ import { createInterface } from "node:readline";
 import { readLockfileJson } from "../../../activation/lockfile.js";
 import { workflowPmDatasets, workflowPmWarning } from "../../../workflows/pm-runtime.js";
 
-const WORKFLOW_HELP = "Usage: aix workflow <install|uninstall|update|diff> [options]\n\nManage the active AI workflow. Uninstall warns before removing active or unlanded PM data and requires explicit confirmation.";
+const WORKFLOW_HELP = "Usage: aix workflow <install|uninstall|update|diff> [options]\n\nManage the active AI workflow. Uninstall warns before removing active or unlanded PM data and requires explicit confirmation. Use --reconcile-protected with workflow update only after explicitly approving replacement of protected managed state.";
 
 function renderInstallWorkflowResult(result: InstallWorkflowResult): string {
   return [
@@ -99,11 +99,12 @@ async function confirmWorkflowPmData(input: Readable, output: Writable, workflow
 }
 
 function runWorkflowUpdate(argv: string[]): CliResult {
-  if (argv.length > 2) {
-    throw new CliError("Usage: aix workflow update", EXIT_USAGE);
+  const reconcileProtected = argv.length === 3 && argv[2] === "--reconcile-protected";
+  if (argv.length > 3 || (argv[2] && !reconcileProtected)) {
+    throw new CliError("Usage: aix workflow update [--reconcile-protected]", EXIT_USAGE);
   }
 
-  return { exitCode: 0, stdout: renderUpdateWorkflowResult(updateWorkflow()) };
+  return { exitCode: 0, stdout: renderUpdateWorkflowResult(updateWorkflow(undefined, { reconcileProtected })) };
 }
 
 function runWorkflowDiff(argv: string[]): CliResult {

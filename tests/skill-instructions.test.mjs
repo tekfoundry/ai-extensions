@@ -28,6 +28,10 @@ const securityReviewTemplatePath = join(process.cwd(), "aix/workflows/design-pla
 const workflowAppendPath = join(process.cwd(), "aix/workflows/design-plan-execute/AGENTS.append.md");
 const workflowPath = join(process.cwd(), "aix/workflows/design-plan-execute/workflow.md");
 const workflowManifestPath = join(process.cwd(), "aix/workflows/design-plan-execute/workflow.json");
+const pmGuidancePaths = [
+  join(process.cwd(), "aix/roles/project-manager/GUIDANCE.md"),
+  join(process.cwd(), ".agents/roles/project-manager/GUIDANCE.md")
+];
 
 const lifecycleSkillPaths = [
   brainstormingSkillPath,
@@ -70,8 +74,8 @@ test("code-review-refactor skill declares workflow review contract", () => {
   assert.match(skill, /When `.agents\/roles\/technical-architect\/ROLE\.md` exists/);
   assert.match(skill, /architectural coupling, module ownership, runtime contracts/);
   assert.match(skill, /Fold returned evidence into the normal review findings/);
-  assert.match(skill, /Do not require\s+`technical-architect` for direct use/);
-  assert.match(skill, /The role must not choose findings, approve refactors,\s+edit files, or bypass the developer confirmation gate/);
+  assert.match(skill, /Do not require\s+`technical-architect` for direct non-PM use/);
+  assert.match(skill, /The role must not\s+choose findings, approve refactors,\s+edit files, or bypass the developer\s+confirmation gate/);
 });
 
 test("bundled skills declare skill metadata for host discovery", () => {
@@ -86,6 +90,18 @@ test("bundled skills declare skill metadata for host discovery", () => {
     assert.match(skill, /^metadata:\s*$/m, path);
     assert.match(skill, /^  type: skill\s*$/m, path);
     assert.match(skill, /^version: "1"\s*$/m, path);
+  }
+});
+
+test("PM guidance rejects fallback and requires complete deferred capability discovery", () => {
+  for (const path of pmGuidancePaths) {
+    const guidance = readFileSync(path, "utf8");
+    assert.match(guidance, /For PM-routed work, never invoke the `delegate-to-role` prompt-overlay mode/);
+    assert.match(guidance, /If native\s+subagent delegation is unavailable or unknown, stop with a clear\s+capability failure/i);
+    assert.match(guidance, /complete host\/tool\s+registry, not only the initially summarized tools/);
+    assert.match(guidance, /Deferred tools are part of\s+the registry and must be considered/);
+    assert.match(guidance, /Map the host operations to the workflow's\s+required `native-worker-creation` and `correlated-results` capabilities/);
+    assert.match(guidance, /Do not perform the specialist work in the parent session or use\s+prompt-overlay/);
   }
 });
 
@@ -144,7 +160,7 @@ test("get-guidance is not wired into default workflow routing", () => {
   const workflowManifest = readFileSync(workflowManifestPath, "utf8");
   const delegateToRole = readFileSync(delegateToRolePath, "utf8");
   const roleContracts = [
-    "aix/workflows/design-plan-execute/roles/project-dev/product-strategist/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/product-owner/ROLE.md",
     "aix/workflows/design-plan-execute/roles/project-dev/product-designer/ROLE.md",
     "aix/workflows/design-plan-execute/roles/project-dev/requirements-engineer/ROLE.md",
     "aix/workflows/design-plan-execute/roles/project-dev/technical-architect/ROLE.md",
@@ -191,9 +207,9 @@ test("delegate-to-role declares bounded role delegation contract", () => {
   assert.match(skill, /If the named role does not exist under `.agents\/roles\/`, stop/);
   assert.match(skill, /If role intent is only implied, do not guess/);
   assert.match(skill, /Do not write host-native agent files as part of routine\s+delegation/);
-  assert.match(skill, /For a request routed through an active project-manager workflow, native\s+subagent handoff is mandatory/);
-  assert.match(skill, /If the host reports native delegation as\s+unavailable or unknown, stop and report/);
-  assert.match(skill, /Never substitute a prompt overlay for an independent worker/);
+  assert.match(skill, /For a request routed through an active project-manager workflow,[\s\S]*?native\s+subagent handoff is mandatory/i);
+  assert.match(skill, /If\s+`native-worker-creation` or `correlated-results` is unavailable or unknown,\s+stop and report/i);
+  assert.match(skill, /Never substitute a\s+prompt overlay for an independent worker/);
   assert.match(skill, /Prompt-overlay fallback is allowed only during bootstrap before\s+project-manager activation or under an explicit developer override/);
   assert.match(skill, /The parent context owns plan state,\s+worktree safety, verification review, final decisions/);
   assert.match(skill, /When PM routing delegated the task, the parent context may\s+route, preserve worktree safety, review returned evidence, and report\s+results only/);
@@ -216,7 +232,7 @@ test("brainstorming-skill declares durable idea discovery workflow", () => {
   assert.match(skill, /Read `_docs\/ideas\.md` when it exists/);
   assert.match(skill, /Research comparable products, projects, tools, or workflows/);
   assert.match(skill, /Product strategy judgment belongs in a role when the project has\s+one installed/);
-  assert.match(skill, /delegate a bounded\s+product-strategy pass/);
+  assert.match(skill, /delegate a bounded\s+product-owner pass/);
   assert.match(skill, /Do not block a usable brainstorming session solely because the role is\s+missing/);
   assert.match(skill, /Checkpoint the session before review/);
   assert.match(skill, /Create or update `_docs\/ideas\.md` as soon as the first useful in-flight\s+list exists/);
@@ -300,7 +316,7 @@ test("plan-create declares gated planning and role collaboration", () => {
 
   assert.match(skill, /^name: plan-create$/m);
   assert.match(skill, /`plan-create` owns the planning procedure and the backlog plan artifact/);
-  assert.match(skill, /When `.agents\/roles\/product-strategist\/ROLE\.md` exists/);
+  assert.match(skill, /When `.agents\/roles\/product-owner\/ROLE\.md` exists/);
   assert.match(skill, /use `delegate-to-role` or a prompt-overlay delegation/);
   assert.match(skill, /When `.agents\/roles\/product-designer\/ROLE\.md` exists/);
   assert.match(skill, /user\s+flows, interaction design, accessibility, layout hierarchy, prototypes/);
@@ -331,7 +347,7 @@ test("plan-create declares gated planning and role collaboration", () => {
   assert.match(skill, /bounded implementation-readiness input before phases and tasks are finalized/);
   assert.match(skill, /scoped task boundaries, phase sequencing, likely changed\s+areas/);
   assert.match(skill, /Do not\s+use the role to authorize execution, edit files/);
-  assert.match(skill, /Do not require `product-strategist` for direct use/);
+  assert.match(skill, /Do not require `product-owner` for direct use/);
   assert.match(skill, /Do not require `product-designer` for direct use either/);
   assert.match(skill, /asking concise flow, interaction, accessibility, and design-system questions/);
   assert.match(skill, /Do not require `requirements-engineer` for direct use either/);
@@ -381,10 +397,10 @@ test("plan-review declares role collaboration", () => {
   assert.match(skill, /Fold returned evidence into review findings, activation blockers, risks/);
   assert.match(skill, /Do not require `technical-architect` for direct use/);
   assert.match(skill, /continue the review yourself by checking the same\s+architecture-readiness concerns/);
-  assert.match(skill, /When `.agents\/roles\/product-strategist\/ROLE\.md` exists/);
+  assert.match(skill, /When `.agents\/roles\/product-owner\/ROLE\.md` exists/);
   assert.match(skill, /product-scope, audience, value, sequencing, prioritization/);
-  assert.match(skill, /bounded product-strategy readiness pass/);
-  assert.match(skill, /Do not require `product-strategist` for direct use/);
+  assert.match(skill, /bounded product-owner readiness pass/);
+  assert.match(skill, /Do not require `product-owner` for direct use/);
   assert.match(skill, /When `.agents\/roles\/product-designer\/ROLE\.md` exists/);
   assert.match(skill, /product-facing UX scope/);
   assert.match(skill, /user flows,\s+interaction design, accessibility, layout hierarchy/);
@@ -419,7 +435,7 @@ test("plan-update declares project-development role collaboration", () => {
 
   assert.match(skill, /^name: plan-update$/m);
   assert.match(skill, /`plan-update` owns the plan edit/);
-  assert.match(skill, /When `.agents\/roles\/product-strategist\/ROLE\.md` exists/);
+  assert.match(skill, /When `.agents\/roles\/product-owner\/ROLE\.md` exists/);
   assert.match(skill, /product scope, audience, user value, prioritization/);
   assert.match(skill, /When `.agents\/roles\/product-designer\/ROLE\.md` exists/);
   assert.match(skill, /user flows, interaction states, accessibility expectations/);

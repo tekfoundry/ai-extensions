@@ -31,6 +31,9 @@ export interface WorkflowTeam {
   roles: WorkflowTeamRole[];
 }
 
+export const BOSS_PRINCIPAL = "boss" as const;
+export const STALE_WORKFLOW_ROLE_NAMES = ["product-strategist"] as const;
+
 function fail(path: string, message: string): never {
   throw new AixError(`Invalid workflow team at ${path}: ${message}`);
 }
@@ -63,6 +66,54 @@ function optionalBoolean(value: unknown, fallback: boolean, path: string): boole
   if (value === undefined) return fallback;
   if (typeof value !== "boolean") fail(path, "must be a boolean.");
   return value;
+}
+
+function assertDesignPlanExecuteRoster(team: WorkflowTeam, path: string): void {
+  const names = team.roles.map((role) => role.name);
+  const count = (name: string) => names.filter((candidate) => candidate === name).length;
+
+  if (names.includes("product-strategist")) fail(path, "product-strategist is stale; use product-owner.");
+  if (names.includes(BOSS_PRINCIPAL)) fail(path, "boss is a human principal and cannot be a roster role.");
+  if (names.includes("project-manager")) fail(path, "project-manager is the workflow coordinator and cannot be a delegatable roster role.");
+  if (count("product-owner") !== 1) fail(path, "must contain exactly one product-owner role.");
+  if (count("release-engineer") !== 1) fail(path, "must contain exactly one release-engineer role.");
+
+  const releaseEngineer = team.roles.find((role) => role.name === "release-engineer");
+  if (!releaseEngineer) return;
+
+  const forbiddenDomainPatterns = [
+    /^(?:src|tests?|\.aix\/pm|aix\.json|aix\.lock\.json|AGENTS\.md)(?:\/|$)/i,
+    /registry/i,
+    /global[-_ ]?install/i,
+    /publish(?:ing)?/i,
+    /unrestricted/i,
+    /external[-_ ]?release/i
+  ];
+  const unsafeWriteDomain = releaseEngineer.writeDomains.find((domain) =>
+    forbiddenDomainPatterns.some((pattern) => pattern.test(domain))
+  );
+  if (unsafeWriteDomain) {
+    fail(`${path}.release-engineer write domains`, `cannot include denied area: ${unsafeWriteDomain}.`);
+  }
+
+  const requiredDeniedAreas = [
+    "src/",
+    "tests/",
+    ".aix/pm/",
+    "aix.json",
+    "aix.lock.json",
+    "AGENTS.md",
+    "publishing",
+    "registry",
+    "global-install",
+    "unrestricted external release"
+  ];
+  const missingDeniedArea = requiredDeniedAreas.find((required) =>
+    !releaseEngineer.deniedAreas.some((area) => area.toLowerCase().includes(required.toLowerCase()))
+  );
+  if (missingDeniedArea) {
+    fail(`${path}.release-engineer denied areas`, `must explicitly deny ${missingDeniedArea}.`);
+  }
 }
 
 export function parseWorkflowTeam(markdown: string, path = "team.md"): WorkflowTeam {
@@ -127,12 +178,18 @@ export function parseWorkflowTeam(markdown: string, path = "team.md"): WorkflowT
     if (role.serialization === "integration" && !role.deliveryModes.includes("isolated-change")) fail(rolePath, "integration serialization requires isolated-change delivery.");
   }
 
-  return {
+  const team = {
     workflow: requireString(raw.workflow, `${path}.workflow`),
     version: requireString(raw.version, `${path}.version`),
     requiredCapabilities: requireStringArray(raw.requiredCapabilities, `${path}.requiredCapabilities`),
     roles
   };
+
+  if (team.workflow === "design-plan-execute") {
+    assertDesignPlanExecuteRoster(team, path);
+  }
+
+  return team;
 }
 
 export function readWorkflowTeam(workflow: WorkflowManifestFile, packageRoot: string): WorkflowTeam {

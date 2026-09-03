@@ -63,6 +63,17 @@ installed, updated, and removed by the workflow lifecycle. Standalone role
 commands must reject direct management of those roles and route the user to
 workflow update, replacement, or uninstall.
 
+The `design-plan-execute` roster uses `product-owner` for product decisions and
+`release-engineer` for bounded delivery and release-platform work. Boss is the
+human decision principal outside the roster and worker lifecycle; no active
+role, package entry, or delegation record represents Boss.
+
+`product-strategist` is not a current workflow role. Existing workflow-owned
+or standalone legacy state is handled by the workflow migration path, subject
+to ownership, drift, and collision checks. A refusal must leave the legacy
+files available for recovery and must not create dual `product-strategist` /
+`product-owner` ownership.
+
 ## Role Validation
 
 Role activation validates:

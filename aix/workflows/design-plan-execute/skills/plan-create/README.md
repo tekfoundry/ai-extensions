@@ -50,7 +50,7 @@ related plans. It creates a backlog plan early, then works through explicit
 planning gates: vision, high-level goal, design intent, implementation phases,
 phase tasks, risks, verification, and final backlog acceptance. It does not
 draft implementation phases or task lists until Design Intent is accepted.
-When the workflow-owned `product-strategist` role is installed, the skill can
+When the workflow-owned `product-owner` role is installed, the skill can
 use it for bounded product-vision judgment while still remaining directly
 runnable without role context. When the workflow-owned `product-designer` role
 is installed, the skill can use it for bounded user-flow, interaction,

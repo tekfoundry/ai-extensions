@@ -40,6 +40,12 @@ developer override.
 
 ## Role Collaboration
 
+For PM-routed work, inspect the complete host/tool registry, including
+deferred tools, before dispatch. Native delegation is required. An unknown or
+unavailable required capability blocks parent-session and prompt-overlay
+fallback. The prompt-overlay options below apply only to direct non-PM use,
+bootstrap before PM activation, or explicit developer override.
+
 `plan-review` owns the review result. Roles can supply bounded specialist
 judgment, but they do not own readiness decisions, activation recommendations,
 plan edits, lifecycle state, or user-facing findings.
@@ -58,16 +64,16 @@ Do not require `technical-architect` for direct use. If the role is unavailable
 or the host cannot delegate, continue the review yourself by checking the same
 architecture-readiness concerns.
 
-When `.agents/roles/product-strategist/ROLE.md` exists and the plan has
+When `.agents/roles/product-owner/ROLE.md` exists and the plan has
 product-scope, audience, value, sequencing, prioritization, opportunity-cost,
 or product-fit risk, use `delegate-to-role` or a prompt-overlay delegation to
-request a bounded product-strategy readiness pass.
+request a bounded product-owner readiness pass.
 
 Fold returned evidence into review findings, activation blockers, risks,
 requested plan revisions, open questions, scope boundaries, or readiness notes
-as appropriate. Do not require `product-strategist` for direct use. If the
+as appropriate. Do not require `product-owner` for direct use. If the
 role is unavailable or the host cannot delegate, continue the review yourself
-by checking the same product-strategy readiness concerns.
+by checking the same product-owner readiness concerns.
 
 When `.agents/roles/product-designer/ROLE.md` exists and the plan has
 product-facing UX scope, use `delegate-to-role` or a prompt-overlay delegation

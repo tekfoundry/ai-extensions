@@ -44,9 +44,9 @@ The skill starts by reading project context. If the prompt has a focus, it uses
 that focus. If the prompt is broad, it runs a general project brainstorming
 session.
 
-When `.agents/roles/product-strategist/ROLE.md` is installed and the session needs
+When `.agents/roles/product-owner/ROLE.md` is installed and the session needs
 vision, audience, value, scope, tradeoff, or sequencing judgment, the skill can
-delegate that bounded product-strategy pass through `delegate-to-role` or
+delegate that bounded product-owner pass through `delegate-to-role` or
 prompt-overlay fallback. The brainstorming skill still owns the session flow,
 approval rules, and `_docs/ideas.md` updates. If the role is not installed, the
 skill remains runnable and elicits the basic product-vision inputs directly.
@@ -115,7 +115,7 @@ be saved before review starts and updated after meaningful accepted changes.
 ## Prioritization
 
 Approved ideas are ordered by practical value-to-effort. When available,
-`product-strategist` evidence should inform that ordering. Otherwise the skill
+`product-owner` evidence should inform that ordering. Otherwise the skill
 uses these lightweight standalone factors:
 
 - likely business or developer value

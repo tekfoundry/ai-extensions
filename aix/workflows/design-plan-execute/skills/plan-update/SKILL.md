@@ -40,14 +40,20 @@ developer override.
 
 ## Role Collaboration
 
+For PM-routed work, inspect the complete host/tool registry, including
+deferred tools, before dispatch. Native delegation is required. An unknown or
+unavailable required capability blocks parent-session and prompt-overlay
+fallback. The prompt-overlay options below apply only to direct non-PM use,
+bootstrap before PM activation, or explicit developer override.
+
 `plan-update` owns the plan edit. Roles can supply bounded specialist
 judgment, but they do not own lifecycle state, accepted decisions, task
 execution, verification results, or final user-facing reporting.
 
-When `.agents/roles/product-strategist/ROLE.md` exists and the requested update
+When `.agents/roles/product-owner/ROLE.md` exists and the requested update
 changes product scope, audience, user value, prioritization, sequencing,
 opportunity cost, or product fit, use `delegate-to-role` or a prompt-overlay
-delegation to request bounded product-strategy input.
+delegation to request bounded product-owner input.
 
 When `.agents/roles/product-designer/ROLE.md` exists and the requested update
 changes user flows, interaction states, accessibility expectations, layout

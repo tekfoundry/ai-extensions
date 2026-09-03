@@ -48,6 +48,13 @@ test("npm pack artifact contains a working aix binary", async () => {
   assert.equal(existsSync(join(unpackDirectory, "aix/roles/project-manager/GUIDANCE.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/roles/project-manager/workflow.GUIDANCE.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/roles/project-manager/AGENTS.append.md")), true);
+  const packedWorkflow = JSON.parse(readFileSync(join(unpackDirectory, "aix/workflows/design-plan-execute/workflow.json"), "utf8"));
+  const packedTeam = readFileSync(join(unpackDirectory, "aix/workflows/design-plan-execute/team.md"), "utf8");
+  assert.equal(packedWorkflow.team.version, "2");
+  assert.match(packedTeam, /"version":\s*"2"/);
+  assert.match(packedTeam, /"name":\s*"product-owner"/);
+  assert.match(packedTeam, /"name":\s*"release-engineer"/);
+  assert.doesNotMatch(packedTeam, /"name":\s*"product-strategist"/);
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/skills/brainstorming-skill/SKILL.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/skills/brainstorming-skill/README.md")), true);
   assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/skills/task-execute/SKILL.md")), true);
@@ -77,7 +84,8 @@ test("npm pack artifact contains a working aix binary", async () => {
     "aix/workflows/design-plan-execute/roles/project-dev/documentation-specialist",
     "aix/workflows/design-plan-execute/roles/project-dev/implementation-engineer",
     "aix/workflows/design-plan-execute/roles/project-dev/product-designer",
-    "aix/workflows/design-plan-execute/roles/project-dev/product-strategist"
+    "aix/workflows/design-plan-execute/roles/project-dev/product-owner",
+    "aix/workflows/design-plan-execute/roles/project-dev/release-engineer"
   ]) {
     const guidance = readFileSync(join(unpackDirectory, rolePath, "GUIDANCE.md"), "utf8");
 
@@ -85,6 +93,7 @@ test("npm pack artifact contains a working aix binary", async () => {
     assert.match(guidance, /^uses_guidance:/m);
     assert.doesNotMatch(guidance, /TODO|placeholder/i);
   }
+  assert.equal(existsSync(join(unpackDirectory, "aix/workflows/design-plan-execute/roles/project-dev/product-strategist")), false);
   assert.equal(readdirSync(packDirectory).some((entry) => entry.endsWith(".tgz")), true);
   assert.match(helpOutput, /AI Extensions/);
   assert.match(helpOutput, new RegExp(`aix v${packageJson.version.replaceAll(".", "\\.")}`));

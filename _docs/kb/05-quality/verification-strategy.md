@@ -119,6 +119,8 @@ repositories, and exercise filesystem package state.
 | Interactive prompts and tables | `tests/ui-selection-prompt.test.mjs` |
 | Workflow skill/role instruction contracts and `get-guidance` | `tests/skill-instructions.test.mjs`, `tests/roles.test.mjs` |
 | Package artifact | `tests/package-smoke.test.mjs` |
+| Phase 11 workflow roles and authority | `tests/roles.test.mjs`, `tests/workflow-team.test.mjs`, `tests/pm-orchestrator.test.mjs`, `tests/pm-runtime.test.mjs` |
+| Legacy role migration and rollback | `tests/workflow.test.mjs` |
 
 ## Test Isolation
 
@@ -149,6 +151,19 @@ Manual validation is still appropriate for:
 
 Manual validation should record what was inspected, what was accepted, what was
 not checked, and the residual risk.
+
+## Phase 11 acceptance coverage
+
+The Phase 11 role contract is covered by product-owner inheritance and backlog
+responsibility checks, release-engineer scope and denied-domain checks, roster
+validation, package smoke, PM routing, and Boss exclusion tests. Migration
+tests cover clean replacement, edited-file and collision refusal, rollback,
+and lifecycle reactivation paths.
+
+Manual acceptance remains necessary for clean and existing-state installs,
+installed guidance readability, concise Boss-facing language, and the full
+cross-platform release-engineer workflow. Lockfile and package/active-state
+consistency must also be checked against the exact artifact being accepted.
 
 ## Coverage Philosophy
 

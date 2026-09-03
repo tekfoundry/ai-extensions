@@ -41,7 +41,9 @@ role.
 ## What it does
 
 The skill resolves the named role, stops on missing or ambiguous role requests,
-uses native subagent handoff when the host supports it, otherwise builds a
-the narrowly authorized bootstrap/override prompt-overlay fallback, and
-requires the delegated work to return evidence for
-parent review.
+and requires native subagent handoff for PM-routed work. Before dispatch, the
+PM must inspect the complete host/tool registry, including deferred tools, and
+confirm `native-worker-creation` and `correlated-results`. Unknown or
+unavailable capabilities block parent-session fallback. Prompt-overlay remains
+available only during bootstrap before PM activation or under an explicit
+developer override. Delegated work must return evidence for parent review.

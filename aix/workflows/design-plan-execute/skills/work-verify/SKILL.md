@@ -40,6 +40,12 @@ developer override.
 
 ## Role Collaboration
 
+For PM-routed work, inspect the complete host/tool registry, including
+deferred tools, before dispatch. Native delegation is required. An unknown or
+unavailable required capability blocks parent-session and prompt-overlay
+fallback. The prompt-overlay options below apply only to direct non-PM use,
+bootstrap before PM activation, or explicit developer override.
+
 `work-verify` owns check selection, command execution, verification evidence,
 and the final verification report. Roles can supply bounded specialist
 judgment, but they do not own command execution, plan status, or the decision

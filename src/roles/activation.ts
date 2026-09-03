@@ -454,7 +454,7 @@ export function diffRoles(target?: string, cacheRoot = defaultCacheRoot()): Diff
   };
 }
 
-export function updateRoles(target?: string, cacheRoot = defaultCacheRoot()): UpdateRolesResult {
+export function updateRoles(target?: string, cacheRoot = defaultCacheRoot(), options: { reconcileProtected?: boolean } = {}): UpdateRolesResult {
   const lockfile = readLockfileJson();
   const previousLockfile = structuredClone(lockfile);
   const { entries, resolvedSources } = standaloneRoleEntries(target, cacheRoot);
@@ -467,8 +467,10 @@ export function updateRoles(target?: string, cacheRoot = defaultCacheRoot()): Up
   }
 
   for (const entry of entries) {
-    assertRoleNoLocalDrift(entry, "update");
-    assertInstalledAppendBlockUnmodified(entry.agentsMd);
+    if (!options.reconcileProtected) {
+      assertRoleNoLocalDrift(entry, "update");
+      assertInstalledAppendBlockUnmodified(entry.agentsMd);
+    }
   }
 
   const updatePlans = entries.map((entry) => {
@@ -489,7 +491,9 @@ export function updateRoles(target?: string, cacheRoot = defaultCacheRoot()): Up
   );
   const appendDefinitions: AppendBlockDefinition[] = [];
 
-  preflightAppendDefinitions(previousLockfile, sourceAppendDefinitions);
+  if (!options.reconcileProtected) {
+    preflightAppendDefinitions(previousLockfile, sourceAppendDefinitions);
+  }
 
   lockfile.roles = (lockfile.roles || []).map((entry) => {
     const plan = plansByKey.get(roleEntryKey(entry));

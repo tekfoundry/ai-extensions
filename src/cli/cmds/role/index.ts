@@ -113,11 +113,12 @@ function runRoleDeactivate(argv: string[]): CliResult {
 }
 
 function runRoleUpdate(argv: string[]): CliResult {
-  if (!argv[2] || argv.length > 3) {
-    throw new CliError("Usage: aix role update <active-name|source/path>", EXIT_USAGE);
+  const reconcileProtected = argv.length === 4 && argv[3] === "--reconcile-protected";
+  if (!argv[2] || argv.length > 4 || (argv[3] && !reconcileProtected)) {
+    throw new CliError("Usage: aix role update <active-name|source/path> [--reconcile-protected]", EXIT_USAGE);
   }
 
-  return { exitCode: 0, stdout: renderUpdateResult(updateRoles(argv[2])) };
+  return { exitCode: 0, stdout: renderUpdateResult(updateRoles(argv[2], undefined, { reconcileProtected })) };
 }
 
 function runRoleDiff(argv: string[]): CliResult {

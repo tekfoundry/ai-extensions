@@ -125,6 +125,26 @@ behavior.
 - The lockfile is the integrity record for accepted package and active files,
   not a trust endorsement of source content.
 
+## Workflow role authority
+
+The default workflow separates product and delivery authority. `product-owner`
+may shape product intent, priorities, scope, backlog items, and product-level
+acceptance. `release-engineer` may inspect and validate CI, builds, packages,
+artifacts, supported-host integration, compatibility, diagnostics, and
+release safety within declared write domains. Neither role may assume Boss's
+authority.
+
+Boss is a human principal, not an agent identity. Product decisions, risky
+approvals, exceptions, final acceptance, and release decisions remain outside
+worker dispatch and persisted delegation records. This prevents conversational
+authority from becoming an executable or auditable worker capability.
+
+Legacy `product-strategist` migration is safety-sensitive. Edited active or
+package files, ownership ambiguity, collisions, and inconsistent manifest or
+lockfile state must cause a clear refusal or transactional rollback. Registry
+changes, publishing, global installation, unrestricted external release work,
+and raw credential handling remain outside the default release-engineer scope.
+
 ## Known Residual Risk
 
 - Git source URLs may contain credentials. Current errors can include Git

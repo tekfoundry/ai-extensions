@@ -29,7 +29,7 @@ import { assertWorkflowDocsSafe, installWorkflowDocs, scaffoldProjectDocs } from
 import { discoverWorkflowGuidance, validateWorkflowGuidance, workflowGuidanceHashes } from "./guidance.js";
 import { readWorkflowManifest } from "./manifest.js";
 import { readWorkflowTeam, workflowTeamHash } from "./team.js";
-import { assertWorkflowActiveRolesUnmodified, assertWorkflowRolesSafe, installWorkflowRoles, replaceWorkflowRoleEntries, workflowRoles } from "./roles.js";
+import { assertWorkflowActiveRolesUnmodified, assertWorkflowRolesSafe, installWorkflowRoles, replaceWorkflowRoleEntries, retireStandaloneProductStrategist, workflowRoles } from "./roles.js";
 import { assertWorkflowActiveSkillsUnmodified, assertWorkflowSkillsSafe, installWorkflowSkills } from "./skills.js";
 import { deriveWorkflowSourceName, parseSourceInput, sourceManifestEntry, workflowSourcesJson } from "./source.js";
 import {
@@ -48,7 +48,8 @@ function preflightWorkflowInstall(
   stagedPackagePath: string,
   finalPackagePath: string,
   lockfile: { skills: LockfileSkillEntry[]; roles?: LockfileRoleEntry[]; workflows?: LockfileWorkflowEntry[] },
-  allowExistingWorkflow = false
+  allowExistingWorkflow = false,
+  reconcileProtected = false
 ): LockfileWorkflowEntry | undefined {
   const existingWorkflow = (lockfile.workflows || [])[0];
 
@@ -58,20 +59,24 @@ function preflightWorkflowInstall(
     );
   }
 
-  if (existingWorkflow) {
+  if (existingWorkflow && !reconcileProtected) {
     assertWorkflowPackageUnmodified(existingWorkflow, "update");
     assertWorkflowActiveSkillsUnmodified(lockfile, existingWorkflow.name);
     assertWorkflowActiveRolesUnmodified(lockfile, existingWorkflow.name);
   }
 
-  for (const block of lockfileAppendBlocks(lockfile)) {
-    assertInstalledAppendBlockUnmodified(block);
+  if (!reconcileProtected) {
+    for (const block of lockfileAppendBlocks(lockfile)) {
+      assertInstalledAppendBlockUnmodified(block);
+    }
   }
 
-  assertWorkflowDocsSafe(workflow, stagedPackagePath, existingWorkflow);
-  assertAgentsMdBlockSafe(workflow.agentsMd, stagedPackagePath, existingWorkflow?.agentsMd, workflow.name);
+  if (!reconcileProtected) {
+    assertWorkflowDocsSafe(workflow, stagedPackagePath, existingWorkflow);
+    assertAgentsMdBlockSafe(workflow.agentsMd, stagedPackagePath, existingWorkflow?.agentsMd, workflow.name);
+  }
   assertWorkflowSkillsSafe(workflow, source, stagedPackagePath, finalPackagePath, lockfile);
-  assertWorkflowRolesSafe(workflow, source, stagedPackagePath, finalPackagePath, lockfile);
+  assertWorkflowRolesSafe(workflow, source, stagedPackagePath, finalPackagePath, lockfile, { reconcileProtected });
   validateWorkflowGuidance(discoverWorkflowGuidance(workflow, stagedPackagePath));
   validateWorkflowTemplates(discoverWorkflowTemplates(workflow, stagedPackagePath));
   if (workflow.team) {
@@ -88,6 +93,49 @@ function writeWorkflowPackage(stagedPackagePath: string, finalPackagePath: strin
   return copyFilesSafely(stagedPackagePath, finalPackagePath);
 }
 
+interface InstallSnapshot {
+  root: string;
+  paths: Array<{ target: string; snapshot: string; existed: boolean }>;
+}
+
+function snapshotInstallState(paths: string[]): InstallSnapshot {
+  const root = mkdtempSync(join(tmpdir(), "aix-workflow-rollback-"));
+  const snapshots = paths.map((target, index) => {
+    const snapshot = join(root, String(index));
+    const existed = existsSync(target);
+
+    if (existed) {
+      cpSync(target, snapshot, { recursive: true, force: true });
+    }
+
+    return { target, snapshot, existed };
+  });
+
+  return { root, paths: snapshots };
+}
+
+function restoreInstallState(snapshot: InstallSnapshot): void {
+  for (const entry of snapshot.paths) {
+    rmSync(entry.target, { recursive: true, force: true });
+    if (entry.existed) {
+      cpSync(entry.snapshot, entry.target, { recursive: true, force: true });
+    }
+  }
+
+  rmSync(snapshot.root, { recursive: true, force: true });
+}
+
+function discardInstallSnapshot(snapshot: InstallSnapshot): void {
+  rmSync(snapshot.root, { recursive: true, force: true });
+}
+
+function restoreObject(target: Record<string, unknown>, source: Record<string, unknown>): void {
+  for (const key of Object.keys(target)) {
+    delete target[key];
+  }
+  Object.assign(target, structuredClone(source));
+}
+
 export function installResolvedWorkflow(
   source: string,
   definition: SourceDefinition,
@@ -96,11 +144,13 @@ export function installResolvedWorkflow(
   resolvedCommit: string | undefined,
   manifestJson: Record<string, unknown>,
   lockfile: { skills: LockfileSkillEntry[]; roles?: LockfileRoleEntry[]; workflows?: LockfileWorkflowEntry[] },
-  options: { allowExistingWorkflow?: boolean; sourceType?: SourceType } = {}
+  options: { allowExistingWorkflow?: boolean; sourceType?: SourceType; reconcileProtected?: boolean } = {}
 ): InstallWorkflowResult {
   const sourceType = options.sourceType || "git";
   const previousLockfile = structuredClone(lockfile);
+  const previousManifest = structuredClone(manifestJson);
   const stagedPackage = stageWorkflowPackage(resolvedRoot);
+  let installSnapshot: InstallSnapshot | undefined;
 
   try {
     const workflow = readWorkflowManifest(stagedPackage.path);
@@ -111,14 +161,17 @@ export function installResolvedWorkflow(
       stagedPackage.path,
       packagePath,
       lockfile,
-      options.allowExistingWorkflow
+      options.allowExistingWorkflow,
+      options.reconcileProtected
     );
+    installSnapshot = snapshotInstallState([packagePath, ".agents/roles", "AGENTS.md"]);
     const packageFiles = writeWorkflowPackage(stagedPackage.path, packagePath);
     const docs = installWorkflowDocs(workflow, packagePath);
     const workflowAppend = workflow.agentsMd ? workflowAppendDefinition(workflow.agentsMd, packagePath, workflow.name) : undefined;
     const agentsMd = lockfileBlockForDefinition(workflowAppend);
     const previousWorkflowSkills = existingWorkflow ? workflowSkills(lockfile, existingWorkflow.name) : [];
     const previousWorkflowRoles = existingWorkflow ? workflowRoles(lockfile, existingWorkflow.name) : [];
+    retireStandaloneProductStrategist(workflow, packagePath, lockfile, manifestJson, { reconcileProtected: options.reconcileProtected });
     const skillEntries = installWorkflowSkills(workflow, source, sourceType, packagePath, previousWorkflowSkills);
     const roleEntries = installWorkflowRoles(workflow, source, sourceType, packagePath, existingWorkflow, previousWorkflowRoles);
     const guidance = workflowGuidanceHashes(discoverWorkflowGuidance(workflow, packagePath));
@@ -183,7 +236,17 @@ export function installResolvedWorkflow(
       activatedSkills: skillEntries.map((skill) => skill.activeName),
       activatedRoles: roleEntries.map((role) => role.activeName)
     };
+  } catch (error) {
+    if (installSnapshot) {
+      restoreInstallState(installSnapshot);
+    }
+    restoreObject(lockfile as unknown as Record<string, unknown>, previousLockfile as unknown as Record<string, unknown>);
+    restoreObject(manifestJson, previousManifest);
+    throw error;
   } finally {
+    if (installSnapshot) {
+      discardInstallSnapshot(installSnapshot);
+    }
     removeStagedWorkflowPackage(stagedPackage.path);
   }
 }

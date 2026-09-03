@@ -41,6 +41,27 @@ test("fake native host creates independent correlated workers and fails closed",
   assert.equal(host.workers[1].roleInstructions, "role two");
 });
 
+test("host capability checks fail closed for missing and unknown native delegation support", () => {
+  for (const value of [false, "unknown"]) {
+    const snapshot = {
+      provider: "fixture",
+      harness: "fixture",
+      model: "fixture",
+      runtime: "test",
+      discoveredAt: "2026-09-02T00:00:00.000Z",
+      capabilities: {
+        "native-worker-creation": value,
+        "correlated-results": value
+      }
+    };
+
+    assert.throws(
+      () => assertHostCapabilities(snapshot, ["native-worker-creation", "correlated-results"]),
+      /native-worker-creation, correlated-results/
+    );
+  }
+});
+
 test("Pi adapter translates native subagent calls without changing AIX contracts", async () => {
   const calls = [];
   const adapter = new PiHostAdapter({

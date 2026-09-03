@@ -53,6 +53,20 @@ aix status
 aix verify
 ```
 
+## Selective PM execution
+
+The project-manager schedules cohesive task groups from declared role scopes,
+dependencies, shared artifacts, and host capacity. Related work stays in one
+group with a persisted rationale and runs sequentially; independent groups may
+run in parallel when their claims do not overlap. Parent-workspace integration
+is always serialized. Queued, held, conflict, and recovery decisions remain in
+the local PM runtime so the PM can explain why work waited or split.
+
+Native hosts that report limited, unknown, or changed concurrency reduce
+parallelism. Missing workspace or managed-integration capabilities fail closed
+for change-producing work. Host-specific worker names and UI may differ, but
+the AIX grouping, isolation, lock, and recovery rules remain the same.
+
 After initialization or workflow installation, `aix` updates the project:
 
 1. `AGENTS.md` gets a managed block marked
@@ -82,7 +96,8 @@ This workflow installs these roles:
 
 | Role name | Example prompts | What it does |
 | --- | --- | --- |
-| [`product-strategist`](roles/project-dev/product-strategist/ROLE.md) | "Use product-strategist to review this feature idea."<br>"Should this idea become a plan, or should we narrow it first?"<br>"Compare these feature ideas by user value and sequencing." | Generates and evaluates product ideas, audience fit, scope, tradeoffs, and sequencing before planned work is accepted. |
+| [`product-owner`](roles/project-dev/product-owner/ROLE.md) | "Use product-owner to review this feature idea."<br>"Should this idea become a plan, or should we narrow it first?"<br>"Compare these feature ideas by user value and sequencing." | Owns product intent, backlog ordering, acceptance criteria, audience fit, scope, tradeoffs, and sequencing through delivery. |
+| [`release-engineer`](roles/project-dev/release-engineer/ROLE.md) | "Use release-engineer to review release readiness."<br>"Validate the package and supported hosts." | Reviews CI, builds, packages, artifacts, compatibility, diagnostics, and release safety. |
 | [`product-designer`](roles/project-dev/product-designer/ROLE.md) | "Use product-designer to review this workflow."<br>"Review this plan's user flow and accessibility before implementation."<br>"Does this prompt flow have clear states, recovery paths, and layout hierarchy?" | Reviews user flows, interaction design, accessibility, layout hierarchy, prototypes, terminal UX, and design-system fit before product-facing work is finalized. |
 | [`requirements-engineer`](roles/project-dev/requirements-engineer/ROLE.md) | "Use requirements-engineer to refine this Design Intent."<br>"Are the requirements, non-goals, and acceptance signals ready?"<br>"Find open decisions before we draft phases." | Turns accepted product vision into requirements, non-goals, boundaries, acceptance signals, and plan-readiness evidence before implementation phases are drafted. |
 | [`technical-architect`](roles/project-dev/technical-architect/ROLE.md) | "Use technical-architect to review this plan."<br>"Do these module boundaries and runtime contracts look ready for implementation?"<br>"Split this design into maintainable implementation phases." | Reviews system design, component boundaries, runtime contracts, integration choices, and maintainability tradeoffs before implementation phases are finalized. |
@@ -102,9 +117,13 @@ Use roles explicitly when you want bounded specialist judgment, for example
 `Use quality-engineer to plan verification` or
 `Delegate to documentation-specialist for docs impact`. The
 `delegate-to-role` skill resolves named role intent, stops on missing or
-ambiguous role requests, and keeps implicit routing conservative. When the host
-does not provide a clear bounded subagent handoff, delegation uses a
-prompt-overlay fallback.
+ambiguous role requests, and keeps implicit routing conservative. For work
+routed through an active project-manager, the PM must inspect the complete
+host/tool registry before dispatch. Deferred tools count as available tools.
+PM-routed work requires native delegation, and an unavailable or unknown
+`native-worker-creation` or `correlated-results` capability blocks parent
+fallback. Prompt-overlay is allowed for bootstrap before PM activation, direct
+non-PM use, or an explicit developer override.
 
 The parent context remains authoritative for plan state, worktree safety,
 verification review, final decisions, and user-facing reporting. The
@@ -112,6 +131,19 @@ verification review, final decisions, and user-facing reporting. The
 claim that every host runtime treats it as a native agent directory. Host-native
 agent exposure is deferred until an explicit integration command or
 configuration owns that compatibility output.
+
+## Product and release authority
+
+`product-owner` owns product intent, backlog ordering, acceptance criteria,
+scope, prioritization, and product tradeoffs through delivery.
+`release-engineer` owns bounded delivery-system and artifact work, including
+CI, builds, package validation, supported-host compatibility, diagnostics, and
+release safety.
+
+Boss is the human decision principal outside the delegated-role roster and
+worker lifecycle. Boss retains authority for product decisions, priorities,
+risky approvals, exceptions, final acceptance, and release decisions. Boss is
+not a worker or a persisted delegation identity.
 
 ## Installed Skills
 

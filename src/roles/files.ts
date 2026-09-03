@@ -1,10 +1,10 @@
-import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs";
-import { dirname, join, relative } from "node:path";
+import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { AixError } from "../errors.js";
 import { copyFilesSafely } from "../fs/files.js";
 import { hashFile } from "../fs/hashing.js";
 import { assertFileHashesMatchLockfile, fileHashesForPath } from "../lockfile/drift.js";
-import { roleEntrypointPath, roleGuidancePath } from "../paths/agents.js";
+import { ACTIVE_ROLES_DIR, PACKAGES_DIR, roleEntrypointPath, roleGuidancePath } from "../paths/agents.js";
 import type { FileHash, LockfileRoleEntry } from "../schema.js";
 
 export function roleFileHashes(path: string): FileHash[] {
@@ -40,10 +40,12 @@ export function assertRoleFileHashesMatch(path: string, expectedFiles: FileHash[
 }
 
 export function assertRolePackageFilesMatchLockfile(entry: LockfileRoleEntry, action = "remove"): void {
+  assertManagedRoleDeletionPaths(entry);
   assertRoleFileHashesMatch(entry.packagePath, entry.packageFiles, `Refusing to ${action} modified role package: ${entry.packagePath}`);
 }
 
 export function assertActiveRoleFilesMatchLockfile(entry: LockfileRoleEntry, action = "remove"): void {
+  assertManagedRoleDeletionPaths(entry);
   for (const file of entry.activeFiles) {
     const path = join(entry.activationPath, file.path);
 
@@ -51,6 +53,65 @@ export function assertActiveRoleFilesMatchLockfile(entry: LockfileRoleEntry, act
       throw new AixError(`Refusing to ${action} modified active role: ${entry.activationPath}`);
     }
   }
+}
+
+function assertManagedDeletionPath(path: string, root: string, label: string): void {
+  if (isAbsolute(path) || /^[A-Za-z]:[\\/]/.test(path)) {
+    throw new AixError(`Refusing to use ${label} outside the project-managed .agents directory: ${path}`);
+  }
+
+  const segments = path.replaceAll("\\", "/").split("/");
+  if (segments.includes("..")) {
+    throw new AixError(`Refusing to use ${label} with path traversal: ${path}`);
+  }
+
+  const projectRoot = process.cwd();
+  const rootPath = resolve(projectRoot, root);
+  const candidatePath = resolve(projectRoot, path);
+  const rootRelative = relative(rootPath, candidatePath);
+  if (!rootRelative || rootRelative.startsWith("..") || isAbsolute(rootRelative)) {
+    throw new AixError(`Refusing to use ${label} outside ${root}: ${path}`);
+  }
+
+  let existingPath = candidatePath;
+  while (true) {
+    try {
+      if (lstatSync(existingPath).isSymbolicLink()) {
+        throw new AixError(`Refusing to use symlink-escaped ${label}: ${path}`);
+      }
+      break;
+    } catch (error) {
+      if (error instanceof AixError) throw error;
+      const parent = dirname(existingPath);
+      if (parent === existingPath) break;
+      existingPath = parent;
+    }
+  }
+
+  const realRoot = realpathSync(rootPath);
+  const realProjectRoot = realpathSync(projectRoot);
+  const rootProjectRelative = relative(realProjectRoot, realRoot);
+  if (rootProjectRelative.startsWith("..") || isAbsolute(rootProjectRelative)) {
+    throw new AixError(`Refusing to use symlink-escaped managed root for ${label}: ${root}`);
+  }
+  const realExisting = realpathSync(existingPath);
+  const realRelative = relative(realRoot, realExisting);
+  if (realRelative.startsWith("..") || isAbsolute(realRelative)) {
+    throw new AixError(`Refusing to use symlink-escaped ${label}: ${path}`);
+  }
+
+  if (existsSync(candidatePath)) {
+    const realCandidate = realpathSync(candidatePath);
+    const candidateRelative = relative(realRoot, realCandidate);
+    if (candidateRelative.startsWith("..") || isAbsolute(candidateRelative)) {
+      throw new AixError(`Refusing to use symlink-escaped ${label}: ${path}`);
+    }
+  }
+}
+
+export function assertManagedRoleDeletionPaths(entry: LockfileRoleEntry): void {
+  assertManagedDeletionPath(entry.packagePath, PACKAGES_DIR, "role package path");
+  assertManagedDeletionPath(entry.activationPath, ACTIVE_ROLES_DIR, "role activation path");
 }
 
 export function copyRoleFileSafely(sourcePath: string, targetPath: string): FileHash[] {

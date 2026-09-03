@@ -59,6 +59,22 @@ operating model for whatever agent host they use.
 - Use `discover-skill` to review installable skill candidates before running
   normal package-management commands.
 
+## Design-plan-execute ownership
+
+Within the default workflow, `product-owner` carries product intent from idea
+through delivery. The role preserves product-strategy work such as audience
+fit, user value, scope, tradeoffs, prioritization, and sequencing, and adds
+backlog ordering, actionable backlog-item shaping, acceptance criteria,
+refinement, planning support, delivery-time clarification, and product-level
+acceptance evaluation. See the [workflow requirements](../02-requirements/workflows/design-plan-execute/README.md)
+for the complete contract.
+
+The human decision principal is Boss. Boss remains outside the delegated-role
+roster and retains product decisions, priorities, risky approvals, exceptions,
+final acceptance, and release decisions. The PM and specialist roles prepare
+work and evidence for those decisions; they do not create a worker or durable
+delegation record for Boss.
+
 ## Guidance Model
 
 Guidance is a first-class AIX asset for reusable best-practice judgment. It is

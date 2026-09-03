@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { readLockfileJson } from "../activation/lockfile.js";
 import { AixError } from "../errors.js";
 import { roleEntrypointPath } from "../paths/agents.js";
+import { BOSS_PRINCIPAL, STALE_WORKFLOW_ROLE_NAMES } from "../workflows/team.js";
 import { readWorkflowManifest } from "../workflows/manifest.js";
 import { loadWorkerContext, loadWorkflowTeamContext } from "./context.js";
 import {
@@ -271,6 +272,12 @@ export async function createPmOrchestrator(options: PmOrchestratorOptions): Prom
     async dispatch(input) {
       let delegationId = "";
       session.refresh();
+      if (input.role === BOSS_PRINCIPAL) {
+        throw new AixError("Boss is the human decision principal and cannot be dispatched as a worker.");
+      }
+      if ((STALE_WORKFLOW_ROLE_NAMES as readonly string[]).includes(input.role)) {
+        throw new AixError(`Role ${input.role} is stale and is no longer delegatable; use product-owner.`);
+      }
       const role = teamContext.team.roles.find((candidate) => candidate.name === input.role);
       if (!role || role.name === "project-manager") throw new AixError(`Role is not delegatable by this workflow: ${input.role}`);
       if (!role.taskModes.includes(input.taskMode)) throw new AixError(`Role ${input.role} does not support task mode ${input.taskMode}.`);
@@ -279,8 +286,10 @@ export async function createPmOrchestrator(options: PmOrchestratorOptions): Prom
       if (requestedPaths.some((path) => !pathInDeclaredDomain(path, role.writeDomains))) {
         throw new AixError(`Delegation write scope exceeds the declared domain for role ${input.role}.`);
       }
+      const deniedPaths = [...new Set([...role.deniedAreas, ...(input.deniedPaths || [])])];
+      const requiredAccess = [...new Set([...role.requiredCapabilities, ...(input.requiredAccess || [])])];
       const deliveryCapabilities = requiredHostCapabilitiesForDeliveryMode(input.deliveryMode);
-      assertHostCapabilities(capabilities, [...new Set([...role.requiredCapabilities, "native-worker-creation", "correlated-results", ...deliveryCapabilities])]);
+      assertHostCapabilities(capabilities, [...new Set([...requiredAccess, "native-worker-creation", "correlated-results", ...deliveryCapabilities])]);
       const release = acquirePmLock(projectRoot, `dispatch:${input.role}:${input.goal}`, session.record.sessionId);
       const artifactReleases: Array<() => void> = [];
       let createdRecord: DelegationRecord | undefined;
@@ -316,8 +325,8 @@ export async function createPmOrchestrator(options: PmOrchestratorOptions): Prom
           acceptanceSignals: input.acceptanceSignals,
           returnRequirements: input.returnRequirements,
           allowedPaths: requestedPaths,
-          deniedPaths: input.deniedPaths || role.deniedAreas,
-          requiredAccess: input.requiredAccess || role.requiredCapabilities,
+          deniedPaths,
+          requiredAccess,
           stopConditions: input.stopConditions || ["Scope or authority is unclear."],
           capabilitySnapshot: createPersistedCapabilitySnapshot(capabilities),
           scheduling: {

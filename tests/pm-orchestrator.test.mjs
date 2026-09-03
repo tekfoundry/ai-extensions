@@ -21,6 +21,59 @@ import {
 
 const workflowRoot = resolve("aix/workflows/design-plan-execute");
 
+test("PM discovers deferred host capabilities before creating a worker", async () => {
+  const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-capability-order-"));
+  const events = [];
+  class DeferredCapabilityHost extends FakeNativeHost {
+    discovered = false;
+
+    async discoverCapabilities() {
+      events.push("discover-capabilities");
+      this.discovered = true;
+      return super.discoverCapabilities();
+    }
+
+    async createWorker(request) {
+      assert.equal(this.discovered, true);
+      events.push("create-worker");
+      return super.createWorker(request);
+    }
+
+    async sendBrief(worker, brief) {
+      events.push("send-brief");
+      return super.sendBrief(worker, brief);
+    }
+
+    async waitForResult(worker) {
+      events.push("wait-for-result");
+      return super.waitForResult(worker);
+    }
+  }
+
+  const host = new DeferredCapabilityHost();
+  const pm = await createPmOrchestrator({ projectRoot, workflowPackageRoot: workflowRoot, host });
+  await pm.dispatch({
+    role: "quality-engineer", taskMode: "verification", deliveryMode: "report-only",
+    goal: "Verify capability ordering.", constraints: [], acceptanceSignals: [], returnRequirements: []
+  });
+
+  assert.deepEqual(events, ["discover-capabilities", "create-worker", "send-brief", "wait-for-result"]);
+  pm.close();
+});
+
+for (const [capability, value] of [["native-worker-creation", false], ["native-worker-creation", "unknown"], ["correlated-results", false], ["correlated-results", "unknown"]]) {
+  test(`PM refuses dispatch when ${capability} is ${value}`, async () => {
+    const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-capability-failure-"));
+    const host = new FakeNativeHost({ capabilities: { [capability]: value } });
+
+    await assert.rejects(
+      () => createPmOrchestrator({ projectRoot, workflowPackageRoot: workflowRoot, host }),
+      new RegExp(`requires native host capabilities: ${capability}`)
+    );
+    assert.equal(host.workers.length, 0);
+  });
+}
+
 test("PM starts with a lease, reconciles, dispatches, and reuses compatible workers", async () => {
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-orchestrator-"));
   const host = new FakeNativeHost();
@@ -102,7 +155,7 @@ test("PM startup reconciles incomplete records and refuses parent artifact write
     projectRoot, workflow: "design-plan-execute", workflowVersion: "1", pmRoleVersion: "1",
     role: "quality-engineer", taskMode: "verification", deliveryMode: "report-only",
     goal: "Inspect tests.", constraints: [], acceptanceSignals: [], allowedPaths: [], deniedPaths: ["src/"],
-    requiredAccess: ["read"], stopConditions: ["scope unclear"], returnRequirements: ["summary"]
+    requiredAccess: ["correlated-results"], stopConditions: ["scope unclear"], returnRequirements: ["summary"]
   });
   const pm = await createPmOrchestrator({ projectRoot, workflowPackageRoot: workflowRoot, host: new FakeNativeHost() });
   const recovered = pm.status().delegations.find((item) => item.delegationId === record.contract.identity.delegationId);
@@ -125,6 +178,20 @@ test("delegation capability snapshot remains available after recovery", async ()
   assert.deepEqual(recovered.capabilitySnapshot, snapshot);
   assert.deepEqual(readDelegation(projectRoot, dispatched.record.contract.identity.delegationId).capabilitySnapshot, snapshot);
   assert.deepEqual(pm.status().delegations[0].capabilitySnapshot, snapshot);
+  pm.close();
+});
+
+test("caller metadata cannot weaken mandatory role denials or capabilities", async () => {
+  const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-contract-hardening-"));
+  const pm = await createPmOrchestrator({ projectRoot, workflowPackageRoot: workflowRoot, host: new FakeNativeHost() });
+  const result = await pm.dispatch({
+    role: "quality-engineer", taskMode: "verification", deliveryMode: "report-only",
+    goal: "Verify mandatory delegation safeguards.", constraints: [], acceptanceSignals: [], returnRequirements: [],
+    deniedPaths: [], requiredAccess: []
+  });
+
+  assert.deepEqual(result.record.contract.authority.deniedPaths.sort(), [".aix/pm/", "_docs/kb/", "src/"].sort());
+  assert.deepEqual(result.record.contract.authority.requiredAccess, ["correlated-results"]);
   pm.close();
 });
 
@@ -218,7 +285,7 @@ test("PM restart resumes safe persisted queued assignments with a replacement id
   const queued = createDelegation({
     projectRoot, workflow: "design-plan-execute", workflowVersion: "1", pmRoleVersion: "1",
     role: "quality-engineer", taskMode: "verification", deliveryMode: "report-only", goal: "Resume this queued check.",
-    constraints: [], acceptanceSignals: [], returnRequirements: ["Summary"], allowedPaths: [], deniedPaths: ["src/"], requiredAccess: ["read"], stopConditions: ["scope unclear"],
+    constraints: [], acceptanceSignals: [], returnRequirements: ["Summary"], allowedPaths: [], deniedPaths: ["src/"], requiredAccess: ["correlated-results"], stopConditions: ["scope unclear"],
     scheduling: { groupId: "restart-group", dependencies: [], writeDomains: [], sharedArtifacts: [] }
   });
   updateDelegationState(projectRoot, queued.contract.identity.delegationId, "queued", "Waiting for host capacity.");
@@ -263,6 +330,42 @@ test("grouping decisions retain a durable PM rationale", async () => {
   assert.match(result.record.scheduling.rationale, /normalized/);
   assert.equal(result.record.scheduling.decisionKind, "grouped");
   assert.equal(result.record.scheduling.groupId.startsWith("group-"), true);
+  pm.close();
+});
+
+test("PM routes product and release work only to their declared specialist roles", async () => {
+  const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-phase11-routing-"));
+  const host = new FakeNativeHost();
+  const pm = await createPmOrchestrator({ projectRoot, workflowPackageRoot: workflowRoot, host });
+
+  const product = await pm.dispatch({
+    role: "product-owner", taskMode: "review", deliveryMode: "report-only",
+    goal: "Review product acceptance.", constraints: [], acceptanceSignals: [], returnRequirements: []
+  });
+  const release = await pm.dispatch({
+    role: "release-engineer", taskMode: "verification", deliveryMode: "report-only",
+    goal: "Validate the package artifact.", constraints: [], acceptanceSignals: [], returnRequirements: []
+  });
+
+  assert.equal(product.record.contract.authority.role, "product-owner");
+  assert.equal(release.record.contract.authority.role, "release-engineer");
+  assert.equal(host.workers[0].contract.authority.role, "product-owner");
+  assert.equal(host.workers[1].contract.authority.role, "release-engineer");
+  pm.close();
+});
+
+test("Boss is outside the workflow roster and cannot create a delegation", async () => {
+  const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-phase11-boss-"));
+  const host = new FakeNativeHost();
+  const pm = await createPmOrchestrator({ projectRoot, workflowPackageRoot: workflowRoot, host });
+
+  assert.equal(pm.team.roles.some((role) => role.name === "boss"), false);
+  assert.equal(pm.team.roles.some((role) => role.name === "project-manager"), false);
+  await assert.rejects(
+    () => pm.dispatch({ role: "boss", taskMode: "review", deliveryMode: "report-only", goal: "Approve release.", constraints: [], acceptanceSignals: [], returnRequirements: [] }),
+    /Boss is the human decision principal|Role is not delegatable/
+  );
+  assert.equal(pm.status().delegations.length, 0);
   pm.close();
 });
 

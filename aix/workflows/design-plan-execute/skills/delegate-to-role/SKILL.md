@@ -28,10 +28,12 @@ authoritative over the task, plan, worktree, verification, or final decision.
      missing-role message.
    - If role intent is only implied, do not guess. Continue without delegation
      or ask one concise question when delegation is necessary.
-3. For a request routed through an active project-manager workflow, native
-   subagent handoff is mandatory. If the host reports native delegation as
-   unavailable or unknown, stop and report that PM orchestration cannot
-   proceed. Never substitute a prompt overlay for an independent worker.
+3. For a request routed through an active project-manager workflow, inspect
+   the complete host/tool registry before dispatch, including tools deferred
+   from the initial summary. Native subagent handoff is mandatory. If
+   `native-worker-creation` or `correlated-results` is unavailable or unknown,
+   stop and report that PM orchestration cannot proceed. Never substitute a
+   prompt overlay for an independent worker.
    Do not write host-native agent files as part of routine delegation.
 4. Prompt-overlay fallback is allowed only during bootstrap before
    project-manager activation or under an explicit developer override. It is

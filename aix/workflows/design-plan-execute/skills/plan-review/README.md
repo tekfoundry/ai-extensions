@@ -51,8 +51,8 @@ the plan is ready for execution and names the exact blockers when it is not.
 When the workflow-owned `technical-architect` role is installed, the skill can
 use it for bounded architecture-readiness review while still checking
 architecture concerns itself when the role is unavailable. When the
-workflow-owned `product-strategist` role is installed, the skill can use it
-for bounded product-strategy readiness review on audience, value, scope,
+workflow-owned `product-owner` role is installed, the skill can use it
+for bounded product-owner readiness review on audience, value, scope,
 sequencing, prioritization, and product fit while still checking those
 concerns itself when the role is unavailable. When the
 workflow-owned `product-designer` role is installed, the skill can use it for

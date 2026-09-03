@@ -1,7 +1,7 @@
 ---
 applies_to:
   roles:
-    - product-strategist
+    - product-owner
     - requirements-engineer
     - technical-architect
     - security-engineer

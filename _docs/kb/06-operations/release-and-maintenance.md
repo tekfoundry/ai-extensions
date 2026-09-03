@@ -21,6 +21,12 @@ That package shape means operational release checks must verify compiled
 runtime code, the executable binary mapping, and bundled workflow, skill, role,
 guidance, and template assets.
 
+The bundled `design-plan-execute` artifact must contain the `product-owner` and
+`release-engineer` role bundles and no current workflow-owned
+`product-strategist` bundle. Package smoke and local-install checks should
+confirm that the workflow manifest, team roster, role directories, and
+lockfile metadata agree before an artifact is accepted.
+
 ## Runtime Topology
 
 AIX is a local Node.js CLI. It does not run a server, daemon, database,
@@ -107,6 +113,9 @@ Publishing must stay separated from ordinary push CI.
 - Treat lockfile writes, active-file updates, workflow install/update/remove,
   skill activation/deactivation, role activation/deactivation, template reset,
   and guidance reset as operationally safety-sensitive.
+- Treat legacy `product-strategist` replacement as a migration, not a normal
+  standalone role rename. Review drift and collisions first; preserve the
+  recovery path when migration refuses or rolls back.
 
 ## Operational Monitoring
 

@@ -147,10 +147,15 @@ agents.
 
 The workflow's product-strategy responsibility should become a complete
 `product-owner` role rather than remain a narrower `product-strategist` role.
-The product-owner owns product intent, user value, prioritization, product
-scope, product-level acceptance, and product tradeoffs. The role collaborates
-with the project-manager, but does not replace the human's authority or own
-technical execution.
+The product-owner must retain everything the product-strategist did, including
+idea generation and evaluation, audience fit, user value, scope, tradeoffs,
+prioritization, and sequencing. It must also bring the normal product-owner
+perspective from a software development team: maintain and order the product
+backlog, turn product intent into actionable work and acceptance criteria,
+support refinement and planning, answer product questions during delivery,
+and evaluate completed work against product acceptance. The role collaborates
+with the project-manager and delivery specialists, but does not replace the
+human's authority or own technical execution.
 
 This is a role migration, not merely a display-name change. The stable role
 name, role directory, team roster, manifests, lockfiles, guidance, prompts,
@@ -1942,18 +1947,27 @@ Exit criteria:
 - The PM can explain why tasks were grouped together, kept sequential, or split
   into separate parallel workstreams.
 
-### Phase 11: Migrate product strategy to product ownership and formalize Boss (status: accepted)
+### Phase 11: Migrate product strategy to product ownership and formalize Boss (status: completed)
 
 Goal: clarify product decision ownership by replacing the narrow
-`product-strategist` role with a complete `product-owner` role and formalizing
-the human principal in the PM interaction model.
+`product-strategist` role with a complete `product-owner` role that subsumes
+the strategist's responsibilities and adds the behaviors and knowledge of a
+software-team product owner. The phase also formalizes the human principal in
+the PM interaction model.
 
 Design Intent:
 
-- `product-owner` is the workflow's product-decision role. It owns product
-  intent, user value, prioritization, scope, product-level acceptance, and
-  tradeoffs, while returning implementation, architecture, security, and
-  release decisions to the appropriate specialists or Boss.
+- `product-owner` is a superset of the current `product-strategist` role. It
+  continues the strategist's work on idea generation and evaluation, audience
+  fit, user value, scope, tradeoffs, prioritization, and sequencing. It adds
+  the standard software-team PO responsibilities of maintaining and ordering
+  the product backlog, shaping actionable backlog items and acceptance
+  criteria, supporting refinement and planning, clarifying product intent
+  during implementation, and evaluating delivered work against product-level
+  acceptance. It owns product intent, user value, prioritization, scope,
+  product-level acceptance, and product tradeoffs, while returning
+  implementation, architecture, security, and release decisions to the
+  appropriate specialists or Boss.
 - `release-engineer` is an experienced or senior DevOps engineer, not a
   generic release assistant. The role owns delivery-system reliability,
   CI/CD, build and package validation, artifact integrity, supported-host
@@ -1979,77 +1993,233 @@ Design Intent:
 
 Tasks:
 
-- ⬜️ Define the `product-owner` role contract, including product intent, user
-  value, prioritization, scope, product-level acceptance, and tradeoffs.
-- ⬜️ Create the `product-owner` role bundle with `ROLE.md` and `GUIDANCE.md`,
-  preserving the product-strategy responsibilities that remain in scope while
-  making product-decision authority and escalation boundaries explicit.
-- ⬜️ Define the `release-engineer` role contract and persona as an experienced
+- ✅ Align PM capability-discovery and fail-closed delegation guidance across
+  the canonical `aix` sources, active `.agents` guidance, workflow skills, and
+  relevant workflow README and architecture docs. State that the complete
+  host/tool registry must be inspected, deferred tools count, PM-routed work
+  requires native delegation, and unknown or unavailable capabilities block
+  parent fallback. Keep prompt-overlay only for its explicitly allowed cases.
+- ✅ Add regression coverage for deferred-tool discovery,
+  missing/unknown `native-worker-creation` or `correlated-results`, capability
+  discovery before dispatch, and rejection of parent-session or prompt-overlay
+  fallback for PM-routed work.
+- ✅ Define the `product-owner` role contract as a superset of the current
+  `product-strategist` contract. Preserve idea generation and evaluation,
+  audience fit, user value, scope, tradeoffs, prioritization, and sequencing.
+  Add software-team PO behaviors and knowledge for backlog ordering, backlog
+  item shaping, acceptance criteria, refinement and planning, delivery-time
+  product clarification, and evaluation of completed work.
+- ✅ Create the `product-owner` role bundle with `ROLE.md` and `GUIDANCE.md`,
+  preserving all product-strategy responsibilities while making the added
+  software-team PO behaviors, product-decision authority, and escalation
+  boundaries explicit.
+- ✅ Define the `release-engineer` role contract and persona as an experienced
   or senior DevOps engineer. The contract includes CI, build and package
   validation, npm artifact contents, supported-host environment integration,
   cross-platform compatibility, release diagnostics, operational reliability,
   deployment safety, and release automation tradeoffs.
-- ⬜️ Create the `release-engineer` role bundle with `ROLE.md` and
+- ✅ Create the `release-engineer` role bundle with `ROLE.md` and
   `GUIDANCE.md`; describe the senior DevOps perspective, responsibilities,
   authority boundaries, evidence expectations, and refusal/escalation rules in
   both documents. Keep publishing, credential access, and unrestricted
   external-release actions outside the default role authority.
-- ⬜️ Rename the product-strategy role bundle, activation name, display name,
+- ✅ Rename the product-strategy role bundle, activation name, display name,
   manifests, lockfiles, guidance, prompts, and related references from
   `product-strategist` to `product-owner`, including package and active-role
-  discovery expectations.
-- ⬜️ Update `aix/workflows/design-plan-execute/team.md` as the authoritative
+  discovery expectations. The canonical workflow package, active `.agents`
+  state, generated README, and lockfile now use the reconciled product-owner
+  name.
+- ✅ Update `aix/workflows/design-plan-execute/team.md` as the authoritative
   workflow roster contract: replace `product-strategist`, add
   `product-owner` and `release-engineer`, declare their bounded metadata,
   bump the team contract version when required, and keep workflow manifest and
-  lockfile team hashes/provenance consistent.
-- ⬜️ Define and implement a safe migration for projects with installed or
+  lockfile team hashes/provenance consistent. The team contract is version 2
+  and the active lockfile and generated state are synchronized.
+- ✅ Define and implement a safe migration for projects with installed or
   active `product-strategist` state, including stale active-file, manifest,
   lockfile, dependency, managed-append, package, active-file, collision, and
   provenance handling. Cover workflow-owned and standalone installations,
   edited-file refusal, transactional rollback, update, reinstall,
   deactivation, and reactivation. Never leave ambiguous dual ownership or
-  silently orphaned files.
-- ⬜️ Update PM delegation routing and workflow-team discovery so the PM can
+  silently orphaned files. The migration is transactional, refuses edited or
+  colliding state, and preserves a recoverable rollback path.
+- ✅ Update PM delegation routing and workflow-team discovery so the PM can
   select `product-owner` for product decisions and `release-engineer` for
   release/platform work without treating either as a project-management or
   implementation role. Update project-manager role guidance and reject stale
   or ambiguous role names.
-- ⬜️ Define and enforce `release-engineer` write domains, denied areas,
+- ✅ Define and enforce `release-engineer` write domains, denied areas,
   required capabilities, evidence requirements, and serialization with
   implementation, architecture, quality, security, and PM work. Keep registry,
   publishing, global-install, and unrestricted external-release behavior out
   of scope unless separately authorized.
-- ⬜️ Formalize `boss` as the human principal in the PM interaction contract.
+- ✅ Formalize `boss` as the human principal in the PM interaction contract.
   Keep Boss outside the delegated-role roster and delegation lifecycle while
   preserving authority for product decisions, priorities, risky approvals,
   exceptions, final acceptance, and release decisions.
-- ⬜️ Define concise conversational use of “Boss” for acknowledgments,
+- ✅ Define concise conversational use of “Boss” for acknowledgments,
   milestones, completion updates, decision requests, and exceptions without
   repeating it in every response or durable record.
-- ⬜️ Add role-migration, routing, authority, UX-copy, and regression tests for
+- ✅ Add role-migration, routing, authority, UX-copy, and regression tests for
   clean installs, existing installations, deactivation, reactivation,
   delegation selection, roster validation, lockfile/provenance integrity,
-  package smoke, release-engineer boundaries, and Boss interaction behavior.
-- ⬜️ Perform manual acceptance for clean installation, existing-state
+  package smoke, product-owner inheritance of product-strategy behavior,
+  product-owner backlog and acceptance behavior, release-engineer boundaries,
+  and Boss interaction behavior.
+- ✅ Perform manual acceptance for clean installation, existing-state
   migration, edited-file and collision refusal, PM routing, installed role
   guidance, concise Boss-facing language, and release-engineer DevOps scope.
-- ⬜️ Update final workflow, role, product, requirements, architecture,
+  Temporary-project acceptance passed 20/20 checks. Native conversational
+  PM/Boss interaction was not available in this environment and remains a
+  stated validation limitation.
+- ✅ Update final workflow, role, product, requirements, architecture,
   security, quality, operations, decisions, and PM documentation, including
   indexes and package-facing README/help text, during plan completion; do not
   promote current-state knowledge into `_docs/kb` before the full plan
-  closeout.
+  closeout. Delegated documentation updates were verified, and final closeout
+  documentation is aligned with the reconciled managed state and lockfile.
+
+Task evidence:
+
+- ✅ PM capability-discovery and fail-closed delegation guidance was aligned in
+  the canonical role and workflow sources and the active `.agents` copies.
+  The guidance now requires inspection of the complete host/tool registry,
+  counts deferred tools, requires native delegation for PM-routed work, and
+  blocks parent fallback for unknown or unavailable capabilities. Verification:
+  `git diff --check -- '*.md'` passed. `_docs/kb`, source code, and tests were
+  intentionally left unchanged. The regression-coverage task is recorded
+  below.
+  Follow-up correction: direct non-PM use remains eligible for prompt-overlay
+  or self-review fallback; PM-routed work is native-delegation-only.
+- ✅ Regression coverage was added for deferred-tool discovery,
+  missing/unknown `native-worker-creation` or `correlated-results`, capability
+  discovery before dispatch, and rejection of parent-session or prompt-overlay
+  fallback for PM-routed work. Verification: `npm run build` passed; targeted
+  PM/instruction tests passed with 60 passed and 0 failed; `git diff --check`
+  passed.
+- ✅ The `product-owner` contract and bundle were added as a strategist
+  superset, including backlog ordering and shaping, acceptance criteria,
+  refinement/planning, delivery-time clarification, product-level acceptance,
+  and Boss escalation boundaries. Verification: `npm run build` passed;
+  role-contract tests passed 56/56; `git diff --check` passed.
+- ✅ The `release-engineer` contract and bundle were added with senior DevOps
+  scope, delivery modes, bounded write domains, denied areas, refusal rules,
+  and grouped evidence expectations. Verification: role and workflow-team
+  focused checks passed; `npm run build` passed; `git diff --check` passed.
+- ✅ The workflow roster and `workflow.json` package metadata were updated to
+  version 2 with exactly one `product-owner` and one `release-engineer`, while
+  excluding `product-strategist`, `boss`, and `project-manager` as delegatable
+  roster roles. Package smoke passed 1/1 and focused workflow/team/PM checks
+  passed. Protected reconciliation regenerated `aix.lock.json`, synchronized
+  `.agents`, and `aix verify` reports no drift.
+- ✅ Workflow-owned and standalone legacy strategist migration now has
+  transactional snapshots/rollback, edited-file and collision refusal, stale
+  state cleanup, and reactivation safeguards. Verification: migration-focused
+  tests passed 6/6; the later focused workflow/team/PM run passed 76/76;
+  `npm run build` and `git diff --check` passed. Temporary-project manual
+  acceptance passed the migration, edited-file refusal, collision refusal,
+  deactivation, and reactivation checks. The complete lifecycle matrix and
+  failure paths are covered by the passing migration, rollback, deactivation,
+  reactivation, and package-management tests.
+- ✅ PM routing now selects `product-owner` for product decisions and
+  `release-engineer` for release/platform work, rejects stale strategist
+  requests, and excludes Boss from worker dispatch and delegation records.
+  Release-engineer safety metadata rejects unsafe write domains and denied
+  areas, including source/tests, PM state, manifests, lockfiles, `AGENTS.md`,
+  publishing, registry, global-install, and unrestricted external release
+  actions. Verification: PM orchestrator tests passed 30/30, PM runtime tests
+  passed 10/10, and focused workflow/team/PM checks passed 76/76.
+- ✅ Boss authority and concise conversational-use guidance were added to the
+  role and PM contracts, with regression coverage for roster exclusion,
+  dispatch rejection, delegation-record exclusion, and authority boundaries.
+  Product decisions, priorities, risky approvals, exceptions, final
+  acceptance, and release decisions remain reserved for Boss.
+- ✅ Regression coverage was expanded across roles, roster validation,
+  package smoke, routing, authority, migration, and skill instructions.
+  The targeted role/package/PM suites reported 56/56, 1/1, 30/30, and 10/10
+  passing respectively. Migration-specific tests and manual acceptance also
+  passed. The full suite now passes 350/350, including migration and hardening
+  cases; `npm run verify`, `git diff --check`, `aix workflow diff`, and
+  `aix verify` all pass.
+
+Security review and approval record:
+
+- The previously identified protected-state inconsistency was reconciled after
+  explicit approval. The workflow package, `aix.lock.json`, `.agents/README.md`,
+  active roles, and managed package state now agree on the version-2 roster.
+- Reconciliation used an explicit `--reconcile-protected` opt-in; ordinary
+  updates continue to refuse protected drift rather than overwriting it.
+- The review also identified three follow-up hardening items: validate and
+  canonicalize lockfile-driven deletion paths inside the expected `.agents`
+  roots, narrow rollback to files owned by the current operation or add an
+  exclusive workspace lock, and prevent delegation callers from weakening
+  mandatory denial and capability metadata. Source hardening for path
+  boundaries and mandatory delegation metadata was implemented and built, but
+  its recovery fixtures are covered by the passing full verification suite.
+- Boss authority is enforced for roster membership and worker dispatch, while
+  approval of product decisions, priorities, exceptions, final acceptance, and
+  release decisions remains conversational and requires PM review. This is a
+  documented trust boundary, not a fully executable authorization check.
+
+Phase 11 closeout status:
+
+Phase 11 is complete. Protected-state reconciliation had explicit approval;
+lockfile and active-state consistency are verified; hardening regressions and
+the full verification suite pass; and the final documentation is aligned.
+Native conversational Boss validation remains unavailable in this environment
+and is recorded as a manual validation limitation, not as an unverified claim.
 
 Exit criteria:
 
-- The workflow has one unambiguous `product-owner` role with complete product
-  ownership responsibilities.
+- The workflow has one unambiguous `product-owner` role that includes every
+  in-scope product-strategy responsibility plus the expected product-owner
+  behaviors and knowledge for a software development team.
 - Existing `product-strategist` installations migrate safely or fail with a
   clear recovery path and no stale managed state.
 - The PM recognizes Boss as the human decision principal without creating a
   worker or delegation for that interaction.
 - Boss-facing language is concise, intentional, and excluded from durable
   worker records.
+
+### Phase 12: Refine conversational Boss voice (status: in progress)
+
+Goal: make PM responses feel warmer and more personal by using “Boss” more
+often in direct conversation, while keeping the address restrained, respectful,
+and absent from worker prompts and durable operational records.
+
+Design Intent:
+
+- The PM may use “Boss” naturally in acknowledgments, progress updates,
+  recommendations, completion reports, decision requests, and exception
+  handoffs.
+- Use is occasional rather than mechanical: normally at most once in a
+  meaningful direct response, and less often in dense technical explanations,
+  repeated polling, tool output, errors, and machine-readable content.
+- “Boss” identifies the human decision principal; it must not imply
+  subservience, override the user's authority, or replace an explicit approval
+  request when one is required.
+- Worker briefs, prompts, delegation records, IDs, status events, and other
+  durable metadata remain neutral and must not contain conversational filler.
+
+Tasks:
+
+- ✅ Update the canonical PM role, guidance, and workflow guidance with the
+  restrained conversational Boss policy and representative examples.
+- ✅ Synchronize the active PM role files and managed instruction block with
+  the canonical guidance without overwriting unrelated user edits.
+- 🟨 Add regression coverage for allowed conversational use, restrained
+  frequency guidance, respectful approval handoffs, and exclusion from worker
+  prompts and durable records.
+- ⬜️ Run targeted instruction and PM tests plus the full verification suite,
+  then record any manual validation limits for fresh-session testing.
+
+Exit criteria:
+
+- Fresh PM sessions have clear guidance to use “Boss” naturally but
+  non-repetitively.
+- Approval boundaries remain explicit and unchanged.
+- Durable worker and delegation artifacts remain free of conversational Boss
+  phrasing.
 
 ## Open Questions / Decisions
 

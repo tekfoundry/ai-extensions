@@ -164,7 +164,7 @@ test("bundled roles declare Pi-compatible child tool names", () => {
     "aix/workflows/design-plan-execute/roles/project-dev/ux-writer/ROLE.md",
     "aix/workflows/design-plan-execute/roles/project-dev/implementation-engineer/ROLE.md",
     "aix/workflows/design-plan-execute/roles/project-dev/technical-architect/ROLE.md",
-    "aix/workflows/design-plan-execute/roles/project-dev/product-strategist/ROLE.md",
+    "aix/workflows/design-plan-execute/roles/project-dev/product-owner/ROLE.md",
     "aix/workflows/design-plan-execute/roles/project-dev/documentation-specialist/ROLE.md",
     "aix/workflows/design-plan-execute/roles/project-dev/product-designer/ROLE.md"
   ];
@@ -599,7 +599,8 @@ test("PM Review routing probes avoid broad role fan-out and document guidance pl
     "quality-engineer",
     "documentation-specialist",
     "product-designer",
-    "product-strategist",
+    "product-owner",
+    "release-engineer",
     "ux-writer"
   ];
 
@@ -659,13 +660,30 @@ test("bundled project-manager guidance keeps parent review evidence-first", () =
   assert.doesNotMatch(guidance, /always re-read delegated files/i);
 });
 
+test("project-manager defines restrained conversational Boss language", () => {
+  const role = projectManagerRole();
+  const guidance = projectManagerGuidance();
+  const workflowGuidance = readFileSync(join(repoRoot, "aix/roles/project-manager/workflow.GUIDANCE.md"), "utf8");
+
+  for (const text of [role, guidance, workflowGuidance]) {
+    assert.match(text, /Boss/);
+    assert.match(text, /occasionally|occasional/);
+    assert.match(text, /warm and respectful|respectful and restrained/);
+    assert.match(text, /at most once|no more than once/);
+    assert.match(text, /worker prompts|durable (?:operational )?records/);
+  }
+  assert.match(role, /acknowledgments, progress updates,\s+recommendations, completion reports/);
+  assert.match(guidance, /decision requests,\s+and exception handbacks/);
+});
+
 test("shipped workflow roles support conditional PM Context Packet orientation", () => {
   const roleFiles = [
     "documentation-specialist",
     "implementation-engineer",
     "product-designer",
-    "product-strategist",
+    "product-owner",
     "quality-engineer",
+    "release-engineer",
     "requirements-engineer",
     "security-engineer",
     "technical-architect",
@@ -686,6 +704,42 @@ test("shipped workflow roles support conditional PM Context Packet orientation",
   }
 });
 
+test("product-owner preserves strategist responsibilities and adds the PO loop", () => {
+  const role = readFileSync("aix/workflows/design-plan-execute/roles/project-dev/product-owner/ROLE.md", "utf8");
+  const guidance = readFileSync("aix/workflows/design-plan-execute/roles/project-dev/product-owner/GUIDANCE.md", "utf8");
+
+  for (const phrase of [
+    "idea generation", "audience fit", "user value", "scope", "tradeoffs", "prioritization", "sequencing",
+    "backlog", "acceptance criteria", "refinement", "planning", "delivery-time", "product-level evaluation"
+  ]) {
+    assert.match(`${role}\n${guidance}`, new RegExp(phrase, "i"), phrase);
+  }
+  assert.match(guidance, /implementation, architecture, security,[\s\n]+quality, and release decisions/i);
+  assert.match(guidance, /Boss retains final authority/i);
+});
+
+test("release-engineer declares DevOps scope, boundaries, and evidence in both files", () => {
+  const role = readFileSync("aix/workflows/design-plan-execute/roles/project-dev/release-engineer/ROLE.md", "utf8");
+  const guidance = readFileSync("aix/workflows/design-plan-execute/roles/project-dev/release-engineer/GUIDANCE.md", "utf8");
+
+  for (const phrase of ["CI", "build", "package", "artifact", "supported-host", "cross-platform", "diagnostic", "rollback", "evidence"]) {
+    assert.match(`${role}\n${guidance}`, new RegExp(phrase, "i"), phrase);
+  }
+  for (const phrase of ["publishing", "raw credential", "registry", "global-install", "unrestricted external", "Boss retains final release authority"]) {
+    assert.match(`${role}\n${guidance}`, new RegExp(phrase.replace("-", "[- ]"), "i"), phrase);
+  }
+});
+
+test("stale product-strategist requests are rejected by the shipped role set", () => {
+  const roles = discoverRoles("aix/workflows/design-plan-execute/roles/project-dev")
+    .map((entry) => parseRoleFileFromPath(`aix/workflows/design-plan-execute/roles/project-dev/${entry.path}/ROLE.md`));
+  assert.equal(roles.some((role) => role.name === "product-strategist"), false);
+  assert.throws(
+    () => resolveRoleDelegation("use product-strategist to prioritize this idea", roles),
+    /Unknown role for delegation: product-strategist/
+  );
+});
+
 test("discoverRoles reports shipped workflow-owned project development roles", () => {
   const roles = discoverRoles("aix/workflows/design-plan-execute/roles/project-dev");
 
@@ -695,8 +749,9 @@ test("discoverRoles reports shipped workflow-owned project development roles", (
       "documentation-specialist",
       "implementation-engineer",
       "product-designer",
-      "product-strategist",
+      "product-owner",
       "quality-engineer",
+      "release-engineer",
       "requirements-engineer",
       "security-engineer",
       "technical-architect",
@@ -740,17 +795,31 @@ test("resolveRoleDelegation delegates to the shipped documentation specialist ro
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
-test("resolveRoleDelegation delegates to the shipped product strategist role", () => {
-  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/product-strategist/ROLE.md");
-  const resolution = resolveRoleDelegation("delegate to product-strategist for this feature idea", [role]);
+test("resolveRoleDelegation delegates to the shipped product owner role", () => {
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/product-owner/ROLE.md");
+  const resolution = resolveRoleDelegation("delegate to product-owner for this feature idea", [role]);
   const prompt = buildPromptOverlayDelegation(role, "Review whether role lifecycle smoke tests should be in Phase 6.");
 
-  assert.equal(resolution.role.name, "product-strategist");
+  assert.equal(resolution.role.name, "product-owner");
   assert.equal(resolution.mode, "prompt-overlay");
-  assert.match(prompt, /Name: product-strategist/);
+  assert.match(prompt, /Name: product-owner/);
   assert.match(prompt, /# Purpose/);
   assert.match(prompt, /GUIDANCE\.md/);
   assert.match(prompt, /Consider `brainstorming-skill`/);
+  assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
+});
+
+test("resolveRoleDelegation delegates to the shipped release engineer role", () => {
+  const role = parseRoleFileFromPath("aix/workflows/design-plan-execute/roles/project-dev/release-engineer/ROLE.md");
+  const resolution = resolveRoleDelegation("use release-engineer to review release readiness", [role]);
+  const prompt = buildPromptOverlayDelegation(role, "Review package contents and supported-host release risks.");
+
+  assert.equal(resolution.role.name, "release-engineer");
+  assert.equal(resolution.mode, "prompt-overlay");
+  assert.match(prompt, /Name: release-engineer/);
+  assert.match(prompt, /# Purpose/);
+  assert.match(prompt, /GUIDANCE\.md/);
+  assert.match(prompt, /Consider `work-verify`/);
   assert.match(prompt, /The parent context owns plan state, worktree safety, verification review, and final decisions/);
 });
 
@@ -843,7 +912,8 @@ test("shipped project development roles can route existing-plan edits through pl
     "documentation-specialist",
     "implementation-engineer",
     "product-designer",
-    "product-strategist",
+    "product-owner",
+    "release-engineer",
     "quality-engineer",
     "requirements-engineer",
     "security-engineer",

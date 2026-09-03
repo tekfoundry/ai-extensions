@@ -839,6 +839,171 @@ test("run workflow update removes workflow-owned roles deleted from the source",
   });
 });
 
+async function createProductRoleMigrationSource(prefix) {
+  const source = await mkdtemp(join(tmpdir(), prefix));
+  writeWorkflow(source, "Product Workflow", "Product body.", "product-workflow", {
+    roleName: "product-strategist",
+    roleAppend: true
+  });
+  git(["init", "-b", "master"], source);
+  git(["add", "."], source);
+  git(["commit", "-m", "legacy product role"], source);
+
+  return source;
+}
+
+function migrateProductRoleSource(source) {
+  rmSync(join(source, "roles/project-dev/product-strategist"), { recursive: true });
+  mkdirSync(join(source, "roles/project-dev/product-owner"), { recursive: true });
+  writeFileSync(join(source, "roles/project-dev/product-owner/ROLE.md"), validRoleMarkdown("product-owner"), "utf8");
+  writeFileSync(join(source, "roles/project-dev/product-owner/GUIDANCE.md"), validRoleGuidanceMarkdown(), "utf8");
+  writeFileSync(join(source, "roles/project-dev/product-owner/AGENTS.append.md"), "Use workflow role guidance.\n", "utf8");
+  git(["add", "."], source);
+  git(["commit", "-m", "migrate product role"], source);
+}
+
+test("workflow update migrates workflow-owned product-strategist state to product-owner", async () => {
+  const source = await createProductRoleMigrationSource("aix-workflow-product-migration-");
+
+  await withProject(async () => {
+    const previousCache = process.env.AIX_CACHE_DIR;
+    const cacheRoot = join(tmpdir(), `aix-workflow-product-migration-cache-${Date.now()}`);
+    process.env.AIX_CACHE_DIR = cacheRoot;
+
+    try {
+      assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
+      migrateProductRoleSource(source);
+
+      const update = run(["workflow", "update"]);
+      const lockfile = JSON.parse(readFileSync("aix.lock.json", "utf8"));
+      const roleNames = lockfile.roles.map((role) => role.activeName);
+
+      assert.equal(update.exitCode, 0);
+      assert.equal(existsSync(".agents/roles/product-strategist"), false);
+      assert.equal(existsSync(".agents/roles/product-owner/ROLE.md"), true);
+      assert.deepEqual(roleNames, ["product-owner"]);
+      assert.equal(lockfile.workflows[0].roles[0].sourcePath, "roles/project-dev/product-owner");
+      assert.match(readFileSync("AGENTS.md", "utf8"), /aix:role product-owner start/);
+      assert.doesNotMatch(readFileSync("AGENTS.md", "utf8"), /aix:role product-strategist start/);
+      assert.equal(existsSync(".agents/packages/workflows/fixture/product-workflow/roles/project-dev/product-strategist"), false);
+    } finally {
+      if (previousCache === undefined) delete process.env.AIX_CACHE_DIR;
+      else process.env.AIX_CACHE_DIR = previousCache;
+    }
+  });
+});
+
+test("workflow role migration survives uninstall and reactivation without resurrecting strategist state", async () => {
+  const source = await createProductRoleMigrationSource("aix-workflow-product-reactivation-");
+
+  await withProject(async () => {
+    const previousCache = process.env.AIX_CACHE_DIR;
+    process.env.AIX_CACHE_DIR = join(tmpdir(), `aix-workflow-product-reactivation-cache-${Date.now()}`);
+
+    try {
+      assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
+      migrateProductRoleSource(source);
+      assert.equal(run(["workflow", "update"]).exitCode, 0);
+      assert.equal(run(["workflow", "uninstall"]).exitCode, 0);
+      assert.equal(existsSync(".agents/roles/product-owner"), false);
+      assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
+
+      const lockfile = JSON.parse(readFileSync("aix.lock.json", "utf8"));
+      assert.equal(existsSync(".agents/roles/product-strategist"), false);
+      assert.equal(existsSync(".agents/roles/product-owner/ROLE.md"), true);
+      assert.deepEqual(lockfile.roles.map((role) => role.activeName), ["product-owner"]);
+      assert.doesNotMatch(readFileSync("AGENTS.md", "utf8"), /product-strategist/);
+    } finally {
+      if (previousCache === undefined) delete process.env.AIX_CACHE_DIR;
+      else process.env.AIX_CACHE_DIR = previousCache;
+    }
+  });
+});
+
+test("workflow update refuses edited legacy product-strategist state before migration", async () => {
+  const source = await createProductRoleMigrationSource("aix-workflow-product-edited-");
+
+  await withProject(async () => {
+    const previousCache = process.env.AIX_CACHE_DIR;
+    const cacheRoot = join(tmpdir(), `aix-workflow-product-edited-cache-${Date.now()}`);
+    process.env.AIX_CACHE_DIR = cacheRoot;
+
+    try {
+      assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
+      const legacyRole = ".agents/roles/product-strategist/ROLE.md";
+      writeFileSync(legacyRole, `${readFileSync(legacyRole, "utf8")}\nlocal edit\n`, "utf8");
+      migrateProductRoleSource(source);
+
+      const update = run(["workflow", "update"]);
+
+      assert.equal(update.exitCode, 2);
+      assert.match(update.stderr, /Refusing to (?:migrate|update) modified active role/);
+      assert.equal(existsSync(".agents/roles/product-strategist/ROLE.md"), true);
+      assert.equal(existsSync(".agents/roles/product-owner"), false);
+    } finally {
+      if (previousCache === undefined) delete process.env.AIX_CACHE_DIR;
+      else process.env.AIX_CACHE_DIR = previousCache;
+    }
+  });
+});
+
+test("workflow update refuses a product-owner active-role collision during migration", async () => {
+  const source = await createProductRoleMigrationSource("aix-workflow-product-collision-");
+
+  await withProject(async () => {
+    const previousCache = process.env.AIX_CACHE_DIR;
+    const cacheRoot = join(tmpdir(), `aix-workflow-product-collision-cache-${Date.now()}`);
+    process.env.AIX_CACHE_DIR = cacheRoot;
+
+    try {
+      assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
+      mkdirSync(".agents/roles/product-owner", { recursive: true });
+      writeFileSync(".agents/roles/product-owner/ROLE.md", validRoleMarkdown("product-owner"), "utf8");
+      migrateProductRoleSource(source);
+
+      const update = run(["workflow", "update"]);
+
+      assert.equal(update.exitCode, 2);
+      assert.match(update.stderr, /active role name collision/);
+      assert.equal(existsSync(".agents/roles/product-strategist/ROLE.md"), true);
+      assert.equal(existsSync(".agents/roles/product-owner/ROLE.md"), true);
+    } finally {
+      if (previousCache === undefined) delete process.env.AIX_CACHE_DIR;
+      else process.env.AIX_CACHE_DIR = previousCache;
+    }
+  });
+});
+
+test("workflow product-role migration rolls back package, active role, and append state on failure", async () => {
+  const source = await createProductRoleMigrationSource("aix-workflow-product-rollback-");
+
+  await withProject(async () => {
+    const previousCache = process.env.AIX_CACHE_DIR;
+    const cacheRoot = join(tmpdir(), `aix-workflow-product-rollback-cache-${Date.now()}`);
+    process.env.AIX_CACHE_DIR = cacheRoot;
+
+    try {
+      assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
+      const beforeAgents = readFileSync("AGENTS.md", "utf8");
+      const beforeLockfile = readFileSync("aix.lock.json", "utf8");
+      writeFileSync("AGENTS.md", `${beforeAgents}\n<!-- aix:role product-owner start -->\n<!-- aix:role product-owner start -->\n`, "utf8");
+      migrateProductRoleSource(source);
+
+      const update = run(["workflow", "update"]);
+
+      assert.equal(update.exitCode, 2);
+      assert.match(update.stderr, /Refusing to manage nested AGENTS\.md block/);
+      assert.equal(readFileSync("aix.lock.json", "utf8"), beforeLockfile);
+      assert.equal(readFileSync(".agents/roles/product-strategist/ROLE.md", "utf8"), validRoleMarkdown("product-strategist"));
+      assert.equal(existsSync(".agents/roles/product-owner"), false);
+      assert.equal(readFileSync("AGENTS.md", "utf8"), `${beforeAgents}\n<!-- aix:role product-owner start -->\n<!-- aix:role product-owner start -->\n`);
+    } finally {
+      if (previousCache === undefined) delete process.env.AIX_CACHE_DIR;
+      else process.env.AIX_CACHE_DIR = previousCache;
+    }
+  });
+});
+
 test("run workflow update removes stale workflow-owned skills missing from workflow summary", async () => {
   const source = await createWorkflowRepo("aix-workflow-source-");
 

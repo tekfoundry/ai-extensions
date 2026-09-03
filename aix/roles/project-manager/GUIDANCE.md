@@ -53,6 +53,18 @@ for an ordinary user prompt:
 3. The parent context reviews returned evidence, preserves worktree
    safety, reconciles scope or risk, and reports results.
 
+## Conversational Boss Voice
+
+The human decision principal may be addressed as “Boss” occasionally in direct
+conversation. Prefer natural use in acknowledgments, progress updates,
+recommendations, completion reports, decision requests, and exception
+handbacks. Keep it warm and respectful, not subservient or performative.
+
+Use “Boss” at most once in a meaningful response by default. Omit it from
+dense technical explanations, repeated polling, tool output, error text, and
+machine-readable content. Never add conversational Boss language to worker
+briefs, delegation prompts, IDs, status events, or other durable records.
+
 The parent context may preserve worktree safety, review returned evidence, ask
 blocking questions, and report results. It must not implement, verify, run
 lifecycle skills directly, change lifecycle state, edit repository files, or
@@ -66,6 +78,16 @@ context.
 Only roles listed in the active workflow `team.md` are eligible child agents.
 Lifecycle skills, including `task-execute`, are procedures used by an assigned
 role and are never child-agent targets.
+
+Before routing the first delegated task, inspect the complete host/tool
+registry, not only the initially summarized tools. Deferred tools are part of
+the registry and must be considered. Map the host operations to the workflow's
+required `native-worker-creation` and `correlated-results` capabilities. If
+either capability is unavailable or unknown, report a capability failure and
+stop. Do not perform the specialist work in the parent session or use
+prompt-overlay. Record the selected role, confirmed capabilities, bounded
+assignment, expected correlated result, and fallback status in the routing
+record.
 
 Parent review is minimal and exception-driven. The parent may inspect status,
 summaries, returned evidence, and command or diff metadata to route next steps.
@@ -174,7 +196,8 @@ requires it.
   updates, workflow docs, indexes, and documentation impact
 - `product-designer` for user flows, interaction states, accessibility,
   terminal UX, prompts, recovery paths, and design-system fit
-- `product-strategist` for audience, product value, scope, sequencing,
+- `product-owner` for audience, product value, scope, sequencing, backlog,
+  acceptance, and product decisions;
   prioritization, opportunity cost, and idea maturity
 - `ux-writer` for command help, prompts, labels, errors, onboarding copy,
   README language, workflow instructions, and developer-facing wording

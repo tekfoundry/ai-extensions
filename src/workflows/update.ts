@@ -8,7 +8,7 @@ import { defaultCacheRoot, loadWorkflowSourceDefinitions, resolveSourceFromDefin
 import { installResolvedWorkflow } from "./install.js";
 import type { UpdateWorkflowResult } from "./types.js";
 
-export function updateWorkflow(cacheRoot = defaultCacheRoot()): UpdateWorkflowResult {
+export function updateWorkflow(cacheRoot = defaultCacheRoot(), options: { reconcileProtected?: boolean } = {}): UpdateWorkflowResult {
   const manifestJson = readJsonObject(MANIFEST_FILE_NAME);
   parseManifest(manifestJson);
 
@@ -40,7 +40,7 @@ export function updateWorkflow(cacheRoot = defaultCacheRoot()): UpdateWorkflowRe
       undefined,
       manifestJson,
       lockfile,
-      { allowExistingWorkflow: true, sourceType: "local" }
+      { allowExistingWorkflow: true, sourceType: "local", reconcileProtected: options.reconcileProtected }
     );
 
     writeJsonObjectAtomic(MANIFEST_FILE_NAME, manifestJson);
@@ -73,7 +73,7 @@ export function updateWorkflow(cacheRoot = defaultCacheRoot()): UpdateWorkflowRe
     resolved.resolvedCommit,
     manifestJson,
     lockfile,
-    { allowExistingWorkflow: true }
+    { allowExistingWorkflow: true, reconcileProtected: options.reconcileProtected }
   );
 
   writeJsonObjectAtomic(MANIFEST_FILE_NAME, manifestJson);

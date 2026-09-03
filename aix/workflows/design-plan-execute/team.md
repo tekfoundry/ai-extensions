@@ -22,7 +22,8 @@ the standalone project-manager is explicitly located at
 | `quality-engineer` | Quality Engineer | `roles/project-dev/quality-engineer` | Defines and performs verification, regression review, and quality-evidence collection. |
 | `security-engineer` | Security Engineer | `roles/project-dev/security-engineer` | Reviews trust boundaries, credentials, destructive operations, and dependency risks. |
 | `product-designer` | Product Designer | `roles/project-dev/product-designer` | Reviews user flows, interaction states, accessibility, and terminal UX. |
-| `product-strategist` | Product Strategist | `roles/project-dev/product-strategist` | Reviews product value, prioritization, scope decisions, and product risks. |
+| `product-owner` | Product Owner | `roles/project-dev/product-owner` | Owns product intent, backlog ordering, acceptance, scope, prioritization, and product tradeoffs. |
+| `release-engineer` | Release Engineer | `roles/project-dev/release-engineer` | Protects CI, builds, packages, supported hosts, compatibility, diagnostics, and release safety. |
 | `ux-writer` | UX Writer | `roles/project-dev/ux-writer` | Reviews CLI copy, errors, onboarding, and workflow language. |
 
 The project-manager is the workflow's orchestration role. The remaining roles
@@ -35,7 +36,7 @@ manager is a separately installed role dependency.
 <!-- aix:team
 {
   "workflow": "design-plan-execute",
-  "version": "1",
+  "version": "2",
   "requiredCapabilities": [
     "native-worker-creation",
     "correlated-results"
@@ -133,17 +134,30 @@ manager is a separately installed role dependency.
       "sharedArtifacts": [], "readOnly": true, "serialization": "none"
     },
     {
-      "name": "product-strategist",
-      "displayName": "Product Strategist",
-      "directory": "roles/project-dev/product-strategist",
-      "responsibilities": ["product value", "prioritization", "scope decisions"],
+      "name": "product-owner",
+      "displayName": "Product Owner",
+      "directory": "roles/project-dev/product-owner",
+      "responsibilities": ["product intent", "backlog ordering", "acceptance criteria", "product value", "prioritization", "scope decisions"],
       "taskModes": ["scout", "review", "verification"],
       "deliveryModes": ["report-only"],
       "writeDomains": [],
-      "deniedAreas": ["src/", "tests/", "_docs/"],
+      "deniedAreas": ["src/", "tests/", "_docs/", "aix.json", "aix.lock.json", "AGENTS.md"],
       "requiredCapabilities": ["correlated-results"],
-      "requiredEvidence": ["recommendation", "tradeoffs", "scope risks"],
+      "requiredEvidence": ["recommendation", "acceptance criteria", "tradeoffs", "scope risks"],
       "sharedArtifacts": [], "readOnly": true, "serialization": "none"
+    },
+    {
+      "name": "release-engineer",
+      "displayName": "Release Engineer",
+      "directory": "roles/project-dev/release-engineer",
+      "responsibilities": ["CI/CD", "build and package validation", "artifact integrity", "supported hosts", "cross-platform compatibility", "release diagnostics"],
+      "taskModes": ["scout", "implementation", "review", "verification"],
+      "deliveryModes": ["report-only", "isolated-change"],
+      "writeDomains": [".github/", "scripts/", "RELEASE.md", "package.json", "package-lock.json"],
+      "deniedAreas": ["src/", "tests/", ".aix/pm/", "aix.json", "aix.lock.json", "AGENTS.md", "publishing", "registry", "global-install", "unrestricted external release"],
+      "requiredCapabilities": ["correlated-results", "workspace-write"],
+      "requiredEvidence": ["commands run", "artifact contents", "platform findings", "rollback notes", "risks"],
+      "sharedArtifacts": ["package.json", "package-lock.json"], "readOnly": false, "serialization": "group"
     },
     {
       "name": "ux-writer",

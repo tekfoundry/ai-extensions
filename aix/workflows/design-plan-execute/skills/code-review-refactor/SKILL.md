@@ -92,16 +92,20 @@ When `.agents/roles/technical-architect/ROLE.md` exists and the requested review
 involves architectural coupling, module ownership, runtime contracts,
 integration boundaries, data flow, persistence, workflow lifecycle behavior,
 package-management behavior, or large cross-module refactors, use
-`delegate-to-role` or a prompt-overlay delegation to request a bounded
-architecture-risk pass.
+`delegate-to-role` or native delegation to request a bounded architecture-risk
+pass. For PM-routed work, native delegation is required: an unavailable or
+unknown `native-worker-creation` or `correlated-results` capability blocks
+parent fallback. Prompt-overlay is allowed only for bootstrap before PM
+activation, direct non-PM use, or an explicit developer override.
 
 Fold returned evidence into the normal review findings, refactor
 recommendations, suggested process mode, verification impact, documentation
 impact, or plan-mode scope as appropriate. Do not require
-`technical-architect` for direct use. If the role is unavailable or the host
-cannot delegate, continue the review yourself by checking the same architecture
-and ownership concerns. The role must not choose findings, approve refactors,
-edit files, or bypass the developer confirmation gate.
+`technical-architect` for direct non-PM use. If the role is unavailable or the
+host cannot delegate in direct non-PM use, continue the review yourself by
+checking the same architecture and ownership concerns. The role must not
+choose findings, approve refactors, edit files, or bypass the developer
+confirmation gate.
 
 Check for:
 

@@ -50,6 +50,12 @@ developer override.
 
 ## Role Collaboration
 
+For PM-routed work, inspect the complete host/tool registry, including
+deferred tools, before dispatch. Native delegation is required. An unknown or
+unavailable required capability blocks parent-session and prompt-overlay
+fallback. The prompt-overlay options below apply only to direct non-PM use,
+bootstrap before PM activation, or explicit developer override.
+
 `phase-execute` owns phase sequencing, integration review, verification
 evidence review, documentation impact, risk tracking, and the decision to stop
 or continue within the selected phase. Roles can supply bounded specialist

@@ -14,6 +14,13 @@ promotion.
 - Planning reviewer: reviews backlog plan readiness before implementation.
 - Implementation reviewer: checks task execution, verification evidence,
   maintainability, security, and documentation impact.
+- Product owner: owns product intent, backlog ordering, acceptance criteria,
+  scope, prioritization, and product tradeoffs through delivery.
+- Release engineer: owns bounded CI, build, package, supported-host,
+  compatibility, diagnostic, and release-safety work.
+- Boss: the human decision principal outside the delegated-role roster and
+  worker lifecycle; retains product, priority, risky-approval, exception,
+  final-acceptance, and release authority.
 - Workflow maintainer: ships the workflow docs, skills, roles, guidance,
   templates, and managed `AGENTS.md` block as one package.
 
@@ -123,8 +130,12 @@ promotion.
 
 ## Required Roles
 
-- `product-strategist` must review product value, audience fit, scope,
-  tradeoffs, and sequencing.
+- `product-owner` must review product value, audience fit, scope,
+  tradeoffs, sequencing, backlog ordering, acceptance criteria, refinement,
+  delivery-time clarification, and product-level acceptance.
+- `release-engineer` must review CI, builds, packages, artifact integrity,
+  supported-host integration, cross-platform compatibility, diagnostics, and
+  release safety within bounded authority.
 - `product-designer` must review user flows, interaction design, accessibility,
   layout hierarchy, and terminal UX.
 - `requirements-engineer` must own requirements, non-goals, boundaries, and
