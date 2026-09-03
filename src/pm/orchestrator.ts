@@ -362,7 +362,12 @@ export async function createPmOrchestrator(options: PmOrchestratorOptions): Prom
           logger.debug("Isolated workspace created", { sessionId: session.record.sessionId, delegationId: record.contract.identity.delegationId, workspaceId: workspace.workspaceId }, { path: workspace.path, baseRevision: workspace.baseRevision });
         }
         const request: HostWorkerRequest = { contract: record.contract, roleInstructions: [context.roleInstructions, context.roleGuidance, context.protocol].join("\n\n"), brief: context.brief, ...(workspace ? { workspacePath: workspace.path } : {}) };
-        const reuseKey = input.reuseKey || `${input.role}:${input.taskMode}:${input.deliveryMode}`;
+        // Canonical task groups are the default worker-assignment boundary.
+        // An explicit reuseKey remains available for intentional reuse across
+        // otherwise unrelated delegations, but ordinary grouped work should
+        // retain one worker and its context.
+        const groupReuse = !input.reuseKey;
+        const reuseKey = input.reuseKey || `group:${task.groupId}`;
         const reusable = reusableWorkers.get(reuseKey);
         let worker = reusable?.worker;
         activeWorker = worker;
@@ -370,9 +375,17 @@ export async function createPmOrchestrator(options: PmOrchestratorOptions): Prom
         if (reusable && (reusable.role !== input.role || reusable.taskMode !== input.taskMode || reusable.deliveryMode !== input.deliveryMode)) {
           throw new AixError(`Reusable worker ${reuseKey} is incompatible with this delegation.`);
         }
-        if (worker && capabilities.capabilities["worker-follow-up"] === true && options.host.sendFollowUp) {
-          await options.host.sendFollowUp(worker, request);
-          reused = true;
+        if (worker) {
+          if (capabilities.capabilities["worker-follow-up"] === true && options.host.sendFollowUp) {
+            await options.host.sendFollowUp(worker, request);
+            reused = true;
+          } else if (groupReuse) {
+            throw new AixError(`Task group ${task.groupId} requires host worker follow-up support to retain one worker assignment.`);
+          } else {
+            worker = await options.host.createWorker(request);
+            activeWorker = worker;
+            reusableWorkers.set(reuseKey, { worker, role: input.role, taskMode: input.taskMode, deliveryMode: input.deliveryMode });
+          }
         } else {
           worker = await options.host.createWorker(request);
           activeWorker = worker;

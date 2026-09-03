@@ -266,6 +266,21 @@ test("grouping decisions retain a durable PM rationale", async () => {
   pm.close();
 });
 
+test("related tasks reuse one worker assignment through their canonical group", async () => {
+  const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-group-worker-reuse-"));
+  const host = new FakeNativeHost();
+  const pm = await createPmOrchestrator({ projectRoot, workflowPackageRoot: workflowRoot, host });
+  const first = await pm.dispatch({ role: "quality-engineer", taskMode: "verification", deliveryMode: "report-only", groupId: "phase-10-quality", goal: "Inspect scheduler tests.", constraints: [], acceptanceSignals: [], returnRequirements: [] });
+  const second = await pm.dispatch({ role: "quality-engineer", taskMode: "verification", deliveryMode: "report-only", groupId: "phase-10-quality", goal: "Inspect integration tests.", constraints: [], acceptanceSignals: [], returnRequirements: [] });
+
+  assert.equal(first.record.scheduling.groupId, second.record.scheduling.groupId);
+  assert.equal(second.reused, true);
+  assert.equal(second.worker.hostWorkerId, first.worker.hostWorkerId);
+  assert.equal(host.workers.length, 1);
+  assert.equal(host.followUps.length, 1);
+  pm.close();
+});
+
 test("independent read-only groups dispatch concurrently", async () => {
   class ConcurrentHost extends FakeNativeHost {
     waiters = [];

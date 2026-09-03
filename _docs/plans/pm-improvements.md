@@ -1883,7 +1883,10 @@ Tasks:
   read-only behavior, shared artifacts, and serialization requirements.
 - ✅ Implement PM scheduling that parallelizes independent read-only work and
   disjoint change-producing work, while queuing dependent or overlapping tasks
-  and preserving sequential execution within each cohesive task group.
+  and preserving sequential execution within each cohesive task group. Related
+  tasks in one canonical group reuse one native worker assignment through host
+  follow-up when supported; grouped work fails clearly when that capability is
+  unavailable.
 - ✅ Add runtime ownership and conflict checks for shared contracts,
   orchestrator code, CLI entrypoints, workflow metadata, common fixtures, and
   other declared shared artifacts.
@@ -1916,6 +1919,11 @@ retains conflict recovery state. Scheduler decisions persist concise state and
 verbose event diagnostics with the claims and rationale used. Host capacity is
 refreshed from dynamic reports and change-producing work fails closed when
 required capabilities are unknown or insufficient.
+
+The grouped-worker follow-up was completed as a Phase 10 closeout correction:
+the canonical group now drives the default worker-reuse boundary, related
+delegations retain one worker and context through native follow-up, and a
+regression test covers the behavior.
 
 Phase 10 verification:
 
