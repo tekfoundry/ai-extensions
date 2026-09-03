@@ -156,21 +156,21 @@
       "packageFiles": [
         {
           "path": "README.md",
-          "sha256": "9946af545773b2b87f0375b34cbc916c1eb102386f90db0cbc5f57742e445c93"
+          "sha256": "68d62e956800f2215dfa48633522b2708c10dcf6d062ba519293d7fe78c2cecf"
         },
         {
           "path": "SKILL.md",
-          "sha256": "a24ebc290db145baaf6a8393cf4672022a648660c47ec3e1193c27fd0940d86b"
+          "sha256": "9eafd9a61935946c41600d347ab08123879944afe936378c4b36218f4a0211e3"
         }
       ],
       "activeFiles": [
         {
           "path": "README.md",
-          "sha256": "9946af545773b2b87f0375b34cbc916c1eb102386f90db0cbc5f57742e445c93"
+          "sha256": "68d62e956800f2215dfa48633522b2708c10dcf6d062ba519293d7fe78c2cecf"
         },
         {
           "path": "SKILL.md",
-          "sha256": "a24ebc290db145baaf6a8393cf4672022a648660c47ec3e1193c27fd0940d86b"
+          "sha256": "9eafd9a61935946c41600d347ab08123879944afe936378c4b36218f4a0211e3"
         }
       ]
     },
@@ -242,7 +242,7 @@
         },
         {
           "path": "SKILL.md",
-          "sha256": "ffa8119c59d074225eb9f3a6b947eab52da7dc8e3f78821bce863d612828c7c6"
+          "sha256": "75658b816d65b1dc3f7fc83e2ef947c684383311c033d938ba681ed01c744cd5"
         }
       ],
       "activeFiles": [
@@ -256,7 +256,7 @@
         },
         {
           "path": "SKILL.md",
-          "sha256": "ffa8119c59d074225eb9f3a6b947eab52da7dc8e3f78821bce863d612828c7c6"
+          "sha256": "75658b816d65b1dc3f7fc83e2ef947c684383311c033d938ba681ed01c744cd5"
         }
       ]
     },
@@ -822,7 +822,7 @@
       "activeFiles": [
         {
           "path": "ROLE.md",
-          "sha256": "654f5192a67a404149cf9c12a9806f09f6be6967ace39ea2f4076cc0c0be4f77"
+          "sha256": "5dbb724f749d40287480bca5808b22b19cbb92b2825bd1dc9b88ab19aeee6251"
         }
       ]
     },
@@ -843,7 +843,7 @@
       "packageFiles": [
         {
           "path": "GUIDANCE.md",
-          "sha256": "90375710c7f26fadce9c1860f7f89dbf3eb68e38712ef5df541be98575bb8af2"
+          "sha256": "7f6642de8ff2870547f5ed442dcdd0f94da26816f2780b3e67d04ec9ed652dc7"
         },
         {
           "path": "ROLE.md",
@@ -1129,7 +1129,7 @@
         {
           "sourcePath": "workflow.md",
           "targetPath": ".agents/workflow.md",
-          "sha256": "e95f7bdad709744bc76765229c8768f6310c3f4c4b3b98cdf14c61d9ccb2335e"
+          "sha256": "8bdfa5c4989fce1cb4cae9a973bb3ac23274881a490bd3ea1c5e892b679062ff"
         }
       ],
       "agentsMd": {
@@ -1346,7 +1346,7 @@
       "guidance": [
         {
           "path": "guidance/activities/documentation.md",
-          "sha256": "511df85259f585ac0a9bf57ba6399997b13bd458acbccd38ad60b070a4576634"
+          "sha256": "00d6933ba135addd4cdcd52b91812474719224023038d1c5d9949640cfaf275d"
         },
         {
           "path": "guidance/activities/implementation.md",
@@ -1384,6 +1384,14 @@
           "sha256": "05994d830fb00b35cc28354a5e45c35eb1d4e5c05342bfe02edf7832fcb80c93"
         },
         {
+          "path": "claude-dogfooding-prompts.md",
+          "sha256": "99bcf88661318a7a3aee1cae9cda82b3b4477b27c76f45ef10cc7b6f95f3de18"
+        },
+        {
+          "path": "codex-dogfooding-prompts.md",
+          "sha256": "1a6e666546d507564524f3fec5e9dd453bbb337be8937af12d6f411984a91304"
+        },
+        {
           "path": "delegation-protocol.md",
           "sha256": "9dbc56f3df0a35a5588c0b1fc2efa934b39230710b7e32c297276db43de5098f"
         },
@@ -1393,7 +1401,7 @@
         },
         {
           "path": "guidance/activities/documentation.md",
-          "sha256": "511df85259f585ac0a9bf57ba6399997b13bd458acbccd38ad60b070a4576634"
+          "sha256": "00d6933ba135addd4cdcd52b91812474719224023038d1c5d9949640cfaf275d"
         },
         {
           "path": "guidance/activities/implementation.md",
@@ -1429,7 +1437,7 @@
         },
         {
           "path": "roles/project-dev/documentation-specialist/GUIDANCE.md",
-          "sha256": "90375710c7f26fadce9c1860f7f89dbf3eb68e38712ef5df541be98575bb8af2"
+          "sha256": "7f6642de8ff2870547f5ed442dcdd0f94da26816f2780b3e67d04ec9ed652dc7"
         },
         {
           "path": "roles/project-dev/documentation-specialist/ROLE.md",
@@ -1517,11 +1525,11 @@
         },
         {
           "path": "skills/delegate-to-role/README.md",
-          "sha256": "9946af545773b2b87f0375b34cbc916c1eb102386f90db0cbc5f57742e445c93"
+          "sha256": "68d62e956800f2215dfa48633522b2708c10dcf6d062ba519293d7fe78c2cecf"
         },
         {
           "path": "skills/delegate-to-role/SKILL.md",
-          "sha256": "a24ebc290db145baaf6a8393cf4672022a648660c47ec3e1193c27fd0940d86b"
+          "sha256": "9eafd9a61935946c41600d347ab08123879944afe936378c4b36218f4a0211e3"
         },
         {
           "path": "skills/design-create/agents/openai.yaml",
@@ -1545,7 +1553,7 @@
         },
         {
           "path": "skills/design-promote/SKILL.md",
-          "sha256": "ffa8119c59d074225eb9f3a6b947eab52da7dc8e3f78821bce863d612828c7c6"
+          "sha256": "75658b816d65b1dc3f7fc83e2ef947c684383311c033d938ba681ed01c744cd5"
         },
         {
           "path": "skills/phase-execute/agents/openai.yaml",
@@ -1789,7 +1797,7 @@
         },
         {
           "path": "workflow.md",
-          "sha256": "e95f7bdad709744bc76765229c8768f6310c3f4c4b3b98cdf14c61d9ccb2335e"
+          "sha256": "8bdfa5c4989fce1cb4cae9a973bb3ac23274881a490bd3ea1c5e892b679062ff"
         }
       ]
     }
