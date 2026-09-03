@@ -7,25 +7,50 @@
 
 ![AI Extensions overview](assets/aix_about2.png)
 
-AIX helps developers install, lock, diff, update, and share project-local AI-agent
-workflows with the same discipline they already use for code dependencies.
+## What is AIX?
 
-It exists because agent instructions are starting to matter as much as scripts,
-tests, and config. A useful review skill, planning workflow, or repo bootstrap
-process should not live as a pasted note in one project and a slightly stale
-copy in five others. `aix` gives those assets a normal developer lifecycle:
-install them from Git, keep them local to the project, lock the exact version,
+AIX helps teams manage and use AI-agent behavior inside their software
+projects.
+
+AIX has two top-level features:
+
+1. AIX is a package manager for AI-related assets.
+2. AIX is an opinionated workflow orchestration tool for AI-assisted software development.
+
+## Package management
+
+AIX gives agent assets a project-local lifecycle similar to code dependencies.
+Install them from Git, keep them local to the project, lock the exact version,
 review updates, and refuse to overwrite local edits silently.
 
-AIX treats agent behavior like something you can package and reuse. The pieces
-fit together like this:
+Agent instructions now affect how teams plan, build, and review software. A
+useful review skill, planning workflow, or repo bootstrap process should not
+live as a pasted note in one project and a slightly stale copy in five others.
+AIX packages that behavior so teams can version, reuse, and review it.
 
-| Concept | Summary | Restaurant analogy | Development examples |
-| --- | --- | --- | --- |
-| Skill | A repeatable procedure an agent can follow to complete a task. | A recipe. | `plan-create`, `task-execute`, `kanban-create-item`, `kanban-execute`. |
-| Role | A persona with domain knowledge that helps an agent choose, apply, or review skills more effectively. | A specialist, like a pie chef or kitchen manager. | `aix-workflow-architect`, `aix-skill-author`, `technical-architect`, `quality-engineer`. |
-| Guidance | Reusable best-practice judgment for roles and workflow activities. | House standards. | `roles/quality-engineer`, `activities/verification`, `shared`. |
-| Workflow | A repeatable development pipeline that coordinates docs, skills, roles, and templates so agents produce higher-quality, maintainable work. | A restaurant operating playbook that can be repeated across locations. | Design-plan-execute, agile-kanban. |
+| Asset | Summary | Development examples |
+| --- | --- | --- |
+| Skill | A repeatable procedure an agent can follow to complete a task. | `plan-create`, `task-execute`, `kanban-create-item`, `kanban-execute` |
+| Role | A focused responsibility or point of view that helps an agent choose, apply, or review skills. | `aix-workflow-architect`, `technical-architect`, `quality-engineer` |
+| Guidance | Reusable best-practice judgment for roles and workflow activities. | `roles/quality-engineer`, `activities/verification`, `shared` |
+| Workflow | A package that coordinates skills, roles, guidance, templates, and project instructions. | `design-plan-execute`, `agile-kanban` |
+
+## Workflow orchestration
+
+AIX workflows give teams and agents an opinionated way to use those packaged
+assets. A workflow sets the path from request to completion, assigns
+responsibilities, names the artifacts agents should create, and defines how
+changes should be verified and documented.
+
+AIX provides a project-manager role as the workflow's coordination point. The
+workflow registers its team with the PM. The PM works with Boss (you) to
+understand the request, then delegates bounded work to team members running as
+sub-agents and brings the results back together.
+
+The bundled `design-plan-execute` workflow uses this model to coordinate
+specialist roles and keep implementation tied to plans, verification evidence,
+and project knowledge. Other workflows can define a different process while
+using the same AIX package and workflow model.
 
 The command is `aix`. The npm package is `@tekfoundry/aix`.
 
