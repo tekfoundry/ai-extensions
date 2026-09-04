@@ -1,5 +1,7 @@
 # PM runtime
 
+![PM runtime lifecycle](../assets/pm-runtime-lifecycle.png)
+
 This document describes the technical runtime behind AIX's project-manager
 workflow. It is intended for workflow authors, host integrators, and developers
 who need to inspect or troubleshoot delegation behavior.
@@ -36,6 +38,17 @@ dispatch, progress, blocking decisions, completion, and recovery.
 Runtime state is project-local and must remain inside the canonical `.aix/pm/`
 directory. PM path checks reject unsafe path segments, symlink escapes, and
 parent-context writes to project artifacts.
+
+## Brief and durable communication
+
+PM work uses two communication paths. The brief channel carries the bounded
+assignment and live exchange: the PM sends `brief.md` to the worker, and the
+worker returns status updates and a result. The durable channel records that
+exchange under `.aix/pm/delegations/<delegation-id>/`, including the brief,
+status history, events, result, and delegation record.
+
+The brief keeps the worker focused. The durable files let the PM inspect,
+correlate, and recover work after a host interruption or a resumed session.
 
 ## Delegation lifecycle
 
