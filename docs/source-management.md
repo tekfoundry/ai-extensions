@@ -1,5 +1,7 @@
 # Manage AIX sources
 
+![Source resolution and caching](../assets/source-resolution-caching.png)
+
 This technical guide explains how AIX resolves, caches, and tracks Git-backed
 and local sources for skills, roles, and workflows.
 
