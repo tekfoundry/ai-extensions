@@ -49,6 +49,11 @@ The PM does not replace you (a.k.a. the Boss). Boss retains authority
 for priorities, risky approvals, exceptions, final acceptance, and release
 decisions.
 
+For practical examples of PM conversations, routing, dry-run reviews, and
+authority boundaries, see [Work with the AIX PM](pm-quickstart.md). Technical
+readers can see [PM runtime](pm-runtime.md) for delegation records, scheduler
+decisions, host capabilities, and cleanup behavior.
+
 Workflows choose their own process by defining tailored roles. The default
 `design-plan-execute` workflow uses the PM role and defines this specialist
 team:

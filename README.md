@@ -70,12 +70,17 @@ the bundled default workflow and its PM team.
 - [Getting started](docs/getting-started.md)
 - [Package management](docs/package-management.md)
 - [Workflow orchestration](docs/workflow-orchestration.md)
+- [PM quickstart](docs/pm-quickstart.md)
+- [PM runtime](docs/pm-runtime.md)
 - [Command reference](docs/command-reference.md)
 - [Design-plan-execute workflow](aix/workflows/design-plan-execute/README.md)
 - [Agile Kanban workflow](aix/workflows/agile-kanban/README.md)
 - [Workflow authoring](docs/workflow-authoring.md)
+- [Template authoring](docs/template-authoring.md)
+- [Guidance authoring](docs/guidance-authoring.md)
 - [Role authoring](docs/role-authoring.md)
 - [Skill authoring](docs/skill-authoring.md)
+- [Source management](docs/source-management.md)
 
 The command is `aix`. The npm package is `@tekfoundry/aix`.
 

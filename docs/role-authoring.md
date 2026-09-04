@@ -29,6 +29,9 @@ what it should do, what it can change or deliver, and when it should return
 work to the PM. A workflow's `team.md` registers the roles that the PM can
 select for delegation.
 
+See [Guidance authoring](guidance-authoring.md) for guidance metadata,
+companion files, workflow activity guidance, and project overrides.
+
 Example `ROLE.md`:
 
 ```md

@@ -69,6 +69,18 @@ with the repository. Developers can activate the same skills from the same
 sources at the same locked commits instead of keeping separate copies of agent
 instructions.
 
+### Declare skill dependencies
+
+A skill can refer to another skill as an inferred dependency. AIX resolves and
+activates that dependency before the requested skill, then records it as a
+dependency-only lockfile entry. The dependency remains active while another
+active skill needs it, so users must deactivate the parent skill before
+removing an orphaned dependency.
+
+Keep dependencies narrow and document why the skill needs them. AIX validates
+the dependency source and stops when a dependency is missing, ambiguous, or
+cyclic.
+
 ## Discover and activate a skill
 
 Add a Git-backed source and list the skills it exposes:

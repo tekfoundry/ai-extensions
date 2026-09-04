@@ -104,6 +104,21 @@ aix roles list team-roles
 aix role activate team-roles/quality-engineer
 ```
 
+For the full source model, including local paths, GitHub tree URLs, refs,
+caching, aliases, and source removal, see [Source management](source-management.md).
+
+## Inferred skill dependencies
+
+A skill can declare another skill as an inferred dependency. When you activate
+the parent skill, AIX resolves and activates the dependency first, then records
+it as a dependency-only lockfile entry. You do not need to add each dependency
+to `aix.json` yourself.
+
+Dependency-only skills remain active while another active skill needs them. AIX
+refuses to deactivate one that would leave a dependent skill without its
+requirement. Deactivate the parent skill first, or update the source so the
+dependency is no longer required.
+
 ## Safe updates and removal
 
 AIX compares package and active files with the lockfile before mutating them.
@@ -118,6 +133,21 @@ Workflow-owned skills and roles belong to their workflow. Update or uninstall
 the workflow instead of deactivating those assets with standalone commands.
 Project-owned `_docs` content and published overrides are not removed by a
 workflow uninstall.
+
+Protected managed state requires explicit handling. AIX refuses to reconcile a
+locally modified managed file unless you pass the update option after reviewing
+the change:
+
+```bash
+aix workflow update --reconcile-protected
+aix role update <active-name|source/path> --reconcile-protected
+aix roles update [active-name|source/path] --reconcile-protected
+```
+
+Workflow uninstall also stops when active or unlanded PM delegation data exists.
+Use `aix workflow uninstall --confirm-pm-data` only when you intend to remove
+those workflow-associated runtime datasets. See [PM runtime](pm-runtime.md)
+for the cleanup and confirmation rules.
 
 ## Guidance and templates
 
@@ -139,6 +169,12 @@ aix templates reset plan
 
 Publishing exposes the complete active set for editing. AIX keeps the workflow
 origin separate from project-owned overrides so updates remain reviewable.
+
+For template structure, placeholders, validation, and publishing, see
+[Template authoring](template-authoring.md).
+
+For guidance ownership, `uses_guidance`, companion guidance, and override
+behavior, see [Guidance authoring](guidance-authoring.md).
 
 ## Manage agentic environments across projects & developers
 

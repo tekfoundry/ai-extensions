@@ -102,6 +102,27 @@ The PM role is the workflow's coordination point. Boss gives the PM the request.
 The PM reads the roster, selects the appropriate sub-agents, delegates bounded
 work, and coordinates their results, verification, and handoff.
 
+### Team roster contract
+
+Each roster entry can declare more than a name and description. The PM uses the
+contract to decide whether an assignment is allowed and how it can run:
+
+- `taskModes` limits the role to work such as `scout`, `implementation`,
+  `review`, or `verification`.
+- `deliveryModes` limits whether it may return a report, make a local change,
+  or work in an isolated change workspace.
+- `writeDomains` and `deniedAreas` define the paths it may and may not change.
+- `requiredEvidence` defines what the role must return with its result.
+- `sharedArtifacts` and `serialization` tell the scheduler when work must be
+  coordinated instead of run independently.
+- `requiredCapabilities` identifies host features needed by the role or
+  workflow, such as native worker creation or correlated results.
+
+The workflow validates these fields when it is installed. A role cannot be
+assigned a task mode, delivery mode, or path outside its declared contract.
+Keep the roster narrow and explicit. It is both the PM's team directory and
+the boundary that protects project files during delegation.
+
 ## Configure the manifest
 
 The manifest names the workflow, its documentation, managed `AGENTS.md`
@@ -193,6 +214,12 @@ view. Use a skill when it needs a repeatable procedure.
   delegation boundaries, and standalone role management.
 - [Author skills for AIX](skill-authoring.md) covers `SKILL.md`, triggers,
   repeatable procedures, and standalone skill management.
+- [Author workflow templates](template-authoring.md) covers document templates,
+  reusable sections, placeholders, validation, and project overrides.
+- [Author guidance](guidance-authoring.md) covers role and workflow activity
+  guidance, metadata, companion files, and project overrides.
+- [Manage AIX sources](source-management.md) covers source resolution, caching,
+  aliases, refs, and trust boundaries.
 
 Workflow-owned roles and skills follow the workflow lifecycle. AIX checks for
 local drift before changing or removing managed files, so customization stays

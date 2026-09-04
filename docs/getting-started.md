@@ -36,6 +36,13 @@ aix workflow install
 The workflow install adds the managed workflow instructions, workflow-owned
 roles and skills, guidance, templates, and project documentation scaffolding.
 
+The two initialization commands have different jobs:
+
+| Command | What it adds |
+| --- | --- |
+| `aix init` | `aix.json`, `aix.lock.json`, default source definitions, and standalone bundled skills such as `discover-skill`. |
+| `aix workflow install` | The active workflow, PM role, registered team, workflow-owned roles and skills, guidance, templates, managed `AGENTS.md` instructions, and workflow docs. |
+
 ## Check the workspace
 
 ```bash
@@ -106,7 +113,8 @@ aix pm doctor
 ```
 
 See [workflow orchestration](workflow-orchestration.md) for the PM model and
-the bundled workflows.
+the bundled workflows. See [Work with the AIX PM](pm-quickstart.md) for
+conversation examples and [PM runtime](pm-runtime.md) for technical details.
 
 ## From this repository
 

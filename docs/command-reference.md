@@ -30,6 +30,9 @@ aix workflow diff
 Only one workflow can be active. Workflow-owned roles and skills follow the
 workflow lifecycle.
 
+See [workflow authoring](workflow-authoring.md) for the workflow manifest and
+package structure.
+
 ## Skills
 
 ```bash
@@ -78,6 +81,13 @@ Guidance and template publishing exposes the complete active workflow set for
 project editing. Reset commands remove project overrides or restore active
 role guidance according to the selected asset.
 
+See [template authoring](template-authoring.md) for template structure and
+placeholder rules, and [package management](package-management.md) for
+ownership and drift behavior.
+
+See [guidance authoring](guidance-authoring.md) for guidance origins, overrides,
+metadata, and reset behavior.
+
 ## PM runtime
 
 ```bash
@@ -88,6 +98,9 @@ aix pm tidy [--archive|--apply|--purge] [--completed] [--older-than days]
 
 `aix pm tidy` previews eligible records without changing files unless an
 explicit mutation option is supplied.
+
+See [PM runtime](pm-runtime.md) for scheduler state, host capabilities,
+retention rules, and cleanup authorization.
 
 ## Interactive commands
 

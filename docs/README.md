@@ -11,12 +11,20 @@ quick start, then use the guides below when you need more detail.
   sources, manifests, lockfiles, updates, and drift protection.
 - [Workflow orchestration](workflow-orchestration.md): understand the PM model,
   delegation, bundled workflows, and the path from request to result.
+- [PM quickstart](pm-quickstart.md): learn how to work with the PM in direct
+  conversation.
+- [PM runtime](pm-runtime.md): inspect delegation state, scheduling, host
+  capabilities, and cleanup for technical troubleshooting.
 
 ## Author AI assets
 
 - [Workflow authoring](workflow-authoring.md): design and package a custom
   workflow with its team, process, guidance, templates, and project
   instructions.
+- [Template authoring](template-authoring.md): define workflow artifacts,
+  reusable sections, placeholders, and project overrides.
+- [Guidance authoring](guidance-authoring.md): define role and workflow
+  guidance, metadata, companion files, and project overrides.
 - [Role authoring](role-authoring.md): create roles with `ROLE.md`,
   `GUIDANCE.md`, bounded responsibilities, and delegation rules.
 - [Skill authoring](skill-authoring.md): create repeatable procedures with
@@ -26,6 +34,8 @@ quick start, then use the guides below when you need more detail.
 
 - [Command reference](command-reference.md): review the AIX command families
   and their options.
+- [Source management](source-management.md): understand source resolution,
+  caching, aliases, refs, and trust boundaries.
 - [Design-plan-execute workflow](../aix/workflows/design-plan-execute/README.md):
   inspect the default workflow's process, roles, skills, guidance, templates,
   and installed layout.
