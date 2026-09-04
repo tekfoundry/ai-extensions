@@ -249,7 +249,10 @@ Resolution rules:
 - Missing explicit targets fail clearly.
 - Multiple mentioned roles are ambiguous and fail clearly.
 - Implicit role mentions without delegation intent do not route.
-- Current delegation mode is `prompt-overlay`.
+- Direct role requests use `prompt-overlay` to provide bounded role context
+  without creating host-native agent files. PM-routed work requires native
+  worker creation and correlated results; it fails closed when those required
+  capabilities are unavailable or unknown.
 
 The built prompt overlay includes selected role metadata, parent-owned
 boundaries, the bounded task, the role operating prompt, and required return

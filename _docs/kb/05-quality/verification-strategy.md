@@ -185,8 +185,10 @@ raise a percentage.
 
 - Real remote Git network behavior is usually represented by temporary local
   Git repositories.
-- Host-native agent integrations are intentionally deferred and are not tested
-  beyond canonical `.agents/skills` and `.agents/roles` storage.
+- Host adapters and native delegation contracts are implemented and covered by
+  contract and integration tests. Authenticated live-provider execution,
+  provider-side restart recovery, and native harness UI behavior remain manual
+  validation areas.
 - Default request-entry routing through `get-guidance` is intentionally
   deferred and is not covered beyond checks that this plan did not add managed
   workflow, role, skill, delegation, or manifest wiring.

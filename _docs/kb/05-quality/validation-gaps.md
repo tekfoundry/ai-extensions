@@ -7,8 +7,10 @@
   repositories.
 - No concurrency coverage exists for simultaneous commands mutating manifest,
   lockfile, package, or active files.
-- Host-native agent integrations are intentionally deferred and are not tested
-  beyond canonical `.agents/skills` and `.agents/roles` storage.
+- Host adapters and native delegation contracts are implemented and covered by
+  contract and integration tests. Authenticated live-provider execution,
+  provider-side restart recovery, and native harness UI behavior remain manual
+  validation areas.
 - No automated semantic review exists for all documentation content.
 - No automated credential-redaction test exists for source URLs that might
   contain secrets.

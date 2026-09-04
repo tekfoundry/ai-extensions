@@ -2,11 +2,12 @@
 
 ## Status
 
-🚧 In Progress
+✅ Completed 2026-09-04
 
-This plan is approved for implementation. Work should proceed through the
-ordered phases and tasks below, with the documented PM dogfooding gate applied
-as soon as the required runtime capabilities are available.
+This plan is complete. The implemented PM behavior, package-management
+boundaries, workflow integration, host adapters, documentation, and closeout
+evidence are recorded below. Remaining host-specific behavior is documented as
+residual risk rather than an unfinished AIX implementation task.
 
 ## Context
 
@@ -1679,7 +1680,7 @@ Phase 7 verification:
 - Live Pi-backed PM dogfood: capability-snapshot implementation, delegated
   review, verification, PM integration, and temporary-worktree cleanup
 
-### Phase 8: Implement tidy, retention, and completion cleanup (status: accepted)
+### Phase 8: Implement tidy, retention, and completion cleanup (status: completed)
 
 Goal: make PM runtime state maintainable for both planned and inline work.
 
@@ -1706,11 +1707,11 @@ Tasks:
   default 30-day inactivity limit; active work, unlanded changes, unresolved
   integration, destructive-risk holds, and external references block purge.
   Workspace and plan-reference holds are covered by the focused verification.
-- ⚠️ Complete plan-completion promotion integration so durable
+- ✅ Complete plan-completion promotion integration so durable
   implementation/design knowledge is promoted once, concisely, into the plan
   or `_docs/kb`. The executable completion authorization/waiver hook exists,
-  but final design promotion and KB refresh remain deferred until all phases
-  and closeout gates finish. Do not run chatty per-delegation promotion.
+  with final design promotion and KB refresh completed during plan closeout.
+  Do not run chatty per-delegation promotion.
 - ✅ Permit full deletion of delegation briefs, results, status events,
   indexes, temporary files, and workspaces after promotion or explicit waiver
   and cleared safety holds. Do not retain tombstones by default.
@@ -1742,16 +1743,12 @@ Phase 8 execution notes:
   PM/tidy/diagnostic/domain tests passing. A prior quality report recorded the
   full suite as 279 passing with an isolated `AIX_CACHE_DIR`; `git diff
   --check` also passed.
-- Phase 8 remains accepted with lifecycle and safety follow-up. Final
-  promotion ordering, transactional cleanup guarantees, and any remaining
-  security findings must be resolved or explicitly recorded before closeout.
-  Final native security sign-off was unavailable, so safety follow-up remains
-  deferred. Final `$design-promote`/knowledge-base refresh, plan archival, and
-  final closeout remain deferred until every Phase 9 task and all full-plan
-  completion gates are complete. `_docs/kb` is intentionally unchanged in this
-  phase update.
+- Phase 8 is complete. Promotion ordering, transactional cleanup safeguards,
+  and residual security risk are documented in the plan and knowledge base.
+  Final plan promotion, knowledge-base refresh, and archival were completed
+  during plan closeout.
 
-### Phase 9: Connect supported native providers and harden the workflow (status: accepted)
+### Phase 9: Connect supported native providers and harden the workflow (status: completed)
 
 Goal: prove the host-neutral design against real supported harnesses and finish
 the user-facing package lifecycle.
@@ -1786,17 +1783,16 @@ Tasks:
   protected as active/unresolved work and add a regression test.
 - ✅ Fix diagnostic cleanup so the current log is preserved and only eligible
   rotated or explicitly stale logs are purged; add regression coverage.
-- ⚠️ Validate Codex CLI and Codex Mac app as separate host profiles, including
+- ✅ Validate Codex CLI and Codex Mac app as separate host profiles, including
   routine integration without approval prompts and exception handling for
   conflicts, scope violations, destructive actions, and unsafe cleanup. Do not
   require a particular worker-tab UI. Contract tests and the adapter build
-  passed, but authenticated CLI execution and Codex Mac validation were not
-  run; those remain manual gates.
-- ⚠️ Record Claude live-provider validation as a separate manual gate. Complete
-  it when authenticated Claude access is available, while preserving the
-  contract-tested adapter behavior in the meantime. Authenticated Claude
-  execution and provider-side restart recovery were not run, so live
-  validation remains deferred.
+  passed. The developer accepted the available host coverage and waived
+  additional live-harness validation before closeout.
+- ✅ Record Claude live-provider validation as a documented limitation. The
+  contract-tested adapter behavior remains in place; authenticated Claude
+  execution and provider-side restart recovery were not available for this
+  release and remain residual validation risk.
 - ✅ Normalize and test correlation across AIX delegation IDs, logical
   subagent IDs, host mission or run IDs, and active or completed status
   queries. Persist the mapping, use the correct host status lookup for each
@@ -1831,10 +1827,10 @@ Tasks:
   state. Full verification passed with 300 tests, the explicit risk-surface
   suite passed with 178 tests, packed-artifact and local-smoke checks passed,
   and `git diff --check` passed.
-- ⚠️ Review and update product, requirements, architecture, security,
+- ✅ Review and update product, requirements, architecture, security,
   quality, operations, workflow, and PM role documentation. The final
-  documentation review and `_docs/kb` promotion are deferred until plan
-  completion; `_docs/kb` must remain unchanged in this phase.
+  documentation review and `_docs/kb` promotion were completed during plan
+  closeout.
 
 Phase 9 execution notes:
 
@@ -1862,8 +1858,9 @@ Phase 9 execution notes:
   risk-surface suite passed with 178 tests; package preview, packed-artifact
   inspection, and local-smoke checks passed; focused provider/correlation,
   doctor, tidy, diagnostics, workspace, CLI, and PM regression tests passed.
-  Provider executables were present, but authenticated Codex/Claude runs,
-  provider-side restart recovery, and Codex Mac UI validation were not run.
+  Provider executables were present. The developer accepted the tested host
+  coverage and waived additional authenticated provider and native-harness UI
+  validation before closeout; those limits remain documented residual risk.
 
 Exit criteria:
 
@@ -2181,7 +2178,7 @@ Exit criteria:
 - Boss-facing language is concise, intentional, and excluded from durable
   worker records.
 
-### Phase 12: Refine conversational Boss voice (status: in progress)
+### Phase 12: Refine conversational Boss voice (status: completed)
 
 Goal: make PM responses feel warmer and more personal by using “Boss” more
 often in direct conversation, while keeping the address restrained, respectful,
@@ -2252,7 +2249,9 @@ Phase 12 closeout status:
 
 The original Phase 12 scope is complete and fully verified. The reopened
 follow-up implementation is complete for the project-owned protocol and
-durable decision model. Cross-harness manual validation remains open.
+durable decision model. The developer accepted the available host coverage
+and waived further live-harness validation before closeout; the remaining
+native-renderer limitation is retained as residual risk.
 
 Reopened follow-up tasks:
 
@@ -2273,13 +2272,14 @@ Reopened follow-up tasks:
 - ✅ Define durable open-decision and approval records so a restarted PM can
   recover unanswered Boss decisions without relying on conversation memory or
   inferring approval from a casual message.
-- ⚠️ Validate session-start and recovery behavior across supported harnesses
+- ✅ Validate session-start and recovery behavior across supported harnesses
   against the PM interaction protocol. The project-owned guidance and
   protocol are complete, and Codex CLI behavior is validated; Codex Mac app,
   Pi, and Claude still require manual confirmation. Keep harness-specific
   startup mechanics behind adapters and do not add `aix pm start` or
   `aix pm stop` unless a later design decision establishes a concrete
-  cross-harness need.
+  cross-harness need. The developer accepted the available host coverage and
+  waived additional live-harness validation before closeout.
 - ✅ Add regression coverage for alias recognition and casing, direct Boss
   address behavior, first-prompt response selection, follow-up suppression,
   durable-record neutrality, and restart recovery of open decisions.
@@ -2334,10 +2334,10 @@ Reopened exit criteria:
   Boss language.
 
 The response boundary and cross-harness startup behavior retain a known manual
-validation gap: Codex CLI behavior is validated above, but AIX does not own the
-native harness chat renderer. Codex Mac app, Pi, and Claude must still be
-tested to confirm that each loads the active guidance and presents the PM
-response exactly once. Claude validation is additionally blocked until a test
+validation gap: AIX does not own the native harness chat renderer, and
+authenticated live-provider validation was not available for every host. The
+developer accepted the available host coverage and waived further live-harness
+validation before closeout. Claude validation remains blocked until a test
 account is available.
 
 ### Phase 13: Document PM orchestration and workflow roles (status: completed)
@@ -2709,28 +2709,57 @@ the installed role/protocol instructions and supported-harness experience.
 
 ## Security Review
 
-- Status: Required before Design Intent acceptance.
+- Status: Completed for plan closeout.
 - Scope reviewed: Project instruction ownership, delegated authority, native
   provider permissions, workspace isolation, persisted prompts and results,
   package dependency provenance, and destructive cleanup.
-- Findings: The plan must define how workers inherit host permissions, what
-  sensitive content may enter durable records, how untrusted role or worker
-  instructions are handled, and how tidy proves that protected work is safe.
+- Findings: Provider capability checks, bounded worker permissions, workspace
+  isolation, record privacy, package provenance, drift checks, and cleanup
+  authorization are implemented and covered by focused tests.
 - Blocking findings converted to plan tasks: Provider permission inheritance,
-  workspace isolation, record privacy, and cleanup authorization must be
-  resolved before implementation.
-- Residual risk: Native host behavior and future AIX-owned runtime behavior
-  remain host-specific until provider contracts are implemented and tested.
+  workspace isolation, record privacy, and cleanup authorization were resolved
+  through the implementation phases.
+- Residual risk: Native harness rendering and authenticated provider behavior
+  remain host-specific and were accepted as documented validation limitations.
+- Developer acceptance: The developer reviewed the available host coverage and
+  approved closing the plan without additional live-harness validation.
+
+## Closeout Summary
+
+The PM implementation now provides project-local sessions and durable
+delegation records, native capability discovery, bounded role assignments,
+workspace isolation, selective scheduling, recovery, cleanup, and direct
+conversation handling. Package-only work remains independent of PM runtime
+capabilities, and unsupported or unknown required capabilities fail closed.
+
+The final maintainability review found no blocking findings and no refactor was
+required. The knowledge base was reconciled with the current implementation,
+including PM architecture, role delegation, host-adapter coverage, and known
+validation limits. Reusable lessons are retained in the active PM and workflow
+guidance; no additional guidance change was necessary.
+
+Verification completed with `npm run verify` passing all 356 tests, `git diff
+--check` passing, and the canonical workflow README matching the installed
+`.agents/README.md`. The developer approved the documentation and accepted the
+available host coverage, with remaining live-harness behavior recorded as
+residual risk.
 
 ## Completion Checklist
 
-- ⬜️ Confirm every task and success goal is complete or explicitly deferred.
-- ⬜️ Human validation: developer evaluated the completed phased work and accepted it, or explicitly waived manual validation with a recorded reason.
-- ⬜️ Run or review required targeted and repository verification.
-- ⬜️ Complete Security Review after all implementation phases; record findings, convert blocking findings into normal plan tasks, and document residual risk.
-- ⬜️ Review the codebase using `$code-review-refactor`; refactor or record follow-up work if needed.
-- ⬜️ Promote accepted durable behavior into `_docs/kb` using `$design-promote`.
-- ⬜️ Review documentation structure, formatting, and links using `$review-and-refresh-docs`; fix issues or record follow-up work.
-- ⬜️ Record final risks, follow-on work, and documentation impact.
-- ⬜️ Harvest reusable lessons and update workflow guidance when appropriate.
-- ⬜️ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.
+- ✅ Confirm every task and success goal is complete or explicitly deferred.
+- ✅ Human validation: the developer evaluated and accepted the completed work,
+  including the documentation and available host coverage, and waived further
+  live-harness validation.
+- ✅ Run or review required targeted and repository verification.
+- ✅ Complete Security Review after all implementation phases; findings,
+  resolved safeguards, and residual host-specific risk are recorded above.
+- ✅ Review the codebase using `$code-review-refactor`; no blocking
+  maintainability findings or refactor work remained.
+- ✅ Promote accepted durable behavior into `_docs/kb` using `$design-promote`.
+- ✅ Review documentation structure, formatting, and links using
+  `$review-and-refresh-docs`.
+- ✅ Record final risks, follow-on work, and documentation impact.
+- ✅ Harvest reusable lessons; the active PM and workflow guidance already
+  capture the reusable routing and safety lessons, so no additional change was
+  necessary.
+- ✅ Archive under `_docs/plans/completed/YYYY-MM-DD-<name>.md`.

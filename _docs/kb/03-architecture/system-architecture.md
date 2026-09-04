@@ -76,6 +76,9 @@ domain module
 - `src/workflows/`: workflow manifest parsing, install, update, diff, remove,
   source routing, staged packages, docs, managed `AGENTS.md`, workflow-owned
   skills, workflow-owned roles, templates, and verification.
+- `src/pm/`: PM sessions, conversations, delegation records, orchestration,
+  scheduling, host capability discovery, workspace integration, diagnostics,
+  completion authorization, and tidy cleanup.
 - `src/init/`: default project initialization, default workflow installation,
   default standalone skill activation, and init output rendering.
 - `src/status/`: read-only aggregation across manifest, lockfile,
