@@ -50,6 +50,8 @@ The package can contain:
 
 ## Add workflow instructions to `AGENTS.md`
 
+![Workflow instructions lifecycle](../assets/workflow-instructions-lifecycle.png)
+
 `AGENTS.append.md` is the workflow's contribution to the project's root
 `AGENTS.md`. It should contain only the instructions that the workflow owns,
 such as where agents should look for workflow documentation and what process
