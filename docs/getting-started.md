@@ -1,5 +1,7 @@
 # Getting started
 
+![Start with AIX](../assets/aix-getting-started-summary.png)
+
 ## Install AIX
 
 Install the scoped npm package:
