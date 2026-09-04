@@ -1,4 +1,4 @@
-![Design, Plan, Execute workflow overview](https://raw.githubusercontent.com/tekfoundry/ai-extensions/master/assets/design_plan_execute_about.png)
+![Design-Plan-Execute workflow for repeatable design, planning, implementation, verification, and documentation](https://raw.githubusercontent.com/tekfoundry/ai-extensions/master/assets/design_plan_execute_about.png)
 
 # Design, Plan, Execute
 

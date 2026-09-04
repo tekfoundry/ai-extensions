@@ -1,6 +1,6 @@
 # Workflow orchestration
 
-![Workflow orchestration](../assets/aix-workflow-orchestration.png)
+![Workflow orchestration: Boss gives one request to a PM, which delegates bounded work to sub-agents](../assets/aix-workflow-orchestration.png)
 
 An AIX workflow is an installable operating model for agent-assisted work. It
 groups process documentation, skills, roles, guidance, templates, and project

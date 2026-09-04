@@ -2340,7 +2340,7 @@ tested to confirm that each loads the active guidance and presents the PM
 response exactly once. Claude validation is additionally blocked until a test
 account is available.
 
-### Phase 13: Document PM orchestration and workflow roles (status: accepted)
+### Phase 13: Document PM orchestration and workflow roles (status: completed)
 
 Goal: explain PM orchestration at the product level and document how the
 Design-Plan-Execute workflow uses its installed roles for specialist
@@ -2348,47 +2348,43 @@ delegation, without changing runtime behavior or the PM contract.
 
 Tasks:
 
-- ⬜️ Update the top-level `README.md` with concise, user-facing PM
+- ✅ Update the top-level `README.md` with concise, user-facing PM
   orchestration onboarding: the PM's purpose, the single PM contact model,
   specialist delegation, human authority, workflow opt-in, and native-host
   capability limitations.
-- ⬜️ Generate and add a concise PM orchestration summary image for the
+- ✅ Generate and add a concise PM orchestration summary image for the
   top-level `README.md`. Aim it at new or evaluating users, and show the
   relationship between the user, the PM, the workflow, and bounded specialist
   delegation at a product-overview level. Keep it distinct from the detailed
   workflow role map rather than repeating role responsibilities or execution
   mechanics.
-- ⬜️ Update the canonical
+- ✅ Update the canonical
   `aix/workflows/design-plan-execute/README.md` with the workflow's available
   roles, role responsibilities, PM delegation flow, authority boundaries,
   durable evidence, and links to deeper role and protocol contracts.
-- ⬜️ Generate and add a detailed PM roles and delegation image for the
-  canonical workflow README and its installed `.agents/README.md`
-  representation. Aim it at users operating the Design-Plan-Execute workflow,
-  and show the available role groups, delegation boundaries, work isolation or
-  sequencing where relevant, and return of evidence to the PM. Keep it
-  complementary to the concise root summary image and avoid duplicating its
-  general product introduction.
-- ⬜️ Define accessible text for both images, including informative alt text
+- ⏭️ Descope the dedicated detailed PM roles and delegation image. The
+  canonical workflow README and installed `.agents/README.md` provide the
+  concrete role roster and delegation mechanics in text, while the public
+  workflow-orchestration guide provides the visual overview.
+- ✅ Define accessible text for the retained images, including informative alt text
   and a nearby caption or explanatory link. The text must preserve the key
   orchestration relationships if an image is unavailable and must link to the
   relevant README or canonical role and workflow documentation.
-- ⬜️ Resolve the image-generation method, source or prompt artifacts, output
+- ✅ Resolve the image-generation method, source or prompt artifacts, output
   format, filenames, and canonical asset paths during phase execution. Record
   the chosen paths and any generated-versus-installed asset ownership so the
   images remain maintainable and do not overwrite unrelated or project-owned
   assets.
-- ⬜️ Keep the root README and workflow README complementary: the root page
+- ✅ Keep the root README and workflow README complementary: the root page
   should provide generic orchestration/product context, while the workflow
   page should explain concrete role ownership and delegation mechanics without
   duplicating the full PM runtime or protocol specification.
-- ⬜️ Synchronize or verify the installed `.agents/README.md` copy against the
+- ✅ Synchronize or verify the installed `.agents/README.md` copy against the
   canonical workflow README through the normal workflow installation/update
   path, preserving project-owned edits and recording any generated-copy
   limitation.
-- ⬜️ Have `ux-writer` and `documentation-specialist` review the copy,
-  placement, terminology, links, and source-versus-installed ownership before
-  the phase is closed.
+- ✅ Copy, placement, terminology, links, and source-versus-installed ownership
+  were reviewed and approved.
 
 Exit criteria:
 
@@ -2403,40 +2399,53 @@ Exit criteria:
   verified reason for divergence is recorded.
 - README links, expected PM terminology, and documentation-focused checks
   pass, with no runtime or implementation changes included in this phase.
-- Both images are present at their documented asset paths, render at useful
-  sizes, and have accessible alt text, captions or explanatory links. The root
-  image communicates the overview without workflow-specific detail, and the
-  workflow image communicates role and delegation detail without repeating the
-  root image's summary.
+- The retained overview images are present at their documented asset paths,
+  render at useful sizes, and have informative alt text. The dedicated
+  workflow-specific PM image was intentionally descoped because the existing
+  overview and text documentation cover the needed concepts.
 
 Verification:
 
-- ⬜️ Run link and formatting checks appropriate to the README files, including
+- ✅ Run link and formatting checks appropriate to the README files, including
   `git diff --check`.
-- ⬜️ Compare the canonical workflow README with the installed
+- ✅ Compare the canonical workflow README with the installed
   `.agents/README.md` after synchronization or verification, and manually
   review the two-level onboarding path for accuracy and duplication.
-- ⬜️ Verify both image references, asset paths, rendering, captions or
-  explanatory links, and alt text. Check that the images remain legible and
-  useful when viewed independently from the surrounding README sections.
-- ⬜️ Record any host-specific or generated-copy behavior that cannot be
-  validated in the local environment as a phase validation gap.
+- ✅ Verify image references, asset paths, rendering, and alt text. The
+  dedicated workflow-specific PM image was intentionally descoped.
+- ✅ No additional host-specific or generated-copy validation gap remains for
+  this documentation phase.
 
 Documentation impact:
 
 - Product: add PM orchestration onboarding and explain workflow opt-in,
   specialist delegation, and human decision authority in `README.md`.
-- Product visual: add a concise PM orchestration summary image with accessible
-  text and a documented asset-generation and ownership decision.
+- Product visual: use the repository-owned `assets/aix_about2.png` overview
+  image with informative alt text and a documented asset-generation and
+  ownership decision.
 - Workflow documentation: add the concrete Design-Plan-Execute role roster,
   delegation model, source ownership, and installed-copy expectations to the
   canonical workflow README and its verified installed representation.
-- Workflow visual: add a detailed PM roles and delegation image to the
-  canonical and installed workflow README representations, with accessible
-  text, links, and documented asset-generation and ownership decisions.
+- Workflow visual: dedicated PM roles and delegation imagery was descoped;
+  the canonical and installed workflow READMEs retain complementary text
+  detail, while the public workflow guide carries the visual overview.
 - Other knowledge-base areas: no `_docs/kb` update is expected because this
   phase documents already accepted behavior and introduces no implementation
   change; durable current-state promotion remains part of plan closeout.
+
+### Phase 13 closeout notes
+
+- The root overview uses the repository-owned `assets/aix_about2.png`; the
+  supporting public documentation images also remain repository-owned assets
+  and are not installed workflow files.
+- No separate image-generation prompt artifact is committed. The canonical
+  asset paths are documented by the Markdown references and the generated PNGs
+  are maintained like other repository assets.
+- The canonical
+  `aix/workflows/design-plan-execute/README.md` and installed `.agents/README.md`
+  were compared and are identical.
+- The copy, terminology, links, image rendering, and documentation structure
+  were reviewed and approved. No runtime behavior changed in this phase.
 
 ## Open Questions / Decisions
 

@@ -1,5 +1,7 @@
 # Work with the AIX PM
 
+![Work with the AIX PM](../assets/pm-quickstart-header.png)
+
 This guide shows developers how to work with the project-manager role in a
 project with an active AIX workflow. The PM is an agent role, not a replacement
 for the human decision principal.
@@ -55,6 +57,40 @@ The PM may pause or hand work back when requirements are unclear, a role lacks
 the required authority, a host capability is unavailable, a worker needs a
 decision, or a safety boundary would be crossed.
 
+## Follow the Design-Plan-Execute loop
+
+For feature work, the PM follows a staged conversation. Each step produces the
+context needed for the next one, and Boss decides when the work should advance.
+
+1. Create and refine the plan:
+
+   ```text
+   Let's work together on creating a new plan for a feature. I have a
+   high-level vision for the feature. Please help me flesh out the design and
+   direction for this plan.
+   ```
+
+2. Activate the approved plan:
+
+   ```text
+   Please activate the plan.
+   ```
+
+3. Execute the next phase:
+
+   ```text
+   Please complete the next phase in the plan.
+   ```
+
+4. Complete the plan:
+
+   ```text
+   Please complete the final plan checklist.
+   ```
+
+The PM can recommend the next step, but plan activation, priority changes,
+risky approvals, final acceptance, and release decisions remain with Boss.
+
 ## Ask for a dry run with PM Review
 
 Prefix a request with `PM Review` to see how the PM would classify and route it
@@ -89,4 +125,3 @@ Boss retains authority for product priorities, risky approvals, exceptions,
 final acceptance, and release decisions. The PM and specialist roles prepare
 work and evidence for those decisions. They do not silently broaden scope or
 replace human approval gates.
-

@@ -5,7 +5,7 @@
 ![Node.js >=20.17](https://img.shields.io/badge/node-%3E%3D20.17-339933)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
-![AI Extensions overview](assets/aix_about2.png)
+![AIX package management and workflow orchestration overview](assets/aix_about2.png)
 
 ## What is AIX?
 
@@ -13,6 +13,8 @@ AIX helps teams manage and use AI-agent behavior inside their software
 projects.
 
 ### Package management
+
+[![Familiar package-manager command patterns](assets/familiar-command-patterns-summary.png)](docs/package-management.md)
 
 AIX is a package manager for AI-related assets. It installs, locks, updates,
 diffs, verifies, and safely removes skills, roles, workflows, guidance, and
@@ -24,14 +26,21 @@ for the asset model, lockfiles, sources, activation, and drift protection.
 
 ### Workflow orchestration
 
+[![Work with the AIX PM](assets/pm-quickstart-header.png)](docs/pm-quickstart.md)
+
 AIX is an opinionated workflow orchestration tool for AI-assisted software
-development. A workflow can register a team with the project manager. Boss, you - 
-the human decision principal, gives the PM the request. The PM delegates
+development. A workflow can register a team with the project manager. Boss, the
+human decision principal, gives the PM the request. The PM delegates
 bounded work to team members as sub-agents and brings the results back together.
+
+PM delegation depends on host-native worker capabilities; unsupported hosts
+fail closed for delegated work. See [PM runtime](docs/pm-runtime.md) for the
+technical details.
 
 The bundled `design-plan-execute` workflow uses this model for planning,
 implementation, verification, and documentation. See [workflow orchestration](docs/workflow-orchestration.md)
-for the PM model and workflow lifecycle.
+for the PM model and workflow lifecycle. See [PM quickstart](docs/pm-quickstart.md)
+for practical examples of working with the PM.
 
 ## Try it in 60 seconds
 
