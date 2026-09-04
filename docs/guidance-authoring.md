@@ -1,5 +1,7 @@
 # Author guidance for AIX
 
+![Guidance ownership](../assets/guidance-ownership.png)
+
 Guidance is reusable judgment that agents can read while they follow a role,
 skill, or workflow activity. It is separate from the role contract, the skill
 procedure, the workflow process, and project knowledge.
