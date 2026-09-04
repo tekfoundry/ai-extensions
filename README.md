@@ -56,14 +56,26 @@ the bundled default workflow and its PM team.
 - Give agents a defined process for planning, delegation, implementation,
   verification, and documentation.
 
+## Who should use AIX?
+
+- Developers using coding agents across multiple repositories
+- Teams standardizing AI-agent behavior
+- Organizations that want agent behavior to be reviewable, pinned, auditable,
+  and project-local
+- Maintainers publishing reusable workflows or skills
+
 ## Learn more
 
+- [Documentation index](docs/README.md)
 - [Getting started](docs/getting-started.md)
 - [Package management](docs/package-management.md)
 - [Workflow orchestration](docs/workflow-orchestration.md)
 - [Command reference](docs/command-reference.md)
 - [Design-plan-execute workflow](aix/workflows/design-plan-execute/README.md)
 - [Agile Kanban workflow](aix/workflows/agile-kanban/README.md)
+- [Workflow authoring](docs/workflow-authoring.md)
+- [Role authoring](docs/role-authoring.md)
+- [Skill authoring](docs/skill-authoring.md)
 
 The command is `aix`. The npm package is `@tekfoundry/aix`.
 

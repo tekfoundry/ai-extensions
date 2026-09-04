@@ -42,6 +42,30 @@ The main project files are:
 - `.agents/skills/` and `.agents/roles/` expose active assets to the agent
   environment.
 
+For example, a project's `aix.json` can declare its trusted sources, active
+workflow, and standalone skills:
+
+```json
+{
+  "sources": {
+    "skills": {
+      "team-skills": "https://github.com/example/skills/tree/main/skills"
+    },
+    "workflows": {
+      "aix": "https://github.com/tekfoundry/ai-extensions/tree/master/aix/workflows/design-plan-execute"
+    }
+  },
+  "skills": [
+    "team-skills:review"
+  ],
+  "workflow": "aix:aix/workflows/design-plan-execute"
+}
+```
+
+The matching `aix.lock.json` records the resolved commits and installed file
+hashes. Commit both files with the project so another checkout can reproduce
+the same agent environment.
+
 The usual flow is:
 
 ```text

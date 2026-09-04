@@ -64,6 +64,21 @@ aix skills diff
 aix skills update
 ```
 
+### Find a skill with `discover-skill`
+
+The bundled `discover-skill` helper can search configured sources before you
+activate anything. Ask it for a capability in plain language:
+
+```text
+Use discover-skill. Find a skill for accessibility-focused code reviews.
+Do not install anything unless I explicitly reply with install #.
+```
+
+The helper presents the available options and a review link. If you reply with
+`install 1`, it shows the files, its initial assessment, and the exact AIX
+commands it would run. It waits for `confirm install 1` before changing the
+project.
+
 ## Use a role
 
 Roles provide a focused responsibility or point of view. Add a source and
