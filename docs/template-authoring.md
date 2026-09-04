@@ -1,5 +1,7 @@
 # Author workflow templates for AIX
 
+![Template authoring and ownership](../assets/template-authoring-ownership.png)
+
 A workflow template gives agents a reusable structure for plans, designs, work
 items, knowledge-base documents, and other artifacts. Templates belong to a
 workflow because the workflow defines the process and the artifacts that
@@ -89,4 +91,3 @@ the package-owned version.
 AIX refuses to overwrite a locally edited published template and checks
 template hashes during workflow update and uninstall. Update or uninstall the
 owning workflow when a workflow-owned template needs to change.
-
