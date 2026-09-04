@@ -31,6 +31,8 @@ the pattern most directly.
 
 ## The package lifecycle
 
+![AIX package lifecycle](../assets/aix-package-lifecycle.png)
+
 The main project files are:
 
 - `aix.json` records project intent: configured sources, the active workflow,
