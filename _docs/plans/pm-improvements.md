@@ -2250,9 +2250,9 @@ Phase 12 evidence:
 
 Phase 12 closeout status:
 
-The original Phase 12 scope is complete and fully verified. Phase 12 is
-reopened for the following follow-up work; these tasks are planned only and
-have not been started.
+The original Phase 12 scope is complete and fully verified. The reopened
+follow-up implementation is complete for the project-owned protocol and
+durable decision model. Cross-harness manual validation remains open.
 
 Reopened follow-up tasks:
 
@@ -2264,17 +2264,22 @@ Reopened follow-up tasks:
   manager`, `manager`, and `project-manager`. Normalize aliases before routing,
   preserve the active PM as the sole orchestration role, and reject ambiguous
   or out-of-scope uses without silently dispatching work.
-- ⚠️ Add a PM-facing response boundary that consistently addresses the human
+- ✅ Add a PM-facing response boundary that consistently addresses the human
   as “Boss” in direct conversational responses while excluding the address
   from worker prompts, tool output, errors, IDs, status events, and durable
-  records.
+  records. The Codex CLI manual tests confirmed the direct-response behavior
+  and neutral delegated-worker output; native harness rendering remains a
+  separate validation concern below.
 - ✅ Define durable open-decision and approval records so a restarted PM can
   recover unanswered Boss decisions without relying on conversation memory or
   inferring approval from a casual message.
-- ⚠️ Align session-start and recovery behavior across supported harnesses with
-  the PM interaction protocol. Keep harness-specific startup mechanics behind
-  adapters and do not add `aix pm start` or `aix pm stop` unless a later design
-  decision establishes a concrete cross-harness need.
+- ⚠️ Validate session-start and recovery behavior across supported harnesses
+  against the PM interaction protocol. The project-owned guidance and
+  protocol are complete, and Codex CLI behavior is validated; Codex Mac app,
+  Pi, and Claude still require manual confirmation. Keep harness-specific
+  startup mechanics behind adapters and do not add `aix pm start` or
+  `aix pm stop` unless a later design decision establishes a concrete
+  cross-harness need.
 - ✅ Add regression coverage for alias recognition and casing, direct Boss
   address behavior, first-prompt response selection, follow-up suppression,
   durable-record neutrality, and restart recovery of open decisions.
@@ -2295,6 +2300,27 @@ Reopened execution evidence:
   356/356 tests, the build passed, `git diff --check` passed, and `aix verify`
   passed.
 
+Manual validation evidence (Codex CLI):
+
+- Fresh conversational session returned exactly “Hey Boss! What are we
+  working on?”.
+- A concrete read-only request returned an action-oriented “Okay Boss!”
+  acknowledgment without delegating when delegation was explicitly
+  prohibited.
+- The aliases `PM`, `PROJECT MANAGER`, `Manager`, and `project-manager` were
+  each recognized case-insensitively as the active PM; none created or
+  targeted a separate manager role.
+- A delegated read-only review selected an appropriate technical-architect
+  specialist, waited for its completed correlated report, and included the
+  findings in the PM response without changing files or artifacts.
+- A follow-up request suppressed the canned opening and produced a direct
+  summary with restrained Boss usage.
+- An out-of-plan request produced an explicit approval question; an explicit
+  rejection was acknowledged without changing the plan or retrying the
+  request.
+- The read-only tests preserved the pre-existing untracked
+  `assets/aix_about2.png` and reported it rather than modifying it.
+
 Reopened exit criteria:
 
 - The PM recognizes all four PM aliases case-insensitively without creating a
@@ -2307,11 +2333,12 @@ Reopened exit criteria:
 - Worker-facing and machine-readable artifacts remain free of conversational
   Boss language.
 
-The implementation is complete for the project-owned protocol and durable
-decision model. The response boundary and cross-harness startup behavior retain
-a known manual validation gap: AIX does not own the native harness chat
-renderer, so each supported harness must still be tested to confirm that it
-loads the active guidance and presents the PM response exactly once.
+The response boundary and cross-harness startup behavior retain a known manual
+validation gap: Codex CLI behavior is validated above, but AIX does not own the
+native harness chat renderer. Codex Mac app, Pi, and Claude must still be
+tested to confirm that each loads the active guidance and presents the PM
+response exactly once. Claude validation is additionally blocked until a test
+account is available.
 
 ### Phase 13: Document PM orchestration and workflow roles (status: accepted)
 
