@@ -795,8 +795,8 @@
         },
         "source": "aix",
         "sourcePath": "roles/project-manager",
-        "marker": "aix:role project-manager",
         "path": "AGENTS.md",
+        "marker": "aix:role project-manager",
         "sourceSha256": "84478d79095098d8e482a2cd46aa260399bc8d378ee96e6b57ae93a5d36958b0",
         "renderedSha256": "6dfc92a068451879652a7e81e38363b8c4e7b3110c0e1281fbadb5ec49fb6d8d",
         "installedSha256": "6dfc92a068451879652a7e81e38363b8c4e7b3110c0e1281fbadb5ec49fb6d8d"
@@ -1150,7 +1150,7 @@
         {
           "sourcePath": "README.md",
           "targetPath": ".agents/README.md",
-          "sha256": "1894ad1bd6985879fd0462eca23832f1413511a330939efd8af5b7b9df085fb1"
+          "sha256": "40389a8a548b10e8c8397483930d91d581b600a151de2cba0f7e86755cd8b83f"
         },
         {
           "sourcePath": "plan-example.md",
@@ -1170,8 +1170,8 @@
         },
         "source": "workflow",
         "sourcePath": "AGENTS.append.md",
-        "path": "AGENTS.md",
         "marker": "aix:workflow design-plan-execute",
+        "path": "AGENTS.md",
         "sourceSha256": "05994d830fb00b35cc28354a5e45c35eb1d4e5c05342bfe02edf7832fcb80c93",
         "renderedSha256": "24a104269fc4a547dfca642a67366722331da8f032db29b7ff37e6ea38a518fc",
         "installedSha256": "24a104269fc4a547dfca642a67366722331da8f032db29b7ff37e6ea38a518fc"
@@ -1468,7 +1468,7 @@
         },
         {
           "path": "README.md",
-          "sha256": "1894ad1bd6985879fd0462eca23832f1413511a330939efd8af5b7b9df085fb1"
+          "sha256": "40389a8a548b10e8c8397483930d91d581b600a151de2cba0f7e86755cd8b83f"
         },
         {
           "path": "roles/project-dev/documentation-specialist/GUIDANCE.md",
