@@ -2,10 +2,11 @@
 
 ## Status
 
-🟨 Active Implementation
+🟨 Active Implementation — Phase 4 reopened by manual validation findings
 
 Human activation approved. Implementation may proceed through the defined
-phases and tasks.
+phases and tasks. Phase 5 is blocked until the Phase 4 follow-up tasks below
+are implemented and verified.
 
 ## Context
 
@@ -394,6 +395,68 @@ external-project, and unavailable-platform/manual validation remain solely in
 Phase 5 and were not performed.
 - ✅ Review & Refactor
 
+#### Phase 4 follow-up: Resolve managed-role reconciliation discovered in Phase 5
+
+The first release-gated validation against the real project created a valid
+backup but stopped during workflow rebuild with `Active role name collision:
+documentation-specialist`. Read-only inspection confirmed the project has the
+expected active role, workflow package source, and matching lockfile ownership;
+the active/package and backup copies all matched the recorded hash. The backup
+was retained correctly and was not the root cause. This is an implementation
+finding, not a reason to discard the backup.
+
+Tasks:
+
+- ✅ Add a regression fixture matching the observed current-layout project:
+  workflow package role, active role, matching lockfile ownership and hashes,
+  modified active content, and retained `aix_bak_*` content. Confirm backup
+  roots are excluded from active-source and collision discovery, while the
+  legitimate workflow package/active-role pair is represented once.
+- ✅ Trace and fix workflow preflight/reconciliation so a role whose source,
+  source path, workflow owner, active name, package path, and activation path
+  match the prior lockfile is recognized as existing and refreshed during
+  `--force`. Do not weaken refusal for a genuinely unowned active-name
+  collision, mismatched owner/source metadata, or unsafe paths.
+- ✅ Add a focused acceptance matrix for clean current layouts, modified
+  managed active files, retained backups, multiple managed roles, aliases,
+  genuine standalone collisions, and failed-update reruns.
+- ✅ Verify backup-first behavior, failure retention, successful rebuild,
+  post-update verification, audit output, and rerun behavior for this layout.
+- ✅ Run the complete Phase 4 verification gates and record the exact evidence
+  before unblocking Phase 5.
+
+Phase 4 follow-up evidence: `src/workflows/roles.ts` now requires an existing
+same-name role to match the prior lockfile's workflow source, source path,
+workflow owner, package path, and activation path before force reconciliation
+may refresh it. `src/force-update/coordinator.ts` releases the invocation-owned
+transaction lock when an interruption journal causes a fail-closed rerun
+refusal, while retaining the durable journal and backup reservation. Tests
+reproduce a current directory-layout workflow role with modified active content
+and confirm force rebuild, backup retention, and post-update verification; they
+also confirm an unowned same-name role remains a fail-closed collision with the
+completed backup retained and interrupted reruns do not strand the lock. The
+combined workflow/force-update acceptance coverage exercises clean and edited
+managed content, retained backups, multiple managed assets, aliases, genuine
+standalone collisions, failure retention, and rerun protections. `npm run build`,
+`npm run typecheck`, `npm run verify` (388 tests), the targeted workflow and
+force-update tests (51 tests), and `git diff --check` pass. No Phase 5
+publishing, external-project validation, or writes outside this repository were
+performed.
+
+Final Phase 4 follow-up quality-gate evidence: targeted `tests/force-update.test.mjs`
+and `tests/workflow.test.mjs` passed 51 tests; `npm run build`, `npm run
+typecheck`, `npm run verify` (388 tests), `npm run release:pack-preview`, `npm
+run release:local-smoke`, and `git diff --check` passed. The package smoke
+checks exercised the built/package artifact and local packed installation for
+`@tekfoundry/aix@0.5.1`. The acceptance matrix covers clean current-layout
+roles, modified managed active content, retained backups and backup exclusion,
+multiple managed assets, aliases, genuine unowned collisions, failed-update
+retention, malformed/path-invalid state, interrupted rerun refusal, PM/runtime
+preservation, post-update `aix verify`, audit output, and plain-update drift
+refusal. No staged files or generated worktree changes remain. Phase 5 remains
+the only location for publishing, published-package installation, external
+project validation, and unavailable-platform/manual validation.
+
 Success goals:
 
 - The stated `0.4` to `0.5` legacy migration scenario is covered by an
@@ -429,7 +492,8 @@ Verification:
 #### Phase 5: Release-Gated External Project Validation
 
 Objective: validate the published user experience using the actual GitHub and
-npm release artifact against the intentionally out-of-sync project.
+npm release artifact against the intentionally out-of-sync project after all
+Phase 4 follow-up fixes have passed automated verification.
 
 Tasks:
 

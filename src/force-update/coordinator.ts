@@ -207,9 +207,14 @@ export function forceUpdateWorkspace(options: ForceUpdateOptions): ForceUpdateCo
     try {
       const prior = JSON.parse(readFileSync(journalPath(root), "utf8")) as { status?: string; backupPath?: string; stage?: ForceUpdateStage };
       if (prior.status === "running" && typeof prior.backupPath === "string" && isCompleteForceBackup(prior.backupPath)) {
+        // This invocation owns the lock, but it must not strand that lock when
+        // refusing a rerun based on the durable interruption journal. The
+        // journal remains the fail-closed reservation for the next invocation.
+        releaseForceUpdateLock(root);
         return { state: "failed", backupPath: prior.backupPath, stages: [], failure: { stage: (prior.stage || "backup") as ForceUpdateFailure, message: "An interrupted force update is recorded; inspect or recover the retained backup before retrying." } };
       }
     } catch {
+      releaseForceUpdateLock(root);
       return { state: "failed", backupPath: "", stages: [], failure: { stage: "backup", message: "Unable to read the force-update transaction journal." } };
     }
   }

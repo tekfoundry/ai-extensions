@@ -79,17 +79,28 @@ function assertNoWorkflowRoleCollision(
   lockfile: { roles?: LockfileRoleEntry[] },
   workflowName: string,
   workflowSource: string,
-  plan: WorkflowRolePlan
+  plan: WorkflowRolePlan,
+  targetRolePath: string
 ): void {
   const existing = (lockfile.roles || []).find((role) => role.activeName === plan.activeName);
 
-  if (
-    existing &&
-    (existing.source !== workflowSource ||
-      existing.sourcePath !== plan.sourcePath ||
-      existing.owner?.kind !== "workflow" ||
-      existing.owner.name !== workflowName)
-  ) {
+  if (!existing) {
+    return;
+  }
+
+  // A force rebuild is allowed to refresh a role only when the lockfile proves
+  // that both the package and activation targets are the same managed asset.
+  // Comparing only the name/source let stale or ambiguous entries reach the
+  // materializer, while treating every existing name as foreign broke valid
+  // current-layout installations.
+  const isManagedMatch = existing.source === workflowSource &&
+    existing.sourcePath === plan.sourcePath &&
+    existing.packagePath === targetRolePath &&
+    existing.activationPath === plan.activationPath &&
+    existing.owner?.kind === "workflow" &&
+    existing.owner.name === workflowName;
+
+  if (!isManagedMatch) {
     throw new AixError(`Active role name collision: ${plan.activeName}`);
   }
 }
@@ -141,7 +152,7 @@ export function assertWorkflowRolesSafe(
     parseRoleFileFromPath(roleEntrypointPath(sourceRolePath), { requireContract: true });
     assertBundledRoleGuidance(sourceRolePath);
     assertRoleName(plan.activeName, "active role name");
-    assertNoWorkflowRoleCollision(lockfile, workflow.name, workflowSource, plan);
+    assertNoWorkflowRoleCollision(lockfile, workflow.name, workflowSource, plan, targetRolePath);
 
     const legacySourcePath = Object.entries(LEGACY_ROLE_RENAMES).find(([, next]) => next === plan.sourcePath)?.[0];
     const legacy = legacySourcePath

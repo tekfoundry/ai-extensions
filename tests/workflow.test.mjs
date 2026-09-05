@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -171,6 +171,53 @@ async function withProject(callback) {
     process.chdir(previousCwd);
   }
 }
+
+test("force update refreshes modified current-layout workflow roles and retains the backup", async () => {
+  const source = await createWorkflowRepo("aix-workflow-force-source-", "fixture-workflow", ".");
+  // Add the role after repository creation so the source has a second commit,
+  // matching an already-installed current-layout workflow package.
+  mkdirSync(join(source, "roles/project-dev/documentation-specialist"), { recursive: true });
+  writeFileSync(join(source, "roles/project-dev/documentation-specialist/ROLE.md"), validRoleMarkdown("documentation-specialist"), "utf8");
+  writeFileSync(join(source, "roles/project-dev/documentation-specialist/GUIDANCE.md"), validRoleGuidanceMarkdown(), "utf8");
+  git(["add", "."], source); git(["commit", "-m", "add role"], source);
+
+  await withProject(async (projectPath) => {
+    assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
+    const active = join(projectPath, ".agents/roles/documentation-specialist/ROLE.md");
+    writeFileSync(active, readFileSync(active, "utf8") + "\nLocal edit.\n", "utf8");
+    // A retained backup is project-root history, not another active source.
+    mkdirSync(join(projectPath, "aix_bak_2026_01_02_03_04_05/.agents/roles/documentation-specialist"), { recursive: true });
+    writeFileSync(join(projectPath, "aix_bak_2026_01_02_03_04_05/.agents/roles/documentation-specialist/ROLE.md"), "backup-only\n", "utf8");
+
+    const result = run(["update", "--force"]);
+    assert.equal(result.exitCode, 0, result.stderr);
+    assert.equal(readFileSync(active, "utf8"), readFileSync(join(projectPath, ".agents/packages/workflows/fixture/fixture-workflow/roles/project-dev/documentation-specialist/ROLE.md"), "utf8"));
+    assert.equal(run(["verify"]).exitCode, 0);
+    assert.equal(readdirSync(projectPath).filter((name) => name.startsWith("aix_bak_")).length, 2);
+  });
+});
+
+test("force update fails closed for an unowned current-layout role collision", async () => {
+  const source = await createWorkflowRepo("aix-workflow-collision-source-", "fixture-workflow", ".");
+  mkdirSync(join(source, "roles/project-dev/documentation-specialist"), { recursive: true });
+  writeFileSync(join(source, "roles/project-dev/documentation-specialist/ROLE.md"), validRoleMarkdown("documentation-specialist"), "utf8");
+  writeFileSync(join(source, "roles/project-dev/documentation-specialist/GUIDANCE.md"), validRoleGuidanceMarkdown(), "utf8");
+  git(["add", "."], source); git(["commit", "-m", "add role"], source);
+
+  await withProject(async (projectPath) => {
+    assert.equal(run(["workflow", "install", source, "fixture"]).exitCode, 0);
+    const lockPath = join(projectPath, "aix.lock.json");
+    const lockfile = JSON.parse(readFileSync(lockPath, "utf8"));
+    const role = lockfile.roles.find((entry) => entry.kind === "role");
+    assert.ok(role);
+    delete role.owner;
+    writeFileSync(lockPath, JSON.stringify(lockfile, null, 2) + "\n", "utf8");
+    const result = run(["update", "--force"]);
+    assert.equal(result.exitCode, 2);
+    assert.match(`${result.stdout || ""}${result.stderr || ""}`, /Active role name collision/);
+    assert.equal(readdirSync(projectPath).filter((name) => name.startsWith("aix_bak_")).length, 1);
+  });
+});
 
 test("run workflow install installs docs, managed AGENTS block, and workflow-owned skills", async () => {
   const source = await createWorkflowRepo("aix-workflow-source-");

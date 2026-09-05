@@ -298,6 +298,7 @@ test("incomplete and interrupted journals refuse rerun without touching PM works
     assert.equal(readFileSync(join(root, ".aix/pm/active-delegation.json"), "utf8"), "active-delegation\n");
     assert.equal(isCompleteForceBackup(incomplete), false);
     assert.equal(backups(root).length, 2);
+    assert.equal(existsSync(join(root, ".aix/force-update.lock")), false);
   });
 });
 
