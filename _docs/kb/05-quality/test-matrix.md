@@ -215,6 +215,27 @@ Targeted check:
 node --test tests/templates.test.mjs
 ```
 
+## Force Update And Migration
+
+`tests/force-update-inventory.test.mjs` covers declared backup scope,
+completion metadata, deterministic names and collision suffixes, permissions,
+symlink/dangling-link non-traversal, hardlink and special-file refusal, source
+mutation detection, and tamper/path rejection. `tests/force-update.test.mjs`
+covers explicit force versus plain-update drift behavior, backup-before-write,
+PM and foreign-content preservation, the legacy 0.4 flat-role fixture, audit
+categories and retention, unmanaged marker collisions, malformed/path-invalid
+state, interrupted transactions, injected failure stages, and successful
+post-update `aix verify`.
+
+Targeted checks:
+
+```bash
+node --test tests/force-update-inventory.test.mjs tests/force-update.test.mjs
+```
+
+Phase 4 still requires broader fixture and package/release checks before
+external-project validation; that validation is reserved for Phase 5.
+
 ## Status And Verify
 
 Tests in `tests/status.test.mjs` and `tests/verify.test.mjs` cover

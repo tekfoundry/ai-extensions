@@ -153,6 +153,22 @@ operationally safer path is to regenerate the artifact from the intended tag,
 replace the asset and checksum together, and record what changed in the release
 notes.
 
+## Force Update Recovery Runbook
+
+For an intentionally out-of-sync workspace, run `aix update --force`. Before
+replacement it creates a completed root-level `aix_bak_YYYY_MM_DD_hh_mm_ss`
+backup. On success, inspect the printed three-way audit and keep the backup
+until any user edits are recovered; interactive deletion requires explicit
+confirmation. On failure, do not retry while the transaction journal reports an
+interrupted run: preserve the reported backup, inspect its inventory and the
+failure stage, then resolve the cause before a separately reviewed retry.
+Non-interactive runs always retain the backup. Confirm success with `aix verify`.
+The backup excludes `.aix/pm` from mutation, while backing up (without granting
+overwrite authority to) `.claude/` and `.codex/` compatibility content.
+
+Force recovery is distinct from release validation. It must be tested against
+repository fixtures before any Phase 5 published-artifact validation.
+
 ## Incident And Recovery Notes
 
 If an interrupted workflow execution leaves half-finished files:

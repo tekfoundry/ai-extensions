@@ -41,7 +41,8 @@ export function extensionAppendDefinition(
 
 export function preflightAppendDefinitions(
   previousLockfile: LockfileWithAppendBlocks,
-  definitions: Array<AppendBlockDefinition | undefined>
+  definitions: Array<AppendBlockDefinition | undefined>,
+  options: { allowModified?: boolean } = {}
 ): void {
   const previousBlocks = lockfileAppendBlocks(previousLockfile);
 
@@ -52,7 +53,7 @@ export function preflightAppendDefinitions(
 
     const previousBlock = previousBlocks.find((block) => block.marker === definition.marker);
 
-    assertManagedAppendBlockSafe(definition, previousBlock);
+    assertManagedAppendBlockSafe(definition, previousBlock, options);
   }
 }
 
@@ -65,11 +66,13 @@ export function lockfileBlockForDefinition(
 export function writeExtensionAppendBlocks(
   previousLockfile: LockfileWithAppendBlocks,
   nextLockfile: LockfileWithAppendBlocks,
-  definitions: AppendBlockDefinition[]
+  definitions: AppendBlockDefinition[],
+  options: { allowModified?: boolean } = {}
 ): void {
   writeAppendLifecycleBlocks(
     lockfileAppendBlocks(previousLockfile),
     lockfileAppendBlocks(nextLockfile),
-    definitions
+    definitions,
+    options
   );
 }

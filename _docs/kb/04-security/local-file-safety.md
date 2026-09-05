@@ -112,6 +112,23 @@ rename. Temporary files are created with mode `0644`. Atomic rename reduces the
 risk of partially written JSON, but it is not a concurrency lock; concurrent
 `aix` processes are not a supported coordination model.
 
+## Force Update Safety
+
+`aix update --force` is the only force-enabled update command. It creates a
+completed backup before replacement and validates manifest/lockfile paths,
+canonical boundaries, symlinks, hardlinks, special files, and transaction
+state. Replacement bypasses drift checks only for files proven AIX-managed by
+lockfile/package-store ownership. Unlisted, ambiguous, project-owned, and
+foreign compatibility content is preserved; no audit finding is merged
+automatically. The backup is retained on failure and without a TTY, and
+interactive deletion requires explicit operator approval.
+
+The backup scope includes `.agents/`, `.claude/`, `.codex/`, `aix.json`,
+`aix.lock.json`, and `AGENTS.md`; `.aix/pm` is outside the mutation scope.
+Backup directories use restrictive permissions and completion metadata. A
+transaction lock/journal prevents concurrent or interrupted force updates from
+silently starting another rebuild.
+
 ## Verification Evidence
 
 Security-sensitive refusal behavior is covered by tests for:
@@ -129,6 +146,8 @@ Security-sensitive refusal behavior is covered by tests for:
 - guidance publish overwrite refusal
 - guidance reset preserving unrelated files
 - source removal blocked by manifest, lockfile, or non-empty package dirs
+- force-update backup inventory, path traversal, symlink, hardlink, special-file,
+  tamper, interrupted-transaction, ownership, and preservation checks
 
 ## Known Residual Risk
 

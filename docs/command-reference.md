@@ -16,7 +16,27 @@ aix update
 
 `init` initializes package-management state and the default standalone skill.
 `status` reports workspace state. `verify` checks managed content. `update`
-updates the active workflow and locked standalone skills.
+updates the active workflow and locked standalone skills. Use `aix update --force`
+only when an intentional backup-and-rebuild is needed.
+
+## Forced update and recovery
+
+```bash
+aix update --force
+```
+
+Force update creates a timestamped `aix_bak_YYYY_MM_DD_hh_mm_ss` backup in the
+project root before rebuilding the AIX-managed installation through the normal
+workflow, skill, and role update paths. It preserves `.aix/pm`, project-owned
+files, and foreign `.claude/`/`.codex/` content. After verification it prints a
+non-mutating audit of edited, upstream-only, legacy-only, ambiguous, and
+collision findings. Non-interactive runs retain the backup; interactive runs
+ask whether to delete it (default: keep). Failed or interrupted runs retain the
+backup and report the failing stage and exact recovery path. Review the backup
+before manually recovering edits; force does not merge content automatically.
+
+Do not use force as a substitute for `aix verify` or routine `aix update`.
+Plain update remains the protected path and stops on unexpected local drift.
 
 ## Workflows
 

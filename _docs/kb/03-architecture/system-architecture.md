@@ -84,6 +84,9 @@ domain module
 - `src/status/`: read-only aggregation across manifest, lockfile,
   verification, diff/update status, active workflow, skills, roles, and
   sources.
+- `src/force-update/`: backup inventory and validation, staged force-update
+  coordination, transaction journaling, three-way audit, and guarded backup
+  deletion.
 - `src/fs/`, `src/paths/`, `src/ui/`, and `src/validation/`: shared
   filesystem, path, terminal output, selection prompt, and type guard
   primitives.
@@ -165,6 +168,9 @@ _docs/
   the exact resolved state before considering work complete.
 - Local `./aix/...` sources take precedence for supported bundled workflow,
   skill, and role paths when the local path exists.
+- Force update creates a validated root backup before replacement, delegates
+  rebuilding to ordinary update primitives, verifies the rebuilt installation,
+  and retains recovery data until explicit cleanup.
 
 ## Extension Points
 

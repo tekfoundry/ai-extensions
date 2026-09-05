@@ -119,7 +119,8 @@ through that role before specialist roles, lifecycle skills, or file work.
 - Show copy/pasteable commands when discovery or listing asks a developer to
   take the next step.
 - Fail before overwriting local edits or removing drifted package-managed
-  files.
+  files; use the explicit `aix update --force` recovery flow when a clean
+  rebuild is intentionally approved.
 
 ## Product Acceptance Signals
 
@@ -133,3 +134,6 @@ through that role before specialist roles, lifecycle skills, or file work.
   without silently overwriting local edits.
 - Default workflow documentation routes current implemented knowledge to
   `_docs/kb`.
+- Force recovery preserves the prior installation in a timestamped backup,
+  reports changes for manual recovery, verifies the rebuilt installation, and
+  defaults to retaining the backup.

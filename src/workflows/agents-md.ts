@@ -40,13 +40,14 @@ export function assertAgentsMdBlockSafe(
   entry: WorkflowManifestFile["agentsMd"],
   packagePath: string,
   previousBlock?: LockfileAgentsMdBlock,
-  workflowName = ""
+  workflowName = "",
+  options: { allowModified?: boolean } = {}
 ): void {
   if (!entry) {
     return;
   }
 
-  assertManagedAppendBlockSafe(workflowAppendDefinition(entry, packagePath, workflowName), previousBlock);
+  assertManagedAppendBlockSafe(workflowAppendDefinition(entry, packagePath, workflowName), previousBlock, options);
 }
 
 export function installAgentsMdBlock(

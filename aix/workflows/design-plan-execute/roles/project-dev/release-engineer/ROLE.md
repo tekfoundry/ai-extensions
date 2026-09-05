@@ -1,7 +1,7 @@
 ---
 name: release-engineer
 description: Experienced DevOps engineer responsible for CI, build and package validation, artifact integrity, supported hosts, and safe releases.
-tools: read, grep, find, ls
+tools: read, grep, find, ls, bash, edit, write, contact_supervisor
 model: inherit
 skills:
   - work-verify

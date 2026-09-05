@@ -79,10 +79,15 @@ Bundled workflow and skill requirements are organized separately:
   found.
 
 - As a project developer, I can run `aix update` so that workflow, locked
-  skills, and locked roles refresh as one convenience operation.
+  skills, and locked roles refresh as one convenience operation. I can run
+  `aix update --force` when intentional recovery is needed.
   Acceptance signals: workflow update runs before skill update, skill update
   runs before role update, failures stop later update groups, and the command
-  reports missing available AIX skills after successful updates.
+  reports missing available AIX skills after successful updates. Force update
+  creates and validates a backup before replacement, rebuilds through the
+  ordinary update path, preserves project-owned and foreign content, passes
+  verification before success, reports a three-way recovery audit, and retains
+  the backup after failures or non-interactive runs.
 
 ### Team Maintainer
 
@@ -404,7 +409,9 @@ Bundled workflow and skill requirements are organized separately:
 - No host-native agent directory export unless a future explicit integration
   owns it.
 - No global install state inside a consuming project.
-- No silent overwrite or removal of local edits.
+- No silent overwrite or removal of local edits; force update is the explicit
+  backup-first exception for proven AIX-managed replacement targets and never
+  automatically merges detected changes.
 - No routine rewriting of project-owned docs during workflow update.
 - No support for multiple active workflows in one project.
 - No compatibility aliases for old verb-first commands.

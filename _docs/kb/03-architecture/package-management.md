@@ -182,6 +182,27 @@ Drift checks apply to:
 not equal the source bytes. Hash comparison then records accepted state after
 the copy.
 
+## Force Update Architecture
+
+`aix update --force` is an explicit workspace coordinator implemented in
+`src/force-update/coordinator.ts`. It acquires a project-local transaction
+reservation, validates the prior manifest and lockfile paths, creates and
+validates a completed backup, then composes `updateWorkflow`, `updateSkills`,
+and `updateRoles` with force-scoped drift reconciliation. Cleanup is limited
+to proven stale package-store directories; the resulting state is verified
+before the audit is generated.
+
+The backup inventory is implemented in `src/force-update/inventory.ts` and
+covers `.agents/`, `.claude/`, `.codex/`, `aix.json`, `aix.lock.json`, and
+`AGENTS.md`, excluding `.aix/pm`. It records file hashes, modes, symlink
+metadata, and completion metadata. `src/force-update/audit.ts` compares the
+old lockfile baseline, backed-up files, and rebuilt files without merging.
+
+Force update writes a transaction journal under `.aix/` and refuses an
+interrupted transaction with a completed backup. It retains the backup after
+failure and in non-interactive mode; interactive cleanup requires an explicit
+operator choice. The normal `aix update` path remains drift-protected.
+
 ## Failure Modes
 
 - Missing manifest: workspace commands that need user intent report an

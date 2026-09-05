@@ -85,6 +85,15 @@ runtime hint only. It validates metadata shape but does not automatically
 install referenced skills, which prevents role activation from silently
 expanding the active skill set.
 
+## Force Update Trust Boundary
+
+Force update does not make package sources trusted. It preserves the prior
+installation for review, resolves and installs current configured sources via
+the normal update path, and reports provenance and hashes through the backup
+and lockfile. It does not merge instructions or bypass ownership checks for
+ambiguous paths, unmanaged `AGENTS.md` blocks, project-owned files, or foreign
+`.claude/` and `.codex/` content.
+
 ## Current Non-Goals
 
 - No package registry trust model.

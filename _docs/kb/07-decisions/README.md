@@ -13,6 +13,8 @@ discipline. The documentation specialist owns cross-links and placement.
   project-owned overrides, and deferred default routing.
 - [Product ownership and Boss authority](product-ownership-and-boss-authority.md):
   the default workflow's product/release boundaries and human decision model.
+- [Forced update recovery](forced-update-recovery.md): backup-first force update,
+  ownership boundaries, audit, and retention semantics.
 
 Add new records here when a decision needs to explain an accepted current
 tradeoff across product, requirements, architecture, security, quality, or

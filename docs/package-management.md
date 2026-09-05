@@ -151,6 +151,31 @@ Use `aix workflow uninstall --confirm-pm-data` only when you intend to remove
 those workflow-associated runtime datasets. See [PM runtime](pm-runtime.md)
 for the cleanup and confirmation rules.
 
+### Recovering from layout drift
+
+When a project has incompatible legacy layout, ownership, or lockfile state,
+use the explicit force path:
+
+```bash
+aix update --force
+```
+
+This first creates a completed, timestamped `aix_bak_YYYY_MM_DD_hh_mm_ss`
+directory at the project root containing `.agents/`, `.claude/`, `.codex/`,
+`aix.json`, `aix.lock.json`, and `AGENTS.md`. It then performs a clean rebuild
+through the ordinary update primitives and runs verification. `.aix/pm`,
+project-owned docs, unrelated `AGENTS.md` text, and foreign compatibility
+content are not overwritten. Proven stale package-store directories may be
+cleaned; legacy active files, unlisted files, and ambiguous content are
+preserved for recovery.
+
+The command prints an audit comparing the old lockfile baseline, backup, and
+new installation. It never automatically merges edits. In a TTY it asks
+whether to delete the backup, defaulting to keep; without a TTY, or after a
+failure, the backup is retained and its exact path is printed. Inspect and
+recover useful edits from that path before deleting it. Use plain `aix update`
+for routine protected updates, and `aix verify` to confirm the resulting state.
+
 ## Guidance and templates
 
 Workflow guidance stays with the installed workflow until a project publishes

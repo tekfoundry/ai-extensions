@@ -171,7 +171,14 @@ test("bundled roles declare Pi-compatible child tool names", () => {
 
   for (const rolePath of rolePaths) {
     const role = parseRoleFileFromPath(rolePath);
-    assert.match(role.hints.tools, /^(read, grep, find, ls|read, grep, find, ls, bash)$/u, rolePath);
+    const expectedTools = rolePath.includes("aix/workflows/design-plan-execute/roles/project-dev/")
+      ? "read, grep, find, ls, bash, edit, write, contact_supervisor"
+      : undefined;
+    if (expectedTools) {
+      assert.equal(role.hints.tools, expectedTools, rolePath);
+    } else {
+      assert.match(role.hints.tools, /^(read, grep, find, ls|read, grep, find, ls, bash)$/u, rolePath);
+    }
   }
 });
 

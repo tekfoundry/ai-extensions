@@ -10,6 +10,14 @@ import { run, runInteractive } from "../dist/cli.js";
 
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 
+test("update help documents force mode", () => {
+  const result = run(["update", "--help"]);
+
+  assert.equal(result.exitCode, 0);
+  assert.match(result.stdout, /Usage: aix update \[--force\]/);
+  assert.match(result.stdout, /backs up the AIX installation/);
+});
+
 test("run renders a splash screen with a zero exit code", () => {
   const result = run([]);
 

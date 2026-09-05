@@ -2,6 +2,14 @@
 
 ## Current Known Gaps
 
+Force-update implementation coverage includes the legacy 0.4 migration,
+user-owned and compatibility content, interrupted/concurrent refusal paths,
+PM/workspace safety, and package-smoke checks. Documentation links and force
+update command examples are checked against the current docs and CLI help.
+Supported-platform manual validation and external project validation using a
+published artifact remain explicitly deferred to Phase 5 and must not be
+inferred from local tests.
+
 - No persistent coverage report or threshold is configured.
 - Real remote Git network behavior is represented mostly by temporary local Git
   repositories.

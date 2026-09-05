@@ -491,9 +491,7 @@ export function updateRoles(target?: string, cacheRoot = defaultCacheRoot(), opt
   );
   const appendDefinitions: AppendBlockDefinition[] = [];
 
-  if (!options.reconcileProtected) {
-    preflightAppendDefinitions(previousLockfile, sourceAppendDefinitions);
-  }
+  preflightAppendDefinitions(previousLockfile, sourceAppendDefinitions, { allowModified: options.reconcileProtected });
 
   lockfile.roles = (lockfile.roles || []).map((entry) => {
     const plan = plansByKey.get(roleEntryKey(entry));
@@ -538,7 +536,7 @@ export function updateRoles(target?: string, cacheRoot = defaultCacheRoot(), opt
     return updatedEntry;
   });
 
-  writeExtensionAppendBlocks(previousLockfile, lockfile, appendDefinitions);
+  writeExtensionAppendBlocks(previousLockfile, lockfile, appendDefinitions, { allowModified: options.reconcileProtected });
   writeJsonObjectAtomic(LOCKFILE_FILE_NAME, lockfile);
 
   return {

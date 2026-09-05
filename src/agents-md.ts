@@ -172,7 +172,8 @@ function normalizeDocumentWithBlocks(prefix: string, blocks: string[]): string {
 
 function normalizedKnownBlocks(
   contents: string,
-  knownBlocks: Array<Pick<LockfileAgentsMdBlock, "marker"> & Partial<Pick<LockfileAgentsMdBlock, "installedSha256">>>
+  knownBlocks: Array<Pick<LockfileAgentsMdBlock, "marker"> & Partial<Pick<LockfileAgentsMdBlock, "installedSha256">>>,
+  options: { allowModified?: boolean } = {}
 ): ManagedAppendBlockWithHash[] {
   const normalized: ManagedAppendBlockWithHash[] = [];
 
@@ -189,7 +190,7 @@ function normalizedKnownBlocks(
     }
 
     const sha256 = hashBuffer(firstBlock);
-    if (knownBlock.installedSha256 && sha256 !== knownBlock.installedSha256) {
+    if (knownBlock.installedSha256 && sha256 !== knownBlock.installedSha256 && !options.allowModified) {
       throw new AixError(`Refusing to manage modified ${matches[0].ownerKind} block in AGENTS.md.`);
     }
 
@@ -298,7 +299,8 @@ export function composeAppendLifecycleBlocks(
   contents: string,
   previousBlocks: LockfileAgentsMdBlock[],
   nextBlocks: LockfileAgentsMdBlock[],
-  definitions: AppendBlockDefinition[]
+  definitions: AppendBlockDefinition[],
+  options: { allowModified?: boolean } = {}
 ): string {
   const definitionMarkers = new Set(definitions.map((definition) => definition.marker));
   const definitionBlocks = definitions.map(lockfileAppendBlock);
@@ -307,7 +309,7 @@ export function composeAppendLifecycleBlocks(
     ...definitionBlocks
   ];
   const knownBlocks = uniqueLockfileBlocks([...previousBlocks, ...nextBlocks, ...definitionBlocks]);
-  const parsed = normalizedKnownBlocks(contents, knownBlocks);
+  const parsed = normalizedKnownBlocks(contents, knownBlocks, options);
   const userOwnedContents = removeKnownBlockRanges(contents, parsed);
   const existingBlocksByMarker = new Map(parsed.map((block) => [block.marker, block.block]));
   const renderedBlocks = outputBlocks
@@ -335,7 +337,8 @@ export function composeAppendLifecycleBlocks(
 export function writeAppendLifecycleBlocks(
   previousBlocks: LockfileAgentsMdBlock[],
   nextBlocks: LockfileAgentsMdBlock[],
-  definitions: AppendBlockDefinition[]
+  definitions: AppendBlockDefinition[],
+  options: { allowModified?: boolean } = {}
 ): void {
   if (previousBlocks.length === 0 && nextBlocks.length === 0 && definitions.length === 0) {
     return;
@@ -343,7 +346,7 @@ export function writeAppendLifecycleBlocks(
 
   const targetPath = definitions[0]?.targetPath || nextBlocks[0]?.path || previousBlocks[0]?.path || "AGENTS.md";
   const existing = existsSync(targetPath) ? readFileSync(targetPath, "utf8") : "";
-  const updated = composeAppendLifecycleBlocks(existing, previousBlocks, nextBlocks, definitions);
+  const updated = composeAppendLifecycleBlocks(existing, previousBlocks, nextBlocks, definitions, options);
 
   writeFileSync(targetPath, updated, "utf8");
 }
@@ -373,7 +376,8 @@ export function lockfileAppendBlock(definition: AppendBlockDefinition): Lockfile
 
 export function assertManagedAppendBlockSafe(
   definition: AppendBlockDefinition | undefined,
-  previousBlock?: LockfileAgentsMdBlock
+  previousBlock?: LockfileAgentsMdBlock,
+  options: { allowModified?: boolean } = {}
 ): void {
   if (!definition) {
     return;
@@ -383,7 +387,7 @@ export function assertManagedAppendBlockSafe(
   const existing = existsSync(targetPath) ? readFileSync(targetPath, "utf8") : "";
   const found = findManagedAppendBlock(existing, definition.marker);
 
-  if (found && previousBlock && hashBuffer(found.block) !== previousBlock.installedSha256) {
+  if (found && previousBlock && hashBuffer(found.block) !== previousBlock.installedSha256 && !options.allowModified) {
     throw new AixError(`Refusing to update modified ${definition.owner.kind} block in ${targetPath}.`);
   }
 

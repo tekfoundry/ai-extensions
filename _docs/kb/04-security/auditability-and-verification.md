@@ -74,6 +74,15 @@ Diff surfaces include:
 - active workflow package
 - published workflow templates
 
+## Force Update Audit Evidence
+
+A successful `aix update --force` verifies the rebuilt installation before
+producing a schema-versioned audit. The audit compares the backed-up content,
+old lockfile hashes, and new installation and classifies `user-edited`,
+`upstream-only`, `legacy-only`, `ambiguous`, and `collision` findings with
+exact backup paths. It is non-mutating and does not treat manifest-only paths as
+delete authority. Failed and non-interactive runs retain the completed backup.
+
 ## Security-Sensitive Test Evidence
 
 The test suite covers security-sensitive failure paths across:
@@ -88,6 +97,8 @@ The test suite covers security-sensitive failure paths across:
 - template reset scoping
 - workflow uninstall preserving project-owned `AGENTS.md` text
 - verify/status drift reporting
+- force-update backup integrity, failure retention, audit classification, and
+  post-rebuild verification
 
 Broad regression evidence comes from `npm test`. Build integrity comes from
 `npm run build`. Project installation integrity comes from `node bin/aix.js

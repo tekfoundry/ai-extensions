@@ -72,7 +72,7 @@ function localSkillSourcePath(entry: LockfileSkillEntry): string {
   return sourcePath;
 }
 
-export function updateSkills(target?: string, cacheRoot = defaultCacheRoot()): UpdateSkillsResult {
+export function updateSkills(target?: string, cacheRoot = defaultCacheRoot(), options: { reconcileProtected?: boolean } = {}): UpdateSkillsResult {
   const manifestJson = readJsonObject(MANIFEST_FILE_NAME);
   parseManifest(manifestJson);
 
@@ -100,8 +100,10 @@ export function updateSkills(target?: string, cacheRoot = defaultCacheRoot()): U
   }
 
   for (const entry of entriesToUpdate) {
-    assertNoLocalDrift(entry);
-    assertInstalledAppendBlockUnmodified(entry.agentsMd);
+    if (!options.reconcileProtected) {
+      assertNoLocalDrift(entry);
+      assertInstalledAppendBlockUnmodified(entry.agentsMd);
+    }
   }
 
   const gitEntries = entriesToUpdate.filter((entry) => entry.sourceType !== "local");
@@ -153,7 +155,7 @@ export function updateSkills(target?: string, cacheRoot = defaultCacheRoot()): U
   );
   const appendDefinitions: AppendBlockDefinition[] = [];
 
-  preflightAppendDefinitions(previousLockfile, sourceAppendDefinitions);
+  preflightAppendDefinitions(previousLockfile, sourceAppendDefinitions, { allowModified: options.reconcileProtected });
 
   lockfile.skills = lockfile.skills.map((entry) => {
     const updatePlan = updatePlansByKey.get(entryKey(entry));
@@ -199,7 +201,7 @@ export function updateSkills(target?: string, cacheRoot = defaultCacheRoot()): U
     };
   });
 
-  writeExtensionAppendBlocks(previousLockfile, lockfile, appendDefinitions);
+  writeExtensionAppendBlocks(previousLockfile, lockfile, appendDefinitions, { allowModified: options.reconcileProtected });
   writeJsonObjectAtomic(LOCKFILE_FILE_NAME, lockfile);
 
   return {

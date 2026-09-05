@@ -73,8 +73,12 @@ function preflightWorkflowInstall(
 
   if (!reconcileProtected) {
     assertWorkflowDocsSafe(workflow, stagedPackagePath, existingWorkflow);
-    assertAgentsMdBlockSafe(workflow.agentsMd, stagedPackagePath, existingWorkflow?.agentsMd, workflow.name);
   }
+  // Force reconciliation may replace a modified AIX-owned block, but it must
+  // still refuse a same-marker block that is not owned by the prior lockfile.
+  assertAgentsMdBlockSafe(workflow.agentsMd, stagedPackagePath, existingWorkflow?.agentsMd, workflow.name, {
+    allowModified: reconcileProtected
+  });
   assertWorkflowSkillsSafe(workflow, source, stagedPackagePath, finalPackagePath, lockfile);
   assertWorkflowRolesSafe(workflow, source, stagedPackagePath, finalPackagePath, lockfile, { reconcileProtected });
   validateWorkflowGuidance(discoverWorkflowGuidance(workflow, stagedPackagePath));
@@ -221,8 +225,8 @@ export function installResolvedWorkflow(
       ...roleEntries.map((role) => extensionAppendDefinition("role", role.activeName, role.source, role.sourcePath, role.packagePath))
     ].filter((definition): definition is AppendBlockDefinition => definition !== undefined);
 
-    preflightAppendDefinitions(previousLockfile, appendDefinitions);
-    writeExtensionAppendBlocks(previousLockfile, lockfile, appendDefinitions);
+    preflightAppendDefinitions(previousLockfile, appendDefinitions, { allowModified: options.reconcileProtected });
+    writeExtensionAppendBlocks(previousLockfile, lockfile, appendDefinitions, { allowModified: options.reconcileProtected });
 
     return {
       name: workflow.name,
