@@ -1,0 +1,32 @@
+{
+  "lockfileVersion": 1,
+  "skills": [],
+  "roles": [
+    {
+      "kind": "role",
+      "source": "fixture",
+      "sourceType": "git",
+      "sourcePath": "roles/project-dev/documentation-specialist.md",
+      "packagePath": ".agents/packages/roles/fixture/roles/project-dev/documentation-specialist.md",
+      "activationPath": ".agents/roles/documentation-specialist.md",
+      "originalName": "documentation-specialist",
+      "activeName": "documentation-specialist",
+      "requested": false,
+      "owner": { "kind": "workflow", "name": "fixture-workflow" },
+      "packageFiles": [],
+      "activeFiles": []
+    }
+  ],
+  "workflows": [
+    {
+      "kind": "workflow",
+      "source": "fixture",
+      "sourceType": "git",
+      "sourcePath": "fixture-workflow",
+      "packagePath": ".agents/packages/workflows/fixture/fixture-workflow",
+      "name": "fixture-workflow",
+      "roles": [{ "sourcePath": "roles/project-dev/documentation-specialist.md", "activeName": "documentation-specialist" }],
+      "packageFiles": []
+    }
+  ]
+}

@@ -146,6 +146,62 @@ test("force audit reports edited content with stable categories and retains back
   });
 });
 
+test("legacy flat-role fixture force-updates by logical ownership into ROLE.md/GUIDANCE.md layout", async () => {
+  const fixture = join(process.cwd(), "tests/fixtures/legacy-flat-role-migration");
+  const sourceRoot = await mkdtemp(join(tmpdir(), "aix-flat-role-source-"));
+  cpSync(join(fixture, ".agents/packages/workflows/fixture-workflow"), sourceRoot, { recursive: true });
+  mkdirSync(join(sourceRoot, "templates"), { recursive: true });
+  mkdirSync(join(sourceRoot, "skills"), { recursive: true });
+  writeFileSync(join(sourceRoot, "templates/plan.md"), "# Plan\\n");
+  writeFileSync(join(sourceRoot, "workflow.json"), JSON.stringify({ name: "fixture-workflow", docs: [], templatesDir: "templates", skillsDir: "skills" }, null, 2));
+  git(["init", "-b", "main"], sourceRoot); git(["add", "."], sourceRoot); git(["commit", "-m", "fixture"], sourceRoot);
+
+  await project(async (root) => {
+    const workflowInstall = run(["workflow", "install", sourceRoot, "fixture"]);
+    assert.equal(workflowInstall.exitCode, 0, workflowInstall.stderr);
+    const generatedManifest = JSON.parse(readFileSync("aix.json", "utf8"));
+    const generatedLockfile = JSON.parse(readFileSync("aix.lock.json", "utf8"));
+    rmSync(join(root, ".agents/roles/documentation-specialist"), { recursive: true, force: true });
+    cpSync(join(fixture, ".agents/roles"), join(root, ".agents/roles"), { recursive: true });
+    cpSync(join(fixture, ".agents/packages/roles"), join(root, ".agents/packages/roles"), { recursive: true });
+    cpSync(join(fixture, ".agents/packages/workflows"), join(root, ".agents/packages/workflows"), { recursive: true });
+    const legacyManifest = JSON.parse(readFileSync(join(fixture, "aix.json"), "utf8"));
+    const legacyLockfile = JSON.parse(readFileSync(join(fixture, "aix.lock.json"), "utf8"));
+    // Keep the current manifest schema so validation reaches the lockfile-owned
+    // legacy paths; the fixture's older roles array is asserted above as history.
+    writeFileSync(join(root, "aix.json"), JSON.stringify(generatedManifest, null, 2) + "\n");
+    writeFileSync(join(root, "aix.lock.json"), JSON.stringify({ ...generatedLockfile, roles: legacyLockfile.roles, workflows: [{ ...generatedLockfile.workflows[0], roles: legacyLockfile.workflows[0].roles }] }, null, 2) + "\n");
+    mkdirSync(join(root, ".agents/roles"), { recursive: true });
+    writeFileSync(join(root, ".agents/roles/user-owned.md"), "Project-owned role; never replace.\\n");
+    const oldActive = join(root, ".agents/roles/documentation-specialist.md");
+    const oldPackage = join(root, ".agents/packages/roles/fixture/roles/project-dev/documentation-specialist.md");
+    const result = run(["update", "--force"]);
+    assert.equal(result.exitCode, 0, JSON.stringify(result));
+    assert.match(result.stdout, /Force update completed/);
+    assert.match(result.stdout, /audit/i);
+    assert.equal(existsSync(oldActive), false);
+    assert.equal(existsSync(oldPackage), false);
+    const currentPackage = join(root, ".agents/packages/workflows/fixture/fixture-workflow/roles/project-dev/documentation-specialist");
+    const currentActive = join(root, ".agents/roles/documentation-specialist");
+    assert.equal(readFileSync(join(currentPackage, "ROLE.md"), "utf8"), readFileSync(join(fixture, ".agents/packages/workflows/fixture-workflow/roles/project-dev/documentation-specialist/ROLE.md"), "utf8"));
+    assert.equal(readFileSync(join(currentPackage, "GUIDANCE.md"), "utf8"), readFileSync(join(fixture, ".agents/packages/workflows/fixture-workflow/roles/project-dev/documentation-specialist/GUIDANCE.md"), "utf8"));
+    assert.equal(readFileSync(join(currentActive, "ROLE.md"), "utf8"), readFileSync(join(currentPackage, "ROLE.md"), "utf8"));
+    assert.equal(readFileSync(join(currentActive, "GUIDANCE.md"), "utf8"), readFileSync(join(currentPackage, "GUIDANCE.md"), "utf8"));
+    const rebuiltLockfile = JSON.parse(readFileSync(join(root, "aix.lock.json"), "utf8"));
+    const rebuiltRole = rebuiltLockfile.roles.find((role) => role.activeName === "documentation-specialist");
+    assert.deepEqual(rebuiltRole.owner, { kind: "workflow", name: "fixture-workflow" });
+    assert.equal(rebuiltRole.sourcePath, "roles/project-dev/documentation-specialist");
+    assert.equal(rebuiltRole.packagePath, ".agents/packages/workflows/fixture/fixture-workflow/roles/project-dev/documentation-specialist");
+    assert.equal(readFileSync(join(root, ".agents/roles/user-owned.md"), "utf8"), "Project-owned role; never replace.\\n");
+    const backup = join(root, backups(root)[0]);
+    assert.equal(isCompleteForceBackup(backup), true);
+    assert.equal(readFileSync(join(backup, ".agents/roles/documentation-specialist.md"), "utf8"), readFileSync(join(fixture, ".agents/roles/documentation-specialist.md"), "utf8"));
+    assert.equal(readFileSync(join(backup, ".agents/packages/roles/fixture/roles/project-dev/documentation-specialist.md"), "utf8"), readFileSync(join(fixture, ".agents/packages/roles/fixture/roles/project-dev/documentation-specialist.md"), "utf8"));
+    assert.match(result.stdout, /legacy-only|user-edited/i);
+    assert.equal(run(["verify"]).exitCode, 0);
+  });
+});
+
 test("0.4 legacy fixture migrates to the verified current installation", async () => {
   const fixture = join(process.cwd(), "tests/fixtures/legacy-0.4");
   const legacyManifest = JSON.parse(readFileSync(join(fixture, "aix.json"), "utf8"));
@@ -305,11 +361,13 @@ test("incomplete and interrupted journals refuse rerun without touching PM works
 test("isolated rebuild failures name the failing stage and retain the backup", async () => {
   for (const stage of ["workflow", "skills", "roles", "persist", "cleanup", "verify"]) {
     await project(async (root) => {
+      const before = Object.fromEntries(["aix.json", "aix.lock.json", "AGENTS.md", ".agents/packages/skills/fixture/skills/demo/notes.md"].filter((path) => existsSync(join(root, path))).map((path) => [path, readFileSync(join(root, path), "utf8")]));
       const previousCwd = process.cwd();
       process.chdir(root);
       const result = forceUpdateWorkspace({ force: true, projectRoot: ".", failureInjection: stage });
       process.chdir(previousCwd);
       assert.equal(result.state, "failed");
+      for (const [path, contents] of Object.entries(before)) assert.equal(readFileSync(join(root, path), "utf8"), contents, `rollback changed ${path}`);
       assert.equal(result.failure.stage, stage, result.failure.message);
       assert.match(result.failure.message, new RegExp(`Injected force-update failure at ${stage} stage`));
       assert.equal(backups(root).length, 1);

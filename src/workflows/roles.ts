@@ -47,11 +47,38 @@ function hasBundledProductOwner(workflow: WorkflowManifestFile, sourcePackagePat
   return workflowRolePlans(sourcePackagePath).some((plan) => plan.activeName === "product-owner");
 }
 
-function legacyRoleFor(plan: WorkflowRolePlan, previousRoles: LockfileRoleEntry[]): LockfileRoleEntry | undefined {
+/**
+ * Find the one prior lockfile entry that represents this logical workflow role.
+ * Physical source/package paths changed between workflow generations (flat
+ * `foo.md` and directory `foo/ROLE.md`), so paths are only used as evidence,
+ * never as identity.  Every ownership/provenance field remains an independent
+ * guard and duplicate candidates are rejected by the caller.
+ */
+function logicalRoleMigration(plan: WorkflowRolePlan, previousRoles: LockfileRoleEntry[], workflowName: string, workflowSource: string): LockfileRoleEntry | undefined {
+  const candidates = previousRoles.filter((role) => {
+    const priorLogicalName = role.originalName || role.activeName || role.sourcePath.split("/").at(-1)?.replace(/\.md$/, "");
+    return role.owner?.kind === "workflow" && role.owner.name === workflowName &&
+      role.source === workflowSource && role.activeName === plan.activeName &&
+      priorLogicalName === plan.originalName &&
+      // Alias is intentionally checked separately from the logical/original
+      // identity: a legacy alias may not be silently adopted by a new role.
+      (role.alias || role.originalName) === plan.originalName &&
+      (role.activationPath === plan.activationPath || role.activationPath === `${plan.activationPath}.md`);
+  });
+  if (candidates.length > 1) {
+    throw new AixError(`Ambiguous workflow role migration for ${plan.activeName}`);
+  }
+  return candidates[0];
+}
+
+function legacyRoleFor(plan: WorkflowRolePlan, previousRoles: LockfileRoleEntry[], workflowName?: string, workflowSource?: string): LockfileRoleEntry | undefined {
   const legacySourcePath = Object.entries(LEGACY_ROLE_RENAMES).find(([, next]) => next === plan.sourcePath)?.[0];
-  return legacySourcePath
-    ? previousRoles.find((role) => role.sourcePath === legacySourcePath && role.owner?.kind === "workflow")
-    : undefined;
+  if (legacySourcePath) {
+    const explicit = previousRoles.filter((role) => role.sourcePath === legacySourcePath && role.source === workflowSource && role.owner?.kind === "workflow" && role.owner.name === workflowName);
+    if (explicit.length > 1) throw new AixError(`Ambiguous workflow role migration for ${plan.activeName}`);
+    if (explicit[0]) return explicit[0];
+  }
+  return workflowName && workflowSource ? logicalRoleMigration(plan, previousRoles, workflowName, workflowSource) : undefined;
 }
 
 function workflowRolePlans(sourcePackagePath: string): WorkflowRolePlan[] {
@@ -99,8 +126,9 @@ function assertNoWorkflowRoleCollision(
     existing.activationPath === plan.activationPath &&
     existing.owner?.kind === "workflow" &&
     existing.owner.name === workflowName;
+  const migratedMatch = logicalRoleMigration(plan, (lockfile.roles || []), workflowName, workflowSource) === existing;
 
-  if (!isManagedMatch) {
+  if (!isManagedMatch && !migratedMatch) {
     throw new AixError(`Active role name collision: ${plan.activeName}`);
   }
 }
@@ -152,27 +180,37 @@ export function assertWorkflowRolesSafe(
     parseRoleFileFromPath(roleEntrypointPath(sourceRolePath), { requireContract: true });
     assertBundledRoleGuidance(sourceRolePath);
     assertRoleName(plan.activeName, "active role name");
-    assertNoWorkflowRoleCollision(lockfile, workflow.name, workflowSource, plan, targetRolePath);
+    // Let the dedicated strategist-to-owner compatibility check produce its
+    // legacy collision diagnostic; it also distinguishes the proven legacy
+    // activation from a foreign owner path.
+    const hasLegacyStrategist = (lockfile.roles || []).some((role) =>
+      role.owner?.kind === "workflow" && role.owner.name === workflow.name &&
+      (role.activeName === LEGACY_PRODUCT_STRATEGIST || role.originalName === LEGACY_PRODUCT_STRATEGIST)
+    );
+    if (!(hasBundledProductOwner(workflow, sourcePackagePath) && hasLegacyStrategist)) {
+      assertNoWorkflowRoleCollision(lockfile, workflow.name, workflowSource, plan, targetRolePath);
+    }
 
-    const legacySourcePath = Object.entries(LEGACY_ROLE_RENAMES).find(([, next]) => next === plan.sourcePath)?.[0];
-    const legacy = legacySourcePath
-      ? (lockfile.roles || []).find((role) => role.owner?.kind === "workflow" && role.owner.name === workflow.name && role.sourcePath === legacySourcePath)
-      : undefined;
+    const priorWorkflowRoles = (lockfile.roles || []).filter((role) => role.owner?.kind === "workflow" && role.owner.name === workflow.name);
+    const legacy = logicalRoleMigration(plan, priorWorkflowRoles, workflow.name, workflowSource) || legacyRoleFor(plan, priorWorkflowRoles, workflow.name, workflowSource);
     if (legacy) {
       if (!options.reconcileProtected) {
         assertRolePackageFilesMatchLockfile(legacy, "migrate");
         assertActiveRoleFilesMatchLockfile(legacy, "migrate");
       }
-      if (existsSync(plan.activationPath)) {
-        throw new AixError(`Cannot migrate ${legacySourcePath}: active role name collision: ${plan.activationPath}`);
+      // A flat legacy activation may already occupy the same logical active
+      // directory. It is replaceable only when the lockfile proved ownership;
+      // unrelated content remains a genuine collision.
+      if (existsSync(plan.activationPath) && legacy.activationPath !== plan.activationPath) {
+        throw new AixError(`Cannot migrate ${legacy.sourcePath}: active role name collision: ${plan.activationPath}`);
       }
     }
 
-    if (!existing && existsSync(plan.activationPath)) {
+    if (!existing && !legacy && existsSync(plan.activationPath)) {
       throw new AixError(`Active role name collision: ${plan.activationPath}`);
     }
 
-    if (existsSync(targetRolePath) && !existing) {
+    if (existsSync(targetRolePath) && !existing && !legacy) {
       throw new AixError(`Refusing to overwrite untracked workflow role package: ${targetRolePath}`);
     }
   }
@@ -232,10 +270,15 @@ export function installWorkflowRoles(
   const previousActiveNames = new Set(previousWorkflow?.roles?.map((role) => role.activeName) || []);
   const previousRolesByActiveName = new Map(previousRoles.map((role) => [role.activeName, role]));
   const entries = workflowRolePlans(packagePath).map((plan): LockfileRoleEntry => {
-    const previousRole = previousRolesByActiveName.get(plan.activeName) || legacyRoleFor(plan, previousRoles);
-    const activeFiles = previousActiveNames.has(plan.activeName) && previousRole?.activeName === plan.activeName
+    const previousRole = previousRolesByActiveName.get(plan.activeName) || legacyRoleFor(plan, previousRoles, workflow.name, workflowSource);
+    const activeFiles = previousRole?.activeName === plan.activeName &&
+      (previousRole.activationPath === plan.activationPath || previousRole.activationPath === `${plan.activationPath}.md`)
       ? replaceActiveRoleFile(plan.packageRolePath, plan.activationPath, plan.activeName, previousRole)
       : writeActiveRoleFile(plan.packageRolePath, plan.activationPath, plan.activeName);
+    // Remove only the old physical paths proven by the migration entry. The
+    // new materialization is complete before this cleanup is attempted.
+    if (previousRole && previousRole.activationPath !== plan.activationPath) removeRoleFile(previousRole.activationPath);
+    if (previousRole && previousRole.packagePath !== plan.packageRolePath) removeRolePackageFile(previousRole.packagePath);
     const appendDefinition = extensionAppendDefinition("role", plan.activeName, workflowSource, plan.sourcePath, plan.packageRolePath);
     const agentsMd = lockfileBlockForDefinition(appendDefinition);
 

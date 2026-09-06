@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
 import { createForceBackup, isCompleteForceBackup, type BackupResult, type ForceUpdateOptions } from "./inventory.js";
 import { updateWorkflow } from "../workflows/update.js";
@@ -29,6 +29,41 @@ export interface ForceUpdateCoordinatorResult {
 
 const JOURNAL_NAME = "force-update.transaction.json";
 const LOCK_NAME = "force-update.lock";
+const TRANSACTION_PATHS = ["aix.json", "aix.lock.json", "AGENTS.md", ".agents", "_docs"];
+
+interface WorkspaceSnapshot {
+  root: string;
+  paths: Array<{ target: string; snapshot: string; existed: boolean }>;
+}
+
+/** Snapshot every project-owned tree touched by the composed update stages.
+ * PM runtime state is intentionally outside this set and survives rollback. */
+function snapshotWorkspace(root: string): WorkspaceSnapshot {
+  const snapshotRoot = mkdtempSync(resolve(root, ".aix", ".force-rollback-"));
+  const paths = TRANSACTION_PATHS.map((path) => {
+    const target = resolve(root, path);
+    const snapshot = resolve(snapshotRoot, path);
+    let existed = false;
+    try { lstatSync(target); existed = true; } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+    if (existed) cpSync(target, snapshot, { recursive: true, force: true, dereference: false });
+    return { target, snapshot, existed };
+  });
+  return { root: snapshotRoot, paths };
+}
+
+function restoreWorkspace(snapshot: WorkspaceSnapshot): void {
+  for (const entry of snapshot.paths) {
+    rmSync(entry.target, { recursive: true, force: true });
+    if (entry.existed) cpSync(entry.snapshot, entry.target, { recursive: true, force: true, dereference: false });
+  }
+  rmSync(snapshot.root, { recursive: true, force: true });
+}
+
+function discardWorkspaceSnapshot(snapshot: WorkspaceSnapshot): void {
+  rmSync(snapshot.root, { recursive: true, force: true });
+}
 
 function journalPath(root: string): string { return resolve(root, ".aix", JOURNAL_NAME); }
 function lockPath(root: string): string { return resolve(root, ".aix", LOCK_NAME); }
@@ -229,6 +264,13 @@ export function forceUpdateWorkspace(options: ForceUpdateOptions): ForceUpdateCo
     return { state: "failed", backupPath: "", stages, failure: { stage: "backup", message: error instanceof Error ? error.message : String(error) } };
   }
   const backupPath = backup.backupPath;
+  let workspaceSnapshot: WorkspaceSnapshot | undefined;
+  try {
+    workspaceSnapshot = snapshotWorkspace(root);
+  } catch (error) {
+    releaseForceUpdateLock(root);
+    return { state: "failed", backupPath, stages, failure: { stage: "backup", message: error instanceof Error ? error.message : String(error) } };
+  }
   let currentStage: ForceUpdateFailure = "validate";
   const injectFailure = (stage: ForceUpdateFailure): void => {
     currentStage = stage;
@@ -297,9 +339,16 @@ export function forceUpdateWorkspace(options: ForceUpdateOptions): ForceUpdateCo
     return { state: "updated", backupPath, stages, audit, cleanup };
   } catch (error) {
     const stage = currentStage;
-    const message = error instanceof Error ? error.message : String(error);
+    let message = error instanceof Error ? error.message : String(error);
+    try {
+      if (workspaceSnapshot) restoreWorkspace(workspaceSnapshot);
+    } catch (rollbackError) {
+      message += `; rollback failed: ${rollbackError instanceof Error ? rollbackError.message : String(rollbackError)}`;
+    }
     try { writeJournal(root, backupPath, stage, "failed", message); } catch { /* preserve original failure */ }
     releaseForceUpdateLock(root);
     return { state: "failed", backupPath, stages, failure: { stage, message } };
+  } finally {
+    if (workspaceSnapshot) discardWorkspaceSnapshot(workspaceSnapshot);
   }
 }

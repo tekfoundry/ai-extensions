@@ -1,0 +1,4 @@
+{
+  "workflow": "fixture:fixture-workflow",
+  "roles": ["fixture/roles/project-dev/documentation-specialist.md"]
+}

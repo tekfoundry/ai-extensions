@@ -407,55 +407,77 @@ finding, not a reason to discard the backup.
 
 Tasks:
 
-- ✅ Add a regression fixture matching the observed current-layout project:
-  workflow package role, active role, matching lockfile ownership and hashes,
-  modified active content, and retained `aix_bak_*` content. Confirm backup
-  roots are excluded from active-source and collision discovery, while the
-  legitimate workflow package/active-role pair is represented once.
-- ✅ Trace and fix workflow preflight/reconciliation so a role whose source,
-  source path, workflow owner, active name, package path, and activation path
-  match the prior lockfile is recognized as existing and refreshed during
-  `--force`. Do not weaken refusal for a genuinely unowned active-name
-  collision, mismatched owner/source metadata, or unsafe paths.
-- ✅ Add a focused acceptance matrix for clean current layouts, modified
-  managed active files, retained backups, multiple managed roles, aliases,
-  genuine standalone collisions, and failed-update reruns.
-- ✅ Verify backup-first behavior, failure retention, successful rebuild,
-  post-update verification, audit output, and rerun behavior for this layout.
-- ✅ Run the complete Phase 4 verification gates and record the exact evidence
-  before unblocking Phase 5.
+- ✅ Add a regression fixture matching the observed real project transition:
+  lockfile-owned flat role package/activation paths from the previous workflow,
+  current workflow role-directory paths containing `ROLE.md` and `GUIDANCE.md`,
+  matching logical role identity, retained `aix_bak_*` content, and edited
+  managed active content. The executable acceptance test confirms backup roots
+  are not treated as active sources.
+- ✅ Replace exact-path-only role matching with lockfile-driven logical
+  migration matching. Permit a previously owned role to move from a flat file
+  to a role directory when workflow owner, source, logical role identity, and
+  validated activation ownership match. Continue refusing unowned roles,
+  mismatched owners/sources, ambiguous identities, and unsafe paths.
+- ✅ Implement the force rebuild as a staged, transactional materialization:
+  derive removable paths only from validated prior lockfile ownership, stage
+  the new workflow/package layout, replace proven managed paths only after the
+  candidate is ready, and write the new manifest/lockfile only after successful
+  materialization. Never delete the entire `.agents/packages` tree or blindly
+  remove project files.
+- ✅ Add focused acceptance coverage for clean current layouts, flat-to-
+  directory role migration, modified managed active files, retained backups,
+  multiple managed roles, aliases, stale managed package paths, genuine
+  standalone collisions, interrupted failures, and failed-update reruns.
+- ✅ Verify backup-first behavior, user-owned and PM/worktree preservation,
+  failure retention, successful rebuild, post-update verification, audit output,
+  stale managed-path cleanup, and rerun behavior before unblocking Phase 5.
 
-Phase 4 follow-up evidence: `src/workflows/roles.ts` now requires an existing
-same-name role to match the prior lockfile's workflow source, source path,
-workflow owner, package path, and activation path before force reconciliation
-may refresh it. `src/force-update/coordinator.ts` releases the invocation-owned
-transaction lock when an interruption journal causes a fail-closed rerun
-refusal, while retaining the durable journal and backup reservation. Tests
-reproduce a current directory-layout workflow role with modified active content
-and confirm force rebuild, backup retention, and post-update verification; they
-also confirm an unowned same-name role remains a fail-closed collision with the
-completed backup retained and interrupted reruns do not strand the lock. The
-combined workflow/force-update acceptance coverage exercises clean and edited
-managed content, retained backups, multiple managed assets, aliases, genuine
-standalone collisions, failure retention, and rerun protections. `npm run build`,
-`npm run typecheck`, `npm run verify` (388 tests), the targeted workflow and
-force-update tests (51 tests), and `git diff --check` pass. No Phase 5
-publishing, external-project validation, or writes outside this repository were
-performed.
+Implementation update (reopened follow-up): `src/workflows/roles.ts` now
+matches a prior workflow-owned role by logical identity with independent owner,
+source, active/original-name, alias, provenance, and activation-path checks;
+recognized flat activation paths can migrate to the current role directory only
+when the mapping is unique. Materialization replaces the candidate active role
+before removing the proven legacy activation/package paths. The new
+`tests/fixtures/legacy-flat-role-migration/` fixture records lockfile-owned flat
+package and activation paths alongside a current role-directory package with
+`ROLE.md` and `GUIDANCE.md`. `npm run build`, `npm run typecheck`, and the
+existing targeted force-update suite pass. Full follow-up acceptance coverage
+and staged coordinator materialization are complete; final evidence is recorded
+below.
 
-Final Phase 4 follow-up quality-gate evidence: targeted `tests/force-update.test.mjs`
-and `tests/workflow.test.mjs` passed 51 tests; `npm run build`, `npm run
-typecheck`, `npm run verify` (388 tests), `npm run release:pack-preview`, `npm
-run release:local-smoke`, and `git diff --check` passed. The package smoke
-checks exercised the built/package artifact and local packed installation for
-`@tekfoundry/aix@0.5.1`. The acceptance matrix covers clean current-layout
-roles, modified managed active content, retained backups and backup exclusion,
-multiple managed assets, aliases, genuine unowned collisions, failed-update
-retention, malformed/path-invalid state, interrupted rerun refusal, PM/runtime
-preservation, post-update `aix verify`, audit output, and plain-update drift
-refusal. No staged files or generated worktree changes remain. Phase 5 remains
-the only location for publishing, published-package installation, external
-project validation, and unavailable-platform/manual validation.
+2026-09-06 Phase 4 quality-gate verification: `npm run build` and `npm run typecheck` passed. The targeted command `node --test tests/workflow.test.mjs
+ tests/roles.test.mjs tests/force-update.test.mjs
+ tests/force-update-inventory.test.mjs` passed 118 tests. `npm run verify`
+passed all 388 tests. `npm run release:pack-preview`,
+`npm run release:local-smoke`, and `git diff --check` passed for the current
+`@tekfoundry/aix@0.5.2` worktree. The acceptance tests verify managed cleanup,
+backup retention and byte-for-byte rollback across injected workflow, skills,
+roles, persist, cleanup, and verify failures, plus fail-closed genuine
+unowned-role collisions. The existing `0.4` flat-role fixture and the executable
+`tests/fixtures/legacy-flat-role-migration/` acceptance both passed. The exact
+observed flat-package/flat-activation to role-directory transition is now
+automated evidence. No access to or modification of `~/Desktop/_capsule`
+occurred. This earlier 118-test gate was superseded by the final 159-test gate
+recorded below.
+
+Security hardening evidence (bounded review): logical-name fallback now correctly
+normalizes legacy `.md` source paths, and force-update coordinator failures now
+restore the manifest, lockfile, managed trees, instruction file, and generated
+docs snapshot while leaving `.aix/pm` records untouched. The isolated injected
+workflow/skills/roles/persist/cleanup/verify failure matrix asserts those files
+are byte-for-byte unchanged after rollback. No publishing, external validation,
+or access to `~/Desktop/_capsule` occurred.
+
+Prior Phase 4 follow-up evidence established that exact-path managed-role
+matching, transaction-lock handling, and the original acceptance matrix passed
+in the repository. The subsequent read-only Phase 5 validation against
+`~/Desktop/_capsule` showed that this is insufficient for a real flat-role to
+role-directory migration: the old lockfile-owned `.md` role path differs from
+the new `ROLE.md` directory layout and still fails with an active-role collision.
+That manual finding reopens the follow-up. The prior 388-test and 51-targeted-
+test results remain historical evidence, not completion evidence for the new
+migration and staged-rebuild tasks. No files in `~/Desktop/_capsule` were
+modified. Phase 5 remains blocked until the new tasks pass.
 
 Success goals:
 
@@ -467,6 +489,10 @@ legacy manifest/lockfile shapes, edited role content, stale package content,
 and managed/unmanaged instruction examples. `tests/force-update.test.mjs`
 loads that fixture, runs `aix update --force`, verifies the current install,
 and confirms legacy/stale content remains recoverable.
+
+Phase 4 migration fixture evidence: `tests/fixtures/legacy-flat-role-migration/` is now executed by `tests/force-update.test.mjs`. It starts from lockfile-owned flat package and activation paths, force-rebuilds to the current workflow role directory with `ROLE.md` and `GUIDANCE.md`, removes only the old managed paths, verifies logical ownership and `aix verify`, retains and audits the completed backup, and preserves a project-owned role. Genuine unowned collisions remain covered by the existing refusal tests.
+
+Final Phase 4 quality-gate evidence (current worktree): the targeted migration/safety/workflow/roles/inventory matrix (`tests/force-update.test.mjs`, `tests/force-update-inventory.test.mjs`, `tests/workflow.test.mjs`, `tests/roles.test.mjs`, `tests/update.test.mjs`, `tests/package-smoke.test.mjs`, `tests/cli.test.mjs`, `tests/pm-workspace.test.mjs`, and `tests/pm-runtime.test.mjs`) passed 159 tests, including execution and passage of the new flat-role migration fixture. The observed transition is lockfile-owned flat package and `.agents/roles/<name>.md` activation to the current role directory containing `ROLE.md` and `GUIDANCE.md`; only the old managed paths are removed, while the project-owned role remains. The matrix also confirms completed backup retention, byte-for-byte rollback across injected workflow/skills/roles/persist/cleanup/verify failures, user-owned `.agents`/`.claude`/`.codex` preservation, PM runtime and registered worktree preservation, and refusal of a genuine unowned active-role collision. `npm run verify` passed all 389 tests; `npm run build`, `npm run typecheck`, `npm run release:pack-preview`, `npm run release:local-smoke`, and `git diff --check` passed. No access to or modification of `~/Desktop/_capsule` occurred.
 
 Phase 4 fixture and preservation evidence: `tests/fixtures/force-update-safety/`
 captures user-owned standalone role content and backup-only `.claude/` and
