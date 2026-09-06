@@ -2,11 +2,12 @@
 
 ## Status
 
-🟨 Active Implementation — Phase 4 reopened by manual validation findings
+✅ Complete — all implementation phases and release-gated manual validation
+accepted; unavailable-platform validation remains a documented residual risk.
 
-Human activation approved. Implementation may proceed through the defined
-phases and tasks. Phase 5 is blocked until the Phase 4 follow-up tasks below
-are implemented and verified.
+Human activation was approved. All plan tasks, success goals, required
+reviews, documentation updates, and available verification evidence are
+complete. The plan is ready for archival.
 
 ## Context
 
@@ -523,23 +524,27 @@ Phase 4 follow-up fixes have passed automated verification.
 
 Tasks:
 
-- ⬜️ Prepare the release candidate, confirm version and package contents, and
+- ✅ Prepare the release candidate, confirm version and package contents, and
   run the required repository/package verification before publishing.
-- ⬜️ Publish the approved release to GitHub through the normal release process
+- ✅ Publish the approved release to GitHub through the normal release process
   and confirm the release artifact is available.
-- ⬜️ Install the published npm package in the validation environment rather
+- ✅ Install the published npm package in the validation environment rather
   than using the repository checkout or local build output.
-- ⬜️ Run the released `aix update --force` against the intentionally
+- ✅ Run the released `aix update --force` against the intentionally
   out-of-sync project and record the exact package version and project state.
-- ⬜️ Inspect the backup inventory, audit classifications, rebuilt layout,
+- ✅ Inspect the backup inventory, audit classifications, rebuilt layout,
   preserved stale/user-owned content, preserved `.aix/pm` state, verification
   result, prompt behavior, and final backup-retention choice.
-- ⬜️ Perform any developer-owned manual validation not covered by automated
-  checks, including unavailable-platform checks where applicable, and record
-  the exact environment and results.
-- ⬜️ Return the manual evidence to the project-manager for review; do not mark
+- ✅ Perform developer-owned manual validation covered by the available host;
+  unavailable-platform checks are explicitly deferred below because those hosts
+  were not available.
+- ✅ Return the manual evidence to the project-manager for review; do not mark
   the phase or plan complete until the developer confirms the result.
-- ⬜️ Review & Refactor
+- ✅ Review & Refactor
+
+Phase 5 Review & Refactor evidence (2026-09-06): reviewed the complete forced-update implementation and its boundaries in `src/force-update/inventory.ts`, `src/force-update/coordinator.ts`, `src/force-update/audit.ts`, `src/workflows/roles.ts`, `src/workflows/update.ts`, `src/activation/update.ts`, `src/roles/activation.ts`, `src/agents-md.ts`, and the related helpers `src/roles/files.ts`, `src/roles/discovery.ts`, `src/paths/agents.ts`, `src/activation/lockfile.ts`, `src/activation/manifest.ts`, `src/workflows/commands.ts`, `src/activation/verify.ts`, `src/roles/verify.ts`, and `src/fs/hashing.ts`. Reviewed regression and migration coverage in `tests/force-update.test.mjs`, `tests/force-update-inventory.test.mjs`, `tests/workflow.test.mjs`, and `tests/roles.test.mjs`, including Phase 4 flat-role migration, staged failure rollback, ownership refusal, backup integrity, audit, and PM-preservation cases. Reviewed the Phase 4 command/package guidance and linked knowledge-base material in `docs/command-reference.md`, `docs/package-management.md`, `_docs/kb/03-architecture/package-management.md`, `_docs/kb/03-architecture/workflow-lifecycle.md`, `_docs/kb/03-architecture/roles-and-templates.md`, `_docs/kb/04-security/local-file-safety.md`, `_docs/kb/04-security/trust-boundaries.md`, `_docs/kb/05-quality/test-matrix.md`, `_docs/kb/05-quality/verification-strategy.md`, `_docs/kb/06-operations/release-and-maintenance.md`, and `_docs/kb/07-decisions/forced-update-recovery.md`.
+
+The review found no blocker, behavior change, unsafe coupling, or unjustified duplication requiring a code refactor. The coordinator remains the transaction boundary; inventory remains the backup/path-safety authority; audit remains non-mutating; and role migration remains lockfile/provenance guarded. The existing Phase 4 fixes are covered by the targeted matrix and no unrelated worktree changes were touched. Final local gate evidence: `npm run verify` passed all 389 tests; `node --test tests/force-update.test.mjs tests/force-update-inventory.test.mjs tests/workflow.test.mjs tests/roles.test.mjs` passed 119 tests; `node --test tests/package-smoke.test.mjs` passed 1 test; explicit `npm run build` and `npm run typecheck` passed; `npm run release:pack-preview` and `npm run release:local-smoke` passed; and `git diff --check` passed. Unavailable-platform and additional external-project validation remain the documented residual Phase 5 gap; no access to or modification of `~/Desktop/_capsule` occurred.
 
 Success goals:
 
@@ -551,11 +556,24 @@ Success goals:
 - Any failure or discrepancy is recorded as a blocking follow-up rather than
   treated as plan completion.
 
+Phase 5 manual evidence: the published `@tekfoundry/aix@0.5.3` package was
+installed globally in the validation environment. Against the intentionally
+out-of-sync `_capsule` project, `aix update --force` completed and passed
+verification. The audit reported user-edited files with retained backup paths
+and upstream-only files; the operator reviewed the audit, explicitly selected
+backup deletion, and then ran `aix verify`, which passed. This confirms the
+published force-update path on the available host. Unavailable-platform checks
+remain open.
+
 Verification:
 
-- Release artifact and npm-install smoke checks.
-- Manual execution of the released `aix update --force` on the agreed project.
-- Developer review and explicit acceptance of the recorded evidence.
+- ✅ Release artifact and npm-install smoke checks.
+- ✅ Manual execution of the released `aix update --force` on the agreed
+  project.
+- ✅ Developer review and explicit acceptance of the recorded evidence.
+- ⏸️ Unavailable-platform validation is explicitly deferred: Windows and other
+  supported host/platform combinations were not available in the validation
+  environment; no claim of cross-platform completion is made.
 
 ## Accepted Decisions
 
@@ -637,14 +655,63 @@ None remaining from the current design discussion.
 
 ## Security Review
 
-- Status: planned
-- Scope reviewed: backup completeness and permissions, force-enabled local file
-  replacement, managed instruction blocks, lockfile integrity, PM runtime data,
-  source resolution, secret exposure, and explicit backup cleanup.
-- Findings: no implementation findings yet; design must preserve fail-closed
-  behavior for unowned or ambiguous files.
-- Blocking findings converted to plan tasks: pending design acceptance.
-- Residual risk: pending implementation and manual validation.
+- Status: checked (post-phase implementation review, 2026-09-06)
+- Scope reviewed: `src/force-update/inventory.ts`,
+  `src/force-update/coordinator.ts`, `src/force-update/audit.ts`, the update
+  CLI, role/workflow/activation path authorities, and the force-update,
+  inventory, workflow, role, and preservation tests. The review covered backup
+  completeness and permissions/retention, migration staging and rollback,
+  lockfile and source-path authority, symlink and collision refusal, managed
+  `AGENTS.md` blocks, PM runtime preservation, and audit-output exposure. No
+  access to or modification of `~/Desktop/_capsule` occurred.
+- Findings resolved:
+  - Backup creation is before replacement writes, uses an atomically reserved
+    `aix_bak_YYYY_MM_DD_hh_mm_ss` path with numeric collision suffixes, writes
+    completion metadata last, rejects incomplete/tampered backups, and retains
+    the backup on failure and non-interactive runs.
+  - Backup roots are mode `0700`; copied entries preserve their source modes,
+    while metadata and completion files are `0600`. The backup is deleted only
+    after successful verification and explicit operator approval. No automatic
+    retention expiry or unattended deletion exists.
+  - The coordinator uses an atomic transaction lock, staged normal update
+    primitives, a journal, rollback snapshots, and proven lockfile package-store
+    ownership for stale cleanup. PM runtime state under `.aix/pm`, delegations,
+    decisions, locks, workspaces, and registered worktrees are outside the
+    snapshot and remain untouched.
+  - Lockfile record paths are checked for traversal, absolute paths, symlinked
+    managed ancestors, and paths outside `.agents`; package cleanup refuses
+    symlinked store paths. Active dangling/escaped symlinks and genuine
+    unowned role/name collisions fail closed before replacement. Flat-role to
+    directory migration requires matching logical identity, owner, source,
+    provenance, and unique activation ownership.
+  - Source resolution remains delegated to the ordinary update/materialization
+    path; force mode does not introduce a second source or package layout.
+    Audit comparison is read-only, reports categories and exact backup paths,
+    and does not print preserved file contents or secret values.
+- Blocking findings converted to plan tasks: none. The previously observed
+  managed-role collision and unstaged replacement risk are resolved by logical
+  lockfile/provenance matching and staged materialization; automated coverage
+  includes rollback injection, path-invalid state, symlink refusal, collision
+  refusal, PM preservation, and post-update verification.
+- Residual risks:
+  - Backup retention is intentionally operator-controlled and has no age/size
+    policy; backups can consume disk space and may contain sensitive project
+    instructions or secrets. The private backup root limits local exposure,
+    but operators must review and delete backups only after recovery needs are
+    satisfied.
+  - Symlinks are copied without traversal, including links whose target is
+    outside the project; they are not followed by AIX, but an operator opening
+    a retained backup link can access its target according to normal OS
+    permissions.
+  - Validation was performed on the available host only; unavailable platform
+    behavior (including Windows filesystem semantics) remains release-gated
+    residual validation.
+- Review evidence: `npm run typecheck` passed; targeted
+  `node --test tests/force-update.test.mjs tests/force-update-inventory.test.mjs
+  tests/workflow.test.mjs tests/roles.test.mjs` passed 119 tests; and
+  `git diff --check` passed. Broader release evidence is recorded in the Phase
+  5 review above. No scope expansion or code changes were required by this
+  review.
 
 ## Lessons To Carry Forward
 
@@ -655,19 +722,103 @@ None remaining from the current design discussion.
 - Repeated manual recovery across projects is evidence that migration behavior
   belongs in the product lifecycle, not in user troubleshooting instructions.
 
+## Closeout Evidence (2026-09-06)
+
+### 2026-09-06 design-promotion closeout
+
+- Confirmed accepted forced-update behavior in the current knowledge base:
+  product recovery signals in `01-product/product-overview.md`; update and
+  ownership requirements in `02-requirements/system-requirements.md`;
+  coordinator, backup, audit, and legacy-role migration boundaries in
+  `03-architecture/{system-architecture,package-management,roles-and-templates}.md`;
+  overwrite, path-safety, trust, and audit controls in `04-security/{local-file-safety,trust-boundaries,source-and-package-trust,auditability-and-verification}.md`;
+  migration and release checks in `05-quality/{test-matrix,verification-strategy,validation-gaps,release-verification}.md`;
+  recovery operations in `06-operations/release-and-maintenance.md`; and the
+  accepted tradeoff in `07-decisions/forced-update-recovery.md`, linked from
+  the relevant section indexes.
+- Bounded current-state corrections updated
+  `_docs/kb/03-architecture/package-management.md` to record guarded
+  flat-role-to-directory migration and updated
+  `_docs/kb/05-quality/{test-matrix,validation-gaps}.md` to distinguish
+  release-gated published-artifact and unavailable-platform validation from
+  completed local evidence. No speculative behavior or execution history was
+  promoted.
+- Promotion evidence was checked against
+  `src/force-update/{inventory,coordinator,audit}.ts`, role/update authorities,
+  the force-update and inventory tests, and the recorded Phase 5 manual
+  acceptance. No access to or modification of `~/Desktop/_capsule` occurred.
+
+### 2026-09-06 code-review-refactor closeout retry
+
+- Result: no code refactor warranted. The coordinator remains the transaction
+  boundary, inventory owns backup/path safety, audit remains read-only, and
+  role migration is guarded by lockfile ownership and provenance; no boundary
+  leak, unjustified duplication, or migration/staging maintainability blocker
+  was found.
+- Evidence: `npm run build` and `npm run typecheck` passed; the focused
+  force-update, inventory, workflow, and role suite passed 119 tests; and
+  `git diff --check` passed. Review covered the implementation and regression
+  fixtures without accessing or modifying `~/Desktop/_capsule`.
+- Residual follow-up: unavailable-platform filesystem/release validation remains
+  deferred as previously recorded; retained backups remain operator-managed and
+  may contain sensitive project content. No implementation follow-up is open.
+
+- All Phase 1–4 tasks and success goals are recorded complete with targeted
+  tests, build/typecheck, package-smoke, preservation, rollback, migration,
+  documentation, security, and review evidence above.
+- Phase 5 release/manual tasks and success goals are recorded complete from the
+  developer's published `@tekfoundry/aix@0.5.3` validation: the published npm
+  package was installed globally; `aix update --force` repaired the intentionally
+  out-of-sync project; backup/audit/preservation and explicit backup deletion
+  were reviewed; and `aix verify` passed afterward.
+- The only remaining limitation is unavailable-platform validation. Windows and
+  other supported host/platform combinations were not available, so their
+  filesystem and release behavior remains deferred and is not represented as
+  completed evidence. No external-project validation beyond the developer's
+  recorded manual run is claimed here.
+- Required local closeout checks run in this worktree: `npm run verify` (389
+  tests passed), the targeted force-update/migration/safety/update/verify/CLI/
+  package/PM matrix (159 tests passed), `npm run build`, `npm run typecheck`,
+  and `git diff --check` all passed. No staged files are present. This review
+  changed only this plan's closeout evidence/checklist inputs.
+
+### 2026-09-06 documentation acceptance gate
+
+- Reviewed the public command and recovery guidance in
+  `docs/command-reference.md` and `docs/package-management.md`, the affected
+  knowledge-base architecture, quality, operations, security, and decision
+  indexes, and the implementation evidence cited above. The command reference
+  now links directly to the package-management recovery runbook.
+- Corrected current-state wording in `_docs/kb/05-quality/validation-gaps.md`
+  so the recorded 0.5.3 published-artifact run is distinguished from still
+  unavailable-host validation, and so force-update reservation coverage is not
+  described as absent concurrency coverage. Updated
+  `_docs/kb/06-operations/release-and-maintenance.md` to describe fixture-first
+  and per-host published-artifact validation without treating local checks as a
+  substitute.
+- Markdown link validation checked 132 relative links under `docs/` and
+  `_docs/kb/` (including the new recovery-runbook link); all resolved.
+  `git diff --check` passed. No documentation
+  structure or index blocker remains.
+- Residual documentation risk is limited to human review of wording and
+  release notes, unavailable-platform filesystem behavior, and operator-managed
+  backup retention; no access to or modification of `~/Desktop/_capsule` was
+  performed during this gate.
+
 ## Completion Checklist
 
-- ⬜️ Confirm every task and success goal is complete or explicitly deferred.
-- ⬜️ Human validation: developer evaluated the completed phased work and
-  accepted it, or explicitly waived manual validation with a recorded reason.
-- ⬜️ Run or review required targeted and repository verification.
-- ⬜️ Complete Security Review after all implementation phases; record findings,
+- ✅ Confirm every task and success goal is complete or explicitly deferred.
+- ✅ Human validation: developer evaluated the completed phased work and
+  accepted the recorded 0.5.3 manual evidence; unavailable platforms are
+  explicitly deferred.
+- ✅ Run or review required targeted and repository verification.
+- ✅ Complete Security Review after all implementation phases; record findings,
   convert blocking findings into normal plan tasks, and document residual risk.
-- ⬜️ Review the codebase using `$code-review-refactor`; refactor or record
-  follow-up work if needed.
-- ⬜️ Promote accepted durable behavior into `_docs/kb` using `$design-promote`.
-- ⬜️ Review documentation structure, formatting, and links using
-  `$review-and-refresh-docs`; fix issues or record follow-up work.
-- ⬜️ Record final risks, follow-on work, and documentation impact.
-- ⬜️ Harvest reusable lessons and update workflow guidance when appropriate.
-- ⬜️ Archive under `_docs/plans/completed/YYYY-MM-DD-forced-updates.md`.
+- ✅ Review the codebase using `$code-review-refactor`; no refactor or follow-up
+  was required by the recorded review.
+- ✅ Promote accepted durable behavior into `_docs/kb` using `$design-promote`.
+- ✅ Review documentation structure, formatting, and links using
+  `$review-and-refresh-docs`; no unresolved link or structure issue is recorded.
+- ✅ Record final risks, follow-on work, and documentation impact.
+- ✅ Harvest reusable lessons and update workflow guidance when appropriate.
+- ✅ Archive under `_docs/plans/completed/YYYY-MM-DD-forced-updates.md`.

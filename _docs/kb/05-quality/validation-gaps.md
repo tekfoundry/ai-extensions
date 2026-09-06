@@ -5,16 +5,19 @@
 Force-update implementation coverage includes the legacy 0.4 migration,
 user-owned and compatibility content, interrupted/concurrent refusal paths,
 PM/workspace safety, and package-smoke checks. Documentation links and force
-update command examples are checked against the current docs and CLI help.
-Supported-platform manual validation and external project validation using a
-published artifact remain explicitly deferred to Phase 5 and must not be
-inferred from local tests.
+update command examples are checked against the current docs and CLI help. A
+published-artifact check against an intentionally out-of-sync project is part
+of the release-gated manual validation; the recorded 0.5.3 run covers the
+available host, while local tests do not substitute for that check on other
+hosts. Supported-platform behavior remains a manual validation area where
+hosts are unavailable.
 
 - No persistent coverage report or threshold is configured.
 - Real remote Git network behavior is represented mostly by temporary local Git
   repositories.
-- No concurrency coverage exists for simultaneous commands mutating manifest,
-  lockfile, package, or active files.
+- Force-update reservation and interrupted-rerun behavior are covered, but no
+  broad concurrency coverage exists for simultaneous ordinary commands mutating
+  manifest, lockfile, package, or active files.
 - Host adapters and native delegation contracts are implemented and covered by
   contract and integration tests. Authenticated live-provider execution,
   provider-side restart recovery, and native harness UI behavior remain manual

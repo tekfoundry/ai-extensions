@@ -37,6 +37,8 @@ before manually recovering edits; force does not merge content automatically.
 
 Do not use force as a substitute for `aix verify` or routine `aix update`.
 Plain update remains the protected path and stops on unexpected local drift.
+See [package management](package-management.md#recovering-from-layout-drift)
+for the recovery runbook and ownership boundaries.
 
 ## Workflows
 

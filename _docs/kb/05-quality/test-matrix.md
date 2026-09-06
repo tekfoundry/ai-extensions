@@ -233,8 +233,10 @@ Targeted checks:
 node --test tests/force-update-inventory.test.mjs tests/force-update.test.mjs
 ```
 
-Phase 4 still requires broader fixture and package/release checks before
-external-project validation; that validation is reserved for Phase 5.
+The force-update matrix is supplemented by package and release smoke checks;
+validation against a published artifact and an intentionally out-of-sync
+project is a release-gated manual check. Supported-platform coverage remains a
+manual validation area where hosts are unavailable.
 
 ## Status And Verify
 

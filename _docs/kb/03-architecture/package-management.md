@@ -201,7 +201,11 @@ old lockfile baseline, backed-up files, and rebuilt files without merging.
 Force update writes a transaction journal under `.aix/` and refuses an
 interrupted transaction with a completed backup. It retains the backup after
 failure and in non-interactive mode; interactive cleanup requires an explicit
-operator choice. The normal `aix update` path remains drift-protected.
+operator choice. During rebuild, workflow-owned roles may migrate from a
+lockfile-owned legacy flat activation to the current role-directory layout
+only when logical identity, owner, source, provenance, and activation ownership
+are unambiguous; genuine unowned collisions remain refused. The normal `aix
+update` path remains drift-protected.
 
 ## Failure Modes
 

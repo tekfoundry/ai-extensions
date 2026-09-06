@@ -166,8 +166,10 @@ Non-interactive runs always retain the backup. Confirm success with `aix verify`
 The backup excludes `.aix/pm` from mutation, while backing up (without granting
 overwrite authority to) `.claude/` and `.codex/` compatibility content.
 
-Force recovery is distinct from release validation. It must be tested against
-repository fixtures before any Phase 5 published-artifact validation.
+Force recovery is distinct from release validation. Repository fixtures should
+be exercised before published-artifact validation; the published artifact must
+also be checked on each available validation host because local fixtures and
+local builds do not prove release packaging or cross-platform behavior.
 
 ## Incident And Recovery Notes
 
