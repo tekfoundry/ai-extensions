@@ -292,6 +292,13 @@ Intent is accepted.
 
 ## Planning Gates
 
+Use the nine-gate contract in `.agents/workflow.md` as the authority. Planning
+must pass Routing, Vision, Design Intent, and Plan in order. Vision, Design
+Intent, and Plan require a durable Boss approval record with explicit approval
+language naming the gate and scope; descriptive readiness is not approval. Do
+not draft authoritative phases/tasks before Design Intent is accepted, and do
+not imply Activation approval from plan acceptance.
+
 Require explicit user agreement before moving past these gates:
 
 - Vision gate: `Context` and `High-Level Goal` are clear enough to continue.

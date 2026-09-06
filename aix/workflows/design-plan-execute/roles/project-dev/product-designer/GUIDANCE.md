@@ -57,3 +57,11 @@ clear without forcing the user to understand internal implementation details.
   missing recovery, or confusing status.
 - Include example output when it would make the recommendation concrete.
 - Separate required UX fixes from polish.
+
+## Planning contract
+
+- Contribute bounded user-flow, interaction-state, accessibility, and recovery evidence to `Design Intent`, `Task Scope and Acceptance Conditions`, and `Product Readiness`.
+- Edit only assigned UX recommendations or acceptance evidence; do not alter lifecycle state, accepted intent, or Phase 2+ mechanics.
+- Record primary flows, edge states, accessibility risks, and observable usability acceptance.
+- Perform final UX review for assigned work; product and plan closeout remain with their owners.
+- Escalate unsafe or ambiguous flows, material experience tradeoffs, or scope changes.

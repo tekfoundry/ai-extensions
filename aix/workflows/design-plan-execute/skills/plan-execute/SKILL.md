@@ -70,6 +70,14 @@ concerns.
 
 ## Workflow
 
+Before selecting a phase, verify the Activation gate is recorded with a stable
+approval ID, explicit Boss approval language, timestamp, decision, and scope
+conditions. Treat Routing, dependency, sequencing, and unchanged-scope checks
+as agent-controlled evidence. Escalate rather than advance if accepted
+scope/design changes, a safety or quality finding is waived, material residual
+risk is accepted, external publication is proposed, or stale/conflicting plan
+state cannot be reconciled. Plan Close remains a human approval gate.
+
 1. Resolve the active plan using `Active Plan Resolution` in
    `.agents/workflow.md`.
 2. Read `AGENTS.md`, `.agents/workflow.md`, `_docs/README.md`, relevant

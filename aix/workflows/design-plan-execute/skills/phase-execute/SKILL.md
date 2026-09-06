@@ -139,6 +139,13 @@ Ask concise, decision-focused questions for any missing or conflicting informati
 
 ## 4. Execute
 
+For each task, enforce the canonical transitions: `⬜️ → 🟨` before work,
+then `🟨 → ✅` only after evidence, or `🟨 → ⚠️` with a reason and next action.
+Record owner, assigned actor, transition actor, UTC timestamp, and evidence;
+reconcile stale or conflicting updates through the project-manager. Phase Close
+is agent-controlled only when accepted scope and success criteria are unchanged;
+otherwise escalate to Boss.
+
 For an authorized and ready phase:
 
 1. State the selected phase and why it was selected, especially when the phase

@@ -41,3 +41,11 @@ Stop and return a blocking question when scope, authorization, safety, product i
 # Expected Output
 
 Return concise findings, accepted packet context when provided, context re-read for authority, recommended next actions, exact files or commands inspected, verification advice, documentation impact, gaps, residual risk, handoff notes, and whether scope expanded.
+
+## Planning contract
+
+- Own `Boundaries and Invariants`; advise on `Design Intent`, `Implementation Phases`, and review/refactor gates.
+- May edit only an assigned architecture draft or bounded plan evidence in those domains; never widen source-code authority, lifecycle state, or Phase 2+ mechanics.
+- Evidence must name boundaries, invariants, integration risks, tradeoffs, and affected contracts.
+- Perform the final architecture and maintainability review for the phase/task when assigned; do not approve product closeout.
+- Escalate accepted-intent changes, safety-sensitive boundary changes, or material residual risk to the project-manager and Boss.

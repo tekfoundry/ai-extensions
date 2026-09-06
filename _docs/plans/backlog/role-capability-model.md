@@ -204,6 +204,27 @@ Not drafted until Design Intent is accepted.
 - `_docs/kb/07-decisions/` capability and PM authority decision record
 - Role-authoring and workflow documentation as applicable
 
+## Lifecycle Migration Record
+
+- **Migration policy:** this backlog plan was reviewed without activation or
+  implementation. Its accepted context, goal, design intent, boundaries, risks,
+  and open questions were preserved; no completed historical plan was rewritten.
+- **Ownership reconciliation:** `project-manager` owns lifecycle status,
+  phases, gates, and checklist; `product-owner` owns Context and High-Level
+  Goal; `technical-architect` owns Boundaries And Invariants. No phase/task
+  owner is assigned because Implementation Phases remain intentionally
+  undrafted pending design-intent decisions.
+- **Gate state:** Routing is recorded by this placement under `backlog/`;
+  Vision and Design Intent are represented as accepted sections; Plan and
+  Activation remain pending. The plan is not implementation authorization.
+- **Evidence gap handling:** absent phase/task evidence is recorded as not
+  applicable rather than backfilled. At activation, the project-manager must
+  add ordered phases, task owners, dependencies, verification expectations,
+  approval records, and task-transition evidence before work starts.
+- **Migration result:** compatible with the formalized workflow as a backlog
+  draft; no stale task markers, conflicting task states, or missing execution
+  owners were silently normalized.
+
 ## Completion Checklist
 
 - ⬜️ Confirm every task and success goal is complete or explicitly deferred.

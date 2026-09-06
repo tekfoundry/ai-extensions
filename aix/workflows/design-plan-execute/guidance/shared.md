@@ -36,3 +36,19 @@ workflow lifecycle, skill procedure, role contract, and safety rules first.
 When guidance conflicts with a higher-priority instruction, follow the
 higher-priority instruction and report the conflict when it could affect the
 task outcome.
+
+## Agent-operational contract
+
+Before acting, identify the purpose, `owner`, collaborators, entry conditions,
+selected gate, expected outputs, escalation conditions, and exit criteria. The
+project-manager owns plan reconciliation; the assigned role owns its bounded
+report; Boss owns human approvals. Record `owner` (accountable role), `assigned`
+(worker/run ID), status transition, UTC timestamps, evidence, validation,
+documentation impact, and residual risk when applicable.
+
+Use `⬜️ → 🟨` before work and `🟨 → ✅` only after evidence. Use `⚠️` with a
+reason and next action for blocked, deferred, or incomplete work. Never infer
+approval from a recommendation, passing tests, or conversation momentum.
+Triggers select procedures and roles but never grant authority. Preserve
+unrelated edits and stop on stale/conflicting context, scope changes, safety
+waivers, material risk, or a human gate; see [troubleshooting](troubleshooting.md).

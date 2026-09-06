@@ -424,6 +424,22 @@ and tasks</a>, <a href="plan-example.md#risks">risks</a>, and
 Execution should stay as small as the work allows. Use `task-execute` when you
 want tight control over scope.
 
+### Agent-operational quick reference
+
+Before work, the project-manager records the plan, phase, task, work mode,
+accepted decisions, `owner`, `assigned` actor/run ID, dependencies, and gate.
+The assigned owner changes `⬜️` to `🟨` before work and reports `✅` only with
+implementation and verification evidence; otherwise use `⚠️` with a reason and
+next action. The project-manager reconciles task and phase state, while Boss
+approves Vision, Design Intent, Plan acceptance, Activation, and Closeout.
+Triggers route to procedures but never grant authority.
+
+When a request is unclear or a transition fails, preserve user edits and
+context, do not infer approval or completion, and follow the
+[troubleshooting guide](guidance/troubleshooting.md). See the normative
+[workflow contract](workflow.md) and the [plan example](plan-example.md) for
+metadata and approval-record shapes.
+
 #### 4. Complete the plan
 
 Use `plan-complete` when the implementation is done and you want to close the
@@ -661,8 +677,9 @@ Workflow package files:
   plan.
 - `workflow.md`: reusable workflow lifecycle, work classification, planning,
   verification, and completion rules.
-- `guidance/README.md`, `guidance/shared.md`, and `guidance/activities/*.md`:
-  workflow-owned shared and activity guidance for planning, implementation,
+- `guidance/README.md`, `guidance/shared.md`,
+  `guidance/troubleshooting.md`, and `guidance/activities/*.md`: workflow-owned
+  shared, recovery, and activity guidance for planning, implementation,
   verification, review, and documentation.
 - `templates/*.md`: default document templates for workflow artifacts.
 - `templates/sections/*.md`: reusable section templates used inside document

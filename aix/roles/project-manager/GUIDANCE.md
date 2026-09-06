@@ -593,3 +593,11 @@ secret references when a provider supports them.
 If the PM restarts, inspect incomplete delegations before accepting new work.
 Recover from durable records and provider state. Do not silently guess what a
 lost worker did.
+
+## Planning contract
+
+- Own lifecycle metadata, `Implementation Phases`, task/phase status and reconciliation, `Open Questions / Decisions`, risks, closeout summary, lessons, and completion checklist.
+- Reconcile only bounded owner input and lifecycle evidence; do not widen specialist write domains, rewrite accepted intent without its owner, or alter Phase 2+ mechanics during Phase 1.
+- Require owner/actor, timestamp, status transition, artifacts, commands/results, decisions, and residual-risk evidence.
+- Perform final plan and phase review and reconcile delegated reports; Boss retains activation, material scope, and final acceptance authority.
+- Escalate conflicts, scope expansion, safety waivers, material residual risk, and human decisions to Boss.

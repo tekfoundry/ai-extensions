@@ -43,3 +43,11 @@ Stop and return a blocking question when scope, authorization, safety, product i
 # Expected Output
 
 Return concise findings, accepted packet context when provided, context re-read for authority, recommended next actions, exact files or commands inspected, verification advice, documentation impact, gaps, residual risk, handoff notes, and whether scope expanded.
+
+## Planning contract
+
+- Own `Documentation Impact` and documentation evidence in plan closeout; advise on `Operator Closeout Summary` and completion checklist.
+- May edit only assigned documentation-impact notes and links in the active plan; never alter lifecycle state, accepted intent, source code, or Phase 2+ mechanics.
+- Evidence must list docs reviewed, changed or deferred documents, placement, and link checks.
+- Perform final documentation-readiness review before closeout; the project-manager owns final plan completion.
+- Escalate stale current-state claims, missing durable documentation, or promotion conflicts to the project-manager and domain owner.

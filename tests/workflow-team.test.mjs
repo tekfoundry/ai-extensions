@@ -118,4 +118,83 @@ test("the roster keeps release evidence and serialization metadata coherent", ()
   assert.equal(release.serialization, "group");
   assert.equal(product.serialization, "none");
   assert.equal(workflow.team.version, team.version);
+  assert.equal(team.triggerRouting.authorityBoundary.includes("routing selects work only"), true);
+  assert.equal(team.delegationPacket.workerBoundary.includes("project-manager reconciles"), true);
+});
+
+test("Phase 3 routing maps canonical intents to narrow procedures and roles", () => {
+  const team = readWorkflowTeam(readWorkflowManifest(workflowRoot), workflowRoot);
+  const routes = team.triggerRouting.routes;
+  const expected = new Map([
+    ["brainstorm.explore", ["brainstorming-skill", "product-owner"]],
+    ["vision.clarify", ["requirements-clarify", "product-owner"]],
+    ["design.shape", ["design-intent", "requirements-engineer"]],
+    ["plan.create", ["plan-create", "project-manager"]],
+    ["plan.review", ["plan-review", "quality-engineer"]],
+    ["plan.activate", ["plan-activate", "project-manager"]],
+    ["phase.start", ["phase-execute", "project-manager"]],
+    ["task.start", ["task-execute", "assigned-task-owner"]],
+    ["work.verify", ["work-verify", "quality-engineer"]],
+    ["docs.promote", ["design-promote", "documentation-specialist"]],
+    ["plan.close", ["plan-complete", "project-manager"]]
+  ]);
+  assert.equal(routes.length, expected.size);
+  for (const route of routes) {
+    assert.deepEqual([route.procedure, route.role], expected.get(route.intent), route.intent);
+    assert.ok(route.intent.includes("."));
+    assert.ok(route.slash.startsWith("/"));
+  }
+});
+
+test("Phase 3 routing accepts natural-language aliases and rejects ambiguous matches", () => {
+  const team = readWorkflowTeam(readWorkflowManifest(workflowRoot), workflowRoot);
+  const routes = team.triggerRouting.routes;
+  assert.ok(routes.find((route) => route.intent === "plan.create").aliases.includes("break into tasks"));
+  assert.ok(routes.find((route) => route.intent === "work.verify").aliases.includes("run the quality gate"));
+  assert.match(team.triggerRouting.normalization, /conversational and slash/i);
+  assert.match(team.triggerRouting.ambiguity, /clarification/i);
+  assert.match(team.triggerRouting.ambiguity, /fail closed/i);
+  assert.deepEqual(team.triggerRouting.precedence, [
+    "explicit slash/object-verb",
+    "exact canonical phrase",
+    "exact alias",
+    "unambiguous natural language"
+  ]);
+});
+
+test("Phase 3 routing preserves plan, phase, task context and delegation evidence", () => {
+  const team = readWorkflowTeam(readWorkflowManifest(workflowRoot), workflowRoot);
+  assert.deepEqual(team.triggerRouting.contextFields, [
+    "plan", "planRevision", "baseRevision", "workMode", "phase", "task",
+    "sectionOwner", "acceptedDecisions", "constraints"
+  ]);
+  assert.ok(team.triggerRouting.routes.every((route) => route.intent && route.procedure && route.role));
+  assert.ok(team.delegationPacket.requiredFields.includes("packetId"));
+  assert.ok(team.delegationPacket.requiredFields.includes("phase"));
+  assert.ok(team.delegationPacket.requiredFields.includes("task"));
+  assert.ok(team.delegationPacket.requiredFields.includes("expectedOutput"));
+  assert.ok(team.delegationPacket.requiredFields.includes("evidenceRequirements"));
+  for (const evidence of ["status transition", "changed files or artifacts", "commands and results", "validation when applicable", "documentation impact", "residual risks", "conflict/base-revision reference"]) {
+    assert.ok(team.delegationPacket.evidenceRequirements.includes(evidence), evidence);
+  }
+  assert.match(team.delegationPacket.workerBoundary, /only packet-scoped/i);
+  assert.match(team.delegationPacket.workerBoundary, /project-manager reconciles/i);
+});
+
+test("Phase 3 routing metadata fails closed when authority or packet boundaries are weakened", () => {
+  const base = JSON.parse(readFileSync(`${workflowRoot}/team.md`, "utf8").match(/<!--\s*aix:team\s*\n([\s\S]*?)\n\s*-->/)[1]);
+  const markdown = (metadata) => `# Team\n\n<!-- aix:team\n${JSON.stringify(metadata)}\n-->\n`;
+
+  assert.throws(
+    () => parseWorkflowTeam(markdown({ ...base, triggerRouting: { ...base.triggerRouting, authorityBoundary: "routing may perform requested actions" } })),
+    /authorityBoundary.*non-authoritative|activation, approval/i
+  );
+  assert.throws(
+    () => parseWorkflowTeam(markdown({ ...base, delegationPacket: { ...base.delegationPacket, invalidPacket: "infer omitted fields" } })),
+    /invalidPacket.*reject|never infer/i
+  );
+  assert.throws(
+    () => parseWorkflowTeam(markdown({ ...base, triggerRouting: { ...base.triggerRouting, approvalIntents: base.triggerRouting.approvalIntents.filter((intent) => intent !== "plan.activate") } })),
+    /approvalIntents.*plan.activate/
+  );
 });

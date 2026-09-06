@@ -24,11 +24,38 @@ export interface WorkflowTeamRole {
   serialization: "none" | "group" | "shared-artifact" | "integration";
 }
 
+export interface WorkflowTriggerRoute {
+  intent: string;
+  aliases: string[];
+  slash: string;
+  procedure: string;
+  role: string;
+}
+
+export interface WorkflowTriggerRouting {
+  normalization: string;
+  precedence: string[];
+  ambiguity: string;
+  contextFields: string[];
+  routes: WorkflowTriggerRoute[];
+  approvalIntents: string[];
+  authorityBoundary: string;
+}
+
+export interface WorkflowDelegationPacketContract {
+  requiredFields: string[];
+  evidenceRequirements: string[];
+  workerBoundary: string;
+  invalidPacket: string;
+}
+
 export interface WorkflowTeam {
   workflow: string;
   version: string;
   requiredCapabilities: string[];
   roles: WorkflowTeamRole[];
+  triggerRouting?: WorkflowTriggerRouting;
+  delegationPacket?: WorkflowDelegationPacketContract;
 }
 
 export const BOSS_PRINCIPAL = "boss" as const;
@@ -66,6 +93,59 @@ function optionalBoolean(value: unknown, fallback: boolean, path: string): boole
   if (value === undefined) return fallback;
   if (typeof value !== "boolean") fail(path, "must be a boolean.");
   return value;
+}
+
+function parsePhase3Contracts(raw: Record<string, unknown>, path: string): Pick<WorkflowTeam, "triggerRouting" | "delegationPacket"> {
+  if (!isRecord(raw.triggerRouting)) fail(`${path}.triggerRouting`, "must be an object.");
+  const routing = raw.triggerRouting;
+  const routesRaw = routing.routes;
+  if (!Array.isArray(routesRaw) || routesRaw.length === 0) fail(`${path}.triggerRouting.routes`, "must be a non-empty array.");
+  const routes = routesRaw.map((route, index) => {
+    const routePath = `${path}.triggerRouting.routes[${index}]`;
+    if (!isRecord(route)) fail(routePath, "must be an object.");
+    return {
+      intent: requireString(route.intent, `${routePath}.intent`),
+      aliases: requireStringArray(route.aliases, `${routePath}.aliases`),
+      slash: requireString(route.slash, `${routePath}.slash`),
+      procedure: requireString(route.procedure, `${routePath}.procedure`),
+      role: requireString(route.role, `${routePath}.role`)
+    };
+  });
+  const approvalIntents = requireStringArray(routing.approvalIntents, `${path}.triggerRouting.approvalIntents`);
+  for (const required of ["plan.activate", "plan.approve", "plan.approve-closeout"]) {
+    if (!approvalIntents.includes(required)) fail(`${path}.triggerRouting.approvalIntents`, `must preserve ${required} as an approval intent.`);
+  }
+  const authorityBoundary = requireString(routing.authorityBoundary, `${path}.triggerRouting.authorityBoundary`);
+  if (!/routing selects work only/i.test(authorityBoundary) || !/(activation|approval)/i.test(authorityBoundary) || !/(publishing|archival|archiv)/i.test(authorityBoundary)) {
+    fail(`${path}.triggerRouting.authorityBoundary`, "must explicitly keep routing non-authoritative for activation, approval, publishing, and archival.");
+  }
+  if (!isRecord(raw.delegationPacket)) fail(`${path}.delegationPacket`, "must be an object.");
+  const packet = raw.delegationPacket;
+  const requiredFields = requireStringArray(packet.requiredFields, `${path}.delegationPacket.requiredFields`);
+  for (const required of ["packetId", "planRevision", "baseRevision", "assignedActor", "gateAuthority", "evidenceRequirements"]) {
+    if (!requiredFields.includes(required)) fail(`${path}.delegationPacket.requiredFields`, `must include ${required}.`);
+  }
+  const workerBoundary = requireString(packet.workerBoundary, `${path}.delegationPacket.workerBoundary`);
+  if (!/only packet-scoped/i.test(workerBoundary) || !/project-manager reconciles/i.test(workerBoundary)) fail(`${path}.delegationPacket.workerBoundary`, "must restrict workers to packet scope and reserve reconciliation for project-manager.");
+  const invalidPacket = requireString(packet.invalidPacket, `${path}.delegationPacket.invalidPacket`);
+  if (!/reject/i.test(invalidPacket) || !/never infer/i.test(invalidPacket)) fail(`${path}.delegationPacket.invalidPacket`, "must reject invalid packets without inferring authority.");
+  return {
+    triggerRouting: {
+      normalization: requireString(routing.normalization, `${path}.triggerRouting.normalization`),
+      precedence: requireStringArray(routing.precedence, `${path}.triggerRouting.precedence`),
+      ambiguity: requireString(routing.ambiguity, `${path}.triggerRouting.ambiguity`),
+      contextFields: requireStringArray(routing.contextFields, `${path}.triggerRouting.contextFields`),
+      routes,
+      approvalIntents,
+      authorityBoundary
+    },
+    delegationPacket: {
+      requiredFields,
+      evidenceRequirements: requireStringArray(packet.evidenceRequirements, `${path}.delegationPacket.evidenceRequirements`),
+      workerBoundary,
+      invalidPacket
+    }
+  };
 }
 
 function assertDesignPlanExecuteRoster(team: WorkflowTeam, path: string): void {
@@ -182,7 +262,8 @@ export function parseWorkflowTeam(markdown: string, path = "team.md"): WorkflowT
     workflow: requireString(raw.workflow, `${path}.workflow`),
     version: requireString(raw.version, `${path}.version`),
     requiredCapabilities: requireStringArray(raw.requiredCapabilities, `${path}.requiredCapabilities`),
-    roles
+    roles,
+    ...(raw.workflow === "design-plan-execute" ? parsePhase3Contracts(raw, path) : {})
   };
 
   if (team.workflow === "design-plan-execute") {

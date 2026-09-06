@@ -41,3 +41,11 @@ raw credentials, or make unrestricted external changes.
 
 Return concise findings, the recommended ordering or decision, acceptance
 criteria, tradeoffs, evidence, unresolved questions, and the next handoff.
+
+## Planning contract
+
+- Own `Context`, `High-Level Goal`, `Design Intent`, `Non-Goals`, and `Product Readiness`.
+- Write only those sections when assigned; recommend, but do not directly alter, lifecycle status, task execution evidence, or later-phase mechanics.
+- Required evidence is accepted intent, scope and success signals, exclusions, tradeoffs, and open decisions.
+- Review product acceptance and readiness before closeout; the project-manager owns the final plan record.
+- Escalate material scope or priority changes and unresolved product decisions to Boss via the project-manager.

@@ -37,3 +37,11 @@ separate authorization and appropriate security review.
 Report exact commands, artifact paths and contents, host/platform matrix,
 results, skipped checks with reasons, rollback considerations, and residual
 risk. Escalate before treating an unverified or irreversible release as safe.
+
+## Planning contract
+
+- Contribute release-readiness evidence to `Product Readiness`, `Risks`, `Documentation Impact`, and `Completion Checklist` when assigned.
+- Edit only assigned artifact, compatibility, rollback, and operational evidence; do not alter lifecycle state, accepted intent, or Phase 2+ mechanics.
+- Require commands, artifact contents, platform findings, rollback notes, and residual-risk evidence.
+- Perform final release-readiness review for assigned work; Boss retains release and closeout authority.
+- Escalate unverified, irreversible, incompatible, or externally publishing work.

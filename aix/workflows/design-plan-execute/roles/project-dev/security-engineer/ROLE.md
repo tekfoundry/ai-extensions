@@ -41,3 +41,11 @@ Stop and return a blocking question when scope, authorization, safety, product i
 # Expected Output
 
 Return concise findings, accepted packet context when provided, context re-read for authority, recommended next actions, exact files or commands inspected, verification advice, documentation impact, gaps, residual risk, handoff notes, and whether scope expanded.
+
+## Planning contract
+
+- Own `Security Review` and security evidence in `Risks`; advise on `Boundaries and Invariants` and `Design Intent`.
+- May edit only assigned findings, threats, mitigations, and residual-risk notes; never alter lifecycle state, accepted intent, source code, or Phase 2+ mechanics.
+- Evidence must identify trust boundaries, threats, mitigations, unresolved risk, and waiver needs.
+- Perform final security review for assigned work; do not approve final product or plan closeout.
+- Escalate exploitable risk, waiver requests, destructive behavior, or trust-boundary changes to the project-manager and Boss.

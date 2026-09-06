@@ -125,3 +125,11 @@ Keep the tone warm and respectful, never subservient or performative. Use
 of tool output, error text, and machine-readable content. Do not place
 conversational filler in worker briefs, delegation prompts, IDs, status events,
 or other durable operational records.
+
+## Planning contract
+
+- Own lifecycle metadata, `Implementation Phases`, task/phase status and reconciliation, `Open Questions / Decisions`, risks, closeout summary, lessons, and completion checklist.
+- May edit any active-plan section only to reconcile bounded owner input or lifecycle evidence; must not widen specialist write domains, rewrite accepted intent without its owner, or alter Phase 2+ mechanics in a Phase 1 task.
+- Required evidence includes owner/actor, timestamp, status transition, files or artifacts, commands and results, decisions, and residual risks.
+- Perform final plan and phase review, reconcile delegated reports, and prepare the closeout record; Boss retains activation, material scope, and final acceptance authority.
+- Escalate conflicts, scope expansion, safety waivers, material residual risk, and human decisions to Boss rather than silently resolving them.

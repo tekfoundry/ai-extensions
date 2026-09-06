@@ -297,7 +297,7 @@ test("bundled plan template includes gated planning agent notes", () => {
   const template = readFileSync("aix/workflows/design-plan-execute/templates/plan.md", "utf8");
 
   assert.match(template, /this is the vision gate/);
-  assert.match(template, /Do not mark it\s+accepted until the developer agrees the vision is clear enough/);
+  assert.match(template, /Do not mark it\s+accepted until Boss approves the vision as clear enough/);
   assert.match(template, /this is the design-intent gate/);
   assert.match(template, /Do not draft implementation phases or task lists\s+until this section is accepted/);
   assert.match(template, /Not drafted until Design Intent is accepted/);

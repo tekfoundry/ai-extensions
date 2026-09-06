@@ -11,6 +11,17 @@ Agent note: render one lifecycle status marker and its label. Use only:
 
 ## Context
 
+<!-- DO NOT INCLUDE IN OUTPUT
+Agent note: render this compact accountability block for the section. Owner is
+required; collaborators are conditional. Keep assignment, validation, and
+completion details in task records unless this section has its own gate.
+-->
+<!-- DO NOT INCLUDE IN OUTPUT
+Agent note: Section metadata (render when applicable):
+Owner: <accountable-role>
+Collaborators: <role-list>
+-->
+
 Describe why the work matters, what prompted it, and what repository or product
 facts shape the work.
 
@@ -25,16 +36,22 @@ task markers in section headings.
 ## High-Level Goal (status: {{ goal:status }})
 
 <!-- DO NOT INCLUDE IN OUTPUT
+Agent note: Section metadata (render when applicable): Owner: <accountable-role>; Collaborators: <role-list> -->
+
+<!-- DO NOT INCLUDE IN OUTPUT
 Agent note: this is the vision gate. Keep this section focused on what should
 change, who it helps, why it matters, and the scope direction. Do not mark it
-accepted until the developer agrees the vision is clear enough to deepen into
-Design Intent.
+accepted until Boss approves the vision as clear enough to deepen into Design
+Intent.
 -->
 
 State the agreed outcome in terms of what should change and why that change
 matters.
 
 ## Design Intent (status: {{ design:status }})
+
+<!-- DO NOT INCLUDE IN OUTPUT
+Agent note: Section metadata (render when applicable): Owner: <accountable-role>; Collaborators: <role-list> -->
 
 <!-- DO NOT INCLUDE IN OUTPUT
 Agent note: this is the design-intent gate. Capture the intended
@@ -49,6 +66,9 @@ interfaces, tradeoffs, safety posture, and verification expectations.
 ## Non-Goals
 
 <!-- DO NOT INCLUDE IN OUTPUT
+Agent note: Section metadata (render when applicable): Owner: <accountable-role>; Collaborators: <role-list> -->
+
+<!-- DO NOT INCLUDE IN OUTPUT
 Agent note: remove this section if there are no meaningful non-goals. Do
 not leave placeholder bullets in the final plan. 
 -->
@@ -58,6 +78,9 @@ not leave placeholder bullets in the final plan.
 ## Boundaries And Invariants
 
 <!-- DO NOT INCLUDE IN OUTPUT
+Agent note: Section metadata (render when applicable): Owner: <accountable-role>; Collaborators: <role-list> -->
+
+<!-- DO NOT INCLUDE IN OUTPUT
 Agent note: use concrete project constraints, ownership rules, safety
 rules, or runtime invariants. Remove placeholder bullets. 
 -->
@@ -65,6 +88,9 @@ rules, or runtime invariants. Remove placeholder bullets.
 - {{ invariant:item }}
 
 ## Implementation Phases
+
+<!-- DO NOT INCLUDE IN OUTPUT
+Agent note: Section metadata (render when applicable): Owner: <accountable-role>; Collaborators: <role-list> -->
 
 <!-- DO NOT INCLUDE IN OUTPUT
 Agent note: before Design Intent is accepted, leave this section as a clear
@@ -78,6 +104,9 @@ the workflow task markers exactly: ⬜️, 🟨, ✅, and ⚠️.
 ## Open Questions / Decisions
 
 <!-- DO NOT INCLUDE IN OUTPUT
+Agent note: Section metadata (render when applicable): Owner: <accountable-role>; Collaborators: <role-list> -->
+
+<!-- DO NOT INCLUDE IN OUTPUT
 Agent note: keep only unresolved or intentionally deferred decisions. If
 none remain, write "None." or remove the section. 
 -->
@@ -85,6 +114,9 @@ none remain, write "None." or remove the section.
 - {{ decision:item }}
 
 ## Documentation Impact
+
+<!-- DO NOT INCLUDE IN OUTPUT
+Agent note: Section metadata (render when applicable): Owner: <accountable-role>; Collaborators: <role-list> -->
 
 <!-- DO NOT INCLUDE IN OUTPUT
 Agent note: classify current-state knowledge impact by area. Keep this section
@@ -104,6 +136,9 @@ that no `_docs/kb` update is needed when the regression analysis supports it.
 ## Product Readiness
 
 <!-- DO NOT INCLUDE IN OUTPUT
+Agent note: Section metadata (render when applicable): Owner: <accountable-role>; Collaborators: <role-list> -->
+
+<!-- DO NOT INCLUDE IN OUTPUT
 Agent note: include this section when work moves toward user-facing release.
 Use prototype-ready, internal-use-ready, beta-ready, or production-ready.
 Remove it when readiness classification is irrelevant.
@@ -113,6 +148,9 @@ Remove it when readiness classification is irrelevant.
 - Evidence needed: {{ readiness:evidence }}
 
 ## Operator Closeout Summary
+
+<!-- DO NOT INCLUDE IN OUTPUT
+Agent note: Section metadata (render when applicable): Owner: <accountable-role>; Collaborators: <role-list> -->
 
 <!-- DO NOT INCLUDE IN OUTPUT
 Agent note: add during closeout for meaningful work. Cover what changed,
@@ -135,6 +173,9 @@ and manual inspection needs. Remove it before closeout if it is not ready.
 ## Lessons To Carry Forward
 
 <!-- DO NOT INCLUDE IN OUTPUT
+Agent note: Section metadata (render when applicable): Owner: <accountable-role>; Collaborators: <role-list> -->
+
+<!-- DO NOT INCLUDE IN OUTPUT
 Agent note: record reusable lessons only. Remove this section if there are
 no lessons yet. 
 -->
@@ -142,3 +183,9 @@ no lessons yet.
 - {{ lesson:item }}
 
 {{ section:completion-checklist }}
+
+<!-- DO NOT INCLUDE IN OUTPUT
+Agent note: section-level validation, evidence, timestamps, and conditional
+metadata belong beside the relevant gate or task when they are applicable;
+do not add empty fields to simple plans.
+-->

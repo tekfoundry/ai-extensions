@@ -151,6 +151,11 @@ work.
 
 ## 4. Implement
 
+At Task Start, write `🟨` before implementation begins and retain `owner`,
+`assigned`, and `started-at`. Do not use direct completion or blocked-marker
+shortcuts. If work cannot proceed, use `⚠️` with an allowed reason and
+actionable next step.
+
 For an authorized and ready task:
 
 1. Mark the task in progress using the plan's existing status convention when
@@ -180,6 +185,14 @@ checks, builds, linting, smoke checks, or packaging/release validation for the
 affected subsystem.
 
 ## 6. Close the Task
+
+For `✅`, record `completed-at`, completion reason, changed files/artifacts,
+commands and results, validation/sign-off where required, documentation impact,
+and residual risks. The assigned owner reports evidence; `quality-engineer`
+validates when required; `project-manager` reconciles authoritative state.
+Use `⚠️` for blocked, deferred, skipped, superseded, awaiting Boss approval,
+or dependency/verification follow-up. A completed task is terminal for its
+scope; reopening requires a recorded decision and fresh evidence.
 
 After verification:
 

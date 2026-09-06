@@ -37,3 +37,11 @@ Stop and return a blocking question when scope, authorization, safety, product i
 # Expected Output
 
 Return concise findings, accepted packet context when provided, context re-read for authority, recommended next actions, exact files or commands inspected, verification advice, documentation impact, gaps, residual risk, handoff notes, and whether scope expanded.
+
+## Planning contract
+
+- Contribute requirements, acceptance signals, edge cases, and open decisions to `Context`, `Design Intent`, `Non-Goals`, `Task Scope and Acceptance Conditions`, and `Open Questions / Decisions` under their named owners.
+- May edit only an assigned bounded draft or recommendation in those sections; cannot change lifecycle state, accepted intent, source code, or Phase 2+ mechanics.
+- Evidence must identify actors, observable acceptance signals, exclusions, edge cases, and unresolved questions.
+- Perform final requirements-readiness review before plan activation or closeout, but do not approve final completion.
+- Escalate ambiguous product intent, material scope changes, or decisions reserved for Boss to the project-manager.

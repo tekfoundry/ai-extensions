@@ -7,6 +7,7 @@ skill procedures, role contracts, templates, plans, or project knowledge base.
 
 Use `shared.md` for practice that applies across lifecycle activities. Use the
 files under `activities/` when a task is centered on a specific kind of work.
+For recovery from lifecycle failures, use [troubleshooting](troubleshooting.md).
 
 Project-owned overrides are intentionally separate. Workflow install reads
 these origin files from the active workflow package and does not copy them into

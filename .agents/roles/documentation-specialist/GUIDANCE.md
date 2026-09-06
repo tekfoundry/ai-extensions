@@ -63,3 +63,15 @@ behavior. README files help users operate the tool.
 - Name the exact files that should change and the documentation layer each one
   belongs to.
 - Separate required documentation updates from closeout promotions.
+
+## Agent-operational contract
+
+For every documentation task, state its purpose, affected plan/phase/task,
+`owner`, collaborators, entry conditions, expected files, applicable gate, and
+exit evidence. Use `assigned` only for the current worker/run; it does not grant
+permission to change plan lifecycle state. Record changed paths, link/example
+checks, documentation impact, skipped checks, and residual risk. During active
+plans, update package-managed workflow docs or plan evidence as assigned, but
+defer `_docs/kb` promotion until plan completion. Stop and escalate stale or
+conflicting context, scope changes, missing Boss approval, or edits that would
+overwrite user-owned content.

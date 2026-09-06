@@ -6,6 +6,9 @@ headings. -->
 
 ### Phase {{ phase:number }}: {{ phase:title }} (status: {{ phase:status }})
 
+<!-- DO NOT INCLUDE IN OUTPUT
+Agent note: Phase metadata (render when applicable): Owner: <accountable-role>; Collaborators: <role-list> -->
+
 Goal: {{ phase:goal }}
 
 Tasks:
@@ -39,6 +42,15 @@ Execution notes:
 
 <!-- DO NOT INCLUDE IN OUTPUT
 Agent note: add notes only after implementation or verification work has
-actually happened. Remove this block from untouched backlog phases. -->
+actually happened. Remove this block from untouched backlog phases. Add
+validation timestamps and phase evidence only when the phase is reviewed or
+accepted; keep simple phases free of empty metadata.
+-->
 
 {{ repeat:phase.execution_notes section:execution-note }}
+
+<!-- DO NOT INCLUDE IN OUTPUT
+Agent note: Conditional phase metadata (render only when applicable):
+Validation: <validation-result>; Evidence: <evidence-reference>;
+Completed-at: <UTC-timestamp>; Conditional metadata: <key-value-list>
+-->

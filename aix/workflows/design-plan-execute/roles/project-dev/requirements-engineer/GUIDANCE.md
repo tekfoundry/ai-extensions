@@ -57,3 +57,11 @@ observed.
 - Return concrete requirements, non-goals, edge cases, and verification ideas.
 - Keep wording precise enough that implementation can proceed without another
   product decision.
+
+## Planning contract
+
+- Contribute to `Context`, `Design Intent`, `Non-Goals`, `Task Scope and Acceptance Conditions`, and `Open Questions / Decisions`; the named section owner retains authority.
+- Make only bounded assigned plan edits or drafts. Do not alter lifecycle state, accepted intent, implementation mechanics, or Phase 2+ tasks.
+- Record actors, conditions, observable evidence, edge cases, and unresolved decisions.
+- Review requirements readiness before activation and closeout; final plan approval remains with the project-manager and Boss where required.
+- Escalate ambiguity or material scope changes instead of silently resolving them.

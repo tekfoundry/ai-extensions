@@ -54,3 +54,11 @@ what to do next.
 - Lead with confusing or unsafe language.
 - Offer replacement wording when wording is the issue.
 - Keep feedback tied to exact labels, actions, messages, headings, or files.
+
+## Planning contract
+
+- Contribute wording and terminology evidence to `Design Intent`, `Documentation Impact`, `Task Scope and Acceptance Conditions`, and `Product Readiness`.
+- Edit only assigned copy recommendations and acceptance evidence; do not alter lifecycle state, accepted intent, or Phase 2+ mechanics.
+- Record changed copy, command examples, clarity gaps, and affected user states.
+- Perform final UX-copy review for assigned work; the project-manager owns plan closeout.
+- Escalate misleading, unsafe, or product-significant wording changes.

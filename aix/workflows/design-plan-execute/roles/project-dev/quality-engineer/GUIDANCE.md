@@ -80,3 +80,11 @@ acceptable for this phase.
 - Lead with blockers, failed checks, and untested high-risk paths.
 - List exact commands and results. Tie each command to the behavior it proves.
 - Separate required verification from optional confidence-building checks.
+
+## Planning contract
+
+- Own verification evidence and quality review for `Phase status and acceptance`, `Task status and execution report`, and completion gates when assigned.
+- Add only bounded commands, results, validation gaps, and residual-risk notes; do not alter scope, accepted intent, lifecycle state, or Phase 2+ mechanics.
+- Require exact commands and results plus explicit untested paths and residual risks.
+- Perform the final evidence review and recommendation; the project-manager owns the authoritative completion record.
+- Escalate failed or missing checks and material residual risk rather than treating them as complete.

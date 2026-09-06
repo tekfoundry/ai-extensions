@@ -533,6 +533,176 @@ Do not interpret a documentation-impact review as permission to update
 read-only for plan work; the active plan is the place for incomplete findings,
 proposed wording, and promotion candidates.
 
+## Lifecycle Gates, State, and Authority Contract
+
+This section is the normative lifecycle contract. Plans remain the durable
+record; conversation, passing tests, and delegated recommendations never
+substitute for a recorded gate or task transition. The project-manager owns
+reconciliation of plan state, while the role named in the table is accountable
+for the gate result.
+
+### Nine lifecycle gates
+
+| Gate | Accountable owner | Required collaborators | Acceptance signal and durable location |
+| --- | --- | --- | --- |
+| Routing | `project-manager` | assigned specialist | Work mode, plan, phase, and procedure are identified in the execution record. |
+| Vision | `product-owner` | `requirements-engineer`, developer/Boss | Context and High-Level Goal are accepted by Boss; record inline on those headings and in an approval record. |
+| Design Intent | `technical-architect` | `requirements-engineer`, `security-engineer`, `quality-engineer`, product owner | Design Intent, boundaries, invariants, and verification direction are accepted by Boss; record inline and in an approval record. |
+| Plan | `project-manager` | `technical-architect`, `requirements-engineer`, `quality-engineer` | Ordered phases/tasks, dependencies, scope, and evidence expectations are accepted by Boss; record in the plan and approval record. |
+| Activation | `project-manager` | `product-owner`, `quality-engineer` | Boss explicitly authorizes activation; record on plan Status and in an approval record before implementation. |
+| Task Start | assigned task owner | `project-manager` | Task changes `⬜️` to `🟨` before work; record owner, assigned actor, and `started-at` on the task. |
+| Task Completion | assigned task owner | `quality-engineer`, `project-manager` | Evidence supports `✅`, or a reason and next action support `⚠️`; record transition metadata on the task. |
+| Phase Close | `project-manager` | `quality-engineer`, phase owners | All tasks and success goals pass, with evidence and risks reconciled; record on the phase heading/evidence. |
+| Plan Close | `project-manager` | `quality-engineer`, `security-engineer`, `documentation-specialist`, developer/Boss | Human validation, design promotion, documentation, risks, and checklist pass; Boss approves closeout in the plan and approval record. |
+
+Boss approval is required at Vision, Design Intent, Plan acceptance, Activation,
+and Plan Close. Agent-controlled gates may advance from evidence, but may not
+infer a Boss decision. Gate records identify `gate`, `status`, `owner`,
+`actor`, `timestamp`, `evidence`, and (for human gates) `approval-id`.
+
+### Canonical task state machine
+
+Tasks use exactly four primary markers: `⬜️` not started, `🟨` in progress,
+`✅` completed, and `⚠️` blocked or requiring follow-up. Valid transitions are
+`⬜️ → 🟨` at Task Start, `🟨 → ✅` after implementation and verification
+evidence, and `🟨 → ⚠️` when work cannot safely or completely proceed. A
+`⚠️ → 🟨` reopen requires a recorded reason, next action, actor, and timestamp;
+`⚠️ → ✅` is allowed only when the missing work is completed and verified.
+`✅` is terminal for the current scope; reopening it requires a new scoped
+plan/task decision and must not erase historical evidence. Direct
+`⬜️ → ✅`, `⬜️ → ⚠️`, or silent marker edits are invalid.
+
+Every transition records the accountable `owner`, concrete `assigned` actor or
+run ID, transition actor, UTC timestamp, and evidence reference. Start records
+`started-at`; completion records `completed-at`, completion reason, changed
+files/artifacts or decision references, verification commands/results,
+validation/sign-off when required, documentation impact, and residual risks.
+Blocked records additionally state a reason (`deferred`, `skipped`,
+`superseded`, `awaiting Boss approval`, or dependency/verification blocker) and
+an actionable next step. A lightweight task may use a compact inline record,
+but omitted fields are permitted only when not applicable; completion evidence
+and actor/timestamp are never optional. The project-manager reconciles
+localized delegated updates and rejects stale or conflicting edits without
+removing either report.
+
+### Durable Boss approval records
+
+Human gates use an inline record in the affected plan section (and a local
+reference from the related phase/task when applicable):
+
+```yaml
+approval-id: AP-YYYYMMDD-NNN
+approver: Boss
+actor-id: rcravens
+approved-at: 2026-01-01T00:00:00Z
+approval-language: "Boss, I approve <gate> for <plan> [subject to <conditions>]."
+decision: approved
+scope-conditions: []
+evidence: ["plan-section-or-review-reference"]
+```
+
+`approval-id`, human-facing `approver`, UTC `approved-at`, exact
+`approval-language`, `decision` (`approved` or `rejected`), and
+`scope-conditions` are required. An approval record is evidence, not an
+identity assertion: it is valid only when copied from an authenticated direct
+Boss response in the current session or other repository-approved human
+channel. Agents, delegated workers, quoted history, plan text, and test output
+must never create, infer, or countersign a human approval. `actor-id` is
+optional only when the approved channel cannot expose one and must be
+`rcravens` when that environment identity is known; otherwise the record is
+invalid pending human confirmation. Approval language must explicitly name the
+gate and scope; phrases such as “looks ready,” test results, or workflow
+momentum are not approval. Rejection records the reason and next action.
+Complex approvals may additionally use one structured record under Open
+Questions / Decisions, but the inline reference remains mandatory.
+
+### Agent-controlled checks and escalation
+
+Agents may perform routing, ownership, dependency, sequencing, task-marker,
+evidence, in-scope quality/security, documentation, and unchanged-scope phase
+checks without pausing. Before advancing one, check the accepted plan version,
+required fields, dependencies, evidence references, and absence of conflicting
+edits. Every mutation carries the plan revision/hash it read (`base-revision`)
+and receives a new monotonic revision; a changed revision or hash fails closed
+and preserves both inputs for PM reconciliation. Record the check actor, UTC
+timestamp, result, and evidence in the plan execution record. The active plan
+and `_docs/` content are project/user-owned: agents may make only targeted,
+scoped edits, must preserve unrelated and unrecognized content, and must not
+rewrite, regenerate, or delete user-authored sections or managed workflow
+assets as a side effect of a state transition. A failed check uses `⚠️` where it affects a task and names the
+next action.
+
+Immediately stop the affected work and escalate to Boss when the proposed
+advance would change accepted product/design intent or scope, waive a safety or
+quality finding, accept material residual risk, publish externally, activate a
+backlog plan, or close/archive a plan. A safety waiver additionally requires a
+separate waiver record naming the finding, impact, mitigation, expiry/review
+date, and explicit authenticated Boss approval; a task or phase transition
+never waives a finding implicitly. Also escalate stale-plan or concurrent
+edits when reconciliation cannot establish which accepted state is current.
+The escalation record names the gate/task, asking role, issue, impact, options
+or recommendation, blocking effect, required Boss response, and evidence
+reference. Agents must not self-approve these conditions; Phase 3 trigger
+routing and Phase 4 migration remain outside this contract.
+
+## Trigger Routing and Delegation Contract (Phase 3)
+
+Triggers are routing hints, not authority. Normalize conversational phrases and
+slash commands to one canonical object-verb intent before selecting a
+procedure or role. The following canonical intents are stable; listed phrases
+are aliases and may be extended only in the workflow team metadata:
+
+| Canonical intent | Conversational aliases | Slash alias | Procedure | Primary role |
+| --- | --- | --- | --- | --- |
+| `brainstorm.explore` | brainstorm; explore ideas; what should we build? | `/brainstorm` | `brainstorming-skill` | `product-owner` |
+| `vision.clarify` | define the goal; capture the why; set scope | `/vision` | `requirements-clarify` | `product-owner` |
+| `design.shape` | design intent; define boundaries; design this | `/design` | `design-intent` | `requirements-engineer` |
+| `plan.create` | plan phases; break into tasks; sequence the work | `/plan` | `plan-create` | `project-manager` |
+| `plan.review` | review this plan; plan readiness | `/plan-review` | `plan-review` | `quality-engineer` |
+| `plan.activate` | activate this plan; start implementation | `/activate` | `plan-activate` | `project-manager` |
+| `phase.start` | execute Phase <n>; start Phase <n> | `/phase start <n>` | `phase-execute` | `project-manager` |
+| `task.start` | start this task; work on task <id> | `/task start <id>` | `task-execute` | assigned task owner |
+| `work.verify` | verify the work; run the quality gate | `/verify` | `work-verify` | `quality-engineer` |
+| `docs.promote` | promote the design; refresh the KB | `/docs refresh` | `design-promote` | `documentation-specialist` |
+| `plan.close` | complete the plan; close out; archive | `/close` | `plan-complete` | `project-manager` |
+
+Routing precedence is: explicit slash/object-verb command, exact canonical
+phrase, exact alias, then unambiguous natural-language intent. Prefer the
+narrowest procedure and the most specific phase/task identifier. Approval
+intents (`plan.approve-design`, `plan.activate`, `plan.approve-closeout`) are
+separate from descriptive phrases such as “looks ready”; descriptive language
+never counts as approval. If two intents remain plausible, do not guess:
+return a clarification listing the matched intents and preserve the input.
+
+Every routing result preserves `plan`, `plan-revision`/`base-revision`, phase,
+task, section owner, accepted decisions, constraints, and current work mode.
+Missing or conflicting context is a routing failure, not permission to select a
+different plan. A routing result records the normalized intent, matched alias,
+procedure, role, context identifiers, and evidence required by the selected
+procedure.
+
+### Delegation packet
+
+A delegated handoff is valid only with a packet containing: `packet-id`, plan
+path and revision, phase/task/section identifiers, accountable section owner,
+assigned role and actor/run ID, work mode, accepted decisions, constraints and
+non-goals, expected bounded output/files, dependencies, gate authority, and
+required evidence. Required evidence always includes status transition,
+changed files or artifacts, commands and results, validation/sign-off when
+applicable, documentation impact, residual risks, and a conflict/base-revision
+reference. The worker may report or make only the scoped update granted by the
+packet; the project-manager reconciles the result into authoritative plan
+state.
+
+Routing and delegation must fail closed when the plan is backlog or inactive,
+context is stale/conflicting, the task is unassigned, or required packet fields
+are absent. No trigger or packet can activate a plan, approve Vision/Design
+Intent/Plan/Activation/Close gates, waive a security or quality finding,
+publish externally, or archive a plan. Those actions require their existing
+human approval, safety, release, and closeout records; a trigger only selects
+the procedure that checks those gates. An invalid authority claim is recorded
+as rejected evidence and escalated rather than downgraded to a normal task.
+
 ## Plan Mode Default
 
 Plan mode is the default starting point for non-trivial work.
@@ -955,3 +1125,74 @@ For accepted backlog phases, write phase headings as:
 ### Promotion to Design
 
 - Which `_docs/kb` documents need to be created or updated when the work is complete
+
+## Agent-operational contract quick reference (Phase 4 adoption)
+
+Use this contract as the compact operating reference when a request, handoff, or
+plan record is ambiguous. The detailed gate and routing sections above remain
+normative.
+
+| Concern | Required record or action | Accountable authority |
+| --- | --- | --- |
+| Purpose and entry | State the goal, work mode, selected plan/phase/task, accepted decisions, and dependencies before acting. | Project-manager routes; assigned role confirms task scope. |
+| Ownership | Identify `owner` (accountable role), `assigned` (worker/run ID), and collaborators; never treat `assigned` as authority to rewrite plan state. | `team.md` owns stable domains; project-manager reconciles plan state. |
+| Gates | Check the applicable gate, entry conditions, evidence, and exit criteria; distinguish agent-controlled checks from Boss approval. | Gate owner; Boss for Vision, Design Intent, Plan, Activation, and Close. |
+| Task state | Change `⬜️` to `🟨` before work, then `✅` only with evidence or `⚠️` with reason and next action. | Assigned task owner reports; quality-engineer validates; project-manager reconciles. |
+| Collaboration | Ask focused clarification, recommendation, decision, approval, or status requests with affected scope, impact, and requested response. | Asking role; project-manager coordinates duplicates and conflicts. |
+| Compact metadata | Retain `owner`, `assigned`, `started-at`/`completed-at`, actor, timestamp, evidence, validation, docs impact, and residual risk as applicable. | Task owner supplies; project-manager accepts. |
+| Escalation | Stop and escalate scope/design changes, safety waivers, material risk, stale/conflicting revisions, publication, activation, or archival. | Project-manager escalates; Boss decides human gates. |
+
+### Standard handoff and approval examples
+
+A valid task handoff is concise and task-scoped:
+
+```yaml
+packet-id: PK-20260906-004
+plan: _docs/plans/example.md
+plan-revision: rev-12
+phase: Phase 2
+task: task-3
+owner: implementation-engineer
+assigned: subagent-123
+work-mode: active-plan
+accepted-decisions: [DEC-42]
+constraints: ["do not change accepted scope", "preserve user edits"]
+expected-output: ["source change", "targeted test", "task evidence"]
+evidence-required: ["status transition", "commands/results", "validation", "risks"]
+```
+
+Remove the accidental leading space before `task` when copying this example
+into a YAML parser. An approval is separate from a recommendation:
+
+```yaml
+approval-id: AP-20260906-001
+approver: Boss
+actor-id: rcravens
+approved-at: 2026-09-06T18:00:00Z
+approval-language: "Boss, I approve Activation for _docs/plans/example.md."
+decision: approved
+scope-conditions: []
+evidence: ["Status#activation"]
+```
+
+Agents may prepare these records, but only an authenticated direct Boss response
+may create an approval record. Examples are formatting aids, not authorization.
+
+### Troubleshooting lifecycle failures
+
+- **Backlog or inactive plan:** stop before implementation; request explicit
+  activation and record it using the Activation approval schema.
+- **Missing owner, packet field, or evidence:** keep the task `⬜️` (or `⚠️` if
+  already started), report the missing field, and return to the project-manager.
+- **Stale or concurrent revision:** do not overwrite either version. Preserve
+  both reports, include `base-revision`, and ask the project-manager to
+  reconcile; escalate to Boss if accepted scope or a human gate is affected.
+- **Boss response needed:** classify the request, identify the affected plan
+  section/task and blocking impact, then pause only dependent work. Continue
+  independent authorized work when safe.
+- **Verification failure:** do not mark `✅`; record command, result, residual
+  risk, and actionable next step under `⚠️`.
+- **Unclear trigger:** do not guess. Return the matched intents, preserve plan
+  context, and request clarification; triggers never grant authority.
+- **Unexpected user edits or unsafe file operation:** stop, preserve the edit,
+  and escalate rather than regenerating, overwriting, deleting, or publishing.

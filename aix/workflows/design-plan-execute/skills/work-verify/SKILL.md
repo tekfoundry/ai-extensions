@@ -94,6 +94,14 @@ coverage-handoff concerns.
 
 ## Workflow
 
+Verification is the Task Completion gate evidence, not approval by itself.
+Check that the task was `🟨` before work, that implementation evidence exists,
+and that the proposed `✅` record includes actor, UTC completion timestamp,
+completion reason, commands/results, validation, and residual risks. A gap
+requires `⚠️` with a reason and next action. Escalate to Boss when acceptance
+would waive a safety/quality finding, accept material residual risk, change
+scope, publish externally, or close the plan.
+
 1. Identify the changed subsystem and read its design and quality guidance.
 2. Run targeted tests or deterministic checks first.
 3. Run applicable repository checks only after targeted verification passes, or

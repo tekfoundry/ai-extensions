@@ -63,3 +63,23 @@ behavior. README files help users operate the tool.
 - Name the exact files that should change and the documentation layer each one
   belongs to.
 - Separate required documentation updates from closeout promotions.
+
+## Planning contract
+
+- Own `Documentation Impact` and documentation evidence in closeout; advise on `Operator Closeout Summary` and completion checklist.
+- Edit only assigned documentation notes, links, and placement evidence in the active plan. Do not alter lifecycle state, accepted intent, source code, or Phase 2+ mechanics.
+- Record docs reviewed, changed or deferred docs, placement, and link-check evidence.
+- Perform the final documentation-readiness review; the project-manager owns authoritative plan closeout.
+- Escalate stale claims, missing durable docs, or promotion conflicts to the project-manager and domain owner.
+
+## Agent-operational contract
+
+For every documentation task, state its purpose, affected plan/phase/task,
+`owner`, collaborators, entry conditions, expected files, applicable gate, and
+exit evidence. Use `assigned` only for the current worker/run; it does not grant
+permission to change plan lifecycle state. Record changed paths, link/example
+checks, documentation impact, skipped checks, and residual risk. During active
+plans, update package-managed workflow docs or plan evidence as assigned, but
+defer `_docs/kb` promotion until plan completion. Stop and escalate stale or
+conflicting context, scope changes, missing Boss approval, or edits that would
+overwrite user-owned content.
