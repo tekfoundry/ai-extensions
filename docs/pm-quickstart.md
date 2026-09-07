@@ -91,6 +91,9 @@ context needed for the next one, and Boss decides when the work should advance.
 The PM can recommend the next step, but plan activation, priority changes,
 risky approvals, final acceptance, and release decisions remain with Boss.
 
+For detailed workflow interactions, see the [developer workflow guide](../aix/workflows/design-plan-execute/README.md#developer-workflow)
+and [agent-operational quick reference](../aix/workflows/design-plan-execute/README.md#agent-operational-quick-reference).
+
 ## Ask for a dry run with PM Review
 
 Prefix a request with `PM Review` to see how the PM would classify and route it

@@ -694,6 +694,33 @@ work.
   bounded rollout, compatibility contract, platform/host limitations,
   adoption risks, and follow-on work below; targeted trailing-whitespace scan
   passed. No later Phase 4 task or completion checklist content was changed.
+- ✅ Add generic links from `docs/pm-quickstart.md` to the workflow-specific
+  interaction guidance in `aix/workflows/design-plan-execute/README.md`.
+  **Owner:** `documentation-specialist`; **assigned:**
+  `documentation-specialist`; **collaborators:** `project-manager`;
+  **scope:** add only generic discoverability links in the quickstart and do
+  not copy workflow-specific guidance, alter the target README, or change
+  lifecycle behavior; **completed-at:** `2026-09-07T15:24:29Z`; **evidence:**
+  added links to the README `#developer-workflow` and
+  `#agent-operational-quick-reference` anchors without duplicating guidance or
+  changing the target README; both targets resolve and `git diff --check`
+  passes.
+
+**Phase 4 documentation follow-up validation (quality-engineer, 2026-09-07):**
+
+- Manual review confirmed `docs/pm-quickstart.md` remains generic: the change
+  adds only two discoverability links and does not copy workflow-specific
+  policy or operational instructions.
+- A targeted local Markdown-link/anchor check passed for all four links in the
+  quickstart; both workflow README anchors resolve.
+- `git diff --check` passed. `git diff --name-only` showed only this plan and
+  `docs/pm-quickstart.md`; the workflow README has no diff and no staged files
+  exist.
+- The final Completion Checklist is byte-for-byte unchanged from `HEAD`, and
+  no lifecycle status, phase state, or closeout state was changed.
+- Residual risk: the targeted check validates local relative links and anchors,
+  not rendered-link behavior on every external Markdown host.
+
 - ✅ Review & Refactor — review the complete workflow for unnecessary ceremony,
   ambiguous ownership, stale instructions, and gaps between human and agent
   authority. **Owner:** `project-manager`; **reviewer:** `quality-engineer`;
@@ -988,6 +1015,31 @@ need the later documentation/adoption tasks for broader operator examples.
   safety, or evidence updates. Backlog plans must meet the new ownership, gate,
   task, and collaboration standards during refinement before acceptance or
   activation. New plans use the full formalized model from creation.
+- ✅ **Decision `DEC-P4-DOC-LINKS` — Boss approval for one documentation/adoption
+  task:** **asking role:** `project-manager`; **affected section/task:** Phase 4
+  documentation/adoption scope, new quickstart-link task; **context:** generic
+  links should make workflow-specific interaction guidance discoverable without
+  duplicating or changing that guidance; **scope:** add links only from
+  `docs/pm-quickstart.md` to `aix/workflows/design-plan-execute/README.md`,
+  without a new phase or implementation of the docs; **Boss response:**
+  approved; **resulting plan update:** added the single `⬜️` Phase 4 task with
+  exact scope and link/diff verification expectations; **evidence reference:**
+  Phase 4 task list and this record.
+
+  ```yaml
+  approval-id: AP-20260907-001
+  approver: Boss
+  actor-id: rcravens
+  approved-at: 2026-09-07T15:22:50Z
+  approval-language: "Boss, I approve adding one tracked documentation/adoption task for generic links from docs/pm-quickstart.md to aix/workflows/design-plan-execute/README.md, without creating a new phase or implementing the docs yet."
+  decision: approved
+  scope-conditions:
+    - "Plan maintenance only; do not implement the documentation change yet."
+    - "Do not modify the final Completion Checklist."
+  evidence:
+    - "Phase 4 documentation/adoption task"
+    - "DEC-P4-DOC-LINKS"
+  ```
 
 ## Documentation Impact
 
