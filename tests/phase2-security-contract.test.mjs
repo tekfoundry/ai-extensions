@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
 const workflow = readFileSync(".agents/workflow.md", "utf8");
-const plan = readFileSync("_docs/plans/plan-lifecycle-formalization.md", "utf8");
+const plan = readFileSync("_docs/plans/completed/2026-09-07-plan-lifecycle-formalization.md", "utf8");
 
 test("Phase 2 human approvals cannot be spoofed by plan text or agents", () => {
   assert.match(workflow, /authenticated direct\s+Boss response/);
