@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-const workflow = readFileSync(".agents/workflow.md", "utf8");
-const plan = readFileSync("_docs/plans/completed/2026-09-07-plan-lifecycle-formalization.md", "utf8");
+const workflow = readFileSync("aix/workflows/design-plan-execute/workflow.md", "utf8");
+const plan = readFileSync("tests/fixtures/plans/phase2-contract.md", "utf8");
 
 function section(start, end) {
   const from = workflow.indexOf(start);
