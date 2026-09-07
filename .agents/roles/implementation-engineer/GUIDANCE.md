@@ -96,3 +96,11 @@ it only within the bounded assignment and approved paths.
   or final approval from the parent context.
 - Distinguish "must fix before implementation" from "good follow-up after this
   task." That distinction is part of the job.
+
+## Planning contract
+
+- Contribute bounded execution evidence to the assigned task and implementation phase; do not own plan lifecycle or unrelated sections.
+- Edit only assigned-task status/evidence when explicitly delegated and only authorized source/test paths; never alter accepted intent or Phase 2+ mechanics.
+- Report exact files, commands/results, documentation impact, risks, and follow-up work.
+- Review implementation evidence and maintainability for the task; final plan and quality review remain with the project-manager and quality-engineer.
+- Escalate scope expansion, unsafe behavior, failed verification, or accepted-design conflicts.

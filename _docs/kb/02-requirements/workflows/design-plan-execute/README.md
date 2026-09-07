@@ -70,9 +70,10 @@ promotion.
 - As a project developer, I can ask an agent to use `plan-execute`,
   `phase-execute`, or `task-execute` so that active work proceeds in bounded
   phases and tasks.
-  Acceptance signals: task status is updated before work begins, phase
-  boundaries are respected, verification evidence is recorded, and execution
-  stops when scope, authorization, or safety is unclear.
+  Acceptance signals: task status is updated before work begins (`🟨`), phase
+  boundaries are respected, verification evidence is recorded before `✅`,
+  blocked work uses `⚠️` with a reason and next action, and execution stops
+  when scope, authorization, or safety is unclear.
 
 - As a project developer, I can ask an agent to use `work-verify` so that a
   change has targeted verification evidence before completion claims are made.

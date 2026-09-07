@@ -89,6 +89,24 @@ test("pm status summarizes scheduler states and verbose group reasons", async ()
   }
 });
 
+test("pm doctor help and CLI output match its supported usage", async () => {
+  const help = run(["pm", "--help"]);
+  assert.equal(help.exitCode, 0);
+  assert.match(help.stdout, /doctor\s+Audit host capabilities and remediation/);
+  assert.doesNotMatch(help.stdout, /doctor \[--verbose\]/);
+
+  const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-doctor-usage-"));
+  const oldRoot = process.cwd();
+  process.chdir(projectRoot);
+  try {
+    const verbose = run(["pm", "doctor", "--verbose"]);
+    assert.equal(verbose.exitCode, 1);
+    assert.match(verbose.stderr, /Usage: aix pm doctor/);
+  } finally {
+    process.chdir(oldRoot);
+  }
+});
+
 test("pm doctor CLI returns a failing exit code and never emits unsafe snapshot values", async () => {
   const projectRoot = await mkdtemp(join(tmpdir(), "aix-pm-doctor-cli-"));
   const oldRoot = process.cwd();

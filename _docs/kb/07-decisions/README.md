@@ -15,6 +15,8 @@ discipline. The documentation specialist owns cross-links and placement.
   the default workflow's product/release boundaries and human decision model.
 - [Forced update recovery](forced-update-recovery.md): backup-first force update,
   ownership boundaries, audit, and retention semantics.
+- [Plan lifecycle contract](plan-lifecycle-contract.md): accepted plan gates,
+  task transitions, delegation boundaries, and Markdown-based workflow limits.
 
 Add new records here when a decision needs to explain an accepted current
 tradeoff across product, requirements, architecture, security, quality, or

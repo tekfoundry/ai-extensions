@@ -222,11 +222,13 @@ Intent is accepted.
 7. Record acceptance on the `High-Level Goal` heading only after the user
    agrees that the vision, audience, value, and scope direction are clear
    enough to continue.
-8. After the high-level goal is accepted, run the design-intent gate. Translate
-   the accepted goal into design intentions that describe the intended
-   implementation shape, tradeoffs, boundaries, interfaces, data and safety
-   posture, verification needs, rollout considerations, non-goals, and open
-   decisions. Use `requirements-engineer` for a bounded requirements pass
+8. After the high-level goal is accepted, run the design-intent gate. The
+   `product-owner` is accountable for the Design Intent section and gate result;
+   `technical-architect` is a collaborator who advises on architecture and
+   maintainability without replacing product ownership. Translate the accepted
+   goal into design intentions that describe the intended implementation shape,
+   tradeoffs, boundaries, interfaces, data and safety posture, verification
+   needs, rollout considerations, non-goals, and open decisions. Use `requirements-engineer` for a bounded requirements pass
    when requirements, actors, workflows, inputs, outputs, constraints,
    non-goals, boundaries, acceptance signals, open decisions, or
    plan-readiness judgment need specialist review. Use `product-designer` for

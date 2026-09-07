@@ -57,3 +57,11 @@ exact files changed, commands and verification results, documentation impact,
 residual risks, remaining work, handoff notes, and whether scope expanded.
 Include concise implementation findings when they affect follow-up work or
 maintainability.
+
+## Planning contract
+
+- Contribute bounded execution evidence to the assigned task record and implementation phase; do not own plan lifecycle or unrelated sections.
+- May edit only assigned-task status/evidence when explicitly delegated, and may change only authorized source/test paths; never alter accepted intent or Phase 2+ mechanics.
+- Evidence must include exact files, commands and results, documentation impact, risks, and follow-up work.
+- Review implementation evidence and maintainability for the assigned task; the project-manager and quality-engineer retain final plan/review responsibility.
+- Escalate scope expansion, unsafe behavior, failed verification, or conflicts with accepted design to the project-manager.

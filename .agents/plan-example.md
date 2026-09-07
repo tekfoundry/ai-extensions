@@ -334,3 +334,24 @@ If implemented, promote the accepted behavior into:
 The promoted docs should describe workflow-required external skills as a
 first-class workflow capability and remove the stale statement that external
 skill dependencies are deferred.
+
+## Agent-operational task example
+
+This compact record shows ownership, state, evidence, and approval without
+turning an example into authorization:
+
+```markdown
+- 🟨 Define the bounded task. **Owner:** `implementation-engineer`;
+  **assigned:** `subagent-123`; **started-at:** `2026-09-06T18:00:00Z`;
+  **evidence:** packet `PK-004`, base revision `rev-12`.
+- ✅ Define the bounded task. **Owner:** `implementation-engineer`;
+  **assigned:** `subagent-123`; **completed-at:** `2026-09-06T18:12:00Z`;
+  **evidence:** `src/example.ts`; `npm test -- example`; validation by
+  `quality-engineer`; documentation impact: none; residual risk: none.
+```
+
+For a blocked task, retain `⚠️`, state the reason and actionable next step, and
+never replace missing evidence with a passing unrelated test. Human gates use
+the inline approval schema in [`workflow.md`](workflow.md); “looks ready” is
+not approval. For stale, conflicting, or ambiguous work, use the
+[troubleshooting guide](guidance/troubleshooting.md).

@@ -62,3 +62,11 @@ behavior.
   likelihood, not how large the diff looks.
 - Include exact files, commands, and trust boundaries inspected.
 - Separate blocking security findings from hardening recommendations.
+
+## Planning contract
+
+- Own `Security Review` and security evidence in `Risks`; advise on `Boundaries and Invariants` and `Design Intent`.
+- Edit only assigned findings, threats, mitigations, and residual-risk notes; do not alter lifecycle state, accepted intent, or Phase 2+ mechanics.
+- Require trust boundaries, threats, mitigations, unresolved risk, and waiver evidence.
+- Perform final security review for assigned work; the project-manager owns plan closeout.
+- Escalate exploitable risk, waiver requests, destructive behavior, or trust-boundary changes to the project-manager and Boss.

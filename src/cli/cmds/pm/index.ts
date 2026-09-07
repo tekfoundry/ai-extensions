@@ -8,7 +8,7 @@ import type { Readable, Writable } from "node:stream";
 import { createInterface } from "node:readline";
 import { readHostAuthorizationReport, renderHostAuthorizationReport } from "../../../pm/doctor.js";
 
-const PM_HELP = "Usage: aix pm <status|doctor|tidy> [options]\n\nCommands:\n  status [--verbose]   Inspect PM session and delegations\n  doctor [--verbose]   Audit host capabilities and remediation\n  tidy [options]       Preview or clean PM runtime data";
+const PM_HELP = "Usage: aix pm <status|doctor|tidy> [options]\n\nCommands:\n  status [--verbose]   Inspect PM session and delegations\n  doctor               Audit host capabilities and remediation\n  tidy [options]       Preview or clean PM runtime data";
 
 function runPmStatus(argv: string[]): CliResult {
   const verbose = argv.includes("--verbose");
@@ -38,7 +38,7 @@ function runPmStatus(argv: string[]): CliResult {
 }
 
 function runPmDoctor(argv: string[]): CliResult {
-  if (argv.length > 3) throw new CliError("Usage: aix pm doctor", EXIT_USAGE);
+  if (argv.length > 2) throw new CliError("Usage: aix pm doctor", EXIT_USAGE);
   const report = readHostAuthorizationReport();
   return { exitCode: report.ok ? 0 : 1, stdout: renderHostAuthorizationReport(report) };
 }

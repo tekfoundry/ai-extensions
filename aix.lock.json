@@ -285,7 +285,7 @@
         },
         {
           "path": "SKILL.md",
-          "sha256": "cfab17242c374fb98c389a4dfa0a7b4423e42bf33bce8caf182a105bcc36d127"
+          "sha256": "100dab67649b38435b947b86e128bf4033ad5a2d413ca491be2ddfaafefa63fa"
         }
       ],
       "activeFiles": [
@@ -299,7 +299,7 @@
         },
         {
           "path": "SKILL.md",
-          "sha256": "cfab17242c374fb98c389a4dfa0a7b4423e42bf33bce8caf182a105bcc36d127"
+          "sha256": "100dab67649b38435b947b86e128bf4033ad5a2d413ca491be2ddfaafefa63fa"
         }
       ]
     },
@@ -414,7 +414,7 @@
         },
         {
           "path": "SKILL.md",
-          "sha256": "6051f436a4707b5b11c3edaf504e4ab0619cc0763e6c3d8174b3b2d8ae902921"
+          "sha256": "484df062adc09da8bceb50f57f048abeafce103503c5b7bb69ba2f81f3cba41f"
         }
       ],
       "activeFiles": [
@@ -428,7 +428,7 @@
         },
         {
           "path": "SKILL.md",
-          "sha256": "6051f436a4707b5b11c3edaf504e4ab0619cc0763e6c3d8174b3b2d8ae902921"
+          "sha256": "484df062adc09da8bceb50f57f048abeafce103503c5b7bb69ba2f81f3cba41f"
         }
       ]
     },
@@ -500,7 +500,7 @@
         },
         {
           "path": "SKILL.md",
-          "sha256": "7d4562ba577258554d8cc41c49c0ed6706be86ad943b89d4c0229ec29d5d35a3"
+          "sha256": "85f8479977a4a506a5a067e27a72870260bc05863f00afb52931e34d4348b447"
         }
       ],
       "activeFiles": [
@@ -514,7 +514,7 @@
         },
         {
           "path": "SKILL.md",
-          "sha256": "7d4562ba577258554d8cc41c49c0ed6706be86ad943b89d4c0229ec29d5d35a3"
+          "sha256": "85f8479977a4a506a5a067e27a72870260bc05863f00afb52931e34d4348b447"
         }
       ]
     },
@@ -715,7 +715,7 @@
         },
         {
           "path": "SKILL.md",
-          "sha256": "e34e936d1ec8d6ae50fcf2019c4306d6eb0740c16477a363c444abf81a2b32e1"
+          "sha256": "04a3e140067353b68e4507a2ec7cf08e865110dad1651176080e3d761e82785e"
         }
       ],
       "activeFiles": [
@@ -729,7 +729,7 @@
         },
         {
           "path": "SKILL.md",
-          "sha256": "e34e936d1ec8d6ae50fcf2019c4306d6eb0740c16477a363c444abf81a2b32e1"
+          "sha256": "04a3e140067353b68e4507a2ec7cf08e865110dad1651176080e3d761e82785e"
         }
       ]
     },
@@ -758,7 +758,7 @@
         },
         {
           "path": "SKILL.md",
-          "sha256": "7e45a5b0327adc438e525a47fa3b23c038575268ca095f595816c1f1e194848f"
+          "sha256": "f66a49f67cbff827625e09ec4cd22570807e224d2fdf7f45ae9be349736e018f"
         }
       ],
       "activeFiles": [
@@ -772,7 +772,7 @@
         },
         {
           "path": "SKILL.md",
-          "sha256": "7e45a5b0327adc438e525a47fa3b23c038575268ca095f595816c1f1e194848f"
+          "sha256": "f66a49f67cbff827625e09ec4cd22570807e224d2fdf7f45ae9be349736e018f"
         }
       ]
     }
@@ -843,17 +843,17 @@
       "packageFiles": [
         {
           "path": "GUIDANCE.md",
-          "sha256": "7f6642de8ff2870547f5ed442dcdd0f94da26816f2780b3e67d04ec9ed652dc7"
+          "sha256": "79c75aed73868295869e4805e2ad33a0e9509b63c82e750c01261f2778ae2de6"
         },
         {
           "path": "ROLE.md",
-          "sha256": "2d1b0b68e2db77e1de3faa2ad3a0eaa39cabb6fdae0809048b46f6f16f42b5b5"
+          "sha256": "afe534ebad1b80545a010e0ab3dc5501cd8555a7d47e5a2b054bbb92fb459868"
         }
       ],
       "activeFiles": [
         {
           "path": "ROLE.md",
-          "sha256": "2d1b0b68e2db77e1de3faa2ad3a0eaa39cabb6fdae0809048b46f6f16f42b5b5"
+          "sha256": "afe534ebad1b80545a010e0ab3dc5501cd8555a7d47e5a2b054bbb92fb459868"
         }
       ]
     },
@@ -874,17 +874,17 @@
       "packageFiles": [
         {
           "path": "GUIDANCE.md",
-          "sha256": "212f6cad2d825fc004b05934d658fbaba96673e5ad8d405514ac2287ac1fa855"
+          "sha256": "1796eb771fa687cac994b66ae3844dfa7b82bec02266d3fa239b7cc0e5ea2196"
         },
         {
           "path": "ROLE.md",
-          "sha256": "242adcbe0992a05bcbfd26c3e055fe160a891c120b7ccd6b0446eaf444540123"
+          "sha256": "93a74c7ebc6c0f35617ae523fe5d5647d8ac486f81f9e8948099260ae3794343"
         }
       ],
       "activeFiles": [
         {
           "path": "ROLE.md",
-          "sha256": "242adcbe0992a05bcbfd26c3e055fe160a891c120b7ccd6b0446eaf444540123"
+          "sha256": "93a74c7ebc6c0f35617ae523fe5d5647d8ac486f81f9e8948099260ae3794343"
         }
       ]
     },
@@ -905,17 +905,17 @@
       "packageFiles": [
         {
           "path": "GUIDANCE.md",
-          "sha256": "19aa99bef1916802bb4ffd6b5a130f2e3040589cfa3caf1e74069e7043705d95"
+          "sha256": "1c55fb4331f52673ad00d871f35e0a672c969ce55e1c49504cf8de38ec5cf9e4"
         },
         {
           "path": "ROLE.md",
-          "sha256": "8736e2211e127f539ddb90f3af3088b83bc9575d39a3dcea42d7ec490f28feaa"
+          "sha256": "78f76e8d2064a7dca7213446108a3a0d8c7ac49382325c11aeaf37a41286401f"
         }
       ],
       "activeFiles": [
         {
           "path": "ROLE.md",
-          "sha256": "8736e2211e127f539ddb90f3af3088b83bc9575d39a3dcea42d7ec490f28feaa"
+          "sha256": "78f76e8d2064a7dca7213446108a3a0d8c7ac49382325c11aeaf37a41286401f"
         }
       ]
     },
@@ -936,17 +936,17 @@
       "packageFiles": [
         {
           "path": "GUIDANCE.md",
-          "sha256": "5013baf7fd5fd37325f67c25f7f1cfce2b9dff6bcf6768327da21b99d9a9a977"
+          "sha256": "41f5b976c8d44188b58f256e6748b0beebfcc4e65868a1ff0e513b458c94a4c3"
         },
         {
           "path": "ROLE.md",
-          "sha256": "1859be2e063a83af04e9aae17081052074ec02e9d5551a6717d8ba3e7debab02"
+          "sha256": "ce33762112517810915b00a14c33439cc26932521167cac98815ce1fce159045"
         }
       ],
       "activeFiles": [
         {
           "path": "ROLE.md",
-          "sha256": "1859be2e063a83af04e9aae17081052074ec02e9d5551a6717d8ba3e7debab02"
+          "sha256": "ce33762112517810915b00a14c33439cc26932521167cac98815ce1fce159045"
         }
       ]
     },
@@ -967,17 +967,17 @@
       "packageFiles": [
         {
           "path": "GUIDANCE.md",
-          "sha256": "3eea49bdd348a42bd61369b21a4a50059348b2fa2e6037346537c2046af3d7e4"
+          "sha256": "dc6d60f421eea8a62431d38c8a192da785ea954a90b11005aa9d3b4c8339d40c"
         },
         {
           "path": "ROLE.md",
-          "sha256": "ec8e873cb72fd36a1b9ea5edb3e630b26461a8434b33a3e5a1677521d9ef44d6"
+          "sha256": "d3ed9db34a65f471a306cb0e8282d31df7dec994ad3e64cbe2705ab6f8c76db7"
         }
       ],
       "activeFiles": [
         {
           "path": "ROLE.md",
-          "sha256": "ec8e873cb72fd36a1b9ea5edb3e630b26461a8434b33a3e5a1677521d9ef44d6"
+          "sha256": "d3ed9db34a65f471a306cb0e8282d31df7dec994ad3e64cbe2705ab6f8c76db7"
         }
       ]
     },
@@ -998,17 +998,17 @@
       "packageFiles": [
         {
           "path": "GUIDANCE.md",
-          "sha256": "4997c7311262eedefaa0e35ba6d0c87bf1892cd1b2b4e01964553e5790b3c72b"
+          "sha256": "78a60f7e2e4362b3165fee0571d61f2549573131a60154ba235a4d3266737616"
         },
         {
           "path": "ROLE.md",
-          "sha256": "eba792f8df25ea1be99ffc36440a5477de9fbbef4240849b51400b7c16a318ac"
+          "sha256": "ad0e84bc4c8ff0c9d96586118acc033bc55bc5a71d2ee98e487eed4835a382bb"
         }
       ],
       "activeFiles": [
         {
           "path": "ROLE.md",
-          "sha256": "eba792f8df25ea1be99ffc36440a5477de9fbbef4240849b51400b7c16a318ac"
+          "sha256": "ad0e84bc4c8ff0c9d96586118acc033bc55bc5a71d2ee98e487eed4835a382bb"
         }
       ]
     },
@@ -1029,17 +1029,17 @@
       "packageFiles": [
         {
           "path": "GUIDANCE.md",
-          "sha256": "4230f4d2775a9bc6ca94e971de81a7076dc558e7d035d484a5fcfa61c30b1911"
+          "sha256": "7a722250eb5de95ffb6df4e723746b4fa2e8b48d35dbc3185619d236f4c75623"
         },
         {
           "path": "ROLE.md",
-          "sha256": "81d26406950eebe97dd5b241a9ee4d351a9b2a7cd324ab7e4e29be88e458713b"
+          "sha256": "47d5304a88604e8ccebb2653174af84232bb50339633c8773fc584e94da219b3"
         }
       ],
       "activeFiles": [
         {
           "path": "ROLE.md",
-          "sha256": "81d26406950eebe97dd5b241a9ee4d351a9b2a7cd324ab7e4e29be88e458713b"
+          "sha256": "47d5304a88604e8ccebb2653174af84232bb50339633c8773fc584e94da219b3"
         }
       ]
     },
@@ -1060,17 +1060,17 @@
       "packageFiles": [
         {
           "path": "GUIDANCE.md",
-          "sha256": "427edd979d6e90f35fda26858b175a7e70d0fb15fcf0f9df62251f28a936a700"
+          "sha256": "fe25e13ae0ab418b658daea04048d3c670213e1fa6d26c938c9e6e96f41e4acd"
         },
         {
           "path": "ROLE.md",
-          "sha256": "5b39f16a72ed796c9b60475baec166b90620798a0fdca7f4f6ba282ce901d367"
+          "sha256": "2c0305a07e6132cb6facf2ae59e2604adda42c86d78b99a2977b197594e81574"
         }
       ],
       "activeFiles": [
         {
           "path": "ROLE.md",
-          "sha256": "5b39f16a72ed796c9b60475baec166b90620798a0fdca7f4f6ba282ce901d367"
+          "sha256": "2c0305a07e6132cb6facf2ae59e2604adda42c86d78b99a2977b197594e81574"
         }
       ]
     },
@@ -1091,17 +1091,17 @@
       "packageFiles": [
         {
           "path": "GUIDANCE.md",
-          "sha256": "aaafe0f2030bd58485a86fed2998eca6879b17b48743efe46170c262491e1bcd"
+          "sha256": "0c2e64a9b9b0d4760ef42b6f8fed60cebdd4f8a07d7ab4c32505093bf8746506"
         },
         {
           "path": "ROLE.md",
-          "sha256": "a053bab5459547a1bbb1b865753677371fbcd9696ab77b11038995cc0d58b915"
+          "sha256": "85cd20a24f17d8169e17f76a2413f7df8219491343ad538baceca8cd1ce4ce8c"
         }
       ],
       "activeFiles": [
         {
           "path": "ROLE.md",
-          "sha256": "a053bab5459547a1bbb1b865753677371fbcd9696ab77b11038995cc0d58b915"
+          "sha256": "85cd20a24f17d8169e17f76a2413f7df8219491343ad538baceca8cd1ce4ce8c"
         }
       ]
     },
@@ -1122,17 +1122,17 @@
       "packageFiles": [
         {
           "path": "GUIDANCE.md",
-          "sha256": "d8567793b8496b183a941abda2e57adb4436fe5da87a97a50f0a8b17cf05a108"
+          "sha256": "ad4a6886bb369e5a7c4681b647c94fd1dafbcd039f878d3dc24b2a0344019644"
         },
         {
           "path": "ROLE.md",
-          "sha256": "bca2153fea26e33d4c2f8011284081bc74e441bf3bbe8611475ea956281ab8a8"
+          "sha256": "1b806b5b416c5c2ce2c2932570e671477e4e38a34d8df360a431f6ff2f80164f"
         }
       ],
       "activeFiles": [
         {
           "path": "ROLE.md",
-          "sha256": "bca2153fea26e33d4c2f8011284081bc74e441bf3bbe8611475ea956281ab8a8"
+          "sha256": "1b806b5b416c5c2ce2c2932570e671477e4e38a34d8df360a431f6ff2f80164f"
         }
       ]
     }
@@ -1150,17 +1150,17 @@
         {
           "sourcePath": "README.md",
           "targetPath": ".agents/README.md",
-          "sha256": "40389a8a548b10e8c8397483930d91d581b600a151de2cba0f7e86755cd8b83f"
+          "sha256": "e3b2814606be5fe0998e8ca74039f626c29d399c0792c341cad9fb8f1ec95148"
         },
         {
           "sourcePath": "plan-example.md",
           "targetPath": ".agents/plan-example.md",
-          "sha256": "8b9b4fb0789eb5dae08d2efa0f501d5c0754da119cb7c01a6506976fca244c85"
+          "sha256": "f009136c3ae3ea382b79ed8c30759913e6cdf5c5000d12757554e39bde7d155d"
         },
         {
           "sourcePath": "workflow.md",
           "targetPath": ".agents/workflow.md",
-          "sha256": "8bdfa5c4989fce1cb4cae9a973bb3ac23274881a490bd3ea1c5e892b679062ff"
+          "sha256": "c8727471262893b99f7210186a51d9f9676c7bbb01f977a176610ba37a09cca7"
         }
       ],
       "agentsMd": {
@@ -1335,7 +1335,7 @@
         },
         {
           "path": "templates/plan.md",
-          "sha256": "a0f6f16720cd3b743faa00aff4949a95e186a956a5706f8a6e3697a58ab3bfb7"
+          "sha256": "65dd82d323bb49c4dec03c7862d75d67785a197142ddd1412ffa48c6830bda2f"
         },
         {
           "path": "templates/product-summary.md",
@@ -1351,7 +1351,7 @@
         },
         {
           "path": "templates/sections/phase.md",
-          "sha256": "57903eb7178e02306d75df2ef10c09aa04f524b80096b6df9a5952703b93fa86"
+          "sha256": "5df038b242e2f746793010ae4941f1714485c2d5e411169d33790fc3e8f25635"
         },
         {
           "path": "templates/sections/promotion-to-design.md",
@@ -1371,7 +1371,7 @@
         },
         {
           "path": "templates/sections/task.md",
-          "sha256": "56ab8b931867c2583deece51f98a9224f496abdfaab02e4b75117cb30c0ab137"
+          "sha256": "6d9d3df5ec5f07ca140e2be7fe38ed92d6bb1c7f4b48c7b1d144feaabedacbe3"
         },
         {
           "path": "templates/sections/verification.md",
@@ -1401,17 +1401,21 @@
         },
         {
           "path": "guidance/README.md",
-          "sha256": "d10c623d874e40b2a61cfa8bc114d05eb2d66d8d7ee2fcffcbd8aa36ece57fc9"
+          "sha256": "c21bf2203f1368976275fc8a4c24509eb18314bf64c427e816e19b4667571b81"
         },
         {
           "path": "guidance/shared.md",
-          "sha256": "8484765b0a49be1872aab560dce931c736aaeea39296ea98e03241c0db81aad9"
+          "sha256": "1d85ab622fd9330b83f80e3742414101850e151c1be7560e63d26dda12734add"
+        },
+        {
+          "path": "guidance/troubleshooting.md",
+          "sha256": "7e68ea5f0b1529a4c40ad3fac0610140e25fefd4e8af074f04625dc01248455c"
         }
       ],
       "team": {
         "path": "team.md",
         "version": "2",
-        "sha256": "d258c45ed1a061a4c4e5502487669ba477c2c1b660dec5f5c66637e42792c95c"
+        "sha256": "919424e4becdb73b148165afbac051266a27fa9572d15f16378137d49fad0a6c"
       },
       "packageFiles": [
         {
@@ -1456,99 +1460,103 @@
         },
         {
           "path": "guidance/README.md",
-          "sha256": "d10c623d874e40b2a61cfa8bc114d05eb2d66d8d7ee2fcffcbd8aa36ece57fc9"
+          "sha256": "c21bf2203f1368976275fc8a4c24509eb18314bf64c427e816e19b4667571b81"
         },
         {
           "path": "guidance/shared.md",
-          "sha256": "8484765b0a49be1872aab560dce931c736aaeea39296ea98e03241c0db81aad9"
+          "sha256": "1d85ab622fd9330b83f80e3742414101850e151c1be7560e63d26dda12734add"
+        },
+        {
+          "path": "guidance/troubleshooting.md",
+          "sha256": "7e68ea5f0b1529a4c40ad3fac0610140e25fefd4e8af074f04625dc01248455c"
         },
         {
           "path": "plan-example.md",
-          "sha256": "8b9b4fb0789eb5dae08d2efa0f501d5c0754da119cb7c01a6506976fca244c85"
+          "sha256": "f009136c3ae3ea382b79ed8c30759913e6cdf5c5000d12757554e39bde7d155d"
         },
         {
           "path": "README.md",
-          "sha256": "40389a8a548b10e8c8397483930d91d581b600a151de2cba0f7e86755cd8b83f"
+          "sha256": "e3b2814606be5fe0998e8ca74039f626c29d399c0792c341cad9fb8f1ec95148"
         },
         {
           "path": "roles/project-dev/documentation-specialist/GUIDANCE.md",
-          "sha256": "7f6642de8ff2870547f5ed442dcdd0f94da26816f2780b3e67d04ec9ed652dc7"
+          "sha256": "79c75aed73868295869e4805e2ad33a0e9509b63c82e750c01261f2778ae2de6"
         },
         {
           "path": "roles/project-dev/documentation-specialist/ROLE.md",
-          "sha256": "2d1b0b68e2db77e1de3faa2ad3a0eaa39cabb6fdae0809048b46f6f16f42b5b5"
+          "sha256": "afe534ebad1b80545a010e0ab3dc5501cd8555a7d47e5a2b054bbb92fb459868"
         },
         {
           "path": "roles/project-dev/implementation-engineer/GUIDANCE.md",
-          "sha256": "212f6cad2d825fc004b05934d658fbaba96673e5ad8d405514ac2287ac1fa855"
+          "sha256": "1796eb771fa687cac994b66ae3844dfa7b82bec02266d3fa239b7cc0e5ea2196"
         },
         {
           "path": "roles/project-dev/implementation-engineer/ROLE.md",
-          "sha256": "242adcbe0992a05bcbfd26c3e055fe160a891c120b7ccd6b0446eaf444540123"
+          "sha256": "93a74c7ebc6c0f35617ae523fe5d5647d8ac486f81f9e8948099260ae3794343"
         },
         {
           "path": "roles/project-dev/product-designer/GUIDANCE.md",
-          "sha256": "19aa99bef1916802bb4ffd6b5a130f2e3040589cfa3caf1e74069e7043705d95"
+          "sha256": "1c55fb4331f52673ad00d871f35e0a672c969ce55e1c49504cf8de38ec5cf9e4"
         },
         {
           "path": "roles/project-dev/product-designer/ROLE.md",
-          "sha256": "8736e2211e127f539ddb90f3af3088b83bc9575d39a3dcea42d7ec490f28feaa"
+          "sha256": "78f76e8d2064a7dca7213446108a3a0d8c7ac49382325c11aeaf37a41286401f"
         },
         {
           "path": "roles/project-dev/product-owner/GUIDANCE.md",
-          "sha256": "5013baf7fd5fd37325f67c25f7f1cfce2b9dff6bcf6768327da21b99d9a9a977"
+          "sha256": "41f5b976c8d44188b58f256e6748b0beebfcc4e65868a1ff0e513b458c94a4c3"
         },
         {
           "path": "roles/project-dev/product-owner/ROLE.md",
-          "sha256": "1859be2e063a83af04e9aae17081052074ec02e9d5551a6717d8ba3e7debab02"
+          "sha256": "ce33762112517810915b00a14c33439cc26932521167cac98815ce1fce159045"
         },
         {
           "path": "roles/project-dev/quality-engineer/GUIDANCE.md",
-          "sha256": "3eea49bdd348a42bd61369b21a4a50059348b2fa2e6037346537c2046af3d7e4"
+          "sha256": "dc6d60f421eea8a62431d38c8a192da785ea954a90b11005aa9d3b4c8339d40c"
         },
         {
           "path": "roles/project-dev/quality-engineer/ROLE.md",
-          "sha256": "ec8e873cb72fd36a1b9ea5edb3e630b26461a8434b33a3e5a1677521d9ef44d6"
+          "sha256": "d3ed9db34a65f471a306cb0e8282d31df7dec994ad3e64cbe2705ab6f8c76db7"
         },
         {
           "path": "roles/project-dev/release-engineer/GUIDANCE.md",
-          "sha256": "4997c7311262eedefaa0e35ba6d0c87bf1892cd1b2b4e01964553e5790b3c72b"
+          "sha256": "78a60f7e2e4362b3165fee0571d61f2549573131a60154ba235a4d3266737616"
         },
         {
           "path": "roles/project-dev/release-engineer/ROLE.md",
-          "sha256": "eba792f8df25ea1be99ffc36440a5477de9fbbef4240849b51400b7c16a318ac"
+          "sha256": "ad0e84bc4c8ff0c9d96586118acc033bc55bc5a71d2ee98e487eed4835a382bb"
         },
         {
           "path": "roles/project-dev/requirements-engineer/GUIDANCE.md",
-          "sha256": "4230f4d2775a9bc6ca94e971de81a7076dc558e7d035d484a5fcfa61c30b1911"
+          "sha256": "7a722250eb5de95ffb6df4e723746b4fa2e8b48d35dbc3185619d236f4c75623"
         },
         {
           "path": "roles/project-dev/requirements-engineer/ROLE.md",
-          "sha256": "81d26406950eebe97dd5b241a9ee4d351a9b2a7cd324ab7e4e29be88e458713b"
+          "sha256": "47d5304a88604e8ccebb2653174af84232bb50339633c8773fc584e94da219b3"
         },
         {
           "path": "roles/project-dev/security-engineer/GUIDANCE.md",
-          "sha256": "427edd979d6e90f35fda26858b175a7e70d0fb15fcf0f9df62251f28a936a700"
+          "sha256": "fe25e13ae0ab418b658daea04048d3c670213e1fa6d26c938c9e6e96f41e4acd"
         },
         {
           "path": "roles/project-dev/security-engineer/ROLE.md",
-          "sha256": "5b39f16a72ed796c9b60475baec166b90620798a0fdca7f4f6ba282ce901d367"
+          "sha256": "2c0305a07e6132cb6facf2ae59e2604adda42c86d78b99a2977b197594e81574"
         },
         {
           "path": "roles/project-dev/technical-architect/GUIDANCE.md",
-          "sha256": "aaafe0f2030bd58485a86fed2998eca6879b17b48743efe46170c262491e1bcd"
+          "sha256": "0c2e64a9b9b0d4760ef42b6f8fed60cebdd4f8a07d7ab4c32505093bf8746506"
         },
         {
           "path": "roles/project-dev/technical-architect/ROLE.md",
-          "sha256": "a053bab5459547a1bbb1b865753677371fbcd9696ab77b11038995cc0d58b915"
+          "sha256": "85cd20a24f17d8169e17f76a2413f7df8219491343ad538baceca8cd1ce4ce8c"
         },
         {
           "path": "roles/project-dev/ux-writer/GUIDANCE.md",
-          "sha256": "d8567793b8496b183a941abda2e57adb4436fe5da87a97a50f0a8b17cf05a108"
+          "sha256": "ad4a6886bb369e5a7c4681b647c94fd1dafbcd039f878d3dc24b2a0344019644"
         },
         {
           "path": "roles/project-dev/ux-writer/ROLE.md",
-          "sha256": "bca2153fea26e33d4c2f8011284081bc74e441bf3bbe8611475ea956281ab8a8"
+          "sha256": "1b806b5b416c5c2ce2c2932570e671477e4e38a34d8df360a431f6ff2f80164f"
         },
         {
           "path": "skills/brainstorming-skill/README.md",
@@ -1608,7 +1616,7 @@
         },
         {
           "path": "skills/phase-execute/SKILL.md",
-          "sha256": "cfab17242c374fb98c389a4dfa0a7b4423e42bf33bce8caf182a105bcc36d127"
+          "sha256": "100dab67649b38435b947b86e128bf4033ad5a2d413ca491be2ddfaafefa63fa"
         },
         {
           "path": "skills/plan-activate/agents/openai.yaml",
@@ -1644,7 +1652,7 @@
         },
         {
           "path": "skills/plan-create/SKILL.md",
-          "sha256": "6051f436a4707b5b11c3edaf504e4ab0619cc0763e6c3d8174b3b2d8ae902921"
+          "sha256": "484df062adc09da8bceb50f57f048abeafce103503c5b7bb69ba2f81f3cba41f"
         },
         {
           "path": "skills/plan-defer/agents/openai.yaml",
@@ -1668,7 +1676,7 @@
         },
         {
           "path": "skills/plan-execute/SKILL.md",
-          "sha256": "7d4562ba577258554d8cc41c49c0ed6706be86ad943b89d4c0229ec29d5d35a3"
+          "sha256": "85f8479977a4a506a5a067e27a72870260bc05863f00afb52931e34d4348b447"
         },
         {
           "path": "skills/plan-review/agents/openai.yaml",
@@ -1728,7 +1736,7 @@
         },
         {
           "path": "skills/task-execute/SKILL.md",
-          "sha256": "e34e936d1ec8d6ae50fcf2019c4306d6eb0740c16477a363c444abf81a2b32e1"
+          "sha256": "04a3e140067353b68e4507a2ec7cf08e865110dad1651176080e3d761e82785e"
         },
         {
           "path": "skills/work-verify/agents/openai.yaml",
@@ -1740,11 +1748,11 @@
         },
         {
           "path": "skills/work-verify/SKILL.md",
-          "sha256": "7e45a5b0327adc438e525a47fa3b23c038575268ca095f595816c1f1e194848f"
+          "sha256": "f66a49f67cbff827625e09ec4cd22570807e224d2fdf7f45ae9be349736e018f"
         },
         {
           "path": "team.md",
-          "sha256": "d258c45ed1a061a4c4e5502487669ba477c2c1b660dec5f5c66637e42792c95c"
+          "sha256": "919424e4becdb73b148165afbac051266a27fa9572d15f16378137d49fad0a6c"
         },
         {
           "path": "templates/competitive-analysis.md",
@@ -1792,7 +1800,7 @@
         },
         {
           "path": "templates/plan.md",
-          "sha256": "a0f6f16720cd3b743faa00aff4949a95e186a956a5706f8a6e3697a58ab3bfb7"
+          "sha256": "65dd82d323bb49c4dec03c7862d75d67785a197142ddd1412ffa48c6830bda2f"
         },
         {
           "path": "templates/product-summary.md",
@@ -1808,7 +1816,7 @@
         },
         {
           "path": "templates/sections/phase.md",
-          "sha256": "57903eb7178e02306d75df2ef10c09aa04f524b80096b6df9a5952703b93fa86"
+          "sha256": "5df038b242e2f746793010ae4941f1714485c2d5e411169d33790fc3e8f25635"
         },
         {
           "path": "templates/sections/promotion-to-design.md",
@@ -1828,7 +1836,7 @@
         },
         {
           "path": "templates/sections/task.md",
-          "sha256": "56ab8b931867c2583deece51f98a9224f496abdfaab02e4b75117cb30c0ab137"
+          "sha256": "6d9d3df5ec5f07ca140e2be7fe38ed92d6bb1c7f4b48c7b1d144feaabedacbe3"
         },
         {
           "path": "templates/sections/verification.md",
@@ -1840,7 +1848,7 @@
         },
         {
           "path": "workflow.md",
-          "sha256": "8bdfa5c4989fce1cb4cae9a973bb3ac23274881a490bd3ea1c5e892b679062ff"
+          "sha256": "c8727471262893b99f7210186a51d9f9676c7bbb01f977a176610ba37a09cca7"
         }
       ]
     }

@@ -114,7 +114,7 @@ metadata, and reset behavior.
 
 ```bash
 aix pm status [--verbose]
-aix pm doctor [--verbose]
+aix pm doctor
 aix pm tidy [--archive|--apply|--purge] [--completed] [--older-than days]
 ```
 

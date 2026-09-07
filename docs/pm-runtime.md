@@ -106,7 +106,6 @@ instead of running specialist work in the parent context.
 
 ```bash
 aix pm doctor
-aix pm doctor --verbose
 aix pm status
 aix pm status --verbose
 ```

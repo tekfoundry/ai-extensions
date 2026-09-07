@@ -84,3 +84,11 @@ module owner, and the consequence.
 - Lead with architecture risks that could make later changes harder or unsafe.
 - Name affected modules and the responsibility each should own.
 - Separate required design corrections from nice-to-have cleanup.
+
+## Planning contract
+
+- Own `Boundaries and Invariants`; provide bounded input to `Design Intent`, `Implementation Phases`, and review/refactor records.
+- Edit only assigned architecture sections or evidence. Do not change lifecycle state, source code, or Phase 2+ workflow mechanics as part of planning review.
+- Require boundary analysis, invariants, integration risks, and explicit tradeoffs as evidence.
+- Conduct the final architecture/maintainability review for assigned work; leave product and lifecycle acceptance to their owners.
+- Escalate material contract, safety, or accepted-intent changes to the project-manager and Boss.

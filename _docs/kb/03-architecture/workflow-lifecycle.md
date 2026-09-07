@@ -272,6 +272,43 @@ _docs/
 The scaffolder writes only missing files and directories. Existing project
 docs remain project-owned.
 
+## Plan Lifecycle Contract
+
+The bundled `design-plan-execute` workflow treats an active plan as the
+authoritative record for scope, lifecycle state, evidence, decisions, and
+residual risk. The contract is documentation- and convention-based; it does
+not provide a runtime transition engine, scheduler, automatic migration, or
+atomic Markdown mutation.
+
+Nine gates are defined: Routing, Vision, Design Intent, Plan, Activation,
+Task Start, Task Completion, Phase Close, and Plan Close. Vision, Design
+Intent, Plan acceptance, Activation, and Plan Close require an explicit Boss
+approval record. Routing, task transitions, evidence collection, dependency
+checks, in-scope quality/security checks, and unchanged-scope phase completion
+are agent-controlled evidence gates; they cannot infer human approval or waive
+material risk.
+
+Tasks use four markers: `⬜️` not started, `🟨` in progress, `✅` completed,
+and `⚠️` blocked or follow-up. A task moves to `🟨` before work begins and to
+`✅` only after implementation and verification evidence are recorded. Blocked
+work records its reason and next action. Transition records retain the
+responsible actor, timestamps, evidence, and validation/reconciliation details;
+stale or conflicting edits fail closed.
+
+Canonical trigger routing selects a procedure or role while preserving
+plan/phase/task context and revision context. Routing cannot activate a plan,
+approve a human gate, waive a finding, publish, or archive. Delegation packets
+carry the current plan, section owner, selected task, accepted decisions,
+constraints, expected output, and evidence requirements. The project-manager
+reconciles delegated reports into authoritative plan state.
+
+The representative migration and rehearsal established compatibility rules:
+backlog plans remain non-authorizing, completed plans remain historical, and
+existing active plans are repaired only at bounded actionable touchpoints.
+See the [workflow requirements](../02-requirements/workflows/design-plan-execute/README.md),
+[verification strategy](../05-quality/verification-strategy.md), and
+[plan lifecycle decision](../07-decisions/plan-lifecycle-contract.md).
+
 ## Architectural Invariants
 
 - Only one workflow may be active at a time.

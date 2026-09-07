@@ -2,11 +2,15 @@
 
 ## Status
 
-🟨 Active
+✅ Completed — archived 2026-09-07
 
-Human activation approved by Boss. Implementation may proceed through the
+Human activation approved by Boss. Final Closeout and archival approved by Boss
+in the current session (`AP-20260907-006`). Implementation may proceed through the
 accepted phases and tasks. Task execution must follow the ownership, gate,
 status-transition, evidence, and Boss-collaboration rules defined in this plan.
+
+**Activation approval:** `AP-20260907-005` (approved; see the current-session
+Boss approval records below).
 
 ## Context
 
@@ -22,6 +26,9 @@ The plan should show when work is intentionally started, what evidence was
 produced, and when the task was completed.
 
 ## High-Level Goal (status: accepted)
+
+**Vision approval:** `AP-20260907-002` (approved; see the current-session Boss
+approval records below).
 
 Formalize how plans are created and evolved through the Design, Plan, and
 Execute workflow so that:
@@ -39,6 +46,9 @@ This should make plan state legible to the developer, project manager,
 delegated roles, and future maintainers without adding unnecessary ceremony.
 
 ## Design Intent (status: accepted)
+
+**Design Intent approval:** `AP-20260907-003` (approved; see the
+current-session Boss approval records below).
 
 The plan should be a living artifact whose sections become more precise at
 specific workflow gates rather than being filled speculatively at creation
@@ -394,6 +404,9 @@ affected section or task without duplicating the full conversation.
 
 ## Implementation Phases
 
+**Plan approval:** `AP-20260907-004` (approved; see the current-session Boss
+approval records below).
+
 ### Phase 1: Establish the Agent-Readable Ownership Contract (status: accepted)
 
 **Objective:** make role accountability and plan-section ownership explicit in
@@ -721,6 +734,41 @@ work.
 - Residual risk: the targeted check validates local relative links and anchors,
   not rendered-link behavior on every external Markdown host.
 
+**Dogfood synchronization and closeout remediation verification (quality-engineer, 2026-09-07):**
+
+- The detected managed-workflow drift was reconciled only for
+  `design-plan-execute` with `node bin/aix.js workflow update
+  --reconcile-protected`; unrelated skill and standalone-role updates were not
+  applied. The command updated the workflow installation and `aix.lock.json`.
+- Source/package parity now passes: recursive comparison of
+  `aix/workflows/design-plan-execute` and
+  `.agents/packages/workflows/aix/design-plan-execute` reports no file-content
+  differences. The source contains an empty legacy `product-strategist`
+  directory only; it has no files and is not an installed workflow asset.
+  `node bin/aix.js workflow diff` reports `No workflow changes.`
+- Ownership consistency was checked in source and installed `team.md` and
+  `workflow.md`: `product-owner` is the Design Intent accountable owner,
+  collaborators remain advisors, `project-manager` reconciles lifecycle state,
+  and Boss remains the human approval authority. No stale installed
+  `product-strategist` file remains.
+- Safety and integrity checks passed: `node bin/aix.js verify`, `git diff --check`,
+  and full `npm test` (406 passing tests). Existing no-overwrite, rollback,
+  drift, collision, and user-content-preservation tests remain green; no unsafe
+  overwrite was used or observed.
+- Documentation/CLI checks passed: the targeted `pm doctor` usage test confirms
+  `aix pm doctor` without `--verbose` in help and command behavior; the workflow
+  README Quick Start requires `aix init` followed by `aix workflow install`,
+  and `docs/command-reference.md` matches the CLI. `npm run build` and
+  `npm run typecheck` also passed.
+- Approval provenance remains an explicit limitation, not fabricated evidence:
+  plan text cannot authenticate a human approval; authenticated direct Boss
+  provenance remains required by the contract and recorded as residual risk.
+  Native host capability, cross-platform behavior, and runtime atomic Markdown
+  mutation remain unresolved manual/follow-on validation areas.
+- No files were staged (`git diff --name-only --cached` was empty). This
+  verification updated only this active-plan evidence record; the plan remains
+  open and was not completed or archived.
+
 - ✅ Review & Refactor — review the complete workflow for unnecessary ceremony,
   ambiguous ownership, stale instructions, and gaps between human and agent
   authority. **Owner:** `project-manager`; **reviewer:** `quality-engineer`;
@@ -922,6 +970,73 @@ need the later documentation/adoption tasks for broader operator examples.
 
 ## Open Questions / Decisions
 
+### Current-session Boss gate approvals for this plan
+
+The following five records preserve explicit current-session Boss
+confirmations; no earlier approval date is inferred.
+
+```yaml
+- approval-id: AP-20260907-002
+  gate: Vision
+  approver: Boss
+  actor-id: rcravens
+  approved-at: 2026-09-07T16:05:24Z
+  approval-language: "Boss, I approve the Vision gate for Plan Lifecycle Formalization (this plan)."
+  decision: approved
+  scope-conditions: []
+  evidence:
+    - "Current-session Boss confirmation for this plan at 2026-09-07T16:05:24Z"
+
+- approval-id: AP-20260907-003
+  gate: Design Intent
+  approver: Boss
+  actor-id: rcravens
+  approved-at: 2026-09-07T16:05:24Z
+  approval-language: "Boss, I approve the Design Intent gate for Plan Lifecycle Formalization (this plan)."
+  decision: approved
+  scope-conditions: []
+  evidence:
+    - "Current-session Boss confirmation for this plan at 2026-09-07T16:05:24Z"
+
+- approval-id: AP-20260907-004
+  gate: Plan
+  approver: Boss
+  actor-id: rcravens
+  approved-at: 2026-09-07T16:05:24Z
+  approval-language: "Boss, I approve the ordered Plan gate for Plan Lifecycle Formalization (this plan)."
+  decision: approved
+  scope-conditions: []
+  evidence:
+    - "Current-session Boss confirmation for this plan at 2026-09-07T16:05:24Z"
+
+- approval-id: AP-20260907-005
+  gate: Activation
+  approver: Boss
+  actor-id: rcravens
+  approved-at: 2026-09-07T16:05:24Z
+  approval-language: "Boss, I approve the Activation gate for Plan Lifecycle Formalization (this plan)."
+  decision: approved
+  scope-conditions: []
+  evidence:
+    - "Current-session Boss confirmation for this plan at 2026-09-07T16:05:24Z"
+
+- approval-id: AP-20260907-006
+  gate: Plan Close
+  approver: Boss
+  actor-id: rcravens
+  approved-at: 2026-09-07T16:05:24Z
+  approval-language: "Boss, I approve final Closeout and archival of Plan Lifecycle Formalization (this plan)."
+  decision: approved
+  scope-conditions: []
+  evidence:
+    - "Current-session Boss confirmation for this plan at 2026-09-07T16:05:24Z"
+```
+
+- ✅ **Decision `DEC-20260907-GATES` — current-session gate approvals:** Boss
+  approved the Vision, Design Intent, ordered Plan, and Activation gates for
+  this plan at `2026-09-07T16:05:24Z`; the four durable records above are the
+  approval evidence. No scope conditions were stated.
+
 - ✅ **Accepted task state model:** retain the four primary markers—`⬜️` not
   started, `🟨` in progress, `✅` completed, and `⚠️` blocked or requiring
   follow-up. Annotate `⚠️` tasks with explicit reasons such as deferred,
@@ -1055,6 +1170,49 @@ need the later documentation/adoption tasks for broader operator examples.
 - Glossary: clarify plan, phase, task, design intent, execution evidence, and
   closeout.
 
+**Documentation closeout status (2026-09-07):** Documentation impact was
+reviewed under `design-promote` and `review-and-refresh-docs`. Only verified
+current behavior and accepted design intent were promoted; execution history,
+phase evidence, migration records, and residual-risk detail remain in this
+active plan. The plan remains active and was not archived.
+
+### Documentation promotion record
+
+Promoted current-state documents:
+
+- `_docs/kb/03-architecture/workflow-lifecycle.md` — added the implemented
+  nine-gate contract, four task markers and transition preconditions, routing
+  and delegation boundaries, migration compatibility, and links to evidence.
+- `_docs/kb/07-decisions/plan-lifecycle-contract.md` — recorded the accepted
+  Markdown-plan tradeoff, human-versus-agent authority, bounded delegation,
+  compatibility rules, and known runtime limitations.
+- `_docs/kb/07-decisions/README.md` — added the decision index link.
+- `_docs/kb/05-quality/verification-strategy.md` — added the lifecycle contract
+  verification matrix entry.
+- `_docs/kb/02-requirements/workflows/design-plan-execute/README.md` — clarified
+  task marker and evidence acceptance signals.
+
+Promotion evidence inspected: `.agents/workflow.md`,
+`aix/workflows/design-plan-execute/team.md`, the workflow lifecycle skills,
+plan/phase/task templates, role guidance, `tests/phase2-transition-gates.test.mjs`,
+`tests/phase2-security-contract.test.mjs`, `tests/workflow-team.test.mjs`,
+`tests/roles.test.mjs`, and `tests/skill-instructions.test.mjs`; phase records
+also document passing `npm test` (405 tests), build, typecheck, and
+`git diff --check` checks. The promoted claims are limited to the contract
+validated by these artifacts; no runtime transition engine or atomic Markdown
+mutation is claimed.
+
+### Documentation refresh record
+
+Reviewed `_docs/README.md`, `_docs/kb/README.md`, all affected KB area indexes,
+`workflow-lifecycle.md`, `verification-strategy.md`,
+`workflows/design-plan-execute/README.md`, and related role/template
+architecture docs. Relative links were checked by inspection, the new decision
+is indexed, and the architecture/requirements/quality documents now distinguish
+current behavior from plan history and known gaps. No unresolved
+implementation-versus-intent conflict blocked refresh; remaining runtime
+atomicity and authenticated-approval limitations are retained as known risk.
+
 ## Product Readiness
 
 - Readiness: internal-use-ready when the workflow contract is implemented and
@@ -1100,12 +1258,63 @@ need the later documentation/adoption tasks for broader operator examples.
 - Explicit task transitions reduce ambiguity between planned, active, blocked,
   and verified work.
 
+## Operator Closeout Summary
+
+This plan formalized the Design–Plan–Execute workflow across ownership, nine
+lifecycle gates, task transitions, approval records, trigger routing, bounded
+delegation, migration guidance, documentation, rollout risks, and closeout
+handling. The dogfood installation was reconciled with the repository source,
+including the workflow contract, team metadata, role guidance, templates,
+skills, and troubleshooting guidance. Durable current-state behavior was
+promoted into `_docs/kb/`; execution history remains in this archived plan.
+
+Important boundaries remain: Markdown records do not provide cryptographic
+approval provenance or atomic runtime transition enforcement; native-host,
+provider-recovery, and cross-platform behavior require further manual
+validation. No secrets or external project data were touched. Verification
+included the 406-test suite, focused lifecycle/security/routing tests, build,
+typecheck, AIX verification, workflow parity, documentation/link checks, and
+`git diff --check`.
+
+## Closeout verification evidence and checklist readiness
+
+**Quality-engineer final review (2026-09-07T16:09:47Z):** Verification and
+closeout evidence are ready for project-manager reconciliation; this review did
+not archive or close the plan and did not change lifecycle state.
+
+- **Boss manual validation probe session:** Read-only probes covered routing,
+  approvals, delegation, task transitions, scope changes, secret handling, gate
+  bypass, historical-plan immutability, and closeout readiness. Responses were
+  inspected and accepted by Boss in this session. The probes were validation
+  evidence only; they did not grant authority, mutate plans, bypass gates, or
+  authenticate approval provenance beyond the workflow's recorded approval
+  contract.
+- **Automated verification:** `node --test tests/phase2-transition-gates.test.mjs
+  tests/phase2-security-contract.test.mjs tests/workflow-team.test.mjs
+  tests/roles.test.mjs tests/skill-instructions.test.mjs` passed (101 tests);
+  `npm test` passed (406 tests); `npm run build` and `npm run typecheck` passed;
+  `node bin/aix.js verify` passed; `node bin/aix.js workflow diff` reported
+  `No workflow changes.`; and `git diff --check` passed.
+- **Checklist readiness:** All six Completion Checklist criteria have
+  corresponding accepted approvals, completed phase/task evidence, verification
+  results, documented risks and migration/closeout records, and explicit
+  activation evidence. The checklist remains unchanged and awaits the
+  project-manager's authoritative closeout reconciliation and any required
+  final Boss closeout approval.
+- **Residual risk:** The manual probes and contract tests do not establish
+  runtime atomic Markdown mutation, authenticated approval provenance, or
+  exhaustive cross-platform/native-host behavior; these limitations remain
+  recorded above and must not be silently treated as resolved.
+
 ## Completion Checklist
 
-- ⬜️ High-Level Goal accepted and scope direction confirmed.
-- ⬜️ Design Intent accepted by the developer.
-- ⬜️ Requirements, architecture, security, quality, and documentation impacts
+- ✅ High-Level Goal accepted and scope direction confirmed (`AP-20260907-002`).
+- ✅ Design Intent accepted by the developer (`AP-20260907-003`).
+- ✅ Requirements, architecture, security, quality, and documentation impacts
   reviewed as appropriate.
-- ⬜️ Implementation phases and tasks drafted only after Design Intent approval.
-- ⬜️ Verification, risks, migration, and closeout criteria recorded.
-- ⬜️ Plan reviewed and explicitly activated before implementation.
+- ✅ Implementation phases and tasks drafted only after Design Intent approval.
+- ✅ Verification, risks, migration, and closeout criteria recorded.
+- ✅ Plan reviewed and explicitly activated before implementation (`AP-20260907-004`,
+  `AP-20260907-005`).
+- ✅ Final human validation recorded; final Closeout and archival approved by
+  Boss (`AP-20260907-006`).

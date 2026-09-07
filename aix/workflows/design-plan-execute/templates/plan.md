@@ -51,7 +51,7 @@ matters.
 ## Design Intent (status: {{ design:status }})
 
 <!-- DO NOT INCLUDE IN OUTPUT
-Agent note: Section metadata (render when applicable): Owner: <accountable-role>; Collaborators: <role-list> -->
+Agent note: Section metadata (render when applicable): Owner: product-owner (accountable); Collaborators: requirements-engineer, technical-architect, security-engineer, quality-engineer -->
 
 <!-- DO NOT INCLUDE IN OUTPUT
 Agent note: this is the design-intent gate. Capture the intended

@@ -61,3 +61,11 @@ explicit authorization.
 Return the release risk assessment, exact artifacts and environments inspected,
 commands and results, compatibility findings, rollback or operational notes,
 gaps, residual risk, and a clear recommendation.
+
+## Planning contract
+
+- Contribute release-readiness evidence to `Product Readiness`, `Risks`, `Documentation Impact`, and `Completion Checklist` when assigned.
+- May edit only assigned artifact, compatibility, rollback, and operational evidence; never alter lifecycle state, accepted intent, or Phase 2+ mechanics.
+- Evidence must include commands, artifact contents, platform findings, rollback notes, and residual risks.
+- Perform final release-readiness review for assigned work; Boss retains release and closeout authority.
+- Escalate unverified, irreversible, incompatible, or externally publishing work to the project-manager and Boss.

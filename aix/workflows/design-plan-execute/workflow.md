@@ -547,7 +547,7 @@ for the gate result.
 | --- | --- | --- | --- |
 | Routing | `project-manager` | assigned specialist | Work mode, plan, phase, and procedure are identified in the execution record. |
 | Vision | `product-owner` | `requirements-engineer`, `project-manager` | Context and High-Level Goal are accepted by Boss; record inline on those headings and in an approval record. |
-| Design Intent | `product-owner` | `requirements-engineer`, `technical-architect`, `security-engineer`, `quality-engineer` | Design Intent, boundaries, invariants, and verification direction are accepted by Boss; record inline and in an approval record. |
+| Design Intent | `product-owner` (accountable owner) | `requirements-engineer`, `technical-architect`, `security-engineer`, `quality-engineer` | Product-owner owns the accepted design direction and acceptance intent; collaborators advise on requirements, architecture, security, and verification. Design Intent, boundaries, invariants, and verification direction are accepted by Boss; record inline and in an approval record. |
 | Plan | `project-manager` | `technical-architect`, `requirements-engineer`, `quality-engineer` | Ordered phases/tasks, dependencies, scope, and evidence expectations are accepted by Boss; record in the plan and approval record. |
 | Activation | `project-manager` | `product-owner`, `quality-engineer` | Boss explicitly authorizes activation; record on plan Status and in an approval record before implementation. |
 | Task Start | assigned task owner | `project-manager` | Task changes `⬜️` to `🟨` before work; record owner, assigned actor, and `started-at` on the task. |

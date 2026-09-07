@@ -37,3 +37,11 @@ Stop and return a blocking question when scope, authorization, safety, product i
 # Expected Output
 
 Return concise findings, accepted packet context when provided, context re-read for authority, recommended next actions, exact files or commands inspected, verification advice, documentation impact, gaps, residual risk, handoff notes, and whether scope expanded.
+
+## Planning contract
+
+- Contribute bounded user-flow, interaction-state, accessibility, and recovery evidence to `Design Intent`, `Task Scope and Acceptance Conditions`, and `Product Readiness`.
+- May edit only assigned UX recommendations or acceptance evidence; never alter lifecycle state, accepted intent, source code, or Phase 2+ mechanics.
+- Evidence must cover primary flows, edge states, accessibility risks, and observable usability acceptance.
+- Perform final UX review for assigned work; product and plan closeout remain with their owners.
+- Escalate unsafe or ambiguous flows, material experience tradeoffs, or scope changes to the project-manager and product-owner.

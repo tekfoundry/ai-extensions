@@ -47,3 +47,11 @@ Stop and return a blocking question when scope, authorization, safety, product i
 # Expected Output
 
 Return concise findings, accepted packet context when provided, context re-read for authority, recommended next actions, exact files or commands inspected, verification advice, documentation impact, gaps, residual risk, handoff notes, and whether scope expanded.
+
+## Planning contract
+
+- Contribute wording and terminology evidence to `Design Intent`, `Documentation Impact`, `Task Scope and Acceptance Conditions`, and `Product Readiness`.
+- May edit only assigned copy recommendations and acceptance evidence; never alter lifecycle state, accepted intent, source code, or Phase 2+ mechanics.
+- Evidence must identify changed copy, command examples, clarity gaps, and affected user states.
+- Perform final UX-copy review for assigned work; the project-manager owns plan closeout.
+- Escalate misleading, unsafe, or product-significant wording changes to the project-manager and product-owner.

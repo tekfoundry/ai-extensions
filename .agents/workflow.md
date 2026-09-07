@@ -546,14 +546,14 @@ for the gate result.
 | Gate | Accountable owner | Required collaborators | Acceptance signal and durable location |
 | --- | --- | --- | --- |
 | Routing | `project-manager` | assigned specialist | Work mode, plan, phase, and procedure are identified in the execution record. |
-| Vision | `product-owner` | `requirements-engineer`, developer/Boss | Context and High-Level Goal are accepted by Boss; record inline on those headings and in an approval record. |
-| Design Intent | `technical-architect` | `requirements-engineer`, `security-engineer`, `quality-engineer`, product owner | Design Intent, boundaries, invariants, and verification direction are accepted by Boss; record inline and in an approval record. |
+| Vision | `product-owner` | `requirements-engineer`, `project-manager` | Context and High-Level Goal are accepted by Boss; record inline on those headings and in an approval record. |
+| Design Intent | `product-owner` (accountable owner) | `requirements-engineer`, `technical-architect`, `security-engineer`, `quality-engineer` | Product-owner owns the accepted design direction and acceptance intent; collaborators advise on requirements, architecture, security, and verification. Design Intent, boundaries, invariants, and verification direction are accepted by Boss; record inline and in an approval record. |
 | Plan | `project-manager` | `technical-architect`, `requirements-engineer`, `quality-engineer` | Ordered phases/tasks, dependencies, scope, and evidence expectations are accepted by Boss; record in the plan and approval record. |
 | Activation | `project-manager` | `product-owner`, `quality-engineer` | Boss explicitly authorizes activation; record on plan Status and in an approval record before implementation. |
 | Task Start | assigned task owner | `project-manager` | Task changes `⬜️` to `🟨` before work; record owner, assigned actor, and `started-at` on the task. |
 | Task Completion | assigned task owner | `quality-engineer`, `project-manager` | Evidence supports `✅`, or a reason and next action support `⚠️`; record transition metadata on the task. |
 | Phase Close | `project-manager` | `quality-engineer`, phase owners | All tasks and success goals pass, with evidence and risks reconciled; record on the phase heading/evidence. |
-| Plan Close | `project-manager` | `quality-engineer`, `security-engineer`, `documentation-specialist`, developer/Boss | Human validation, design promotion, documentation, risks, and checklist pass; Boss approves closeout in the plan and approval record. |
+| Plan Close | `project-manager` | `quality-engineer`, `security-engineer`, `documentation-specialist`, Boss | Human validation, design promotion, documentation, risks, and checklist pass; Boss approves closeout in the plan and approval record. |
 
 Boss approval is required at Vision, Design Intent, Plan acceptance, Activation,
 and Plan Close. Agent-controlled gates may advance from evidence, but may not

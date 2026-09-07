@@ -12,15 +12,16 @@ with the code.
 
 ## Quick Start
 
-`design-plan-execute` is installed by default when you initialize a project
-with `aix`:
+Initialize package-management state, then install the default
+`design-plan-execute` workflow:
 
 ```bash
 aix init
+aix workflow install
 ```
 
-Use a direct workflow install when a project was not initialized with the
-default workflow, or when you need to install it from a specific source:
+Use a direct workflow install when you need to install it from a specific
+source:
 
 ```bash
 aix workflow install aix/workflows/design-plan-execute

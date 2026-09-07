@@ -123,6 +123,7 @@ repositories, and exercise filesystem package state.
 | Status and verification output | `tests/status.test.mjs`, `tests/verify.test.mjs` |
 | Interactive prompts and tables | `tests/ui-selection-prompt.test.mjs` |
 | Workflow skill/role instruction contracts and `get-guidance` | `tests/skill-instructions.test.mjs`, `tests/roles.test.mjs` |
+| Plan lifecycle gates, transitions, routing, delegation, and authority boundaries | `tests/phase2-transition-gates.test.mjs`, `tests/phase2-security-contract.test.mjs`, `tests/workflow-team.test.mjs`, `tests/roles.test.mjs`, `tests/skill-instructions.test.mjs` |
 | Package artifact | `tests/package-smoke.test.mjs` |
 | Phase 11 workflow roles and authority | `tests/roles.test.mjs`, `tests/workflow-team.test.mjs`, `tests/pm-orchestrator.test.mjs`, `tests/pm-runtime.test.mjs` |
 | Legacy role migration and rollback | `tests/workflow.test.mjs` |
