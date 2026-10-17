@@ -83,43 +83,43 @@ None yet.
      - [AIX skills README](../aix/skills/README.md)
 
 10. **handoff-map**
-   - Summary: A workflow-integrated skill that maps when work should stay in the main agent, use a skill, spawn a subagent, or become a plan. It would help teams avoid turning every reusable behavior into the wrong abstraction.
-   - Difficulty: medium
-   - Dependencies: agent-instructions-audit
-   - Source links:
-     - [Claude steering methods blog](https://claude.com/blog/steering-claude-code-skills-hooks-rules-subagents-and-more)
-     - [Claude Code subagents docs](https://code.claude.com/docs/en/sub-agents)
-     - [OpenAI Agents SDK handoffs](https://openai.github.io/openai-agents-js/guides/handoffs/)
+    - Summary: A workflow-integrated skill that maps when work should stay in the main agent, use a skill, spawn a subagent, or become a plan. It would help teams avoid turning every reusable behavior into the wrong abstraction.
+    - Difficulty: medium
+    - Dependencies: agent-instructions-audit
+    - Source links:
+      - [Claude steering methods blog](https://claude.com/blog/steering-claude-code-skills-hooks-rules-subagents-and-more)
+      - [Claude Code subagents docs](https://code.claude.com/docs/en/sub-agents)
+      - [OpenAI Agents SDK handoffs](https://openai.github.io/openai-agents-js/guides/handoffs/)
 
 11. **workflow-cli-commands**
-   - Summary: Let installed workflows register project-local `aix` CLI command namespaces that expose workflow-specific operations. For example, an agile Kanban workflow could provide `aix kanban board` to render the current board, with possible future commands such as `aix kanban card add`, `aix kanban card move`, or `aix kanban status`. This would make workflows feel like installable development systems rather than only folders of instructions and skills.
-   - Difficulty: medium
-   - Dependencies: workflows
-   - Notes:
-     - Start with read-only or declarative commands, such as board/status rendering, before allowing mutating workflow commands.
-     - Prefer namespaced commands like `aix kanban board` so multiple workflows can coexist without ambiguous top-level command collisions.
-     - Command registration could come from a workflow-owned manifest that `aix help` and command dispatch can discover.
-     - Mutating commands should preserve AIX safety rules: no silent overwrites, explicit collision handling, and clear previews where feasible.
-   - Source links:
-     - [AIX workflow design](design/workflows.md)
+    - Summary: Let installed workflows register project-local `aix` CLI command namespaces that expose workflow-specific operations. For example, an agile Kanban workflow could provide `aix kanban board` to render the current board, with possible future commands such as `aix kanban card add`, `aix kanban card move`, or `aix kanban status`. This would make workflows feel like installable development systems rather than only folders of instructions and skills.
+    - Difficulty: medium
+    - Dependencies: workflows
+    - Notes:
+      - Start with read-only or declarative commands, such as board/status rendering, before allowing mutating workflow commands.
+      - Prefer namespaced commands like `aix kanban board` so multiple workflows can coexist without ambiguous top-level command collisions.
+      - Command registration could come from a workflow-owned manifest that `aix help` and command dispatch can discover.
+      - Mutating commands should preserve AIX safety rules: no silent overwrites, explicit collision handling, and clear previews where feasible.
+    - Source links:
+      - [AIX workflow design](design/workflows.md)
 
 12. **coding standards**
 
 13. **optimizing 5h usage**
     You’re right about the intended lifecycle: _docs/kb should be promoted at plan closeout, not after every task or phase. For Phase 2, I’ll keep changes limited to:
-- implementation files
-- tests
-- bundled role/workflow assets required by the phase
-- the active plan file for task status/evidence only
-  I’ll treat _docs/kb updates as deferred design promotion for the plan closeout phase.
-  Other ways to make your 5-hour usage last longer:
-- Avoid broad file reads unless needed. I’ll inspect narrow ranges with sed/grep instead of loading whole docs or huge files.
-- Avoid full test harness runs until the end. I’ll run targeted tests first, then one broad verification pass when needed.
-- Avoid parallel full test runs. They generate huge output and can interfere with each other in this repo.
-- Use subagents only when they materially reduce risk or context, not by default for every slice.
-- Keep phase execution notes concise. No long narrative unless it captures a real blocker or decision.
-- Defer _docs/kb promotion to final plan closeout.
-- Prefer code/search evidence over re-reading the same plan/docs repeatedly.
+    - implementation files
+    - tests
+    - bundled role/workflow assets required by the phase
+    - the active plan file for task status/evidence only
+      I’ll treat _docs/kb updates as deferred design promotion for the plan closeout phase.
+      Other ways to make your 5-hour usage last longer:
+    - Avoid broad file reads unless needed. I’ll inspect narrow ranges with sed/grep instead of loading whole docs or huge files.
+    - Avoid full test harness runs until the end. I’ll run targeted tests first, then one broad verification pass when needed.
+    - Avoid parallel full test runs. They generate huge output and can interfere with each other in this repo.
+    - Use subagents only when they materially reduce risk or context, not by default for every slice.
+    - Keep phase execution notes concise. No long narrative unless it captures a real blocker or decision.
+    - Defer _docs/kb promotion to final plan closeout.
+    - Prefer code/search evidence over re-reading the same plan/docs repeatedly.
 
 14. **optimizing workflow**
 - all downstream calls need the following info, so we collect this early on
@@ -130,4 +130,88 @@ activity: none | <activity-name>
 task_context: <short summary>
 ```
 - then we get the guidance recommendations from `get-guidance` skill
-- then we use the `delegate-to-role` skill and provide all the collected info. this should be where the work is done. having this delegation as "read-only" causes essentially double the token usage 
+- then we use the `delegate-to-role` skill and provide all the collected info. this should be where the work is done. having this delegation as "read-only" causes essentially double the token usage
+
+15. **guided onboarding and workspace doctor**
+   - Summary: Explain whether a project needs `aix init`, workflow installation, verification, or repair, with safe copyable next commands.
+   - Difficulty: low
+   - Dependencies: None
+   - Source links:
+     - [Workflow lifecycle](kb/03-architecture/workflow-lifecycle.md)
+
+16. **workflow lifecycle status view**
+   - Summary: Provide a concise read-only view of backlog plans, active phases, task states, approvals, blockers, and closeout readiness without implying authorization.
+   - Difficulty: medium
+   - Dependencies: None
+   - Source links:
+     - [Workflow lifecycle](kb/03-architecture/workflow-lifecycle.md)
+
+17. **plan readiness and scope-diff preview**
+   - Summary: Show missing intent, ownership, dependencies, risks, verification, and changes before a backlog plan is activated.
+   - Difficulty: medium
+   - Dependencies: workflow lifecycle status view
+   - Source links:
+     - [Design–Plan–Execute workflow](../aix/workflows/design-plan-execute/README.md)
+
+18. **workflow update impact summary**
+   - Summary: Categorize `workflow diff` changes by instructions, roles, skills, templates, ownership, and likely behavioral impact while retaining the raw diff as authority.
+   - Difficulty: medium
+   - Dependencies: None
+   - Source links:
+     - [Workflow lifecycle](kb/03-architecture/workflow-lifecycle.md)
+
+19. **canonical workflow contract test harness**
+   - Summary: Standardize tests and fixtures for bundled workflow contracts without coupling them to installed state or historical plans.
+   - Difficulty: low
+   - Dependencies: None
+   - Source links:
+     - [Verification strategy](kb/05-quality/verification-strategy.md)
+
+20. **CI drift and package-integrity check**
+   - Summary: Add a reusable CI check for source/installed workflow parity, lockfile consistency, package contents, and intentional project-owned overrides.
+   - Difficulty: medium
+   - Dependencies: workflow update impact summary
+   - Source links:
+     - [Workflow lifecycle](kb/03-architecture/workflow-lifecycle.md)
+
+21. **release evidence bundle**
+   - Summary: Generate a durable release report with version, resolved sources, package inventory, smoke-test results, and residual risks.
+   - Difficulty: medium
+   - Dependencies: CI drift and package-integrity check
+   - Source links:
+     - [Verification strategy](kb/05-quality/verification-strategy.md)
+
+22. **plan-to-KB traceability**
+   - Summary: Link accepted intent and decisions to phases, task evidence, verification, and promoted current-state knowledge without duplicating execution history.
+   - Difficulty: medium
+   - Dependencies: plan readiness and scope-diff preview
+   - Source links:
+     - [Knowledge-base README](kb/README.md)
+
+23. **safe instruction import audit**
+   - Summary: Inspect AGENTS, CLAUDE, Cursor, Gemini, and similar instruction files for overlap and drift, producing read-only recommendations before any migration.
+   - Difficulty: medium
+   - Dependencies: None
+   - Source links:
+     - [Knowledge-base README](kb/README.md)
+
+24. **read-only workflow command extensions**
+   - Summary: Let workflows expose namespaced status or reporting commands through a declarative manifest, beginning with read-only operations before any mutations.
+   - Difficulty: high
+   - Dependencies: CI drift and package-integrity check
+   - Source links:
+     - [Workflow lifecycle](kb/03-architecture/workflow-lifecycle.md)
+
+25. **host capability diagnostics**
+   - Summary: Explain native delegation, provider recovery, concurrency, and UI capabilities per host, with fail-closed diagnostics for unsupported operations.
+   - Difficulty: high
+   - Dependencies: guided onboarding and workspace doctor
+   - Source links:
+     - [Verification strategy](kb/05-quality/verification-strategy.md)
+
+26. **external tracker export**
+   - Summary: Export local plans and evidence to GitHub Issues, Linear, or Jira while keeping AIX as the local execution authority.
+   - Difficulty: high
+   - Dependencies: plan-to-KB traceability
+   - Source links:
+     - [Workflow lifecycle](kb/03-architecture/workflow-lifecycle.md) 
